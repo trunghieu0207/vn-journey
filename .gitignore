@@ -11,3 +11,6 @@ node_modules/
 *.log
 .DS_Store
 mockup/.v*.html
+
+# Ảnh giới thiệu (Facebook) — không đưa vào git
+promo/

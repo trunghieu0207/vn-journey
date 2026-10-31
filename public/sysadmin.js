@@ -74,6 +74,7 @@ async function act(fn, okMsg) {
 
 // ---------- Đăng nhập / đổi mật khẩu ----------
 function show(view) {
+  $('bootMsg').hidden = true
   for (const id of ['entry', 'pwView', 'app']) $(id).hidden = id !== view
 }
 

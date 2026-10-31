@@ -18,6 +18,12 @@
   <filter color-interpolation-filters="sRGB" id="hand-ic-wob" x="-15%" y="-15%" width="130%" height="130%"><feTurbulence type="fractalNoise" baseFrequency="0.16" numOctaves="1" seed="3" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="1.3" xChannelSelector="R" yChannelSelector="G"/></filter>
 </svg>
 
+<!-- Hiện sẵn khi trang mới mở; script chạy được thì ẩn đi. Script lỗi / không tải được thì dòng này còn lại (thay vì trang trắng) -->
+<div class="sys-boot" id="bootMsg">
+  <p><b>Đang tải trang quản trị…</b></p>
+  <p class="muted">Đứng mãi ở đây: tải lại trang (Ctrl+Shift+R). Vẫn vậy thì mở F12 → tab Console, chụp dòng lỗi màu đỏ gửi cho người dựng game.</p>
+</div>
+
 <!-- Đăng nhập -->
 <section class="login" id="entry" hidden>
   <div class="card">

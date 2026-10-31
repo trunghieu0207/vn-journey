@@ -1,6 +1,8 @@
 /* Trang quản trị /quan-tri (theo mockup/admin.html). Dùng thêm biến màu + nút / thẻ / hộp thoại chung trong style.css */
 
 body.sys { height: auto; min-height: 100%; }
+.sys-boot { max-width: 520px; margin: 18vh auto 0; padding: 0 20px; text-align: center; }
+.sys-boot[hidden] { display: none; }
 .sys .login { min-height: 100vh; }
 .sys-lock { display: inline-grid; place-items: center; width: 56px; height: 56px; margin-bottom: 6px; border-radius: 18px; background: #FFF1C2; }
 .sys-lock .icon { width: 34px; height: 34px; }
