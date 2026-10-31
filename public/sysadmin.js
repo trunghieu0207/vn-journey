@@ -149,8 +149,8 @@ const NO_POLL = new Set(['questions', 'settings', 'accounts'])
 
 function go(sec) {
   state.sec = sec
-  for (const b of document.querySelectorAll('.ad-nav')) b.classList.toggle('on', b.dataset.sec === sec)
-  for (const s of document.querySelectorAll('.ad-sec')) s.classList.toggle('on', s.id === `sec-${sec}`)
+  for (const b of document.querySelectorAll('.qt-nav')) b.classList.toggle('on', b.dataset.sec === sec)
+  for (const s of document.querySelectorAll('.qt-sec')) s.classList.toggle('on', s.id === `sec-${sec}`)
   stopTimer()
   refresh()
   if (!NO_POLL.has(sec)) state.timer = setInterval(() => { if (!document.hidden && !$('dlg').open) refresh() }, REFRESH_MS)
@@ -299,15 +299,15 @@ async function showCodes(r) {
 function roomForm(r = null) {
   const waiting = !r || r.status === 'waiting'
   const field = (label, input, note = '') => el('label', {}, label, input, note ? el('small', { class: 'lockn' }, note) : '')
-  const name = el('input', { class: 'ad-input', maxlength: 40, required: true, value: r?.name ?? '' })
-  const mode = el('select', { class: 'ad-input', disabled: !!r }, el('option', { value: 'team' }, 'Theo team'), el('option', { value: 'solo' }, 'Chơi đơn'))
+  const name = el('input', { class: 'qt-input', maxlength: 40, required: true, value: r?.name ?? '' })
+  const mode = el('select', { class: 'qt-input', disabled: !!r }, el('option', { value: 'team' }, 'Theo team'), el('option', { value: 'solo' }, 'Chơi đơn'))
   mode.value = r?.mode ?? 'team'
-  const teams = el('select', { class: 'ad-input', disabled: !!r }, ...[2, 3, 4, 5, 6, 7, 8].map(n => el('option', { value: n }, `${n} team`)))
+  const teams = el('select', { class: 'qt-input', disabled: !!r }, ...[2, 3, 4, 5, 6, 7, 8].map(n => el('option', { value: n }, `${n} team`)))
   teams.value = String(r?.teams || 4)
-  const duration = el('input', { class: 'ad-input', type: 'number', min: 10, max: 90, value: r?.durationMin ?? 45, disabled: !waiting })
-  const quiz = el('select', { class: 'ad-input', disabled: !waiting }, ...[1, 2, 3].map(n => el('option', { value: n }, `${n} câu`)))
+  const duration = el('input', { class: 'qt-input', type: 'number', min: 10, max: 90, value: r?.durationMin ?? 45, disabled: !waiting })
+  const quiz = el('select', { class: 'qt-input', disabled: !waiting }, ...[1, 2, 3].map(n => el('option', { value: n }, `${n} câu`)))
   quiz.value = String(r?.quizCount ?? 1)
-  const listed = el('select', { class: 'ad-input', disabled: !!r?.preset }, el('option', { value: '1' }, 'Công khai — hiện ở danh sách phòng'), el('option', { value: '0' }, 'Riêng tư — cần mã phòng'))
+  const listed = el('select', { class: 'qt-input', disabled: !!r?.preset }, el('option', { value: '1' }, 'Công khai — hiện ở danh sách phòng'), el('option', { value: '0' }, 'Riêng tư — cần mã phòng'))
   listed.value = r ? (r.listed || r.preset ? '1' : '0') : '0'
   const check = (label, on) => {
     const box = el('input', { type: 'checkbox' })
@@ -394,7 +394,7 @@ function renderPlayers() {
 }
 
 function nameDialog(title, current, onSave) {
-  const input = el('input', { class: 'ad-input', maxlength: 24, value: current, required: true })
+  const input = el('input', { class: 'qt-input', maxlength: 24, value: current, required: true })
   dialog({ title, body: el('label', { class: 'rf-one' }, 'Tên mới', input), okText: 'Lưu', onOk: () => onSave(input.value.trim()) })
 }
 const renamePlayer = p => nameDialog(`Đổi tên "${p.name}"`, p.name, name => act(() => api('/api/sys/player/rename', { playerId: p.id, name }), 'Đã đổi tên'))
@@ -559,7 +559,7 @@ $('qNew').addEventListener('click', () => {
 function renderEditor(q) {
   const isNew = !q.id
   const sel = (opts, value, attrs = {}) => {
-    const s = el('select', { class: 'ad-input', ...attrs }, ...opts.map(([v, t]) => el('option', { value: v }, t)))
+    const s = el('select', { class: 'qt-input', ...attrs }, ...opts.map(([v, t]) => el('option', { value: v }, t)))
     s.value = String(value)
     return s
   }
@@ -570,11 +570,11 @@ function renderEditor(q) {
   const level = sel(Object.entries(LEVELS), q.level)
   const kind = sel([['choice', 'Trắc nghiệm'], ['truefalse', 'Đúng / Sai'], ['text', 'Tự điền']], q.kind)
   const status = sel(Object.entries(QSTATUS).map(([k, [, t]]) => [k, t]), q.status)
-  const content = el('textarea', { class: 'ad-input wide', rows: 3, maxlength: 500 })
+  const content = el('textarea', { class: 'qt-input wide', rows: 3, maxlength: 500 })
   content.value = q.content
-  const explanation = el('textarea', { class: 'ad-input wide', rows: 3, maxlength: 800 })
+  const explanation = el('textarea', { class: 'qt-input wide', rows: 3, maxlength: 800 })
   explanation.value = q.explanation ?? ''
-  const sources = el('textarea', { class: 'ad-input wide', rows: 3, placeholder: 'Mỗi dòng một link https://…' })
+  const sources = el('textarea', { class: 'qt-input wide', rows: 3, placeholder: 'Mỗi dòng một link https://…' })
   sources.value = (q.sources ?? []).join('\n')
 
   // Phần đáp án đổi theo kiểu câu
@@ -589,7 +589,7 @@ function renderEditor(q) {
         const radio = el('input', { type: 'radio', name: 'qRight', 'aria-label': `Đáp án đúng ${i + 1}` })
         radio.checked = i === right
         radio.addEventListener('change', () => { right = i; drawAnswers(); check() })
-        const input = el('input', { class: 'ad-input', maxlength: 120, value: o, 'aria-label': `Lựa chọn ${i + 1}` })
+        const input = el('input', { class: 'qt-input', maxlength: 120, value: o, 'aria-label': `Lựa chọn ${i + 1}` })
         input.addEventListener('input', () => { opts[i] = input.value; check() })
         return el('div', { class: `opt${i === right ? ' right' : ''}` }, radio, input)
       }))
@@ -598,7 +598,7 @@ function renderEditor(q) {
       pick.addEventListener('change', () => { tf = pick.value === 'true' })
       answerBox.replaceChildren(field('Đáp án', pick))
     } else {
-      const area = el('textarea', { class: 'ad-input wide', rows: 3, placeholder: 'Mỗi dòng một cách viết được chấp nhận (không phân biệt dấu, hoa thường)' })
+      const area = el('textarea', { class: 'qt-input wide', rows: 3, placeholder: 'Mỗi dòng một cách viết được chấp nhận (không phân biệt dấu, hoa thường)' })
       area.value = texts
       area.addEventListener('input', () => { texts = area.value; check() })
       answerBox.replaceChildren(field('Đáp án chấp nhận', area))

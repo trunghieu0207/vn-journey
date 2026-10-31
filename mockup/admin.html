@@ -30,36 +30,36 @@ html, body { height: auto; }
 .ic svg { width: 100%; height: 100%; }
 
 /* ---------- Đăng nhập ---------- */
-.ad-login { display: grid; place-items: center; min-height: 360px; }
-.ad-login .card { width: min(420px, 100%); padding: 28px; text-align: center; }
-.ad-login h3 { margin: 6px 0 2px; font-size: 24px; font-weight: 900; }
-.ad-login form { display: grid; gap: 12px; margin-top: 16px; text-align: left; }
-.ad-login .note { margin-top: 12px; font-size: 13px; }
+.qt-login { display: grid; place-items: center; min-height: 360px; }
+.qt-login .card { width: min(420px, 100%); padding: 28px; text-align: center; }
+.qt-login h3 { margin: 6px 0 2px; font-size: 24px; font-weight: 900; }
+.qt-login form { display: grid; gap: 12px; margin-top: 16px; text-align: left; }
+.qt-login .note { margin-top: 12px; font-size: 13px; }
 .lock-badge { display: inline-grid; place-items: center; width: 56px; height: 56px; border-radius: 18px; background: #FFF1C2; }
 .lock-badge .ic { width: 34px; height: 34px; }
 
 /* ---------- Khung ứng dụng ---------- */
-.ad { display: grid; grid-template-columns: 220px minmax(0, 1fr); min-height: 720px; overflow: hidden; border-radius: 18px; background: #fff; box-shadow: 0 0 0 2px var(--line); }
-.ad-side { display: flex; flex-direction: column; gap: 4px; padding: 16px 12px; background: #FBFBFB; border-right: 2px solid var(--line); }
-.ad-brand { display: flex; align-items: center; gap: 8px; padding: 4px 8px 14px; }
-.ad-brand b { color: var(--green); font-size: 17px; font-weight: 900; line-height: 1.1; }
-.ad-brand small { display: block; color: var(--muted); font-size: 12px; font-weight: 800; }
-.ad-nav { display: flex; align-items: center; gap: 10px; width: 100%; padding: 9px 10px; border: 0; border-radius: 12px; background: none; color: var(--ink); font: 800 15px var(--font); text-align: left; cursor: pointer; }
-.ad-nav:hover { background: #F0F0F0; }
-.ad-nav.on { background: #DDF4FF; color: var(--blue-dark); }
-.ad-nav i { margin-left: auto; padding: 0 7px; border-radius: 999px; background: var(--red); color: #fff; font-size: 12px; font-style: normal; font-weight: 900; }
-.ad-nav i.soft { background: #E5E5E5; color: var(--muted); }
-.ad-side .grow { flex: 1; }
-.ad-me { padding: 10px; border-radius: 12px; background: #fff; box-shadow: inset 0 0 0 2px var(--line); font-size: 13px; }
-.ad-me b { display: block; font-size: 14px; }
-.ad-main { display: flex; flex-direction: column; min-width: 0; }
-.ad-top { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 14px; padding: 14px 22px; border-bottom: 2px solid var(--line); }
-.ad-top h3 { margin: 0; font-size: 22px; font-weight: 900; }
-.ad-top .sub { color: var(--muted); font-weight: 700; }
-.ad-top .right { display: flex; gap: 8px; margin-left: auto; }
-.ad-body { padding: 18px 22px 26px; }
-.ad-sec { display: none; }
-.ad-sec.on { display: block; }
+.qt { display: grid; grid-template-columns: 220px minmax(0, 1fr); min-height: 720px; overflow: hidden; border-radius: 18px; background: #fff; box-shadow: 0 0 0 2px var(--line); }
+.qt-side { display: flex; flex-direction: column; gap: 4px; padding: 16px 12px; background: #FBFBFB; border-right: 2px solid var(--line); }
+.qt-brand { display: flex; align-items: center; gap: 8px; padding: 4px 8px 14px; }
+.qt-brand b { color: var(--green); font-size: 17px; font-weight: 900; line-height: 1.1; }
+.qt-brand small { display: block; color: var(--muted); font-size: 12px; font-weight: 800; }
+.qt-nav { display: flex; align-items: center; gap: 10px; width: 100%; padding: 9px 10px; border: 0; border-radius: 12px; background: none; color: var(--ink); font: 800 15px var(--font); text-align: left; cursor: pointer; }
+.qt-nav:hover { background: #F0F0F0; }
+.qt-nav.on { background: #DDF4FF; color: var(--blue-dark); }
+.qt-nav i { margin-left: auto; padding: 0 7px; border-radius: 999px; background: var(--red); color: #fff; font-size: 12px; font-style: normal; font-weight: 900; }
+.qt-nav i.soft { background: #E5E5E5; color: var(--muted); }
+.qt-side .grow { flex: 1; }
+.qt-me { padding: 10px; border-radius: 12px; background: #fff; box-shadow: inset 0 0 0 2px var(--line); font-size: 13px; }
+.qt-me b { display: block; font-size: 14px; }
+.qt-main { display: flex; flex-direction: column; min-width: 0; }
+.qt-top { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 14px; padding: 14px 22px; border-bottom: 2px solid var(--line); }
+.qt-top h3 { margin: 0; font-size: 22px; font-weight: 900; }
+.qt-top .sub { color: var(--muted); font-weight: 700; }
+.qt-top .right { display: flex; gap: 8px; margin-left: auto; }
+.qt-body { padding: 18px 22px 26px; }
+.qt-sec { display: none; }
+.qt-sec.on { display: block; }
 
 /* KPI */
 .kpis { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 12px; }
@@ -94,11 +94,11 @@ html, body { height: auto; }
 .seg { display: inline-flex; padding: 3px; border-radius: 12px; background: #F0F0F0; }
 .seg button { padding: 5px 12px; border: 0; border-radius: 9px; background: none; color: var(--muted); font: 800 14px var(--font); cursor: pointer; }
 .seg button.on { background: #fff; color: var(--ink); box-shadow: 0 1px 0 2px var(--line); }
-.ad-input { min-width: 0; padding: 8px 12px; border: 2px solid var(--line); border-radius: 12px; background: #F7F7F7; color: var(--ink); font: 700 15px var(--font); }
-.ad-input:focus { outline: none; border-color: var(--blue); background: #fff; }
-.ad-input.search { flex: 1 1 220px; }
-select.ad-input { padding-right: 28px; }
-textarea.ad-input { width: 100%; resize: vertical; line-height: 1.45; }
+.qt-input { min-width: 0; padding: 8px 12px; border: 2px solid var(--line); border-radius: 12px; background: #F7F7F7; color: var(--ink); font: 700 15px var(--font); }
+.qt-input:focus { outline: none; border-color: var(--blue); background: #fff; }
+.qt-input.search { flex: 1 1 220px; }
+select.qt-input { padding-right: 28px; }
+textarea.qt-input { width: 100%; resize: vertical; line-height: 1.45; }
 .tbl { width: 100%; border-collapse: separate; border-spacing: 0; font-size: 14px; }
 .tbl th { position: sticky; top: 0; padding: 8px 10px; background: #FBFBFB; color: var(--muted); font-size: 12px; font-weight: 900; text-align: left; text-transform: uppercase; letter-spacing: .3px; border-bottom: 2px solid var(--line); }
 .tbl td { padding: 9px 10px; border-bottom: 2px solid #F2F2F2; font-weight: 700; vertical-align: middle; }
@@ -149,7 +149,7 @@ textarea.ad-input { width: 100%; resize: vertical; line-height: 1.45; }
 .pct.hi { color: var(--green-dark); }
 .editor { position: sticky; top: 80px; display: grid; gap: 12px; padding: 16px 18px; border-radius: 16px; background: #fff; box-shadow: inset 0 0 0 2px var(--line); }
 .editor .row { display: grid; grid-template-columns: minmax(0, .9fr) minmax(0, 1.4fr) minmax(0, 1fr); gap: 8px; }
-.editor select.ad-input { padding: 7px 8px; font-size: 14px; }
+.editor select.qt-input { padding: 7px 8px; font-size: 14px; }
 .editor label { display: grid; gap: 4px; font-size: 13px; font-weight: 900; color: var(--muted); }
 .editor .hd { display: flex; align-items: center; gap: 8px; }
 .editor .hd b { font-size: 16px; }
@@ -157,8 +157,8 @@ textarea.ad-input { width: 100%; resize: vertical; line-height: 1.45; }
 .opts { display: grid; gap: 6px; }
 .opt { display: grid; grid-template-columns: 28px minmax(0, 1fr); align-items: center; gap: 6px; }
 .opt input[type=radio] { width: 20px; height: 20px; accent-color: var(--green); }
-.opt .ad-input { width: 100%; }
-.opt.right .ad-input { border-color: #A5E075; background: #F3FFE9; }
+.opt .qt-input { width: 100%; }
+.opt.right .qt-input { border-color: #A5E075; background: #F3FFE9; }
 .srcs { display: grid; gap: 6px; }
 .srcl { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 8px; padding: 6px 10px; border-radius: 10px; background: #F7F7F7; font-size: 13px; font-weight: 700; }
 .srcl a { overflow: hidden; color: var(--blue-dark); text-overflow: ellipsis; white-space: nowrap; }
@@ -210,12 +210,12 @@ textarea.ad-input { width: 100%; resize: vertical; line-height: 1.45; }
 .code b { font-family: ui-monospace, Menlo, monospace; font-size: 18px; letter-spacing: 2px; }
 .code .btn { margin-left: auto; min-height: 30px; padding: 2px 10px; font-size: 13px; }
 .ev-row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
-.ad-feed { display: grid; gap: 0; max-height: 220px; overflow: auto; }
-.ad-feed div { display: flex; gap: 8px; align-items: center; padding: 7px 0; border-top: 2px solid #F2F2F2; font-size: 14px; font-weight: 700; }
-.ad-feed div:first-child { border-top: 0; }
-.ad-feed time { margin-left: auto; color: var(--muted); font-size: 12px; }
+.qt-feed { display: grid; gap: 0; max-height: 220px; overflow: auto; }
+.qt-feed div { display: flex; gap: 8px; align-items: center; padding: 7px 0; border-top: 2px solid #F2F2F2; font-size: 14px; font-weight: 700; }
+.qt-feed div:first-child { border-top: 0; }
+.qt-feed time { margin-left: auto; color: var(--muted); font-size: 12px; }
 .score-adj { display: inline-flex; gap: 4px; }
-.score-adj .ad-input { width: 70px; padding: 4px 8px; font-size: 13px; }
+.score-adj .qt-input { width: 70px; padding: 4px 8px; font-size: 13px; }
 .score-adj .btn { min-height: 28px; padding: 2px 8px; font-size: 13px; }
 /* Form phòng */
 .rf { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 14px 18px; max-width: 900px; }
@@ -261,7 +261,7 @@ textarea.ad-input { width: 100%; resize: vertical; line-height: 1.45; }
 .open-q li { margin: 0; }
 
 @media (max-width: 1150px) { .qs, .rd-grid { grid-template-columns: 1fr; } .editor { position: static; } .grid2, .set-grid { grid-template-columns: 1fr; } }
-@media (max-width: 760px) { .ad { grid-template-columns: 1fr; } .ad-side { flex-direction: row; flex-wrap: wrap; } .ad-brand, .ad-side .grow, .ad-me { display: none; } .ad-nav { width: auto; } }
+@media (max-width: 760px) { .qt { grid-template-columns: 1fr; } .qt-side { flex-direction: row; flex-wrap: wrap; } .qt-brand, .qt-side .grow, .qt-me { display: none; } .qt-nav { width: auto; } }
 </style>
 </head>
 <body>
@@ -292,7 +292,7 @@ textarea.ad-input { width: 100%; resize: vertical; line-height: 1.45; }
   <h2 id="f-login"><span class="num">1</span> Đăng nhập</h2>
   <p class="when">Mở <code>/quan-tri</code> khi chưa có phiên quản trị.</p>
   <div class="frame"><span class="label-tag">/quan-tri</span>
-    <div class="ad-login">
+    <div class="qt-login">
       <div class="card">
         <span class="lock-badge"><span class="ic" data-ic="lock"></span></span>
         <h3>Quản trị Hành trình 3 miền</h3>
@@ -318,28 +318,28 @@ textarea.ad-input { width: 100%; resize: vertical; line-height: 1.45; }
   <h2 id="f-app"><span class="num">2</span> Bảng quản trị</h2>
   <p class="when">Bấm các mục bên trái. Ở mục <b>Phòng</b>, bấm một phòng (hoặc nút Điều khiển) để vào màn điều khiển phòng; nút Tạo phòng mở form. Ở mục Câu hỏi, bấm một dòng để mở trình sửa. Nút Xóa / Kết thúc / Mời ra phải bấm 2 lần.</p>
   <div class="frame"><span class="label-tag">/quan-tri · máy tính</span>
-    <div class="ad">
-      <aside class="ad-side">
-        <div class="ad-brand"><span class="ic" data-ic="hat" style="width:30px;height:30px"></span><div><b>Hành trình 3 miền</b><small>Quản trị</small></div></div>
-        <button class="ad-nav on" data-sec="dash"><span class="ic" data-ic="stats"></span>Tổng quan</button>
-        <button class="ad-nav" data-sec="rooms"><span class="ic" data-ic="map"></span>Phòng <i class="soft">23</i></button>
-        <button class="ad-nav" data-sec="players"><span class="ic" data-ic="flag"></span>Người chơi <i class="soft">187</i></button>
-        <button class="ad-nav" data-sec="questions"><span class="ic" data-ic="question"></span>Câu hỏi <i>14</i></button>
-        <button class="ad-nav" data-sec="board"><span class="ic" data-ic="trophy"></span>Bảng xếp hạng</button>
-        <button class="ad-nav" data-sec="log"><span class="ic" data-ic="timer"></span>Nhật ký</button>
-        <button class="ad-nav" data-sec="system"><span class="ic" data-ic="screen"></span>Hệ thống <i>2</i></button>
-        <button class="ad-nav" data-sec="accounts"><span class="ic" data-ic="lock"></span>Tài khoản admin</button>
-        <button class="ad-nav" data-sec="settings"><span class="ic" data-ic="card"></span>Cài đặt</button>
+    <div class="qt">
+      <aside class="qt-side">
+        <div class="qt-brand"><span class="ic" data-ic="hat" style="width:30px;height:30px"></span><div><b>Hành trình 3 miền</b><small>Quản trị</small></div></div>
+        <button class="qt-nav on" data-sec="dash"><span class="ic" data-ic="stats"></span>Tổng quan</button>
+        <button class="qt-nav" data-sec="rooms"><span class="ic" data-ic="map"></span>Phòng <i class="soft">23</i></button>
+        <button class="qt-nav" data-sec="players"><span class="ic" data-ic="flag"></span>Người chơi <i class="soft">187</i></button>
+        <button class="qt-nav" data-sec="questions"><span class="ic" data-ic="question"></span>Câu hỏi <i>14</i></button>
+        <button class="qt-nav" data-sec="board"><span class="ic" data-ic="trophy"></span>Bảng xếp hạng</button>
+        <button class="qt-nav" data-sec="log"><span class="ic" data-ic="timer"></span>Nhật ký</button>
+        <button class="qt-nav" data-sec="system"><span class="ic" data-ic="screen"></span>Hệ thống <i>2</i></button>
+        <button class="qt-nav" data-sec="accounts"><span class="ic" data-ic="lock"></span>Tài khoản admin</button>
+        <button class="qt-nav" data-sec="settings"><span class="ic" data-ic="card"></span>Cài đặt</button>
         <div class="grow"></div>
-        <div class="ad-me"><b>Đặng Hiếu</b><span class="role r1">Quản trị</span><span class="muted" style="display:block;margin-top:4px">hieu.dang · phiên còn 7 giờ</span><div class="btn-row" style="margin-top:8px"><button class="btn" style="min-height:30px;font-size:13px">Đăng xuất</button></div></div>
+        <div class="qt-me"><b>Đặng Hiếu</b><span class="role r1">Quản trị</span><span class="muted" style="display:block;margin-top:4px">hieu.dang · phiên còn 7 giờ</span><div class="btn-row" style="margin-top:8px"><button class="btn" style="min-height:30px;font-size:13px">Đăng xuất</button></div></div>
       </aside>
 
-      <div class="ad-main">
+      <div class="qt-main">
         <!-- Tổng quan -->
-        <div class="ad-sec on" id="sec-dash">
-          <div class="ad-top"><h3>Tổng quan</h3><span class="sub">Thứ ba 24/11 · 14:32 · cập nhật 10 giây/lần</span>
+        <div class="qt-sec on" id="sec-dash">
+          <div class="qt-top"><h3>Tổng quan</h3><span class="sub">Thứ ba 24/11 · 14:32 · cập nhật 10 giây/lần</span>
             <div class="right"><button class="btn">Tải bản sao lưu</button></div></div>
-          <div class="ad-body">
+          <div class="qt-body">
             <div class="kpis">
               <div class="kpi good"><span class="t"><span class="ic" data-ic="play"></span>Phòng đang chơi</span><b>6</b><small>4 team · 2 đơn</small></div>
               <div class="kpi"><span class="t"><span class="ic" data-ic="timer"></span>Phòng đang chờ</span><b>5</b><small>tối đa 50 phòng mở</small></div>
@@ -368,14 +368,14 @@ textarea.ad-input { width: 100%; resize: vertical; line-height: 1.45; }
         </div>
 
         <!-- Phòng -->
-        <div class="ad-sec" id="sec-rooms">
-          <div class="ad-top"><h3>Phòng</h3><span class="sub">23 phòng · gồm cả phòng riêng tư · phòng tự xóa 24 giờ sau khi tạo</span>
+        <div class="qt-sec" id="sec-rooms">
+          <div class="qt-top"><h3>Phòng</h3><span class="sub">23 phòng · gồm cả phòng riêng tư · phòng tự xóa 24 giờ sau khi tạo</span>
             <div class="right"><button class="btn green" data-go="roomform">Tạo phòng</button></div></div>
-          <div class="ad-body">
+          <div class="qt-body">
             <div class="toolbar">
               <div class="seg"><button class="on">Tất cả</button><button>Đang chơi</button><button>Đang chờ</button><button>Đã xong</button></div>
               <div class="seg"><button class="on">Mọi kiểu</button><button>Theo team</button><button>Chơi đơn</button></div>
-              <input class="ad-input search" placeholder="Tìm tên phòng hoặc mã phòng">
+              <input class="qt-input search" placeholder="Tìm tên phòng hoặc mã phòng">
             </div>
             <div class="tbl-wrap"><table class="tbl">
               <thead><tr><th>Mã</th><th>Tên phòng</th><th>Kiểu</th><th>Trạng thái</th><th class="num">Người</th><th>Thời gian</th><th>Hiển thị</th><th></th></tr></thead>
@@ -389,13 +389,13 @@ textarea.ad-input { width: 100%; resize: vertical; line-height: 1.45; }
         </div>
 
         <!-- Người chơi -->
-        <div class="ad-sec" id="sec-players">
-          <div class="ad-top"><h3>Người chơi</h3><span class="sub">187 người trong 23 phòng · không có tài khoản, xóa cùng phòng</span></div>
-          <div class="ad-body">
+        <div class="qt-sec" id="sec-players">
+          <div class="qt-top"><h3>Người chơi</h3><span class="sub">187 người trong 23 phòng · không có tài khoản, xóa cùng phòng</span></div>
+          <div class="qt-body">
             <div class="toolbar">
               <div class="seg"><button class="on">Tất cả</button><button>Đang trực tuyến</button><button>Tên bị gắn cờ</button></div>
-              <select class="ad-input"><option>Mọi phòng</option><option>Phòng Sen</option><option>Phòng HR tầng 5</option></select>
-              <input class="ad-input search" placeholder="Tìm tên người chơi">
+              <select class="qt-input"><option>Mọi phòng</option><option>Phòng Sen</option><option>Phòng HR tầng 5</option></select>
+              <input class="qt-input search" placeholder="Tìm tên người chơi">
             </div>
             <div class="tbl-wrap"><table class="tbl">
               <thead><tr><th>Người chơi</th><th>Phòng</th><th>Team</th><th class="num">Điểm</th><th>Trạng thái</th><th>Vào lúc</th><th></th></tr></thead>
@@ -410,17 +410,17 @@ textarea.ad-input { width: 100%; resize: vertical; line-height: 1.45; }
         </div>
 
         <!-- Câu hỏi -->
-        <div class="ad-sec" id="sec-questions">
-          <div class="ad-top"><h3>Câu hỏi</h3><span class="sub">910 câu · 34 tỉnh · mục tiêu 22 thường + 8 thử tài mỗi tỉnh</span>
+        <div class="qt-sec" id="sec-questions">
+          <div class="qt-top"><h3>Câu hỏi</h3><span class="sub">910 câu · 34 tỉnh · mục tiêu 22 thường + 8 thử tài mỗi tỉnh</span>
             <div class="right"><button class="btn">Xuất questions.json</button><button class="btn green">Thêm câu</button></div></div>
-          <div class="ad-body">
+          <div class="qt-body">
             <div class="cov" id="cov"></div>
             <div class="toolbar">
               <div class="seg" id="qState"><button class="on" data-s="">Tất cả</button><button data-s="new">Chờ duyệt</button><button data-s="fix">Cần sửa</button><button data-s="ok">Đã duyệt</button><button data-s="hide">Đang ẩn</button></div>
-              <select class="ad-input" id="qTopic"><option value="">Mọi chủ đề</option></select>
-              <select class="ad-input" id="qDiff"><option value="">Thường + thử tài</option><option value="normal">Câu thường</option><option value="siege">Câu thử tài</option></select>
-              <select class="ad-input" id="qSrc"><option value="">Mọi mức nguồn</option><option value="0">Chưa có nguồn</option><option value="1">1 nguồn</option><option value="2">≥ 2 nguồn</option></select>
-              <input class="ad-input search" id="qSearch" placeholder="Tìm nội dung, đáp án, mã câu">
+              <select class="qt-input" id="qTopic"><option value="">Mọi chủ đề</option></select>
+              <select class="qt-input" id="qDiff"><option value="">Thường + thử tài</option><option value="normal">Câu thường</option><option value="siege">Câu thử tài</option></select>
+              <select class="qt-input" id="qSrc"><option value="">Mọi mức nguồn</option><option value="0">Chưa có nguồn</option><option value="1">1 nguồn</option><option value="2">≥ 2 nguồn</option></select>
+              <input class="qt-input search" id="qSearch" placeholder="Tìm nội dung, đáp án, mã câu">
             </div>
             <div class="qs">
               <div class="tbl-wrap"><table class="tbl">
@@ -433,12 +433,12 @@ textarea.ad-input { width: 100%; resize: vertical; line-height: 1.45; }
         </div>
 
         <!-- Bảng xếp hạng -->
-        <div class="ad-sec" id="sec-board">
-          <div class="ad-top"><h3>Bảng xếp hạng cá nhân</h3><span class="sub">Phòng chơi đơn · cộng dồn mọi trận · giữ 7 ngày</span>
+        <div class="qt-sec" id="sec-board">
+          <div class="qt-top"><h3>Bảng xếp hạng cá nhân</h3><span class="sub">Phòng chơi đơn · cộng dồn mọi trận · giữ 7 ngày</span>
             <div class="right"><button class="btn">Mở /leaderboard</button></div></div>
-          <div class="ad-body">
+          <div class="qt-body">
             <p class="lb-note">Đổi tên áp dụng cho mọi trận của người đó trên bảng. <b>Ẩn</b> = không hiện công khai nhưng còn trong dữ liệu; <b>Xóa</b> = xóa hẳn các trận của tên đó.</p>
-            <div class="toolbar"><div class="seg"><button class="on">Tất cả</button><button>Bị gắn cờ</button><button>Đang ẩn</button></div><input class="ad-input search" placeholder="Tìm tên"></div>
+            <div class="toolbar"><div class="seg"><button class="on">Tất cả</button><button>Bị gắn cờ</button><button>Đang ẩn</button></div><input class="qt-input search" placeholder="Tìm tên"></div>
             <div class="tbl-wrap"><table class="tbl">
               <thead><tr><th class="num">#</th><th>Lữ khách</th><th class="num">Điểm</th><th class="num">Tem</th><th class="num">Số trận</th><th>Trận gần nhất</th><th></th></tr></thead>
               <tbody id="boardRows"></tbody>
@@ -447,21 +447,21 @@ textarea.ad-input { width: 100%; resize: vertical; line-height: 1.45; }
         </div>
 
         <!-- Nhật ký -->
-        <div class="ad-sec" id="sec-log">
-          <div class="ad-top"><h3>Nhật ký quản trị</h3><span class="sub">Mọi thao tác của quản trị + đăng nhập sai · giữ 30 ngày</span></div>
-          <div class="ad-body"><div class="panel"><div class="log" id="logRows"></div></div></div>
+        <div class="qt-sec" id="sec-log">
+          <div class="qt-top"><h3>Nhật ký quản trị</h3><span class="sub">Mọi thao tác của quản trị + đăng nhập sai · giữ 30 ngày</span></div>
+          <div class="qt-body"><div class="panel"><div class="log" id="logRows"></div></div></div>
         </div>
 
         <!-- Điều khiển một phòng -->
-        <div class="ad-sec" id="sec-room">
-          <div class="ad-top">
+        <div class="qt-sec" id="sec-room">
+          <div class="qt-top">
             <div class="rd-head" style="flex:1">
               <button class="rd-back" data-go="rooms">← Danh sách phòng</button>
               <h3>Phòng HR tầng 5</h3><span class="tag team">Theo team</span><span class="tag run">Đang chơi</span><span class="tag priv">Riêng tư</span>
               <span class="rd-clock">18:42</span>
             </div>
           </div>
-          <div class="ad-body">
+          <div class="qt-body">
             <div class="rd-ctl">
               <button class="btn"><span class="ic" data-ic="pause"></span>Tạm dừng</button>
               <button class="btn danger" data-arm><span class="ic" data-ic="stop"></span>Kết thúc</button>
@@ -488,15 +488,15 @@ textarea.ad-input { width: 100%; resize: vertical; line-height: 1.45; }
                 <div class="panel">
                   <h4>Sự kiện</h4>
                   <div class="ev-row">
-                    <select class="ad-input"><option>Lễ hội (+100, 5 phút)</option><option>Bão (3 phút)</option><option>Câu hỏi vàng (×2, 2 phút)</option><option>Tin đồn</option></select>
-                    <select class="ad-input"><option>Miền Bắc</option><option>Miền Trung</option><option>Miền Nam</option></select>
+                    <select class="qt-input"><option>Lễ hội (+100, 5 phút)</option><option>Bão (3 phút)</option><option>Câu hỏi vàng (×2, 2 phút)</option><option>Tin đồn</option></select>
+                    <select class="qt-input"><option>Miền Bắc</option><option>Miền Trung</option><option>Miền Nam</option></select>
                     <button class="btn primary">Tung sự kiện</button>
                   </div>
                   <div class="ev-row" style="margin-top:8px"><span class="pill golden"><span class="ic" data-ic="golden"></span>Câu hỏi vàng · còn 1:12</span><button class="btn">Câu hỏi chung cả phòng</button></div>
                 </div>
                 <div class="panel">
                   <h4>Diễn biến <span class="more">Xem tất cả</span></h4>
-                  <div class="ad-feed" id="rdFeed"></div>
+                  <div class="qt-feed" id="rdFeed"></div>
                 </div>
               </div>
             </div>
@@ -513,23 +513,23 @@ textarea.ad-input { width: 100%; resize: vertical; line-height: 1.45; }
         </div>
 
         <!-- Tạo / sửa phòng -->
-        <div class="ad-sec" id="sec-roomform">
-          <div class="ad-top"><div class="rd-head" style="flex:1"><button class="rd-back" data-go="rooms">← Danh sách phòng</button><h3>Tạo phòng</h3><span class="sub">Quản trị tạo hộ — chọn ai làm chủ phòng ở cuối</span></div></div>
-          <div class="ad-body">
+        <div class="qt-sec" id="sec-roomform">
+          <div class="qt-top"><div class="rd-head" style="flex:1"><button class="rd-back" data-go="rooms">← Danh sách phòng</button><h3>Tạo phòng</h3><span class="sub">Quản trị tạo hộ — chọn ai làm chủ phòng ở cuối</span></div></div>
+          <div class="qt-body">
             <div class="rf">
-              <label class="full">Tên phòng<input class="ad-input" value="Phòng HR tầng 5"></label>
+              <label class="full">Tên phòng<input class="qt-input" value="Phòng HR tầng 5"></label>
               <div class="full"><div style="font-size:13px;font-weight:900;color:var(--muted);margin-bottom:5px">Kiểu phòng <span class="lockn">· không đổi được sau khi tạo</span></div>
                 <div class="opt-card"><button class="on">Theo team<small>2–8 team, tối đa 12 người/team</small></button><button>Chơi đơn<small>Tối đa 50 người, tem + Tiên phong</small></button></div></div>
-              <label>Số team<select class="ad-input"><option>2</option><option>4</option><option selected>6</option><option>8</option></select><span class="lockn">Khóa khi đã bắt đầu</span></label>
-              <label>Thời lượng (phút)<input class="ad-input" type="number" value="45" min="10" max="90"><span class="lockn">Khóa khi đã bắt đầu</span></label>
-              <label>Số câu mỗi tỉnh<select class="ad-input"><option selected>1 câu</option><option>2 câu</option><option>3 câu</option></select><span class="lockn">Khóa khi đã bắt đầu</span></label>
-              <label>Hiển thị<select class="ad-input"><option>Công khai — hiện ở danh sách phòng</option><option selected>Riêng tư — cần mã phòng</option></select><span class="muted" style="font-size:12px">Đổi được bất cứ lúc nào</span></label>
+              <label>Số team<select class="qt-input"><option>2</option><option>4</option><option selected>6</option><option>8</option></select><span class="lockn">Khóa khi đã bắt đầu</span></label>
+              <label>Thời lượng (phút)<input class="qt-input" type="number" value="45" min="10" max="90"><span class="lockn">Khóa khi đã bắt đầu</span></label>
+              <label>Số câu mỗi tỉnh<select class="qt-input"><option selected>1 câu</option><option>2 câu</option><option>3 câu</option></select><span class="lockn">Khóa khi đã bắt đầu</span></label>
+              <label>Hiển thị<select class="qt-input"><option>Công khai — hiện ở danh sách phòng</option><option selected>Riêng tư — cần mã phòng</option></select><span class="muted" style="font-size:12px">Đổi được bất cứ lúc nào</span></label>
               <div class="full" style="display:flex;flex-wrap:wrap;gap:18px">
                 <div class="set-row" style="border:0;gap:10px"><span class="sw on"></span>Đặt cược (Mạo hiểm)</div>
                 <div class="set-row" style="border:0;gap:10px"><span class="sw"></span>Cho chọn chủ đề</div>
                 <div class="set-row" style="border:0;gap:10px"><span class="sw"></span>Phòng có sẵn (luôn mở lại)</div>
               </div>
-              <label class="full">Chủ phòng<select class="ad-input"><option>Tạo mã chủ phòng mới — gửi cho người dẫn chương trình</option><option>Không có chủ phòng — chỉ quản trị điều khiển</option></select></label>
+              <label class="full">Chủ phòng<select class="qt-input"><option>Tạo mã chủ phòng mới — gửi cho người dẫn chương trình</option><option>Không có chủ phòng — chỉ quản trị điều khiển</option></select></label>
               <div class="full btn-row"><button class="btn green">Tạo phòng</button><button class="btn" data-go="rooms">Hủy</button></div>
             </div>
             <ul class="how">
@@ -540,10 +540,10 @@ textarea.ad-input { width: 100%; resize: vertical; line-height: 1.45; }
         </div>
 
         <!-- Hệ thống -->
-        <div class="ad-sec" id="sec-system">
-          <div class="ad-top"><h3>Hệ thống</h3><span class="sub">Server chạy 5 giờ 41 phút · Node v22.23.4 · cập nhật 5 giây/lần</span>
+        <div class="qt-sec" id="sec-system">
+          <div class="qt-top"><h3>Hệ thống</h3><span class="sub">Server chạy 5 giờ 41 phút · Node v22.23.4 · cập nhật 5 giây/lần</span>
             <div class="right"><button class="btn">Tải bản sao lưu</button></div></div>
-          <div class="ad-body">
+          <div class="qt-body">
             <div class="kpis">
               <div class="kpi good"><span class="t">Kết nối realtime</span><b>148</b><small>tối đa đo được 162</small></div>
               <div class="kpi"><span class="t">Yêu cầu / phút</span><b>1.240</b><div class="spark" id="spReq"></div></div>
@@ -574,10 +574,10 @@ textarea.ad-input { width: 100%; resize: vertical; line-height: 1.45; }
         </div>
 
         <!-- Tài khoản admin -->
-        <div class="ad-sec" id="sec-accounts">
-          <div class="ad-top"><h3>Tài khoản admin</h3><span class="sub">4 tài khoản · chỉ vai Quản trị thấy mục này</span>
+        <div class="qt-sec" id="sec-accounts">
+          <div class="qt-top"><h3>Tài khoản admin</h3><span class="sub">4 tài khoản · chỉ vai Quản trị thấy mục này</span>
             <div class="right"><button class="btn green">Thêm tài khoản</button></div></div>
-          <div class="ad-body">
+          <div class="qt-body">
             <div class="tbl-wrap"><table class="tbl">
               <thead><tr><th>Người</th><th>Tên đăng nhập</th><th>Vai trò</th><th>Đăng nhập gần nhất</th><th>Trạng thái</th><th></th></tr></thead>
               <tbody id="accRows"></tbody>
@@ -586,9 +586,9 @@ textarea.ad-input { width: 100%; resize: vertical; line-height: 1.45; }
               <div class="panel">
                 <h4>Thêm tài khoản</h4>
                 <div class="rf" style="grid-template-columns:1fr 1fr">
-                  <label>Tên hiển thị<input class="ad-input" value="Ngọc Anh"></label>
-                  <label>Tên đăng nhập<input class="ad-input" value="ngocanh"></label>
-                  <label class="full">Vai trò<select class="ad-input"><option>Điều phối — phòng, người chơi, bảng xếp hạng</option><option>Biên tập — câu hỏi</option><option>Quản trị — toàn quyền</option></select></label>
+                  <label>Tên hiển thị<input class="qt-input" value="Ngọc Anh"></label>
+                  <label>Tên đăng nhập<input class="qt-input" value="ngocanh"></label>
+                  <label class="full">Vai trò<select class="qt-input"><option>Điều phối — phòng, người chơi, bảng xếp hạng</option><option>Biên tập — câu hỏi</option><option>Quản trị — toàn quyền</option></select></label>
                   <div class="full"><div class="code"><span>Mật khẩu tạm</span><b>r7Kq-2mXp-9Tz4</b><button class="btn">Sao chép</button></div><p class="muted" style="margin:6px 0 0;font-size:13px">Chỉ hiện một lần. Lần đầu đăng nhập phải đổi mật khẩu.</p></div>
                   <div class="full btn-row"><button class="btn green">Tạo tài khoản</button></div>
                 </div>
@@ -603,28 +603,28 @@ textarea.ad-input { width: 100%; resize: vertical; line-height: 1.45; }
         </div>
 
         <!-- Cài đặt -->
-        <div class="ad-sec" id="sec-settings">
-          <div class="ad-top"><h3>Cài đặt</h3><span class="sub">Có hiệu lực ngay, không cần khởi động lại server</span></div>
-          <div class="ad-body">
+        <div class="qt-sec" id="sec-settings">
+          <div class="qt-top"><h3>Cài đặt</h3><span class="sub">Có hiệu lực ngay, không cần khởi động lại server</span></div>
+          <div class="qt-body">
             <div class="set-grid">
               <div class="panel">
                 <h4>Phòng</h4>
                 <div class="set-row"><div>Cho mọi người tạo phòng<small>Tắt khi muốn chỉ dùng phòng có sẵn / phòng ban tổ chức tạo</small></div><span class="sw on"></span></div>
                 <div class="set-row"><div>Phòng chơi đơn có sẵn<small>Phòng Sen, Mai, Đào, Trúc · 30 phút</small></div><span class="sw on"></span></div>
-                <div class="set-row"><div>Số phòng mở tối đa<small>Hiện 11 / 50</small></div><input class="ad-input" style="width:80px" value="50"></div>
-                <div class="set-row"><div>Người tối đa mỗi phòng đơn</div><input class="ad-input" style="width:80px" value="50"></div>
+                <div class="set-row"><div>Số phòng mở tối đa<small>Hiện 11 / 50</small></div><input class="qt-input" style="width:80px" value="50"></div>
+                <div class="set-row"><div>Người tối đa mỗi phòng đơn</div><input class="qt-input" style="width:80px" value="50"></div>
               </div>
               <div class="panel">
                 <h4>Thông báo chung</h4>
                 <p class="muted" style="margin:0 0 8px">Hiện ở đầu mọi trang (trang chủ, màn chơi, màn chiếu) tới khi tắt.</p>
-                <textarea class="ad-input" rows="2">14:45 trao giải ở sảnh tầng 3 — các phòng kết thúc trận trước 14:40 nhé!</textarea>
+                <textarea class="qt-input" rows="2">14:45 trao giải ở sảnh tầng 3 — các phòng kết thúc trận trước 14:40 nhé!</textarea>
                 <div class="set-row"><div class="banner-prev">14:45 trao giải ở sảnh tầng 3 — các phòng kết thúc trận trước 14:40 nhé!</div><span class="sw on"></span></div>
               </div>
               <div class="panel">
                 <h4>Tên người chơi — từ cấm</h4>
                 <p class="muted" style="margin:0 0 8px">Tên chứa từ này bị gắn cờ (không tự chặn). So khớp bỏ dấu.</p>
                 <div class="words" id="words"></div>
-                <div class="btn-row" style="margin-top:10px"><input class="ad-input" placeholder="Thêm từ"><button class="btn">Thêm</button></div>
+                <div class="btn-row" style="margin-top:10px"><input class="qt-input" placeholder="Thêm từ"><button class="btn">Thêm</button></div>
               </div>
               <div class="panel">
                 <h4>Dữ liệu</h4>
@@ -701,10 +701,10 @@ const topics = D.stats.topics
 // Điều hướng
 const show = sec => {
   const nav = { room: 'rooms', roomform: 'rooms' }[sec] ?? sec
-  document.querySelectorAll('.ad-nav').forEach(b => b.classList.toggle('on', b.dataset.sec === nav))
-  document.querySelectorAll('.ad-sec').forEach(s => s.classList.toggle('on', s.id === 'sec-' + sec))
+  document.querySelectorAll('.qt-nav').forEach(b => b.classList.toggle('on', b.dataset.sec === nav))
+  document.querySelectorAll('.qt-sec').forEach(s => s.classList.toggle('on', s.id === 'sec-' + sec))
 }
-document.querySelectorAll('.ad-nav').forEach(b => b.addEventListener('click', () => show(b.dataset.sec)))
+document.querySelectorAll('.qt-nav').forEach(b => b.addEventListener('click', () => show(b.dataset.sec)))
 document.addEventListener('click', e => {
   // Bấm nút không có data-go nằm trong dòng có data-go (vd. Kết thúc / Xóa trong bảng phòng) thì không chuyển màn
   const go = e.target.closest('[data-go]'), btn = e.target.closest('button')
@@ -786,7 +786,7 @@ const AT = { 'thai-nguyen': 0, 'lang-son': 1, 'quang-tri': 2, 'ca-mau': 3, 'lam-
 }
 const RDT = [['Rồng', 5, 1640, 'Thái Nguyên', 7], ['Lân', 3, 1210, 'Lạng Sơn', 7], ['Rùa', 5, 1580, 'Quảng Trị', 7], ['Phượng', 4, 1090, 'Cà Mau', 6], ['Hạc', 4, 1325, 'Lâm Đồng', 7], ['Trâu', 3, 980, 'Đồng Tháp', 7]]
 document.getElementById('rdTeams').innerHTML = RDT.map(([m, n, sc, at, mem], i) => `<tr><td><span class="who"><span class="ms">${C.mascots[m]}</span>Team ${m}</span></td><td class="num">${n}</td><td class="num">${sc.toLocaleString('vi-VN')}</td><td>${at}</td><td>${mem} người</td>
-  <td><span class="score-adj"><input class="ad-input" value="+50"><button class="btn">Áp dụng</button></span></td></tr>`).join('')
+  <td><span class="score-adj"><input class="qt-input" value="+50"><button class="btn">Áp dụng</button></span></td></tr>`).join('')
 document.getElementById('rdPlayers').innerHTML = [['Lan Anh', 0, 'Nghệ An', 1], ['Minh Quân', 2, '—', 1], ['Phương Thảo', 0, 'Hà Nội', 1], ['Quốc Bảo', 4, 'Đắk Lắk', 0], ['Hải Yến', 1, '—', 1]].map(([n, t, home, on]) =>
   `<tr><td>${who({ name: n, team: t })}</td><td>Team ${MASC[t]}</td><td>${home}</td><td><span class="online${on ? '' : ' off'}"></span>${on ? 'Trực tuyến' : 'Mất kết nối'}</td><td><div class="acts"><button class="btn">Sửa tên</button><button class="btn">Đổi team</button><button class="btn" data-arm>Mời ra</button></div></td></tr>`).join('')
 document.getElementById('rdFeed').innerHTML = [['siege', 'Team Rùa thử tài Huế — chủ nhà giữ được (2 hiệp)', '14:31'], ['flag', 'Team Hạc cắm cờ Lâm Đồng', '14:30'], ['golden', 'Quản trị tung Câu hỏi vàng', '14:29'], ['flag', 'Team Rồng cắm cờ Thái Nguyên', '14:28'], ['home', 'Team Phượng về quê Cà Mau +50', '14:27']]
@@ -858,22 +858,22 @@ function renderEditor() {
   const leak = q.content.toLowerCase().includes(String(right).toLowerCase()) || /\(.+ cũ\)/.test(q.content)
   const lvSuggest = pct == null || n < 10 ? null : pct > 70 ? 1 : pct < 40 ? 3 : 2
   const opts = q.kind === 'choice'
-    ? `<div class="opts">${q.options.map((o, i) => `<div class="opt${i === q.answer ? ' right' : ''}"><input type="radio" name="ans" ${i === q.answer ? 'checked' : ''}><input class="ad-input" value="${esc(o)}"></div>`).join('')}</div>`
-    : q.kind === 'text' ? `<label>Đáp án chấp nhận (mỗi dòng một cách viết)<textarea class="ad-input" rows="3">${esc(q.answer.join('\n'))}</textarea></label>`
+    ? `<div class="opts">${q.options.map((o, i) => `<div class="opt${i === q.answer ? ' right' : ''}"><input type="radio" name="ans" ${i === q.answer ? 'checked' : ''}><input class="qt-input" value="${esc(o)}"></div>`).join('')}</div>`
+    : q.kind === 'text' ? `<label>Đáp án chấp nhận (mỗi dòng một cách viết)<textarea class="qt-input" rows="3">${esc(q.answer.join('\n'))}</textarea></label>`
     : `<div class="seg"><button class="${q.answer ? 'on' : ''}">Đúng</button><button class="${q.answer ? '' : 'on'}">Sai</button></div>`
   document.getElementById('editor').innerHTML = `
     <div class="hd"><b>Sửa câu</b><span class="mono">${q.id}</span><span class="tag ${st[0]}" style="margin-left:auto">${st[1]}</span></div>
     <div class="row">
-      <label>Tỉnh<select class="ad-input">${D.provinces.map(p => `<option ${p.id === q.province ? 'selected' : ''}>${esc(p.name)}</option>`).join('')}</select></label>
-      <label>Chủ đề<select class="ad-input">${Object.entries(topics).map(([k, v]) => `<option ${k === q.topic ? 'selected' : ''}>${esc(v)}</option>`).join('')}</select></label>
-      <label>Loại<select class="ad-input"><option ${q.difficulty === 'normal' ? 'selected' : ''}>Câu thường</option><option ${q.difficulty === 'siege' ? 'selected' : ''}>Câu thử tài</option></select></label>
+      <label>Tỉnh<select class="qt-input">${D.provinces.map(p => `<option ${p.id === q.province ? 'selected' : ''}>${esc(p.name)}</option>`).join('')}</select></label>
+      <label>Chủ đề<select class="qt-input">${Object.entries(topics).map(([k, v]) => `<option ${k === q.topic ? 'selected' : ''}>${esc(v)}</option>`).join('')}</select></label>
+      <label>Loại<select class="qt-input"><option ${q.difficulty === 'normal' ? 'selected' : ''}>Câu thường</option><option ${q.difficulty === 'siege' ? 'selected' : ''}>Câu thử tài</option></select></label>
     </div>
-    <label>Nội dung<textarea class="ad-input" rows="3">${esc(q.content)}</textarea></label>
+    <label>Nội dung<textarea class="qt-input" rows="3">${esc(q.content)}</textarea></label>
     ${opts}
-    <label>Lời giải (người chơi thấy sau khi trả lời đúng)<textarea class="ad-input" rows="3">${esc(q.explanation ?? '')}</textarea></label>
+    <label>Lời giải (người chơi thấy sau khi trả lời đúng)<textarea class="qt-input" rows="3">${esc(q.explanation ?? '')}</textarea></label>
     <div><div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;font-size:13px;font-weight:900;color:var(--muted)">Nguồn kiểm chứng <span class="tag ${srcs.length >= 2 && official ? 'ok' : srcs.length ? 'fix' : 'priv'}">${srcs.length} nguồn · ${official} chính thống</span></div>
       <div class="srcs">${srcs.map(u => `<div class="srcl"><span class="k ${OFFICIAL.test(u) ? 'off' : 'oth'}">${OFFICIAL.test(u) ? 'chính thống' : 'khác'}</span><a href="${esc(u)}" target="_blank" rel="noopener noreferrer">${esc(u.replace(/^https:\/\//, ''))}</a><span class="muted">✕</span></div>`).join('') || '<div class="srcl"><span class="k oth">thiếu</span><span class="muted">Chưa có nguồn — câu cũ trước luật 2 nguồn</span><span></span></div>'}
-      <div class="btn-row" style="margin-top:6px"><input class="ad-input" style="flex:1" placeholder="Dán link https://…"><button class="btn">Thêm nguồn</button></div></div>
+      <div class="btn-row" style="margin-top:6px"><input class="qt-input" style="flex:1" placeholder="Dán link https://…"><button class="btn">Thêm nguồn</button></div></div>
     </div>
     <div class="checks">
       <span class="${srcs.length >= 2 && official ? 'ok' : 'bad'}">${srcs.length >= 2 && official ? '✓ Đủ ≥ 2 nguồn, có nguồn chính thống' : '✕ Chưa đủ ≥ 2 nguồn, ít nhất 1 chính thống'}</span>

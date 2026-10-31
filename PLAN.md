@@ -84,6 +84,8 @@ Thử trọn 1 trận: mở `http://127.0.0.1:3000/` (đúng `127.0.0.1`, không
 - **Không dùng emoji** trong giao diện — thêm icon mới vào `public/shared/icons.js` (cùng phong cách: khối màu phẳng, mảng tối tạo khối, không viền đen).
 - Người dùng không thích: viền đen, viền dày, nét đứt vàng, họa tiết rối mắt, hộp thoại mặc định của trình duyệt (`confirm`), link gạch chân tím mặc định; thích gọn, nhẹ, giống game, đồng nhất style.
 
+- **Không đặt tên class / id / file kiểu quảng cáo** (`ad`, `ad-…`, `ads`, `advert`, `banner`, `sponsor`, `promo`, `popup`…): trình chặn quảng cáo (AdBlock, uBlock — bộ lọc EasyList) ẩn luôn phần tử đó. Đã gặp 31/10: trang `/quan-tri` dùng `.ad`, `.ad-side`… → bật AdBlock là trắng trang, không lỗi JS; đổi sang `.qt-…`.
+
 ### 0.5. Đang chờ / vấn đề đã biết
 | Việc | Trạng thái |
 |---|---|

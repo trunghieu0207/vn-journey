@@ -56,32 +56,32 @@
   </div>
 </section>
 
-<div class="ad" id="app" hidden>
-  <aside class="ad-side">
-    <div class="ad-brand"><span data-icon="hat"></span><div><b>Hành trình 3 miền</b><small>Quản trị</small></div></div>
-    <button class="ad-nav on" data-sec="dash" type="button"><span data-icon="stats"></span>Tổng quan</button>
-    <button class="ad-nav" data-sec="rooms" type="button"><span data-icon="map"></span>Phòng <i id="navRooms"></i></button>
-    <button class="ad-nav" data-sec="players" type="button"><span data-icon="flag"></span>Người chơi <i id="navPlayers"></i></button>
-    <button class="ad-nav" data-sec="questions" type="button"><span data-icon="question"></span>Câu hỏi <i id="navQuestions"></i></button>
-    <button class="ad-nav" data-sec="board" type="button"><span data-icon="trophy"></span>Bảng xếp hạng</button>
-    <button class="ad-nav" data-sec="accounts" type="button"><span data-icon="lock"></span>Tài khoản admin</button>
-    <button class="ad-nav" data-sec="system" type="button"><span data-icon="screen"></span>Hệ thống <i class="warn" id="navSystem"></i></button>
-    <button class="ad-nav" data-sec="settings" type="button"><span data-icon="card"></span>Cài đặt</button>
-    <button class="ad-nav" data-sec="log" type="button"><span data-icon="timer"></span>Nhật ký</button>
-    <div class="ad-grow"></div>
-    <div class="ad-me">
+<div class="qt" id="app" hidden>
+  <aside class="qt-side">
+    <div class="qt-brand"><span data-icon="hat"></span><div><b>Hành trình 3 miền</b><small>Quản trị</small></div></div>
+    <button class="qt-nav on" data-sec="dash" type="button"><span data-icon="stats"></span>Tổng quan</button>
+    <button class="qt-nav" data-sec="rooms" type="button"><span data-icon="map"></span>Phòng <i id="navRooms"></i></button>
+    <button class="qt-nav" data-sec="players" type="button"><span data-icon="flag"></span>Người chơi <i id="navPlayers"></i></button>
+    <button class="qt-nav" data-sec="questions" type="button"><span data-icon="question"></span>Câu hỏi <i id="navQuestions"></i></button>
+    <button class="qt-nav" data-sec="board" type="button"><span data-icon="trophy"></span>Bảng xếp hạng</button>
+    <button class="qt-nav" data-sec="accounts" type="button"><span data-icon="lock"></span>Tài khoản admin</button>
+    <button class="qt-nav" data-sec="system" type="button"><span data-icon="screen"></span>Hệ thống <i class="warn" id="navSystem"></i></button>
+    <button class="qt-nav" data-sec="settings" type="button"><span data-icon="card"></span>Cài đặt</button>
+    <button class="qt-nav" data-sec="log" type="button"><span data-icon="timer"></span>Nhật ký</button>
+    <div class="qt-grow"></div>
+    <div class="qt-me">
       <b id="meName"></b><span class="muted" id="meUser"></span>
       <div class="btn-row"><button class="btn sm" type="button" id="pwBtn">Đổi mật khẩu</button><button class="btn sm" type="button" id="logoutBtn">Đăng xuất</button></div>
     </div>
   </aside>
 
-  <main class="ad-main">
+  <main class="qt-main">
     <div class="conn" id="conn" hidden>Mất kết nối tới máy chủ, đang thử lại…</div>
 
     <!-- Tổng quan -->
-    <section class="ad-sec on" id="sec-dash">
-      <div class="ad-top"><h2>Tổng quan</h2><span class="sub" id="dashTime"></span></div>
-      <div class="ad-body">
+    <section class="qt-sec on" id="sec-dash">
+      <div class="qt-top"><h2>Tổng quan</h2><span class="sub" id="dashTime"></span></div>
+      <div class="qt-body">
         <div class="kpis" id="kpis"></div>
         <div class="panel" id="todoPanel">
           <h3>Cần xử lý</h3>
@@ -95,14 +95,14 @@
     </section>
 
     <!-- Phòng -->
-    <section class="ad-sec" id="sec-rooms">
-      <div class="ad-top"><h2>Phòng</h2><span class="sub" id="roomsSub"></span>
+    <section class="qt-sec" id="sec-rooms">
+      <div class="qt-top"><h2>Phòng</h2><span class="sub" id="roomsSub"></span>
         <div class="right"><button class="btn green" type="button" id="newRoomBtn">Tạo phòng</button></div></div>
-      <div class="ad-body">
+      <div class="qt-body">
         <div class="toolbar">
           <div class="seg" id="roomStatus"><button class="on" data-v="" type="button">Tất cả</button><button data-v="run" type="button">Đang chơi</button><button data-v="waiting" type="button">Đang chờ</button><button data-v="ended" type="button">Đã xong</button></div>
           <div class="seg" id="roomMode"><button class="on" data-v="" type="button">Mọi kiểu</button><button data-v="team" type="button">Theo team</button><button data-v="solo" type="button">Chơi đơn</button></div>
-          <input class="ad-input search" id="roomSearch" placeholder="Tìm tên phòng hoặc mã phòng" aria-label="Tìm phòng">
+          <input class="qt-input search" id="roomSearch" placeholder="Tìm tên phòng hoặc mã phòng" aria-label="Tìm phòng">
         </div>
         <div class="tbl-wrap"><table class="tbl">
           <thead><tr><th>Mã</th><th>Tên phòng</th><th>Kiểu</th><th>Trạng thái</th><th class="r">Người</th><th>Thời gian</th><th>Hiển thị</th><th></th></tr></thead>
@@ -113,13 +113,13 @@
     </section>
 
     <!-- Người chơi -->
-    <section class="ad-sec" id="sec-players">
-      <div class="ad-top"><h2>Người chơi</h2><span class="sub" id="playersSub"></span></div>
-      <div class="ad-body">
+    <section class="qt-sec" id="sec-players">
+      <div class="qt-top"><h2>Người chơi</h2><span class="sub" id="playersSub"></span></div>
+      <div class="qt-body">
         <div class="toolbar">
           <div class="seg" id="playerFilter"><button class="on" data-v="" type="button">Tất cả</button><button data-v="online" type="button">Đang trực tuyến</button></div>
-          <select class="ad-input" id="playerRoom" aria-label="Lọc theo phòng"><option value="">Mọi phòng</option></select>
-          <input class="ad-input search" id="playerSearch" placeholder="Tìm tên người chơi" aria-label="Tìm người chơi">
+          <select class="qt-input" id="playerRoom" aria-label="Lọc theo phòng"><option value="">Mọi phòng</option></select>
+          <input class="qt-input search" id="playerSearch" placeholder="Tìm tên người chơi" aria-label="Tìm người chơi">
         </div>
         <div class="tbl-wrap"><table class="tbl">
           <thead><tr><th>Người chơi</th><th>Phòng</th><th>Team</th><th class="r">Điểm</th><th>Trạng thái</th><th>Vào lúc</th><th></th></tr></thead>
@@ -130,13 +130,13 @@
     </section>
 
     <!-- Bảng xếp hạng -->
-    <section class="ad-sec" id="sec-board">
-      <div class="ad-top"><h2>Bảng xếp hạng cá nhân</h2><span class="sub">Phòng chơi đơn · cộng dồn mọi trận · giữ 7 ngày</span>
+    <section class="qt-sec" id="sec-board">
+      <div class="qt-top"><h2>Bảng xếp hạng cá nhân</h2><span class="sub">Phòng chơi đơn · cộng dồn mọi trận · giữ 7 ngày</span>
         <div class="right"><a class="btn" href="/leaderboard" target="_blank" rel="noopener">Mở /leaderboard</a></div></div>
-      <div class="ad-body">
+      <div class="qt-body">
         <div class="toolbar">
           <div class="seg" id="boardFilter"><button class="on" data-v="" type="button">Tất cả</button><button data-v="hidden" type="button">Đang ẩn</button></div>
-          <input class="ad-input search" id="boardSearch" placeholder="Tìm tên" aria-label="Tìm tên">
+          <input class="qt-input search" id="boardSearch" placeholder="Tìm tên" aria-label="Tìm tên">
         </div>
         <div class="tbl-wrap"><table class="tbl">
           <thead><tr><th class="r">#</th><th>Lữ khách</th><th class="r">Điểm</th><th class="r">Tem</th><th class="r">Số trận</th><th>Trận gần nhất</th><th></th></tr></thead>
@@ -147,9 +147,9 @@
     </section>
 
     <!-- Tài khoản -->
-    <section class="ad-sec" id="sec-accounts">
-      <div class="ad-top"><h2>Tài khoản admin</h2><span class="sub" id="accSub"></span></div>
-      <div class="ad-body">
+    <section class="qt-sec" id="sec-accounts">
+      <div class="qt-top"><h2>Tài khoản admin</h2><span class="sub" id="accSub"></span></div>
+      <div class="qt-body">
         <div class="tbl-wrap"><table class="tbl">
           <thead><tr><th>Người</th><th>Tên đăng nhập</th><th>Đăng nhập gần nhất</th><th>Trạng thái</th><th></th></tr></thead>
           <tbody id="accRows"></tbody>
@@ -157,8 +157,8 @@
         <div class="panel narrow">
           <h3>Thêm tài khoản</h3>
           <form id="accForm" class="rf">
-            <label>Tên hiển thị<input class="ad-input" id="accName" maxlength="40" required></label>
-            <label>Tên đăng nhập<input class="ad-input" id="accUser" maxlength="32" pattern="[a-z0-9._\-]{3,32}" required placeholder="chữ thường không dấu, số, . _ -"></label>
+            <label>Tên hiển thị<input class="qt-input" id="accName" maxlength="40" required></label>
+            <label>Tên đăng nhập<input class="qt-input" id="accUser" maxlength="32" pattern="[a-z0-9._\-]{3,32}" required placeholder="chữ thường không dấu, số, . _ -"></label>
             <div class="form-error full" id="accError" role="alert"></div>
             <div class="full btn-row"><button class="btn green" type="submit">Tạo tài khoản</button></div>
           </form>
@@ -168,18 +168,18 @@
     </section>
 
     <!-- Câu hỏi -->
-    <section class="ad-sec" id="sec-questions">
-      <div class="ad-top"><h2>Câu hỏi</h2><span class="sub" id="qSub"></span>
+    <section class="qt-sec" id="sec-questions">
+      <div class="qt-top"><h2>Câu hỏi</h2><span class="sub" id="qSub"></span>
         <div class="right"><a class="btn" href="/api/sys/questions/export" download="questions.json" id="qExport">Xuất questions.json</a><button class="btn green" type="button" id="qNew">Thêm câu</button></div></div>
-      <div class="ad-body">
+      <div class="qt-body">
         <p class="muted hint">Sửa ở đây có hiệu lực ngay (câu đang chờ trả lời giữ bản cũ). <b>Trước khi <code>db:reset</code> hoặc deploy bản mới, bấm "Xuất questions.json"</b> rồi thay file <code>data/questions.json</code> trong git — reset nạp lại từ file đó.</p>
         <div class="cov" id="cov"></div>
         <div class="toolbar">
           <div class="seg" id="qStatus"><button class="on" data-v="" type="button">Tất cả</button><button data-v="new" type="button">Chờ duyệt</button><button data-v="fix" type="button">Cần sửa</button><button data-v="ok" type="button">Đã duyệt</button><button data-v="hidden" type="button">Đang ẩn</button></div>
-          <select class="ad-input" id="qTopic" aria-label="Chủ đề"><option value="">Mọi chủ đề</option></select>
-          <select class="ad-input" id="qDiff" aria-label="Loại câu"><option value="">Thường + thử tài</option><option value="normal">Câu thường</option><option value="siege">Câu thử tài</option></select>
-          <select class="ad-input" id="qSrc" aria-label="Số nguồn"><option value="">Mọi mức nguồn</option><option value="0">Chưa có nguồn</option><option value="1">1 nguồn</option><option value="2">≥ 2 nguồn</option></select>
-          <input class="ad-input search" id="qSearch" placeholder="Tìm nội dung hoặc mã câu" aria-label="Tìm câu hỏi">
+          <select class="qt-input" id="qTopic" aria-label="Chủ đề"><option value="">Mọi chủ đề</option></select>
+          <select class="qt-input" id="qDiff" aria-label="Loại câu"><option value="">Thường + thử tài</option><option value="normal">Câu thường</option><option value="siege">Câu thử tài</option></select>
+          <select class="qt-input" id="qSrc" aria-label="Số nguồn"><option value="">Mọi mức nguồn</option><option value="0">Chưa có nguồn</option><option value="1">1 nguồn</option><option value="2">≥ 2 nguồn</option></select>
+          <input class="qt-input search" id="qSearch" placeholder="Tìm nội dung hoặc mã câu" aria-label="Tìm câu hỏi">
         </div>
         <div class="qs">
           <div>
@@ -195,10 +195,10 @@
     </section>
 
     <!-- Hệ thống -->
-    <section class="ad-sec" id="sec-system">
-      <div class="ad-top"><h2>Hệ thống</h2><span class="sub" id="sysSub"></span>
+    <section class="qt-sec" id="sec-system">
+      <div class="qt-top"><h2>Hệ thống</h2><span class="sub" id="sysSub"></span>
         <div class="right"><a class="btn" href="/api/sys/backup" id="backupBtn">Tải bản sao lưu</a></div></div>
-      <div class="ad-body">
+      <div class="qt-body">
         <div class="kpis" id="sysKpis"></div>
         <div class="grid2">
           <div class="panel"><h3>Lỗi máy chủ gần đây</h3><div id="errRows"></div>
@@ -212,9 +212,9 @@
     </section>
 
     <!-- Cài đặt -->
-    <section class="ad-sec" id="sec-settings">
-      <div class="ad-top"><h2>Cài đặt</h2><span class="sub">Có hiệu lực ngay, không cần khởi động lại server</span></div>
-      <div class="ad-body">
+    <section class="qt-sec" id="sec-settings">
+      <div class="qt-top"><h2>Cài đặt</h2><span class="sub">Có hiệu lực ngay, không cần khởi động lại server</span></div>
+      <div class="qt-body">
         <div class="grid2">
           <div class="panel">
             <h3>Phòng</h3>
@@ -225,7 +225,7 @@
           <div class="panel">
             <h3>Thông báo chung</h3>
             <p class="muted hint">Hiện trên cùng mọi trang (trang chủ, màn chơi, màn chiếu, trang chủ phòng) trong vòng 1 phút.</p>
-            <textarea class="ad-input wide" id="setNotice" rows="2" maxlength="200" placeholder="Vd. 14:45 trao giải ở sảnh tầng 3"></textarea>
+            <textarea class="qt-input wide" id="setNotice" rows="2" maxlength="200" placeholder="Vd. 14:45 trao giải ở sảnh tầng 3"></textarea>
             <label class="set-row"><span>Đang hiện</span><input type="checkbox" class="sw" id="setNoticeOn"></label>
             <div class="btn-row"><button class="btn green sm" type="button" id="saveNotice">Lưu thông báo</button></div>
           </div>
@@ -233,7 +233,7 @@
             <h3>Tên người chơi — từ cấm</h3>
             <p class="muted hint">Tên chứa từ này (so bỏ dấu, theo cả từ) bị gắn cờ ở mục Người chơi, Bảng xếp hạng và Tổng quan — không tự chặn.</p>
             <div class="words" id="words"></div>
-            <form class="btn-row" id="wordForm"><input class="ad-input" id="wordInput" maxlength="30" placeholder="Thêm từ" aria-label="Từ cấm"><button class="btn sm" type="submit">Thêm</button></form>
+            <form class="btn-row" id="wordForm"><input class="qt-input" id="wordInput" maxlength="30" placeholder="Thêm từ" aria-label="Từ cấm"><button class="btn sm" type="submit">Thêm</button></form>
           </div>
           <div class="panel">
             <h3>Xuất dữ liệu</h3>
@@ -246,9 +246,9 @@
     </section>
 
     <!-- Nhật ký -->
-    <section class="ad-sec" id="sec-log">
-      <div class="ad-top"><h2>Nhật ký quản trị</h2><span class="sub">Mọi thao tác quản trị + đăng nhập · giữ 30 ngày</span></div>
-      <div class="ad-body"><div class="panel"><div class="log" id="logRows"></div></div></div>
+    <section class="qt-sec" id="sec-log">
+      <div class="qt-top"><h2>Nhật ký quản trị</h2><span class="sub">Mọi thao tác quản trị + đăng nhập · giữ 30 ngày</span></div>
+      <div class="qt-body"><div class="panel"><div class="log" id="logRows"></div></div></div>
     </section>
   </main>
 </div>
