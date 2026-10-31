@@ -25,7 +25,9 @@ export function createActions(ctx) {
     if (!reachable.has(provinceId)) throw new GameError('not-adjacent', 'Chỉ được đi sang tỉnh giáp ranh')
 
     const event = activeEvent()
-    if (event?.kind === 'storm' && provinces.get(provinceId).region === event.region) {
+    // Bão: chỉ chặn đi từ miền khác vào; team đang ở trong miền vẫn đi lại được
+    if (event?.kind === 'storm' && provinces.get(provinceId).region === event.region
+      && provinces.get(t.current_province).region !== event.region) {
       throw new GameError('storm', 'Đang có bão, không thể đi vào miền này', 409)
     }
 
@@ -220,7 +222,7 @@ export function createActions(ctx) {
     db.prepare('UPDATE teams SET pending_question = NULL, pending_order = NULL, pending_at = NULL WHERE id = ?').run(a.id)
   }
 
-  // Đội giữ tỉnh thắng trận nhiều hiệp: +50 × số hiệp; đội công thành được mời về tỉnh trước, nghỉ chân 30 giây × số hiệp.
+  // Đội giữ tỉnh thắng trận nhiều hiệp: +50 × số hiệp; đội công thành được mời về tỉnh trước, nghỉ chân 30 giây × số hiệp (câu vàng ×2).
   // Gọi trong transaction. Trả về { defenderBonus, lockedUntil, pushedBack }
   function defenderWins(d) {
     const bonus = RULES.defendBonus * d.rounds
@@ -230,7 +232,8 @@ export function createActions(ctx) {
     calm(d)
     const a = requireTeam(d.attacker_id)
     dropAttackerQuestion(a)
-    const lockedUntil = now() + RULES.repelLockMs * d.rounds
+    // Hiệp cuối là câu vàng → nghỉ chân ×2 (như thua một hiệp câu vàng)
+    const lockedUntil = now() + RULES.repelLockMs * d.rounds * (a.pending_golden ? RULES.goldenLockFactor : 1)
     db.prepare('UPDATE teams SET choosing_at = NULL, locked_until = ? WHERE id = ?').run(lockedUntil, a.id)
     log(a.id, 'repelled', d.province_id)
     const pushedBack = !!a.previous_province

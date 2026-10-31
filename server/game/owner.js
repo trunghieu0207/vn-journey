@@ -120,7 +120,7 @@ export function createOwner(ctx) {
     transaction(db, () => {
       for (const [teamId, provinceId] of assignStarts(teams)) placeStart(teamId, provinceId, t0)
       db.prepare(`UPDATE rooms SET status = 'running', started_at = ?, ends_at = ?, freeze_at = ?, paused_at = NULL WHERE id = ?`)
-        .run(t0, ends, Math.max(t0, ends - freezeBeforeEndMin * 60_000), roomId)
+        .run(t0, ends, ends - Math.min(freezeBeforeEndMin * 60_000, Math.floor((ends - t0) / 3)), roomId) // đóng băng tối đa 1/3 trận
       log(null, 'start')
     })
   }
@@ -192,6 +192,8 @@ export function createOwner(ctx) {
   function triggerEvent(kind, region) {
     requireRunning()
     if (kind === 'rumor') {
+      const s = q.room.get(roomId)
+      if (s.freeze_at && now() >= s.freeze_at) throw new GameError('frozen', 'Bảng điểm đang đóng băng — không tung Tin đồn được', 409)
       const top = scores().sort(byRank)[0]
       log(null, 'event', null, { kind, text: isSolo() ? `Người dẫn đầu đang có ${top?.provinces ?? 0} tem!` : `Đội dẫn đầu đang giữ ${top?.provinces ?? 0} tỉnh!` })
       return { kind }

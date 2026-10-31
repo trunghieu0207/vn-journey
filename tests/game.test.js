@@ -303,6 +303,14 @@ test('bão: không đi vào miền đang có bão', () => {
   assert.throws(() => game.move(teams[0].id, 'dong-nai'), { code: 'storm' })
 })
 
+test('bão: team đang ở trong miền có bão vẫn đi lại trong miền', () => {
+  const { game, db, teams } = setupGame()
+  clearOwnership(db)
+  placeTeam(db, teams[0].id, 'dong-nai')
+  game.triggerEvent('storm', 'south')
+  assert.ok(game.move(teams[0].id, 'ho-chi-minh'))
+})
+
 test('lễ hội: chiếm tỉnh trong miền được +100', () => {
   const { game, db, teams } = setupGame()
   clearOwnership(db)
@@ -321,6 +329,22 @@ test('điểm: bộ sưu tập (+300) và xuyên 3 miền (+500)', () => {
   assert.ok(s.collections.includes('tay-bac'))
   assert.equal(s.crossRegion, 500)
   assert.equal(s.total, s.base + s.bonus + s.collectionBonus + 500)
+})
+
+test('đóng băng tối đa 1/3 trận (phòng ngắn); tin đồn bị khóa khi đã đóng băng', () => {
+  const db = memoryDb()
+  const now = fakeClock()
+  const core = createCore(db, now)
+  const r = core.createRoom({ name: 'Phòng ngắn', teamCount: 2, durationMin: 10 })
+  const game = core.room(r.roomId)
+  startNow(game, now)
+  const s = game.state()
+  assert.equal(s.ends_at - s.freeze_at, Math.floor(10 * 60_000 / 3))
+  assert.equal(game.screenView().frozen, false)
+  game.triggerEvent('rumor')
+  now.advance(7 * 60_000)
+  assert.equal(game.screenView().frozen, true)
+  assert.throws(() => game.triggerEvent('rumor'), { code: 'frozen' })
 })
 
 test('màn chiếu: đóng băng bảng điểm 10 phút cuối, mở lại khi kết thúc', () => {
@@ -1099,6 +1123,14 @@ test('đấu 2 hiệp: hòa 1–1 → chủ nhà giữ tỉnh +50 × 2; đoàn k
   assert.deepEqual(game.teamView(a.id).defense, [])
 })
 
+test('đấu 2 hiệp lúc có câu hỏi vàng: đoàn khách thua → nghỉ chân 30 giây × 2 × 2', () => {
+  const { game, db, now, b, question } = startDuel(2)
+  db.prepare('UPDATE teams SET pending_golden = 1 WHERE id = ?').run(b.id)
+  const r = game.answer(b.id, question.id, wrongAnswer(db, b.id)) // 2 hiệp: chủ nhà thắng hiệp 1 là xong
+  assert.equal(r.round.done, 'defender')
+  assert.equal(game.teamView(b.id).lockedUntil - now(), RULES.repelLockMs * 2 * RULES.goldenLockFactor)
+})
+
 test('đấu 2 hiệp: chủ nhà thắng hiệp 1 là xong (đoàn khách không thể thắng đa số); bỏ qua giữa trận = bỏ cuộc', () => {
   let { game, db, a, b, defense } = startDuel(2)
   let r = game.defend(a.id, defense.duelId, defenseAnswer(db, defense.duelId), 'An', 1)
@@ -1675,7 +1707,7 @@ test('danh sách phòng đang mở: chỉ phòng tự tạo bật "hiện trong 
   assert.deepEqual(core.publicRooms().map(r => r.code), [team.code])
 })
 
-test('bảng xếp hạng cá nhân: phòng đơn kết thúc thì ghi; cùng tên nhiều phòng lấy trận cao nhất; phòng team không ghi; giữ 7 ngày', () => {
+test('bảng xếp hạng cá nhân: phòng đơn kết thúc thì ghi; cùng tên nhiều phòng cộng dồn; phòng team không ghi; giữ 7 ngày', () => {
   const { db, now, core, game, players: [xuka, nobita, chaien] } = setupSolo(['Xuka', 'Nobita', 'Chaien'])
   db.prepare('UPDATE teams SET bonus_points = 100 WHERE id = ?').run(xuka.teamId)
   db.prepare('DELETE FROM stamps WHERE team_id = ?').run(chaien.teamId) // chưa có tem nào, 0 điểm → không ghi
@@ -1686,8 +1718,7 @@ test('bảng xếp hạng cá nhân: phòng đơn kết thúc thì ghi; cùng t�
   assert.equal(board.entries[0].stamps, 1)
   assert.equal(board.players, 2)
 
-  // Phòng đơn thứ hai, hết giờ tự kết thúc: "xuka" (khác hoa thường) = cùng người; điểm thấp hơn → giữ trận cao nhất, số trận 2.
-  // Nobita lần này cao hơn → lấy trận mới; Shizuka bằng Nobita cũ → cùng hạng
+  // Phòng đơn thứ hai, hết giờ tự kết thúc: "xuka" (khác hoa thường) = cùng người → cộng dồn điểm + tem, số trận 2, tên theo trận mới nhất
   const r2 = core.createRoom({ name: 'Phòng 2', mode: 'solo', durationMin: 15 })
   const g2 = core.room(r2.roomId)
   const [x2, n2, s2] = ['xuka', 'Nobita', 'Shizuka'].map(n => core.joinRoom(r2.code, n))
@@ -1698,14 +1729,17 @@ test('bảng xếp hạng cá nhân: phòng đơn kết thúc thì ghi; cùng t�
   g2.state()
   board = core.leaderboard()
   const by = Object.fromEntries(board.entries.map(e => [e.name, e]))
+  const game2 = name => db.prepare('SELECT score, stamps FROM leaderboard WHERE room_id = ? AND name = ?').get(r2.roomId, name)
   assert.equal(board.entries[0].name, 'Nobita')
-  assert.equal(by.Xuka.score, best)
-  assert.equal(by.Xuka.games, 2)
+  assert.equal(by.xuka.score, best + game2('xuka').score)
+  assert.equal(by.xuka.stamps, 1 + game2('xuka').stamps)
+  assert.equal(by.xuka.games, 2)
+  assert.ok(!by.Xuka) // tên hiện theo trận gần nhất
+  assert.equal(by.Nobita.score, nobitaOld + game2('Nobita').score)
   assert.equal(by.Nobita.games, 2)
-  assert.ok(by.Nobita.score > nobitaOld)
-  assert.ok(!by.xuka) // tên hiện theo trận cao nhất
+  assert.equal(by.Shizuka.games, 1)
   assert.equal(board.plays, 5)
-  void x2; void s2
+  void x2; void n2; void s2
 
   // Phòng team kết thúc: không ghi
   const { game: teamGame } = setupGame({ teamCount: 2 })

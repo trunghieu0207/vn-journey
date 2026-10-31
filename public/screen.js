@@ -1,5 +1,5 @@
 // Màn chiếu (Phase 4): đồng hồ lớn, bản đồ "bí ẩn" (không màu team), bản tin ẩn danh, bảng điểm
-// (đóng băng 10 phút cuối), hết giờ thì tua lại trận → công bố xếp hạng từ cuối lên → pháo hoa.
+// (đóng băng 10 phút cuối, trận ngắn 1/3 cuối), hết giờ thì tua lại trận → công bố xếp hạng từ cuối lên → pháo hoa.
 // Chỉ nhận dữ liệu ẩn danh từ server (/api/screen); toàn bộ diễn biến chỉ mở sau khi kết thúc (/api/replay).
 
 import { api, connectStream, formatClock, requireRole, serverClock } from '/shared/api.js'
@@ -431,7 +431,7 @@ $('eventBtn').addEventListener('click', async () => {
   const top = data.entries.slice(0, 10)
   board.replaceChildren(
     el('h2', {}, labeled('trophy', 'Bảng xếp hạng cả sự kiện')),
-    el('p', { class: 'muted' }, `${data.players.toLocaleString('vi-VN')} lữ khách · mỗi người tính trận điểm cao nhất · xem đầy đủ: ${location.host}/leaderboard`),
+    el('p', { class: 'muted' }, `${data.players.toLocaleString('vi-VN')} lữ khách · cộng dồn điểm mọi trận · xem đầy đủ: ${location.host}/leaderboard`),
     top.length
       ? el('ol', { class: 'event-list' }, ...top.map(e => el('li', {},
         el('span', { class: 'event-rank' }, e.rank <= 3 ? icon(`medal${e.rank}`, { size: 40, label: `Hạng ${e.rank}` }) : String(e.rank)),

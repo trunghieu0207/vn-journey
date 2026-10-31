@@ -59,7 +59,7 @@
   <div class="rule-text">
     <h2><span class="num">2</span> Bắt đầu</h2>
     <ul>
-      <li>Màn ngoài có 2 cột: bên trái nhập <b>mã phòng</b> chủ phòng gửi (hoặc mở link mời), bên phải là các <b>phòng chơi đơn có sẵn</b> — bấm <b>Vào</b> là xong bước mã phòng.</li>
+      <li>Ở khu <b>Vào chơi</b> trang chủ: bên trái nhập <b>mã phòng</b> chủ phòng gửi (hoặc mở link mời); bên phải là danh sách <b>phòng đang mở</b> — phòng công khai mọi người tạo và các phòng chơi đơn có sẵn — bấm <b>Vào</b> là xong bước mã phòng. Phòng riêng tư không hiện trong danh sách, phải có mã.</li>
       <li>Nhập tên, chọn team (phòng team). Mỗi team tối đa 12 người, ai cũng thấy và bấm được.</li>
       <li>Có thể chọn <b>quê</b> của bạn (không bắt buộc) — xem "Về quê" ở mục 6. Chỉ đồng đội thấy; không đổi được sau khi trận bắt đầu.</li>
       <li>Trong lúc chờ, màn chiếu và máy bạn chạy <b>"Bạn có biết?"</b>: đoán thử câu hỏi về các tỉnh, vài giây sau hiện đáp án. Các câu này sẽ không ra lại trong trận.</li>
@@ -160,9 +160,9 @@
     <h2><span class="num">9</span> Sự kiện (chủ phòng tung ra)</h2>
     <div class="card-list">
       <div><span data-icon="festival"></span><b>Lễ hội miền X</b><span>5 phút: cắm cờ ở miền đó được thêm <b>+100</b>.</span></div>
-      <div><span data-icon="storm"></span><b>Bão miền X</b><span>3 phút: không đi vào được các tỉnh miền đó.</span></div>
+      <div><span data-icon="storm"></span><b>Bão miền X</b><span>3 phút: không đi từ miền khác vào miền đó (team đang ở trong miền vẫn đi lại được).</span></div>
       <div><span data-icon="golden"></span><b>Câu hỏi vàng</b><span>2 phút, cả bản đồ: câu phát ra lúc này đúng thì <b>điểm ×2</b>, sai thì <b>nghỉ chân ×2</b>.</span></div>
-      <div><span data-icon="rumor"></span><b>Tin đồn</b><span>Màn chiếu tiết lộ team dẫn đầu đang giữ bao nhiêu tỉnh (không nêu tên).</span></div>
+      <div><span data-icon="rumor"></span><b>Tin đồn</b><span>Màn chiếu tiết lộ team dẫn đầu đang giữ bao nhiêu tỉnh (không nêu tên). Không dùng được khi bảng điểm đã đóng băng.</span></div>
       <div><span data-icon="question"></span><b>Câu hỏi chung cả phòng</b><span>Trận tạm dừng, <b>mỗi người</b> chọn đáp án trên máy mình trong 30 giây — cứ bàn với mọi người, kể cả team khác. Màn chiếu công bố tỉ lệ chọn và lời giải (không nêu tên ai). Cả phòng đúng từ <b>70%</b> → <b>mọi team +100</b>.</span></div>
     </div>
   </div>
@@ -184,7 +184,7 @@
       <div role="row"><span role="cell">Xuyên 3 miền: có tỉnh ở cả Bắc, Trung, Nam</span><b role="cell">+500</b></div>
       <div role="row"><span role="cell">Trả lời chậm (sau thời gian đủ điểm)</span><b role="cell" class="minus">tới −100%</b></div>
     </div>
-    <p class="muted">Điểm thưởng giữ lại kể cả khi tỉnh đổi chủ. <b>Bằng điểm:</b> team có tổng thời gian trả lời ít hơn xếp trên. 10 phút cuối bảng điểm trên màn chiếu bị <b>đóng băng</b>.</p>
+    <p class="muted">Điểm thưởng (thử tài, về quê, câu hỏi chung, Mạo hiểm, Siêu tốc…) giữ lại kể cả khi tỉnh đổi chủ. Riêng <b>Bộ sưu tập</b> và <b>Xuyên 3 miền</b> tính theo các tỉnh <b>đang giữ lúc hết giờ</b> — mất tỉnh là có thể mất khoản này. <b>Bằng điểm:</b> team có tổng thời gian trả lời ít hơn xếp trên. 10 phút cuối bảng điểm trên màn chiếu bị <b>đóng băng</b> (trận ngắn: 1/3 thời gian cuối).</p>
   </div>
   <div class="stage" data-scene="score" aria-hidden="true"></div>
 </section>
@@ -195,6 +195,7 @@
     <p>Chủ phòng chọn <b>Chơi đơn</b> lúc tạo phòng: mỗi người một hành trình, tối đa <b>50 người</b>. Các mục trên vẫn áp dụng, trừ những điểm sau:</p>
     <ul>
       <li>Vào phòng chỉ cần tên, <b>không chọn team</b>. Tên hiện trên màn chiếu — chủ phòng có thể sửa.</li>
+      <li><b>Về quê</b>: có tem ở tỉnh quê của bạn → <b>+50</b>. Chỉ bạn thấy quê của mình.</li>
       <li>Có sẵn vài <b>phòng chơi đơn</b> ở cột phải màn vào phòng: <b>ai vào trước làm chủ phòng</b> và vẫn chơi như mọi người (xem mục 12). Chủ phòng rời phòng thì người vào kế tiếp nhận quyền.</li>
       <li>Tỉnh <b>không thuộc riêng ai</b>: trả lời đúng là nhận <b>tem</b> tỉnh đó + điểm tỉnh. Tỉnh đã có tem thì đi qua, không hỏi lại.</li>
       <li><b>Tem Tiên phong +50</b>: người đầu tiên trong phòng trả lời đúng ở một tỉnh. Màn chiếu báo "Một lữ khách vừa là người đầu tiên tới…" (không nêu tên).</li>
@@ -202,6 +203,7 @@
       <li><b>Câu hỏi vàng</b> lấy câu khó hơn (45 giây trả lời), luật ×2 giữ nguyên.</li>
       <li>Màn chiếu hiện <b>top 10</b> và bản đồ "cả phòng đang đi đâu"; hạng của bạn ở thanh trên.</li>
       <li><b>Sổ tay hành trình</b>: các tem của bạn theo 3 miền, bấm tem xem điều đã học, danh sách Muốn thử / Muốn đến. Mở lại được sau trận.</li>
+      <li>Hết trận, điểm của bạn vào <a href="/leaderboard">bảng xếp hạng cả sự kiện</a> (giữ 7 ngày). Cùng tên ở nhiều phòng tính là một người, <b>cộng dồn điểm</b> mọi trận — chơi càng nhiều càng lên hạng.</li>
     </ul>
   </div>
   <div class="stage" data-scene="goal" aria-hidden="true"></div>

@@ -194,13 +194,17 @@ export function createRooms(ctx) {
   // Hạng bằng nhau khi cùng điểm + cùng số tem
   function leaderboard() {
     const since = now() - RULES.leaderboardKeepMs
-    const rows = db.prepare(`WITH ranked AS (
-                               SELECT name, color, score, stamps, played_at,
-                                      ROW_NUMBER() OVER (PARTITION BY name_key ORDER BY score DESC, stamps DESC, played_at) AS rn,
-                                      COUNT(*) OVER (PARTITION BY name_key) AS games
-                               FROM leaderboard WHERE played_at >= ?)
-                             SELECT name, color, score, stamps, games FROM ranked WHERE rn = 1
-                             ORDER BY score DESC, stamps DESC, played_at LIMIT ?`).all(since, RULES.leaderboardSize)
+    // Cộng dồn mọi trận của cùng một người (cùng tên bỏ dấu); tên + màu lấy theo trận gần nhất.
+    // Bằng điểm: nhiều tem hơn, rồi ai đạt tổng đó trước (trận cuối sớm hơn)
+    const rows = db.prepare(`WITH latest AS (
+                               SELECT name_key, name, color,
+                                      ROW_NUMBER() OVER (PARTITION BY name_key ORDER BY played_at DESC, id DESC) AS rn
+                               FROM leaderboard WHERE played_at >= ?),
+                             sums AS (
+                               SELECT name_key, SUM(score) AS score, SUM(stamps) AS stamps, COUNT(*) AS games, MAX(played_at) AS last
+                               FROM leaderboard WHERE played_at >= ? GROUP BY name_key)
+                             SELECT l.name, l.color, s.score, s.stamps, s.games FROM sums s JOIN latest l ON l.name_key = s.name_key AND l.rn = 1
+                             ORDER BY s.score DESC, s.stamps DESC, s.last LIMIT ?`).all(since, since, RULES.leaderboardSize)
     let rank = 0
     const entries = rows.map((r, i) => {
       const prev = rows[i - 1]
