@@ -115,6 +115,8 @@
 .room-meter { height: 6px; margin-top: 6px; overflow: hidden; border-radius: 99px; background: #F0F0F0; }
 .room-meter i { display: block; height: 100%; border-radius: 99px; background: var(--green); }
 .room-row .btn { min-height: 38px; }
+/* Ô báo lỗi trống không giữ chỗ (khoảng trống lớn giữa ô nhập và nút) — có lỗi thì hiện lại */
+.landing .entry form .form-error:empty { display: none; }
 .room-empty { padding: 18px; border: 2px dashed var(--line); border-radius: 16px; color: var(--muted); font-weight: 700; text-align: center; }
 
 .lp-foot { padding: 28px 24px 40px; color: var(--muted); font-size: 14px; font-weight: 700; text-align: center; }
@@ -131,20 +133,36 @@ html:has(.landing:not([hidden])) { scroll-behavior: smooth; }
   .lp-steps { grid-template-columns: 1fr; }
   .lp-feats { grid-template-columns: 1fr 1fr; }
   .lp-nav nav { display: none; }
-  .lp-nav .btn { margin-left: auto; }
+  .lp-nav .btn { margin-left: auto; white-space: nowrap; }
 }
 @media (max-width: 560px) {
   .lp-wrap { padding: 0 16px; }
   .lp-hero { padding-top: 28px; }
   .lp-hero h1 { font-size: 34px; }
-  .lp-cta .btn { flex: 1; }
+  .lp-cta .btn { flex: 1; justify-content: center; padding: 0 12px; font-size: 16px; white-space: nowrap; } /* 2 nút vừa một hàng, chữ không xuống dòng */
+  .lp-quick { align-items: center; }
+  .lp-quick .btn { min-height: 48px; }
   .lp-bubble { display: none; }
   .lp-feats { grid-template-columns: 1fr; }
   .lp-sec, .landing .login.entry { padding: 40px 0; }
   .lp-sec h2 { font-size: 28px; }
-  .room-row { grid-template-columns: 36px minmax(0, 1fr) auto; gap: 10px; padding: 10px 12px; }
-  .room-kind { width: 36px; height: 36px; border-radius: 12px; }
+  /* Điện thoại: nút Vào xuống dưới phần chữ — để chữ có đủ chiều ngang, không bị ép xuống dòng liên tục */
+  .room-row { grid-template-columns: 36px minmax(0, 1fr); gap: 8px 10px; padding: 10px 12px; }
+  .room-row > .btn { grid-column: 2; justify-self: start; min-height: 34px; padding: 4px 18px; font-size: 15px; }
+  .room-kind { align-self: start; width: 36px; height: 36px; border-radius: 12px; }
+  .room-title b { font-size: 16px; }
+  .fchip { gap: 4px; padding: 5px 9px; font-size: 13px; }
+  .entry-foot { flex-wrap: wrap; justify-content: center; gap: 2px 10px; }
+  .entry-foot > * { white-space: nowrap; }
+  .entry-foot > span:nth-of-type(2) { display: none; } /* dấu · giữa hai link: xuống hàng thì bị treo cuối dòng */
   .room-kind .icon { width: 22px; height: 22px; }
   .room-list { max-height: none; }
   .room-filter .input { flex-basis: 100%; }
+}
+/* Điện thoại rất hẹp (≤ 380px, vd. iPhone SE): tên game + nút Vào chơi vừa một hàng */
+@media (max-width: 380px) {
+  .lp-nav .lp-wrap { gap: 10px; }
+  .lp-logo { gap: 6px; font-size: 17px; }
+  .lp-logo .icon { width: 24px; height: 24px; }
+  .lp-nav .btn { min-height: 36px; padding: 0 12px; font-size: 15px; }
 }

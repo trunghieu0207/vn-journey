@@ -191,7 +191,8 @@
   .tabs { gap: 0; padding: 4px; border-radius: 14px; background: #F0F0F0; }
   .tabs .btn { flex: 1; min-height: 40px; padding: 6px 4px; border-radius: 10px; --fill: transparent; --drop: 0px; color: var(--muted); font-size: 15px; white-space: nowrap; rotate: 0deg !important; }
   .tabs .btn::before, .tabs .btn::after { display: none; }
-  .tabs .btn.on { --fill: #fff; color: var(--ink); box-shadow: 0 2px 0 var(--line); }
+  /* Cùng màu với máy tính (.btn.on: vàng) — lớp ::before vẽ nền đã tắt ở trên nên tô nền trực tiếp */
+  .tabs .btn.on { --fill: var(--accent); background: var(--accent); color: var(--ink); box-shadow: 0 3px 0 var(--accent-dark); }
   .mode-pick { grid-template-columns: 1fr; }
   .facts { grid-template-columns: 1fr; gap: 2px; }
   .facts dd { margin-bottom: 6px; }
