@@ -1,0 +1,96 @@
+/* =====================================================================
+   CHUYỂN ĐỘNG (shared/fx.js + map.js) — bản tham chiếu mockup/animations.html
+   ===================================================================== */
+/* Bản đồ */
+.prov { transform-box: fill-box; transform-origin: center; }
+/* Hiệu ứng nổi trên bản đồ (map/effects.js): phần tử HTML chồng lên khung bản đồ, chỉ đổi transform / opacity → GPU ghép,
+   không vẽ lại SVG bản đồ. z-index dưới nút zoom / thông báo / lớp phủ khóa */
+:is(.map-fx-shape, .map-fx-ring, .map-fx-pts) { position: absolute; z-index: 2; pointer-events: none; will-change: transform, opacity; }
+.map-fx-shape { overflow: visible; transform-origin: center; }
+.map-fx-shape path { stroke: #fff; stroke-width: 3.2px; stroke-linejoin: round; fill-rule: evenodd; vector-effect: non-scaling-stroke; }
+.map-fx-shape.slam { filter: drop-shadow(0 6px 5px rgba(0, 0, 0, .25)); } /* bóng giấy khi đang rơi — CSS filter trên lớp GPU */
+.map-fx-shape.peel { transform-origin: 100% 0; }
+.map-fx-ring { width: 56px; height: 56px; border: 3px solid currentColor; border-radius: 50%; color: var(--accent); }
+.map-fx-pts { color: var(--green); font-size: 22px; font-weight: 900; white-space: nowrap;
+  text-shadow: 2px 0 #fff, -2px 0 #fff, 0 2px #fff, 0 -2px #fff, 1.5px 1.5px #fff, -1.5px 1.5px #fff, 1.5px -1.5px #fff, -1.5px -1.5px #fff; }
+
+/* Dấu tích / gạch chéo vẽ tay trên nút đáp án */
+.options .btn { position: relative; }
+.fx-mark { position: absolute; top: 50%; right: 12px; width: 30px; height: 30px; margin-top: -15px; overflow: visible; pointer-events: none; }
+.fx-mark path { fill: none; stroke: #fff; stroke-width: 4; stroke-linecap: round; stroke-linejoin: round; }
+.options .btn:is(.green, .danger):disabled { opacity: 1; }
+.options .btn:is(.green, .danger) .key { border-color: rgba(255, 255, 255, .6); color: #fff; }
+.fx-float { position: absolute; z-index: 5; pointer-events: none; }
+.fx-piece { position: absolute; width: 10px; height: 14px; border-radius: 2px; box-shadow: 0 0 0 1.5px rgba(0, 0, 0, .06); pointer-events: none; }
+.verdict { display: flex; align-items: baseline; justify-content: flex-end; gap: 10px; margin-top: 12px; }
+.verdict h3 { color: var(--red); font-size: 24px; font-weight: 900; }
+
+/* Lớp hiệu ứng toàn màn hình (đếm ngược, biển sự kiện, thẻ bài) — không chặn thao tác */
+.fx-layer { position: fixed; inset: 0; z-index: 90; overflow: hidden; pointer-events: none; }
+.fx-count { position: absolute; top: 50%; left: 50%; font-size: min(30vh, 220px); font-weight: 900; line-height: 1;
+  text-shadow: 4px 0 #fff, -4px 0 #fff, 0 4px #fff, 0 -4px #fff, 3px 3px #fff, -3px 3px #fff, 3px -3px #fff, -3px -3px #fff, 0 12px 0 rgba(0, 0, 0, .1); }
+.toast.fx-go { position: absolute; top: 50%; left: 50%; display: inline-flex; align-items: center; gap: 12px; padding: 18px 40px; font-size: min(8vh, 56px); font-weight: 900; white-space: nowrap; }
+.fx-sign { position: absolute; top: 58px; left: 50%; width: 0; transform-origin: 0 0; }
+.fx-strings { position: absolute; top: 0; left: -110px; width: 220px; height: 42px; }
+.fx-strings path { stroke: var(--wood, #B5793A); stroke-width: 2.5; stroke-linecap: round; fill: none; }
+.pill.fx-sign-pill { position: absolute; top: 40px; left: 0; translate: -50% 0; rotate: 0deg; padding: 12px 26px; font-size: 26px; white-space: nowrap; }
+.fx-sign-sub { position: absolute; top: 108px; left: 0; translate: -50% 0; padding: 4px 12px; border-radius: 10px; background: rgba(255, 255, 255, .9); color: var(--ink); font-weight: 800; white-space: nowrap; }
+.fx-lantern { position: absolute; bottom: -50px; }
+.fx-card-layer { background: rgba(60, 60, 60, .25); }
+.fx-rays { position: absolute; top: 50%; left: 50%; width: 420px; height: 420px; margin: -210px 0 0 -210px; border-radius: 50%; opacity: 0;
+  background: repeating-conic-gradient(rgba(255, 200, 0, .32) 0 12deg, transparent 12deg 30deg);
+  -webkit-mask: radial-gradient(circle, #000 25%, transparent 70%); mask: radial-gradient(circle, #000 25%, transparent 70%); }
+.fx-flip { position: absolute; top: 50%; left: 50%; width: 170px; height: 228px; margin: -114px 0 0 -85px; perspective: 800px; }
+.fx-flip-in { position: absolute; inset: 0; transform-style: preserve-3d; }
+.fx-flip .face { position: absolute; inset: 0; display: grid; place-items: center; align-content: center; gap: 8px; text-align: center; backface-visibility: hidden; -webkit-backface-visibility: hidden; }
+.fx-flip .face.front { padding: 12px; }
+.fx-flip .face.front b { font-size: 20px; font-weight: 900; }
+.fx-flip .face.front small { color: var(--muted); font-size: 13px; line-height: 1.3; }
+.fx-flip .face.back { transform: rotateY(180deg); border-radius: 18px; background: #CE82FF; box-shadow: 0 0 0 3px #fff, 0 6px 0 2px #A568E0; }
+.score-row .up-badge { position: absolute; top: -12px; left: 70px; padding: 1px 12px; border-radius: 999px; background: var(--green); box-shadow: 0 0 0 2px #fff; color: #fff; font-size: 18px; font-weight: 900; }
+
+/* Mây che tỉnh sương mù (map.js, mockup/fog-clouds.html bản A) — cỡ pixel cố định, nhấp nhô chậm */
+:is(.cloud-set.off, .cloud.extra.far) { display: none; }
+.cloud-shadow { fill: #AFC0CE; }
+.cloud-rim { fill: #fff; stroke: #fff; stroke-width: 6px; }
+.cloud-body { fill: #DCE6EE; }
+.cloud-top { fill: #F7FAFC; }
+.cloud .bob { transform-box: fill-box; transform-origin: center; }
+.map.lively .cloud .bob { animation: cloud-bob 2.4s ease-in-out 1; } /* một nhịp rồi đứng yên — xem .map.lively trong map.css */
+@keyframes cloud-bob { 50% { transform: translateY(-2.5px); } }
+
+/* Công thành (team/siege-fx.js, bản tham chiếu mockup/siege.html): đội mình hiện linh vật, đối thủ luôn ẩn danh "?" */
+.siege-fx { position: absolute; inset: 0; z-index: 2; overflow: hidden; pointer-events: none; }
+.siege-fx > * { position: absolute; will-change: transform, opacity; }
+.sx-disc { display: grid; place-items: center; width: 44px; height: 44px; border-radius: 50%; background: #fff; box-shadow: 0 0 0 3px #fff, 0 4px 0 3px rgba(0, 0, 0, .12); }
+.sx-disc svg { width: 40px; height: 40px; }
+.sx-mystery { display: grid; place-items: center; width: 40px; height: 40px; border-radius: 50%; background: #6B7280; color: #fff; font-size: 24px; font-weight: 900; line-height: 1; }
+.sx-flag { width: 0; height: 0; transform-origin: 0 0; }
+.sx-pole { position: absolute; left: -3px; bottom: 0; width: 6px; height: 104px; border-radius: 3px; background: #8D6E63; box-shadow: 0 0 0 2px #fff; }
+.sx-cloth { position: absolute; bottom: 48px; display: grid; place-items: center; width: 70px; height: 54px; background: #fff; box-shadow: 0 0 0 3px var(--team, #6B7280), 0 0 0 5px #fff, 0 5px 0 5px rgba(0, 0, 0, .15); }
+.sx-flag.l .sx-cloth { left: 3px; border-radius: 4px 14px 10px 4px / 4px 10px 14px 4px; }
+.sx-flag.r .sx-cloth { right: 3px; border-radius: 14px 4px 4px 10px / 10px 4px 4px 14px; }
+.sx-cloth .sx-disc { width: auto; height: auto; background: none; box-shadow: none; }
+.sx-who { position: absolute; bottom: 110px; padding: 1px 8px; border-radius: 8px 11px 7px 10px; background: #fff; color: var(--ink); font-size: 13px; font-weight: 900; white-space: nowrap; transform: translateX(-50%); }
+.sx-flag.l .sx-who { left: 38px; }
+.sx-flag.r .sx-who { left: -38px; }
+.sx-dust { width: 20px; height: 20px; margin: -10px 0 0 -10px; border-radius: 50%; background: #fff; }
+.sx-spark { width: 12px; height: 12px; margin: -6px 0 0 -6px; border-radius: 3px; background: var(--accent); }
+.sx-spark.w { background: #fff; }
+.pill.sx-cap { --fill: #fff; --bd: #FFB3B3; padding: 8px 18px; color: var(--red-dark); font-size: 20px; font-weight: 900; white-space: nowrap; transform: translateX(-50%); }
+.sx-badge { margin: -22px 0 0 -22px; }
+.sx-shield { margin: -32px 0 0 -32px; }
+
+/* Thanh kéo co trên khung câu hỏi công thành / phòng thủ */
+.duel-bar { display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 8px; margin: 10px 0 4px; }
+.tug-end { display: grid; justify-items: center; gap: 2px; font-size: 12px; font-weight: 900; color: var(--muted); white-space: nowrap; }
+.tug-end .sx-disc { width: 36px; height: 36px; }
+.tug-end .sx-disc svg, .tug-end .sx-mystery { width: 32px; height: 32px; font-size: 19px; }
+.tug-lane { position: relative; height: 54px; }
+.tug-rope { position: absolute; left: 0; right: 0; top: 16px; height: 8px; border-radius: 4px; background: repeating-linear-gradient(-45deg, #C8992F 0 6px, #E5B95A 6px 12px); box-shadow: 0 0 0 2px #fff; }
+.tug-mid { position: absolute; left: 50%; top: 2px; height: 36px; border-left: 2px dashed rgba(60, 60, 60, .2); }
+.tug-knot { position: absolute; left: 50%; top: 6px; width: 14px; height: 28px; margin-left: -7px; border-radius: 5px; background: var(--red); box-shadow: 0 0 0 2px #fff; }
+.tug-state { position: absolute; left: 0; right: 0; bottom: 0; margin: 0; text-align: center; color: var(--red-dark); font-size: 13px; font-weight: 900; }
+.foe-missed .tug-knot { left: 22%; }
+.foe-missed .tug-end.foe { opacity: .55; rotate: -10deg; }
+.foe-missed .tug-state { color: var(--green-dark); }

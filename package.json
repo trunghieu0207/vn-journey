@@ -1,0 +1,20 @@
+{
+  "name": "vn-journey",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Hành trình 3 miền — mini game theo team cho Ngày Văn hóa Việt Nam 24/11",
+  "type": "module",
+  "packageManager": "pnpm@10.29.3",
+  "engines": {
+    "node": "22.23.4"
+  },
+  "scripts": {
+    "dev": "node --env-file-if-exists=.env --disable-warning=ExperimentalWarning server/index.js",
+    "start": "node --env-file-if-exists=.env --disable-warning=ExperimentalWarning server/index.js",
+    "data:check": "node scripts/validate-data.mjs",
+    "review:build": "node scripts/build-review.mjs",
+    "db:init": "node --disable-warning=ExperimentalWarning scripts/init-db.mjs",
+    "db:reset": "node --disable-warning=ExperimentalWarning scripts/init-db.mjs --reset",
+    "test": "node --disable-warning=ExperimentalWarning --test tests/*.test.js"
+  }
+}

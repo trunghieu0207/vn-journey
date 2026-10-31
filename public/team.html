@@ -1,0 +1,382 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Hành trình 3 miền</title>
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="/favicon.png" type="image/png" sizes="32x32">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="stylesheet" href="/style.css">
+<script type="module" src="/team.js"></script>
+</head>
+<body>
+<!-- Bộ lọc vẽ tay (css/hand.css) — chỉ áp lên lớp nền ::before/::after; hand-ic-wob: icon (shared/icons.js), tính theo lưới 32 của icon -->
+<svg class="hand-defs" width="0" height="0" aria-hidden="true" focusable="false">
+  <filter id="hand-wob-s" x="-20%" y="-60%" width="140%" height="220%"><feTurbulence type="fractalNoise" baseFrequency="0.05" numOctaves="1" seed="5" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="2.2" xChannelSelector="R" yChannelSelector="G"/></filter>
+  <filter id="hand-wob2" x="-20%" y="-60%" width="140%" height="220%"><feTurbulence type="fractalNoise" baseFrequency="0.04" numOctaves="2" seed="11" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="4" xChannelSelector="R" yChannelSelector="G"/></filter>
+  <filter id="hand-ic-wob" x="-15%" y="-15%" width="130%" height="130%"><feTurbulence type="fractalNoise" baseFrequency="0.16" numOctaves="1" seed="3" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="1.3" xChannelSelector="R" yChannelSelector="G"/></filter>
+</svg>
+
+<!-- Trang chủ "/" dạng landing (mockup/landing.html): giới thiệu game ở trên; khu "Vào chơi" (#play) ở dưới = màn vào phòng 2 cột
+     (trái: mã phòng / tạo phòng; phải: danh sách phòng đang mở — mockup/room-list.html kiểu A, hoặc giải thích kiểu phòng / mã vừa tạo).
+     Có link mời /?room=MÃ, có lỗi, hay vừa thoát phòng thì cuộn thẳng xuống #play (entry.js) -->
+<section class="landing" id="entry" hidden>
+  <header class="lp-nav">
+    <div class="lp-wrap">
+      <a class="lp-logo" href="#lpTop"><span data-icon="hat"></span>Hành trình 3 miền</a>
+      <nav aria-label="Trang chủ"><a href="#how">Cách chơi</a><a href="#modes">Kiểu phòng</a><a href="#play">Phòng đang mở</a><a href="/leaderboard">Bảng xếp hạng</a><a href="/rules">Luật chơi</a></nav>
+      <a class="btn green" href="#play">Vào chơi</a>
+    </div>
+  </header>
+
+  <section class="lp-hero" id="lpTop">
+    <div class="lp-wrap">
+      <div class="lp-hero-text">
+        <span class="lp-kicker"><span data-icon="festival"></span> Ngày Văn hóa Việt Nam · 24/11</span>
+        <h1>Đi khắp <em>34 tỉnh, thành</em> trong sương mù</h1>
+        <p class="lp-lead">Game đố vui theo team: đi từ tỉnh này sang tỉnh bên cạnh, trả lời đúng câu hỏi về ẩm thực, lễ hội, phong tục của tỉnh đó để <b>cắm cờ</b>. Nhiều điểm nhất khi hết giờ thì thắng.</p>
+        <div class="lp-cta">
+          <a class="btn green" href="#play">Vào chơi ngay</a>
+          <a class="btn" href="#how">Xem cách chơi</a>
+        </div>
+        <form class="lp-quick" id="heroForm" autocomplete="off">
+          <input class="input pin-input" id="heroCode" maxlength="6" placeholder="Có mã phòng? Nhập ở đây" aria-label="Mã phòng">
+          <button class="btn primary" type="submit">Vào</button>
+        </form>
+        <p class="lp-quick-note">Chủ phòng gửi mã · không cần tài khoản, chỉ cần tên</p>
+        <div class="lp-stats">
+          <div><b>34</b><span>tỉnh, thành</span></div>
+          <div><b>3</b><span>miền</span></div>
+          <div><b>15–90</b><span>phút một trận</span></div>
+          <div><b>2–8</b><span>team / phòng</span></div>
+        </div>
+        <div class="entry-mascots" id="entryMascots" aria-hidden="true"></div>
+      </div>
+      <div class="lp-map" aria-hidden="true">
+        <svg id="heroMap"></svg>
+        <div class="lp-bubble b1"><span data-icon="flag"></span><div>Team Rồng cắm cờ<small>+120 điểm</small></div></div>
+        <div class="lp-bubble b2"><span data-icon="siege"></span><div>Có đoàn khách thử tài!<small>Cược 3 hiệp</small></div></div>
+        <div class="lp-bubble b3"><span data-icon="question"></span><div>Bánh pía là đặc sản tỉnh nào?<small>Ẩm thực · 30 giây</small></div></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="lp-sec alt" id="how">
+    <div class="lp-wrap">
+      <h2>Chơi trong 3 bước</h2>
+      <p class="lp-sub">Mỗi team một laptop, cả team cùng bàn. Không cần cài đặt, mở trình duyệt là chơi.</p>
+      <div class="lp-steps">
+        <div class="lp-step"><span class="lp-ic"><span data-icon="map"></span></span><b>Đi sang tỉnh bên cạnh</b>
+          <p>Bắt đầu ở một tỉnh, mỗi lượt đi sang một tỉnh giáp ranh. Sương mù che những nơi chưa ghé — không biết team khác đang ở đâu.</p></div>
+        <div class="lp-step"><span class="lp-ic"><span data-icon="question"></span></span><b>Trả lời câu hỏi của tỉnh đó</b>
+          <p>Ẩm thực, lễ hội, di sản, phong tục… 30 giây, trả lời nhanh được thêm điểm.</p>
+          <div class="lp-sample">Cà Mau · Ẩm thực<div class="lp-opts"><span>Bánh xèo</span><span class="ok">Ba khía muối</span><span>Bún bò</span><span>Bánh đa cua</span></div></div></div>
+        <div class="lp-step"><span class="lp-ic"><span data-icon="flag"></span></span><b>Cắm cờ, giữ tỉnh</b>
+          <p>Đúng thì cắm cờ, tỉnh thuộc về team. Tỉnh đã có chủ? Ghé <b>thử tài</b> — hai đội đấu cùng câu, ai đúng trước thắng.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="lp-sec" id="modes">
+    <div class="lp-wrap">
+      <h2>Hai kiểu phòng</h2>
+      <p class="lp-sub">Chủ phòng chọn lúc tạo phòng. Phòng công khai hiện ở danh sách bên dưới, phòng riêng tư cần mã.</p>
+      <div class="lp-modes">
+        <div class="lp-mode team">
+          <h3><span class="lp-ic"><span data-icon="flag"></span></span> Theo team</h3>
+          <p>Các team đi khắp bản đồ giành tỉnh, bị giành lại là mất điểm.</p>
+          <ul><li>2–8 team, mỗi team tối đa 12 người, bỏ phiếu chốt đáp án</li><li>Thử tài: hai đội cược 1–3 hiệp, thắng đa số</li><li>Màn chiếu: bảng điểm, bản tin, 10 phút cuối đóng băng</li></ul>
+          <span class="lp-fit">Hợp với: sự kiện cả công ty, có MC và máy chiếu</span>
+        </div>
+        <div class="lp-mode solo">
+          <h3><span class="lp-ic"><span data-icon="hat"></span></span> Chơi đơn</h3>
+          <p>Mỗi người một hành trình, sưu tầm tem các tỉnh. Không ai bị lấy mất gì.</p>
+          <ul><li>Tối đa 50 người, mỗi người một máy</li><li>Tem Tiên phong +50 cho người đầu tiên tới một tỉnh</li><li>Điểm vào <a class="link" href="/leaderboard">bảng xếp hạng cả sự kiện</a></li></ul>
+          <span class="lp-fit">Hợp với: nhóm nhỏ, giờ nghỉ trưa, chơi lại sau sự kiện</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="lp-sec alt">
+    <div class="lp-wrap">
+      <h2>Không chỉ là đố vui</h2>
+      <p class="lp-sub">Vài thứ làm mỗi trận một khác.</p>
+      <div class="lp-feats">
+        <div class="lp-feat"><span class="lp-ic"><span data-icon="fog"></span></span><b>Sương mù</b><p>Chỉ thấy tỉnh mình đã ghé. Đối thủ ở đâu — tự đoán.</p></div>
+        <div class="lp-feat"><span class="lp-ic"><span data-icon="siege"></span></span><b>Thử tài</b><p>Ghé tỉnh có chủ: cược số hiệp, đấu cùng câu với chủ nhà.</p></div>
+        <div class="lp-feat"><span class="lp-ic"><span data-icon="home"></span></span><b>Về quê</b><p>Cắm cờ ở quê một thành viên được +50. Chỉ đồng đội biết.</p></div>
+        <div class="lp-feat"><span class="lp-ic"><span data-icon="festival"></span></span><b>Sự kiện bất ngờ</b><p>Lễ hội, Bão, câu hỏi chung cả phòng — MC tung giữa trận.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="lp-sec login entry" id="play">
+    <div class="lp-wrap">
+      <h2>Vào chơi</h2>
+      <p class="lp-sub">Chọn một phòng đang mở, nhập mã phòng được mời, hoặc tự tạo phòng.</p>
+      <div class="entry-grid">
+  <div class="card entry-main">
+    <div class="tabs" role="tablist">
+      <button class="btn on" type="button" role="tab" id="tabJoin" aria-selected="true">Tham gia phòng</button>
+      <button class="btn" type="button" role="tab" id="tabCreate" aria-selected="false">Tạo phòng</button>
+    </div>
+
+    <!-- Tham gia: bước 1 nhập mã phòng (hoặc bấm phòng có sẵn bên phải), bước 2 nhập tên + chọn team -->
+    <form id="lookupForm" autocomplete="off">
+      <label class="field"><span>Mã phòng <span class="muted">· phòng riêng tư: chủ phòng gửi cho bạn</span></span>
+        <input class="input pin-input" id="roomCode" maxlength="6" required placeholder="6 ký tự">
+      </label>
+      <div class="form-error" id="lookupError" role="alert"></div>
+      <button class="btn green" type="submit">Tiếp tục</button>
+    </form>
+
+    <form id="joinForm" autocomplete="off" hidden>
+      <h2 class="entry-title"><span id="joinRoomName"></span> <span class="muted" id="joinRoomCode"></span></h2>
+      <p class="muted" id="soloNote" hidden></p>
+      <p class="owner-note" id="ownerNote" hidden>Bạn là người tạo phòng: vào chơi vẫn giữ quyền chủ phòng (nút "Chủ phòng" trên thanh trên; điện thoại: trong menu ≡).</p>
+      <label class="field">Tên của bạn
+        <input class="input" id="playerName" maxlength="24" required placeholder="Tên của bạn">
+      </label>
+      <label class="field home-field"><span>Quê bạn ở đâu? <span class="muted">· không bắt buộc</span></span>
+        <select class="input" id="playerHome"><option value="">Không chọn</option></select>
+      </label>
+      <p class="home-note"><span data-icon="home"></span><span id="homeNoteText">Team cắm cờ ở tỉnh quê của bạn được <b>+50 "Về quê"</b> (tối đa 3 tỉnh mỗi team). Chỉ đồng đội thấy quê của bạn; không đổi được sau khi trận bắt đầu.</span></p>
+      <p class="field-label" id="teamPickLabel">Chọn team</p>
+      <div class="team-pick" id="teamPick" role="radiogroup" aria-label="Chọn team"></div>
+      <div class="form-error" id="joinError" role="alert"></div>
+      <div class="btn-row entry-actions">
+        <button class="btn" type="button" id="joinBack">← Đổi phòng</button>
+        <button class="btn green" type="submit">Vào chơi</button>
+      </div>
+    </form>
+
+    <!-- Tạo phòng -->
+    <form id="createForm" autocomplete="off" hidden>
+      <div class="mode-pick" role="radiogroup" aria-label="Kiểu phòng">
+        <label class="mode-option"><input type="radio" name="mode" value="team" checked>
+          <b>Theo team</b><small>Chia team, cắm cờ giành tỉnh, ghé thăm thử tài</small></label>
+        <label class="mode-option"><input type="radio" name="mode" value="solo">
+          <b>Chơi đơn</b><small>Mỗi người một hành trình: sưu tầm tem, tối đa 50 người</small></label>
+      </div>
+      <div class="mode-pick" role="radiogroup" aria-label="Ai vào được">
+        <label class="mode-option"><input type="radio" name="access" value="public" checked>
+          <b>Công khai</b><small>Hiện ở danh sách "Phòng đang mở" — ai cũng bấm Vào được</small></label>
+        <label class="mode-option"><input type="radio" name="access" value="private">
+          <b>Riêng tư</b><small>Không hiện ở danh sách — phải có mã phòng mới vào được</small></label>
+      </div>
+      <label class="field">Tên phòng
+        <input class="input" id="newRoomName" maxlength="40" required placeholder="VD: Ngày Văn hóa 24/11">
+      </label>
+      <div class="field-row">
+        <label class="field" id="teamCountField">Số team
+          <select class="input" id="newTeamCount">
+            <option>2</option><option>3</option><option>4</option><option>5</option>
+            <option selected>6</option><option>7</option><option>8</option>
+          </select>
+        </label>
+        <label class="field">Thời lượng
+          <select class="input" id="newDuration">
+            <option value="15">15 phút</option><option value="30">30 phút</option>
+            <option value="45" selected>45 phút</option><option value="60">60 phút</option><option value="90">90 phút</option>
+          </select>
+        </label>
+        <label class="field" title="Số câu phải trả lời đúng ở một tỉnh mới cắm cờ / nhận tem. Sai giữa chừng vẫn giữ số câu đã đúng">Số câu mỗi tỉnh
+          <select class="input" id="newQuizCount">
+            <option value="1" selected>1 câu</option><option value="2">2 câu</option><option value="3">3 câu</option>
+          </select>
+        </label>
+      </div>
+      <label class="check">
+        <input type="checkbox" id="newTopicChoice">
+        <span>Cho người chơi <b>chọn chủ đề</b> câu hỏi khi tới tỉnh <small class="muted">(không chọn: câu ngẫu nhiên)</small></span>
+      </label>
+      <label class="check">
+        <input type="checkbox" id="newBetChoice" checked>
+        <span><b>Đặt cược</b> trước câu hỏi: Chắc ăn / Mạo hiểm <small class="muted">(Mạo hiểm: đúng +50% điểm, sai nghỉ chân thêm 30 giây)</small></span>
+      </label>
+      <label class="check" id="pioneerField" hidden>
+        <input type="checkbox" id="newPioneer" checked>
+        <span><b>Tem Tiên phong</b>: người đầu tiên có tem một tỉnh được <b>+50</b></span>
+      </label>
+      <div class="form-error" id="createError" role="alert"></div>
+      <button class="btn green" type="submit">Tạo phòng</button>
+    </form>
+
+
+    <!-- Vừa tạo phòng: mã hiện ở cột phải -->
+    <div class="entry-next" id="createdNext" hidden>
+      <p><b>Đã tạo phòng.</b> Gửi mã phòng (ô "Mã phòng") cho người chơi.</p>
+      <p class="muted">Muốn vừa chơi vừa làm chủ phòng: bấm <b>Vào chơi luôn</b> — bạn vào phòng như mọi người, nút "Chủ phòng" trên thanh trên (điện thoại: trong menu ≡) để bắt đầu trận, tung sự kiện. Chỉ dẫn chương trình (không chơi): mở trang chủ phòng.</p>
+      <button class="btn green wide" type="button" id="playNowBtn">Vào chơi luôn</button>
+      <a class="btn wide" href="/admin.html">Chỉ mở trang chủ phòng</a>
+    </div>
+
+    <div class="entry-foot"><span class="muted">Lần đầu chơi?</span><a class="link" href="#how">Xem cách chơi</a><span class="muted">·</span><a class="link" href="/rules" target="_blank" rel="noopener">Luật chơi đầy đủ</a></div>
+  </div>
+
+  <div class="card entry-side">
+    <!-- Tab Tham gia: danh sách phòng đang mở (phòng công khai + phòng chơi đơn có sẵn), lọc theo kiểu + tìm tên -->
+    <div id="roomsPane">
+      <h2 class="entry-title"><span data-icon="map"></span> Phòng đang mở</h2>
+      <p class="muted">Bấm Vào rồi nhập tên · phòng riêng tư không hiện ở đây, cần mã phòng</p>
+      <div class="room-filter" role="group" aria-label="Lọc phòng">
+        <button class="fchip on" type="button" data-kind="all">Tất cả <i></i></button>
+        <button class="fchip" type="button" data-kind="team">Theo team <i></i></button>
+        <button class="fchip" type="button" data-kind="solo">Chơi đơn <i></i></button>
+        <input class="input" id="roomSearch" type="search" placeholder="Tìm tên phòng" aria-label="Tìm tên phòng">
+      </div>
+      <div class="room-list" id="roomList"></div>
+    </div>
+
+    <!-- Tab Tạo phòng: giải thích kiểu phòng đang chọn bên trái (không bấm chọn ở đây) -->
+    <div class="mode-explain" id="modeExplain" hidden>
+      <div data-mode="team">
+        <p class="kicker">Kiểu phòng bạn đang chọn</p>
+        <h2 class="entry-title"><span data-icon="flag"></span> Theo team</h2>
+        <p class="lead">Các team đi khắp bản đồ, trả lời đúng để <b>cắm cờ giành tỉnh</b>. Tỉnh đã có chủ thì <b>ghé thăm thử tài</b> để giành lại — chủ nhà được trả lời cùng câu để giữ tỉnh.</p>
+        <dl class="facts">
+          <dt>Người chơi</dt><dd>2–8 team, mỗi team tối đa 12 người. Cả team cùng bàn, bỏ phiếu chốt đáp án.</dd>
+          <dt>Bản đồ</dt><dd>Sương mù: chỉ thấy tỉnh mình đã ghé, không biết team khác ở đâu.</dd>
+          <dt>Điểm</dt><dd>Điểm các tỉnh đang giữ + thưởng. Bị giành tỉnh là mất điểm tỉnh đó.</dd>
+          <dt>Màn chiếu</dt><dd>Bảng điểm các team, bản tin ẩn danh; 10 phút cuối đóng băng.</dd>
+        </dl>
+        <p class="fit"><b>Hợp với:</b> sự kiện cả công ty, có MC và máy chiếu.</p>
+      </div>
+      <div data-mode="solo" hidden>
+        <p class="kicker">Kiểu phòng bạn đang chọn</p>
+        <h2 class="entry-title"><span data-icon="map"></span> Chơi đơn</h2>
+        <p class="lead">Mỗi người một hành trình: trả lời đúng là <b>nhận tem</b> tỉnh đó. Tỉnh không thuộc riêng ai — không ai bị lấy mất tỉnh.</p>
+        <dl class="facts">
+          <dt>Người chơi</dt><dd>Tối đa 50 người, mỗi người một máy, không chia team.</dd>
+          <dt>Bản đồ</dt><dd>Vẫn có sương mù; tỉnh đã ghé ghi số người đã có tem.</dd>
+          <dt>Điểm</dt><dd>Điểm các tỉnh có tem + <b>Tiên phong +50</b> cho người đầu tiên tới một tỉnh.</dd>
+          <dt>Màn chiếu</dt><dd>Top 10 lữ khách + bản đồ "cả phòng đang đi đâu".</dd>
+          <dt>Sau trận</dt><dd>Sổ tay hành trình: các tem và điều đã học, mở lại được.</dd>
+        </dl>
+        <p class="fit"><b>Hợp với:</b> nhóm nhỏ, chơi lẻ, hoặc chơi lại sau sự kiện.</p>
+      </div>
+      <p class="entry-or">Sau khi tạo</p>
+      <p class="muted">Cột này hiện mã phòng, link mời, mã chủ phòng (chỉ hiện 1 lần) và mã màn chiếu.</p>
+    </div>
+
+    <!-- Vừa tạo phòng -->
+    <div id="created" hidden>
+      <p class="muted">Mã phòng — gửi cho người chơi</p>
+      <div class="big-code" id="createdCode"></div>
+      <p class="muted">Link vào thẳng: <b id="createdLink"></b></p>
+      <div class="secret">
+        <p><b>Mã chủ phòng: <span id="createdOwnerKey"></span></b></p>
+        <p class="muted">Chỉ hiện 1 lần — ghi lại để đăng nhập lại trang chủ phòng. Không gửi cho người chơi.</p>
+        <p><b>Mã màn chiếu: <span id="createdScreenCode"></span></b></p>
+      </div>
+    </div>
+  </div>
+      </div>
+    </div>
+  </section>
+
+  <footer class="lp-foot">Hành trình 3 miền · mini game Ngày Văn hóa Việt Nam 24/11/2026
+    <a class="link" href="/rules">Luật chơi</a><a class="link" href="/leaderboard">Bảng xếp hạng</a><a class="link" href="/screen.html">Màn chiếu</a><a class="link" href="/admin.html">Trang chủ phòng</a></footer>
+</section>
+
+<div id="app" hidden>
+  <header class="topbar">
+    <div class="team-name"><span class="team-icon" id="teamChip"></span><span id="teamName"></span></div>
+    <div class="stat"><b id="score">0</b><span class="muted">điểm</span></div>
+    <div class="stat"><b id="provCount">0</b><span class="muted" id="provLabel">tỉnh</span></div>
+    <div class="stat" id="rankBox" hidden><span data-icon="trophy"></span><b id="rank">–</b><span class="muted" id="rankOf"></span></div>
+    <div class="stat streak" id="streakBox" hidden><span data-icon="streak"></span><b id="streak">0</b><span class="muted">câu liền</span></div>
+    <div class="stat home-stat" id="homeBox" hidden><span data-icon="home"></span><b id="homeN">0</b><span class="muted" id="homeMax">/3 về quê</span></div>
+    <div class="stat" id="timerBox"><span data-icon="timer"></span><b id="timer">--:--</b></div>
+    <div class="pill" id="eventPill" hidden></div>
+    <div class="spacer"></div>
+    <span class="conn" id="conn" hidden>● Mất kết nối, đang thử lại…</span>
+    <span class="muted" id="roomInfo"></span>
+    <button class="btn green" type="button" id="hostBtn" hidden>Chủ phòng ▾</button>
+    <a class="btn" href="/rules" target="_blank" rel="noopener">Luật chơi</a>
+    <button class="btn" type="button" id="muteBtn" aria-label="Bật/tắt âm thanh"></button>
+    <button class="btn" type="button" id="logoutBtn">Thoát</button>
+    <!-- Điện thoại / máy tính bảng dọc (css/mobile.css): các nút trên gom vào menu này (team/menu.js) -->
+    <button class="btn menu-btn" type="button" id="menuBtn" aria-label="Menu" aria-haspopup="menu" aria-expanded="false">≡</button>
+  </header>
+  <div class="menu-pop" id="menuPop" role="menu" hidden></div>
+
+  <!-- Chủ phòng đang chơi: bảng điều khiển ngay trong màn chơi (public/team/host.js) -->
+  <aside class="host-drawer" id="hostDrawer" hidden></aside>
+  <main class="team-main play-main">
+    <section class="map-wrap" id="mapWrap">
+      <div class="toast" id="toast" role="status" hidden></div>
+      <div class="map-overlay" id="overlay" hidden>
+        <h2 id="ovTitle"></h2>
+        <div class="big" id="ovBig"></div>
+        <p id="ovText"></p>
+        <div class="fact-box" id="ovFact" hidden></div>
+      </div>
+    </section>
+
+    <aside class="side">
+      <div class="card end-card" id="endCard" data-tab="map team" hidden>
+        <h2><span data-icon="finish"></span> Trận đấu đã kết thúc</h2>
+        <p class="muted" id="endText"></p>
+        <button class="btn green wide" type="button" id="resultsBtn">Xem tổng kết</button>
+      </div>
+
+      <div class="card where-card" data-tab="map">
+        <p class="muted">Đang ở</p>
+        <div class="where" id="where">—</div>
+        <p id="whereInfo" class="muted"></p>
+        <div id="siegeBox" hidden>
+          <p><b>Tỉnh này đã có chủ!</b></p>
+          <div class="btn-row">
+            <button class="btn danger" type="button" id="siegeBtn"><span data-icon="siege"></span> Ghé thăm thử tài</button>
+            <button class="btn" type="button" id="retreatBtn"><span data-icon="retreat"></span> Quay lại</button>
+          </div>
+        </div>
+        <p class="muted" id="reachTitle">Có thể đi (bấm tỉnh viền đậm trên bản đồ):</p>
+        <div class="btn-row neighbors" id="neighbors"></div>
+      </div>
+
+      <div class="card cards" data-tab="cards">
+        <h2>Thẻ bài <span class="muted">· tối đa 3</span></h2>
+        <div class="btn-row" id="cards"></div>
+        <p class="muted" id="cardsEmpty">Cắm cờ ở thành phố trực thuộc TW để nhận thẻ.</p>
+      </div>
+
+      <div class="card journey-card" id="journeyCard" data-tab="team" hidden>
+        <h2><span data-icon="map"></span> Sổ tay hành trình</h2>
+        <p class="muted" id="journeyText"></p>
+        <button class="btn green wide" type="button" id="journeyBtn">Mở sổ tay</button>
+      </div>
+
+      <div class="card" id="membersCard" data-tab="team">
+        <h2>Thành viên <span class="muted" id="memberCount"></span></h2>
+        <ul class="members" id="members"></ul>
+      </div>
+
+      <div class="card journal" data-tab="log">
+        <h2>Nhật ký team</h2>
+        <ol id="journal"></ol>
+      </div>
+    </aside>
+  </main>
+  <!-- Điện thoại: thanh tab dưới chọn thẻ hiện trong ngăn dưới bản đồ (team/menu.js) -->
+  <nav class="tabbar" id="tabbar" aria-label="Bảng thông tin">
+    <button type="button" data-tab="map" aria-pressed="true"><span data-icon="map"></span>Bản đồ</button>
+    <button type="button" data-tab="cards" aria-pressed="false"><span class="badge" id="cardBadge" hidden></span><span data-icon="card"></span>Thẻ bài</button>
+    <button type="button" data-tab="team" aria-pressed="false"><span data-icon="flag"></span><span id="teamTabLabel">Đội</span></button>
+    <button type="button" data-tab="log" aria-pressed="false"><span data-icon="rumor"></span>Nhật ký</button>
+  </nav>
+</div>
+
+<dialog id="dlg" aria-live="polite"></dialog>
+<dialog id="sharedDlg" class="shared-dlg" aria-live="polite"></dialog>
+<div class="alert-lost" id="alertLost" role="alert" hidden></div>
+<div class="cover" id="cover" hidden>
+  <h2>Màn hình đang được che</h2>
+  <p id="coverHint">Nhấn Esc để mở lại</p>
+</div>
+
+</body>
+</html>

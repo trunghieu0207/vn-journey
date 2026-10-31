@@ -1,0 +1,243 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Luật chơi · Hành trình 3 miền</title>
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="/favicon.png" type="image/png" sizes="32x32">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="stylesheet" href="/style.css">
+<link rel="stylesheet" href="/css/rules.css">
+<script type="module" src="/rules.js"></script>
+</head>
+<body class="rules-page">
+<!-- Bộ lọc vẽ tay (css/hand.css) -->
+<svg class="hand-defs" width="0" height="0" aria-hidden="true" focusable="false">
+  <filter id="hand-wob-s" x="-20%" y="-60%" width="140%" height="220%"><feTurbulence type="fractalNoise" baseFrequency="0.05" numOctaves="1" seed="5" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="2.2" xChannelSelector="R" yChannelSelector="G"/></filter>
+  <filter id="hand-wob2" x="-20%" y="-60%" width="140%" height="220%"><feTurbulence type="fractalNoise" baseFrequency="0.04" numOctaves="2" seed="11" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="4" xChannelSelector="R" yChannelSelector="G"/></filter>
+  <filter id="hand-ic-wob" x="-15%" y="-15%" width="130%" height="130%"><feTurbulence type="fractalNoise" baseFrequency="0.16" numOctaves="1" seed="3" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="1.3" xChannelSelector="R" yChannelSelector="G"/></filter>
+</svg>
+
+<header class="rules-top">
+  <div class="rules-title">
+    <span data-icon="map"></span>
+    <div><h1>Luật chơi</h1><p class="muted">Hành trình 3 miền · đọc trong 3 phút</p></div>
+    <a class="btn green" href="/">Vào chơi</a>
+  </div>
+  <nav class="rules-nav" aria-label="Mục lục">
+    <a href="#muc-tieu">Mục tiêu</a>
+    <a href="#bat-dau">Bắt đầu</a>
+    <a href="#di-chuyen">Di chuyển</a>
+    <a href="#cau-hoi">Trả lời câu hỏi</a>
+    <a href="#ket-qua">Đúng · Sai · Bỏ qua</a>
+    <a href="#thuong">Mạo hiểm · Siêu tốc · Chuỗi · Về quê</a>
+    <a href="#thu-tai">Thử tài</a>
+    <a href="#the-bai">Thẻ bài</a>
+    <a href="#su-kien">Sự kiện</a>
+    <a href="#diem">Điểm số</a>
+    <a href="#choi-don">Chơi đơn</a>
+    <a href="#chu-phong">Chủ phòng</a>
+    <a href="#meo">Mẹo</a>
+  </nav>
+</header>
+
+<main class="rules">
+
+<section class="rule card" id="muc-tieu">
+  <div class="rule-text">
+    <h2><span class="num">1</span> Mục tiêu</h2>
+    <p>Các team chơi <b>cùng lúc</b> trên bản đồ <b>34 tỉnh, thành</b> sau sáp nhập. Đi từ tỉnh này sang tỉnh giáp ranh, trả lời đúng câu hỏi về tỉnh đó để <b>cắm cờ</b>.</p>
+    <p>Hết giờ, team nào có <b>nhiều điểm nhất</b> thắng. Sau bảng xếp hạng có phần <b>Hành trình văn hóa</b>: câu khó nhất trận kèm lời giải, đặc sản cả phòng muốn thử, nơi muốn đến…</p>
+    <p class="formula"><b>Điểm các tỉnh đang giữ</b> lúc hết giờ <span>+</span> <b>Điểm thưởng</b> tích lũy</p>
+    <p class="muted">Tỉnh đổi chủ lúc phút cuối là điểm tỉnh đó về đội khác — giữ đến giây cuối mới chắc!</p>
+  </div>
+  <div class="stage" data-scene="goal" aria-hidden="true"></div>
+</section>
+
+<section class="rule card" id="bat-dau">
+  <div class="rule-text">
+    <h2><span class="num">2</span> Bắt đầu</h2>
+    <ul>
+      <li>Màn ngoài có 2 cột: bên trái nhập <b>mã phòng</b> chủ phòng gửi (hoặc mở link mời), bên phải là các <b>phòng chơi đơn có sẵn</b> — bấm <b>Vào</b> là xong bước mã phòng.</li>
+      <li>Nhập tên, chọn team (phòng team). Mỗi team tối đa 12 người, ai cũng thấy và bấm được.</li>
+      <li>Có thể chọn <b>quê</b> của bạn (không bắt buộc) — xem "Về quê" ở mục 6. Chỉ đồng đội thấy; không đổi được sau khi trận bắt đầu.</li>
+      <li>Trong lúc chờ, màn chiếu và máy bạn chạy <b>"Bạn có biết?"</b>: đoán thử câu hỏi về các tỉnh, vài giây sau hiện đáp án. Các câu này sẽ không ra lại trong trận.</li>
+      <li>Chủ phòng bấm Bắt đầu → mọi máy <b>đếm ngược 3 · 2 · 1 cùng lúc</b>. Trước "Bắt đầu!" chưa ai đi được.</li>
+      <li>Mỗi team được đặt ở <b>1 tỉnh xuất phát bí mật</b> (rải đều 3 miền) — tỉnh này đã là của bạn.</li>
+    </ul>
+  </div>
+  <div class="stage" data-scene="start" aria-hidden="true"></div>
+</section>
+
+<section class="rule card" id="di-chuyen">
+  <div class="rule-text">
+    <h2><span class="num">3</span> Di chuyển &amp; sương mù</h2>
+    <ul>
+      <li>Bấm một <b>tỉnh giáp ranh</b> (viền đậm) để đi tới. Không giới hạn lượt — nhanh thì đi được nhiều.</li>
+      <li>Đi qua tỉnh của mình thì không phải trả lời.</li>
+      <li><b>Sương mù:</b> bạn chỉ thấy tỉnh của mình và tỉnh đã ghé. Tỉnh khác có chủ hay chưa, của ai — phải tới mới biết.</li>
+      <li>Tới tỉnh đã có chủ mà chưa muốn thử tài: bấm <b>Quay lại</b> tỉnh trước.</li>
+    </ul>
+  </div>
+  <div class="stage" data-scene="move" aria-hidden="true"></div>
+</section>
+
+<section class="rule card" id="cau-hoi">
+  <div class="rule-text">
+    <h2><span class="num">4</span> Trả lời câu hỏi</h2>
+    <ul>
+      <li>Tới tỉnh trống → nhận <b>1 câu hỏi</b> về tỉnh đó (ẩm thực, đời sống, văn hóa, di sản…).</li>
+      <li>Có <b>30 giây</b>. <b>15 giây đầu</b> được đủ điểm (công thành: 20 giây đầu), sau đó điểm tỉnh <b>giảm dần</b> tới 0 lúc hết giờ.</li>
+      <li><b>Cả team cùng chốt:</b> bấm đáp án là bỏ phiếu, đồng đội thấy tên bạn. Mọi người đang mở trang chọn giống nhau → tự chốt. Hoặc ai đó bấm <b>Chốt đáp án</b> (phím Enter).</li>
+      <li>Chủ phòng có thể bật <b>chọn chủ đề</b>: chọn chủ đề trước khi xem câu, đồng hồ chỉ chạy sau khi chọn.</li>
+      <li>Trả lời đúng câu <b>ẩm thực</b> hoặc <b>di sản</b>: có thể bấm <b>Đã từng / Muốn thử</b> (không bắt buộc). Chỉ hiện số người cả phòng, không hiện tên.</li>
+    </ul>
+  </div>
+  <div class="stage" data-scene="question" aria-hidden="true"></div>
+</section>
+
+<section class="rule card" id="ket-qua">
+  <div class="rule-text">
+    <h2><span class="num">5</span> Đúng · Sai · Bỏ qua</h2>
+    <div class="outcomes">
+      <div class="oc good"><b>Đúng</b><span>Cắm cờ, tỉnh thành màu team.</span></div>
+      <div class="oc bad"><b>Sai / hết giờ</b><span>Nghỉ chân <b>30 giây</b> tại chỗ. Nghỉ xong: <b>trả lời lại</b> câu khác hoặc đi tỉnh khác.</span></div>
+      <div class="oc skip"><b>Bỏ qua</b><span>Bấm 2 lần. Quay về tỉnh trước, nghỉ chân <b>10 giây + thời gian đã xem</b> (tối đa 30). Không gặp lại câu đó.</span></div>
+    </div>
+    <p class="muted">Đáp án đúng không bao giờ bị lộ khi trả lời sai.</p>
+    <p><b>Phòng 2–3 câu mỗi tỉnh</b> (chủ phòng chọn lúc tạo phòng): phải đúng đủ số câu ở một tỉnh mới cắm cờ / nhận tem. Đúng một câu thì bấm <b>"Câu tiếp theo"</b>; sai thì nghỉ chân nhưng <b>vẫn giữ số câu đã đúng</b>; đi sang tỉnh khác thì mất. Mạo hiểm chọn một lần ở câu đầu; Siêu tốc và trừ điểm chậm tính trung bình các câu.</p>
+  </div>
+  <div class="stage" data-scene="outcomes" aria-hidden="true"></div>
+</section>
+
+<section class="rule card" id="thuong">
+  <div class="rule-text">
+    <h2><span class="num">6</span> Mạo hiểm · Siêu tốc · Chuỗi đúng · Về quê</h2>
+    <ul>
+      <li><b>Đặt cược</b> (phòng bật): trước khi xem câu, chọn <b>Chắc ăn</b> hoặc <b>Mạo hiểm</b>. Mạo hiểm mà đúng: <b>+50% điểm tỉnh</b>. Mạo hiểm mà sai: nghỉ chân thêm 30 giây (tổng 60).</li>
+      <li><b>Siêu tốc:</b> đúng trong <b>5 giây đầu</b> → <b>+10% điểm tỉnh</b>.</li>
+      <li><b>Chuỗi đúng:</b> cứ đúng <b>3 câu liền</b> → nhận 1 <b>thẻ trợ giúp</b> (khay đã đủ 3 thẻ thì +50 điểm). Sai, hết giờ hoặc bỏ qua → chuỗi về 0.</li>
+      <li><b>Về quê:</b> cắm cờ ở <b>tỉnh quê của một thành viên</b> (có ghim hồng trên bản đồ team) → <b>+50</b>. Mỗi tỉnh một lần, <b>tối đa 3 tỉnh</b> mỗi team.</li>
+    </ul>
+  </div>
+  <div class="stage" data-scene="bonus" aria-hidden="true"></div>
+</section>
+
+<section class="rule card" id="thu-tai">
+  <div class="rule-text">
+    <h2><span class="num">7</span> Ghé thăm thử tài — so tài với chủ nhà</h2>
+    <ul>
+      <li>Tới tỉnh <b>đã có chủ</b> (không biết của đội nào) → chọn <b>Ghé thăm thử tài</b> hoặc Quay lại.</li>
+      <li><b>Cược số hiệp:</b> bấm Thử tài thì cả hai đội có <b>10 giây</b> cược kín <b>1, 2 hoặc 3 hiệp</b>. Lấy số lớn hơn; đội nào không cược thì theo số của đội kia (không ai cược: 1 hiệp). Đoàn khách cần thắng <b>1/1, 2/2 hoặc 2/3 hiệp</b> — hòa thì chủ nhà giữ tỉnh. Bên thắng được <b>+50 × số hiệp</b>; đấu nhiều hiệp mà đoàn khách thua thì nghỉ chân <b>30 giây × số hiệp</b>.</li>
+      <li>Mỗi hiệp một câu thử tài <b>khó hơn</b>, có <b>45 giây</b> (20 giây đầu đủ điểm). <b>Chủ nhà nhận cùng câu</b> — <b>ai đúng trước thắng hiệp</b>. Hai bên đều không biết đối phương là ai. Các dòng dưới là luật một hiệp (đấu 1 hiệp).</li>
+      <li><b>Bạn đúng trước:</b> thành <b>chủ nhà mới</b>, <b>+50</b>.</li>
+      <li><b>Chủ nhà đúng trước:</b> họ +50, bạn <b>được mời về</b> tỉnh trước, nghỉ chân 30 giây.</li>
+      <li><b>Bạn sai / hết giờ:</b> nghỉ chân 45 giây, quay về tỉnh trước. Chủ nhà trả lời sai thì không sao, chỉ hết lượt đón khách đó.</li>
+      <li>Chủ nhà vừa tiếp khách xong được <b>nghỉ 60 giây</b>; mỗi tỉnh chỉ tiếp một đoàn khách một lúc.</li>
+    </ul>
+  </div>
+  <div class="stage tall" data-scene="siege" aria-hidden="true"></div>
+</section>
+
+<section class="rule card" id="the-bai">
+  <div class="rule-text">
+    <h2><span class="num">8</span> Thẻ bài</h2>
+    <p>Cắm cờ ở <b>thành phố trực thuộc TW</b> (9 thành phố, 300 điểm) → 1 thẻ ngẫu nhiên. Đúng 3 câu liền → 1 thẻ trợ giúp. Giữ tối đa <b>3 thẻ</b>, mỗi thẻ dùng 1 lần, cả team dùng chung.</p>
+    <div class="card-list">
+      <div><span data-icon="scout"></span><b>Ống nhòm</b><span>Nhìn xuyên sương mù 1 miền trong 10 giây (thấy tỉnh có chủ, không biết của ai).</span></div>
+      <div><span data-icon="shield"></span><b>Hàng rào</b><span>Dựng hàng rào quanh 1 tỉnh của mình 5 phút, không đội nào ghé thử tài được.</span></div>
+      <div><span data-icon="march"></span><b>Xe tốc hành</b><span>Lượt đi kế tiếp được đi xa 2 tỉnh.</span></div>
+      <div><span data-icon="fifty"></span><b>50:50</b><span>Bỏ 2 đáp án sai của câu trắc nghiệm đang trả lời.</span></div>
+      <div><span data-icon="time"></span><b>Thêm giờ</b><span>Câu đang trả lời được thêm 15 giây (cả thời gian đủ điểm).</span></div>
+    </div>
+  </div>
+  <div class="stage" data-scene="cards" aria-hidden="true"></div>
+</section>
+
+<section class="rule card" id="su-kien">
+  <div class="rule-text">
+    <h2><span class="num">9</span> Sự kiện (chủ phòng tung ra)</h2>
+    <div class="card-list">
+      <div><span data-icon="festival"></span><b>Lễ hội miền X</b><span>5 phút: cắm cờ ở miền đó được thêm <b>+100</b>.</span></div>
+      <div><span data-icon="storm"></span><b>Bão miền X</b><span>3 phút: không đi vào được các tỉnh miền đó.</span></div>
+      <div><span data-icon="golden"></span><b>Câu hỏi vàng</b><span>2 phút, cả bản đồ: câu phát ra lúc này đúng thì <b>điểm ×2</b>, sai thì <b>nghỉ chân ×2</b>.</span></div>
+      <div><span data-icon="rumor"></span><b>Tin đồn</b><span>Màn chiếu tiết lộ team dẫn đầu đang giữ bao nhiêu tỉnh (không nêu tên).</span></div>
+      <div><span data-icon="question"></span><b>Câu hỏi chung cả phòng</b><span>Trận tạm dừng, <b>mỗi người</b> chọn đáp án trên máy mình trong 30 giây — cứ bàn với mọi người, kể cả team khác. Màn chiếu công bố tỉ lệ chọn và lời giải (không nêu tên ai). Cả phòng đúng từ <b>70%</b> → <b>mọi team +100</b>.</span></div>
+    </div>
+  </div>
+  <div class="stage" data-scene="events" aria-hidden="true"></div>
+</section>
+
+<section class="rule card" id="diem">
+  <div class="rule-text">
+    <h2><span class="num">10</span> Điểm số</h2>
+    <div class="score-table" role="table" aria-label="Bảng điểm">
+      <div role="row"><span role="cell">Tỉnh giữ nguyên</span><b role="cell">100</b></div>
+      <div role="row"><span role="cell">Tỉnh sáp nhập từ 2 tỉnh</span><b role="cell">150</b></div>
+      <div role="row"><span role="cell">Tỉnh sáp nhập từ 3 tỉnh trở lên</span><b role="cell">200</b></div>
+      <div role="row"><span role="cell">Thành phố trực thuộc TW (có thẻ bài)</span><b role="cell">300</b></div>
+      <div role="row" class="sep"><span role="cell">Thành chủ nhà mới · Đón khách thành công</span><b role="cell">+50</b></div>
+      <div role="row"><span role="cell">Về quê: cắm cờ ở tỉnh quê của thành viên (tối đa 3 tỉnh)</span><b role="cell">+50</b></div>
+      <div role="row"><span role="cell">Câu hỏi chung: cả phòng đúng từ 70% (mọi team)</span><b role="cell">+100</b></div>
+      <div role="row"><span role="cell">Bộ sưu tập: đủ 3 tỉnh trong một bộ (UNESCO, Kinh đô xưa, Biển đảo, Tây Bắc, Tây Nguyên, Cửu Long)</span><b role="cell">+300</b></div>
+      <div role="row"><span role="cell">Xuyên 3 miền: có tỉnh ở cả Bắc, Trung, Nam</span><b role="cell">+500</b></div>
+      <div role="row"><span role="cell">Trả lời chậm (sau thời gian đủ điểm)</span><b role="cell" class="minus">tới −100%</b></div>
+    </div>
+    <p class="muted">Điểm thưởng giữ lại kể cả khi tỉnh đổi chủ. <b>Bằng điểm:</b> team có tổng thời gian trả lời ít hơn xếp trên. 10 phút cuối bảng điểm trên màn chiếu bị <b>đóng băng</b>.</p>
+  </div>
+  <div class="stage" data-scene="score" aria-hidden="true"></div>
+</section>
+
+<section class="rule card" id="choi-don">
+  <div class="rule-text">
+    <h2><span class="num">11</span> Phòng chơi đơn</h2>
+    <p>Chủ phòng chọn <b>Chơi đơn</b> lúc tạo phòng: mỗi người một hành trình, tối đa <b>50 người</b>. Các mục trên vẫn áp dụng, trừ những điểm sau:</p>
+    <ul>
+      <li>Vào phòng chỉ cần tên, <b>không chọn team</b>. Tên hiện trên màn chiếu — chủ phòng có thể sửa.</li>
+      <li>Có sẵn vài <b>phòng chơi đơn</b> ở cột phải màn vào phòng: <b>ai vào trước làm chủ phòng</b> và vẫn chơi như mọi người (xem mục 12). Chủ phòng rời phòng thì người vào kế tiếp nhận quyền.</li>
+      <li>Tỉnh <b>không thuộc riêng ai</b>: trả lời đúng là nhận <b>tem</b> tỉnh đó + điểm tỉnh. Tỉnh đã có tem thì đi qua, không hỏi lại.</li>
+      <li><b>Tem Tiên phong +50</b>: người đầu tiên trong phòng trả lời đúng ở một tỉnh. Màn chiếu báo "Một lữ khách vừa là người đầu tiên tới…" (không nêu tên).</li>
+      <li>Vẫn có sương mù. Tỉnh đã ghé ghi số người đã có tem; thẻ <b>Ống nhòm</b> vén mây cả miền. Không có Hàng rào, không có ghé thăm thử tài.</li>
+      <li><b>Câu hỏi vàng</b> lấy câu khó hơn (45 giây trả lời), luật ×2 giữ nguyên.</li>
+      <li>Màn chiếu hiện <b>top 10</b> và bản đồ "cả phòng đang đi đâu"; hạng của bạn ở thanh trên.</li>
+      <li><b>Sổ tay hành trình</b>: các tem của bạn theo 3 miền, bấm tem xem điều đã học, danh sách Muốn thử / Muốn đến. Mở lại được sau trận.</li>
+    </ul>
+  </div>
+  <div class="stage" data-scene="goal" aria-hidden="true"></div>
+</section>
+
+<section class="rule card" id="chu-phong">
+  <div class="rule-text">
+    <h2><span class="num">12</span> Dành cho chủ phòng</h2>
+    <ul>
+      <li><b>Tạo phòng</b> (tab bên trái màn ngoài): chọn <b>Theo team</b> hoặc <b>Chơi đơn</b> — cột phải giải thích kiểu đang chọn. Tạo xong, cột phải hiện <b>mã phòng</b>, link mời, <b>mã chủ phòng</b> (chỉ hiện 1 lần — ghi lại) và <b>mã màn chiếu</b>.</li>
+      <li><b>Vừa chơi vừa làm chủ phòng:</b> bấm <b>Vào chơi luôn</b>, nhập tên, chọn team. Bạn vẫn giữ quyền chủ phòng; đồng đội cùng team thì không. Đổi team trước khi bắt đầu vẫn giữ quyền.</li>
+      <li>Trong màn chơi, nút xanh <b>Chủ phòng ▾</b> mở bảng điều khiển bên phải (bản đồ vẫn chạy): Bắt đầu / Tạm dừng / Tiếp tục, <b>Kết thúc</b> và <b>Chơi lại</b> (bấm 2 lần cho chắc), tung sự kiện, câu hỏi chung, mã màn chiếu.</li>
+      <li>Câu hỏi chung: bạn chọn đáp án như mọi người; khung câu hỏi trên máy bạn có thêm <b>Công bố ngay</b> và <b>Tiếp tục trận</b>.</li>
+      <li><b>Trang chủ phòng đầy đủ</b> (link cuối bảng điều khiển): sửa tên người chơi, mời ra, sửa điểm, thống kê câu hỏi. Nút xanh <b>← Quay lại chơi</b> để về màn chơi; nếu chưa chơi thì nút là <b>Vào chơi</b>.</li>
+      <li><b>Chỉ dẫn chương trình</b> (không chơi): bấm <b>Chỉ mở trang chủ phòng</b> sau khi tạo. Máy khác (vd. máy nối máy chiếu) đăng nhập trang chủ phòng bằng mã phòng + mã chủ phòng.</li>
+      <li><b>Màn chiếu:</b> mở <b>/screen.html</b>, nhập mã phòng + mã màn chiếu (hoặc bấm "Mở màn chiếu" trong bảng chủ phòng).</li>
+    </ul>
+  </div>
+  <div class="stage" data-scene="events" aria-hidden="true"></div>
+</section>
+
+<section class="rule card" id="meo">
+  <div class="rule-text">
+    <h2><span class="num">13</span> Mẹo &amp; phím tắt</h2>
+    <ul class="keys">
+      <li><kbd>1</kbd>–<kbd>4</kbd> chọn đáp án · <kbd>Enter</kbd> chốt đáp án</li>
+      <li><kbd>Esc</kbd> che màn hình nhanh (đội bên cạnh đang nhìn!) · điện thoại: menu <b>≡</b> → <b>Che màn hình</b>, chạm 2 lần để mở lại</li>
+      <li>Câu hỏi các team nhận được khác nhau — nghe lỏm cũng vô ích.</li>
+      <li>Chia việc: một người đọc câu, một người canh bản đồ — khung <b>Đón khách</b> có thể bật lên bất cứ lúc nào.</li>
+      <li>Bàn lâu thì mất điểm chậm: chắc rồi thì bấm <b>Chốt</b> luôn.</li>
+    </ul>
+    <p><a class="btn green" href="/">Vào chơi thôi!</a></p>
+  </div>
+  <div class="stage" data-scene="tips" aria-hidden="true"></div>
+</section>
+
+</main>
+</body>
+</html>

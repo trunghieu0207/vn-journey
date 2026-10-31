@@ -1,0 +1,180 @@
+/* =====================================================================
+   CHẤT VẼ TAY — "sticker phác tay" (mockup/hand-drawn.html, bản A+B ②)
+   Nền + viền + mép trắng + gờ đáy vẽ ở lớp ::before, có bộ lọc SVG #hand-wob-s làm run nét
+   (khai báo trong <svg class="hand-defs"> ở mỗi trang). Chữ nằm trên, không qua bộ lọc → vẫn sắc nét.
+   ::after là nét phác thứ hai mờ, chạy ngoài mép trắng (thông báo: băng dính).
+   ===================================================================== */
+.hand-defs { position: absolute; }
+:is(.btn, .card, .score-row, .toast, .pill, .q-head .tag, .alert-lost, .caption, .results-mine, .podium-step, .results-board, .pick) { isolation: isolate; }
+.pill { position: relative; }
+:is(.btn, .card, .score-row, .toast, .pill, .q-head .tag, .alert-lost, .caption, .results-mine, .podium-step, .results-board, .pick)::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border: 2px solid var(--bd);
+  border-radius: 14px 20px 12px 18px / 18px 12px 20px 14px;
+  background: var(--fill);
+  box-shadow: 0 0 0 3px #fff, 0 var(--drop, 6px) 0 2px var(--ledge, var(--bd)), 0 calc(var(--drop, 6px) + 2px) 10px 2px rgba(0, 0, 0, .08);
+  filter: url(#hand-wob-s);
+  pointer-events: none;
+}
+/* Phần tử có viền 2px trong suốt giữ chỗ → lớp vẽ phủ cả viền */
+:is(.btn, .card, .score-row)::before { inset: -2px; }
+.card::before, .results .results-board::before { border-radius: 18px 24px 16px 22px / 22px 16px 24px 18px; box-shadow: 0 0 0 3px #fff, 0 6px 0 2px var(--ledge), 0 10px 14px rgba(0, 0, 0, .07); }
+:is(.pill, .q-head .tag)::before { border-radius: 10px 14px 9px 13px; }
+:is(.btn, .card, .score-row, .alert-lost, .caption, .podium-step, .results-board)::after {
+  content: "";
+  position: absolute;
+  inset: -7px -6px -8px -7px;
+  z-index: -1;
+  border: 1.5px solid var(--sketch, var(--bd));
+  border-radius: 22px 15px 20px 16px / 15px 20px 16px 22px;
+  opacity: .55;
+  filter: url(#hand-wob2);
+  pointer-events: none;
+}
+.card { --sketch: #D6D6D6; }
+.end-card { --sketch: var(--green); }
+
+/* Băng dính: giữ thông báo + khung câu hỏi */
+.toast::after, dialog.docked::before {
+  content: "";
+  position: absolute;
+  z-index: 3;
+  pointer-events: none;
+  clip-path: polygon(0 8%, 6% 0, 10% 12%, 15% 2%, 85% 0, 90% 10%, 95% 0, 100% 6%, 100% 92%, 94% 100%, 90% 88%, 85% 100%, 14% 98%, 9% 88%, 5% 100%, 0 90%);
+}
+.toast::after { top: -10px; left: 12%; width: 54px; height: 22px; rotate: 8deg; background: rgba(255, 255, 255, .7); }
+/* Khung câu hỏi tự cuộn (overflow) → băng dính dán phía trong mép trên */
+dialog.docked::before { top: 2px; left: 50%; width: 92px; height: 22px; translate: -50% 0; rotate: -4deg; background: rgba(255, 200, 0, .55); }
+
+/* Hơi nghiêng như mẩu giấy dán — nút đứng thẳng lại khi rê chuột */
+.btn-row > .btn:nth-child(odd), .topic-grid > .btn:nth-child(4n+1), .topic-grid > .btn:nth-child(4n) { rotate: -1.2deg; }
+.btn-row > .btn:nth-child(even), .topic-grid > .btn:nth-child(4n+2) { rotate: 1deg; }
+.options > .btn:nth-child(odd), .control-grid > .btn:nth-child(odd) { rotate: -.5deg; }
+.options > .btn:nth-child(even), .control-grid > .btn:nth-child(even) { rotate: .5deg; }
+:is(.btn-row, .topic-grid, .options, .control-grid) > .btn:hover { rotate: 0deg; }
+.side > .card:nth-child(odd) { rotate: -.5deg; }
+.side > .card:nth-child(even) { rotate: .4deg; }
+.score-row:nth-child(odd) { rotate: -.3deg; }
+.score-row:nth-child(even) { rotate: .3deg; }
+dialog.docked { rotate: .4deg; }
+.toast, .caption { rotate: -1.5deg; }
+.alert-lost, .pill, .q-head .tag { rotate: -2deg; }
+.results-board { rotate: -.3deg; }
+/* Bậc bục vinh danh: góc trên bo lệch, đáy gần vuông (đứng trên "sàn") */
+.podium .podium-step::before { border-radius: 16px 22px 6px 8px / 20px 16px 6px 8px; }
+.podium .podium-step::after { inset: -7px -6px -3px -7px; border-radius: 20px 24px 8px 10px / 22px 18px 8px 10px; }
+
+/* Ô phím 1–4 trong câu hỏi: viền run nhẹ */
+.options .key { position: relative; isolation: isolate; border-color: transparent; }
+.options .key::before {
+  content: "";
+  position: absolute;
+  inset: -2px;
+  z-index: -1;
+  border: 2px solid var(--line);
+  border-radius: 7px 10px 8px 9px;
+  filter: url(#hand-wob-s);
+}
+
+/* Tiêu đề: gạch chân lượn sóng */
+:is(.card h2, .q-head h2, .results-head h2) {
+  width: fit-content;
+  padding-bottom: 6px;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 8' preserveAspectRatio='none'%3E%3Cpath d='M2 5c10-4 18 2 28-1s17-3 27 0 18 2 28-1 18-2 33 1' fill='none' stroke='%2358CC02' stroke-width='2.4' stroke-linecap='round'/%3E%3C/svg%3E") left bottom / 100% 7px no-repeat;
+}
+
+/* Thanh trạng thái: đường kẻ dưới lượn sóng */
+.topbar {
+  padding-bottom: 14px;
+  border-bottom: 0;
+  background: var(--panel) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 160 6'%3E%3Cpath d='M0 3Q20 0 40 3T80 3T120 3T160 3' fill='none' stroke='%23E5E5E5' stroke-width='2'/%3E%3C/svg%3E") left bottom / 160px 6px repeat-x;
+}
+
+/* Khung tự cuộn / chứa bản đồ: không có lớp ::before (bị cắt) → mép trắng + gờ vẽ thẳng bằng box-shadow, góc lệch nhẹ */
+.map-wrap {
+  border-color: #EDEDED;
+  border-radius: 22px 26px 20px 24px / 24px 20px 26px 22px;
+  box-shadow: 0 0 0 3px #fff, 0 8px 0 2px var(--line), 0 12px 16px rgba(0, 0, 0, .07);
+}
+.zoom { will-change: transform; } /* lớp riêng → camera bay không phải vẽ lại các nút có bộ lọc */
+dialog {
+  border-color: #EDEDED;
+  border-radius: 22px 28px 20px 26px / 26px 20px 28px 22px;
+  box-shadow: 0 0 0 4px #fff, 0 8px 0 3px var(--line), 0 20px 50px rgba(0, 0, 0, .2);
+}
+.tooltip {
+  border-color: #EDEDED;
+  border-radius: 12px 16px 11px 15px / 15px 11px 16px 12px;
+  box-shadow: 0 0 0 3px #fff, 0 6px 0 2px var(--line), 0 8px 12px rgba(0, 0, 0, .08);
+}
+:is(.input, .team-option, .switch-row, .copy-box, .secret, .table-wrap) { border-radius: 12px 16px 11px 15px / 15px 11px 16px 12px; }
+
+/* Ô chọn sticker (shared/select.js) thay cho danh sách xổ xuống của hệ điều hành */
+.native-hidden { display: none; }
+.pick {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  width: 100%;
+  padding: 11px 14px;
+  border: 2px solid transparent;
+  background: none;
+  color: var(--ink);
+  font: 800 18px var(--font);
+  text-align: left;
+  cursor: pointer;
+  --fill: #fff;
+  --bd: var(--line);
+  --drop: 4px;
+}
+.pick.compact { width: auto; padding: 7px 10px 7px 12px; font-size: 15px; }
+.pick .pick-text { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.pick .icon { color: var(--muted); transition: rotate .2s; }
+.pick:hover:not(:disabled) { --bd: #D0D0D0; }
+.pick:focus-visible { outline: none; --bd: var(--blue); }
+.pick.open { --bd: var(--blue); }
+.pick.open .icon { rotate: 180deg; }
+.pick:disabled { opacity: .45; cursor: not-allowed; }
+.pick-list {
+  position: fixed;
+  inset: auto;
+  max-height: min(320px, 60vh);
+  margin: 0;
+  padding: 6px;
+  overflow: auto;
+  list-style: none;
+  border: 2px solid #EDEDED;
+  border-radius: 14px 18px 13px 17px / 17px 13px 18px 14px;
+  background: #fff;
+  box-shadow: 0 0 0 3px #fff, 0 6px 0 2px var(--line), 0 12px 24px rgba(0, 0, 0, .12);
+  color: var(--ink);
+  font: 800 16px var(--font);
+  outline: none;
+}
+.pick-list:popover-open { animation: pick-in .16s cubic-bezier(.3, 1.4, .5, 1); }
+@keyframes pick-in { from { opacity: 0; transform: translateY(-6px) scale(.97); } }
+.pick-list li {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px 8px 30px;
+  border-radius: 9px 12px 8px 11px;
+  white-space: nowrap;
+  cursor: pointer;
+}
+.pick-list li.active { background: #FFF6D1; }
+/* Mục đang chọn: chữ xanh + dấu tích vẽ tay */
+.pick-list li[aria-selected="true"] { color: var(--green-dark); }
+.pick-list li[aria-selected="true"]::before {
+  content: "";
+  width: 14px;
+  height: 14px;
+  margin-left: -22px;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M2.5 8.5l3.5 3.5 7.5-8' fill='none' stroke='%2358A700' stroke-width='2.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center / contain no-repeat;
+}
+.pick-list li[aria-disabled="true"] { color: #AFAFAF; cursor: not-allowed; }

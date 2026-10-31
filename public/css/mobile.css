@@ -1,0 +1,246 @@
+/* Điện thoại và máy tính bảng (mockup/mobile.html). Thứ tự nạp: cuối cùng (xem style.css) để ghi đè bố cục máy tính.
+   Điểm gãy: dưới 700px = điện thoại; 700–1099px dọc = máy tính bảng dọc; từ 1100px (hoặc máy tính bảng ngang) giữ bố cục máy tính. */
+
+/* ---------- Mặc định (máy tính): nút ≡ và thanh tab dưới không dùng ---------- */
+.menu-btn, .tabbar { display: none; }
+.menu-pop {
+  position: fixed;
+  top: calc(64px + env(safe-area-inset-top, 0px));
+  right: 10px;
+  z-index: 30;
+  display: grid;
+  gap: 2px;
+  width: min(250px, calc(100% - 20px));
+  padding: 8px;
+  border: 2px solid var(--line);
+  border-radius: 18px;
+  background: var(--panel);
+  box-shadow: 0 6px 0 var(--line), 0 16px 40px rgba(0, 0, 0, .16);
+}
+.menu-pop button {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 44px;
+  padding: 8px 10px;
+  border: 0;
+  border-radius: 12px;
+  background: none;
+  color: var(--ink);
+  font: inherit;
+  font-weight: 800;
+  text-align: left;
+  cursor: pointer;
+}
+.menu-pop button:hover, .menu-pop button:focus-visible { background: #F2FBFF; outline: none; }
+.menu-pop button.host { background: #E9F9D9; color: var(--green-dark); }
+.menu-pop hr { margin: 2px 4px; border: 0; border-top: 2px solid var(--line); }
+
+/* ---------- Máy tính bảng dọc + điện thoại: thanh trên gọn, nút phụ vào menu ≡ ---------- */
+@media (max-width: 699px), (max-width: 1099px) and (orientation: portrait) {
+  .menu-btn { display: inline-flex; flex: none; width: 44px; height: 44px; padding: 0; font-size: 22px; }
+  .topbar { flex-wrap: nowrap; gap: 10px 14px; }
+  .topbar :is(#roomInfo, #hostBtn, #muteBtn, #logoutBtn) { display: none; }
+  .topbar .team-name { min-width: 0; }
+  .topbar #teamName { overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+  .topbar .pill { white-space: nowrap; }
+
+  /* Bản đồ trên, các thẻ xếp 2 cột dưới */
+  #app { height: 100dvh; min-height: 0; }
+  .team-main { grid-template-columns: minmax(0, 1fr); grid-template-rows: minmax(0, 1fr) auto; }
+  .side { display: grid; grid-template-columns: 1fr 1fr; align-items: start; max-height: 38dvh; margin: 0; padding: 4px; }
+  .side > .card { rotate: 0deg !important; }
+  .side .journal { min-height: 0; }
+
+  /* Khung câu hỏi neo phải rộng hơn chút để chữ không bị bóp */
+  dialog.docked { width: min(520px, 55vw); }
+}
+
+/* ---------- Điện thoại ---------- */
+@media (max-width: 699px) {
+  /* Thanh trên một dòng: linh vật, tên, điểm, số tỉnh / tem, đồng hồ, ≡ */
+  .topbar { gap: 8px; padding: calc(8px + env(safe-area-inset-top, 0px)) 10px 12px; }
+  .topbar a.btn[href="/rules"], .topbar :is(#streakBox, #homeBox, #rankBox .muted, .spacer) { display: none; }
+  .team-name { gap: 6px; font-size: 16px; flex: 1 1 auto; }
+  .team-name .team-icon svg { width: 28px; height: 28px; }
+  .topbar .stat { gap: 3px; }
+  .topbar .stat b { font-size: 18px; }
+  .topbar .stat .muted { font-size: 12px; }
+  /* Gọn chỗ cho tên team: "150đ" thay cho "150 điểm", bỏ biểu tượng đồng hồ */
+  .topbar .stat:has(#score) .muted { display: none; }
+  #score::after { content: "đ"; font-size: 14px; }
+  .topbar #timerBox .icon { display: none; }
+  .topbar #timerBox { padding: 2px 8px; border-radius: 10px; background: #E8F7FF; }
+  .topbar #timerBox b { color: var(--blue-dark); font-size: 16px; }
+  /* Sự kiện đang diễn ra: xuống dòng riêng dưới thanh trên */
+  .topbar:has(.pill:not([hidden])) { flex-wrap: wrap; }
+  .topbar .pill { order: 10; flex-basis: 100%; justify-content: center; padding: 2px 10px; font-size: 14px; }
+  .conn { order: 11; flex-basis: 100%; font-size: 13px; }
+
+  /* Bản đồ chiếm phần giữa; ngăn thông tin dưới cùng; thanh tab đáy */
+  .play-main { display: flex; flex-direction: column; gap: 0; padding: 0; }
+  .play-main .map-wrap { flex: 1; border: 0; border-radius: 0; box-shadow: none; }
+  .zoom { top: 10px; right: 10px; bottom: auto; gap: 6px; }
+  .zoom .btn { width: 40px; height: 40px; }
+  .play-main .side {
+    position: relative;
+    z-index: 5; /* trên lớp phủ của bản đồ (chờ bắt đầu, tạm dừng) */
+    display: block;
+    flex: none;
+    max-height: 30dvh;
+    margin: -18px 0 0;
+    padding: 6px 14px 10px;
+    border-radius: 22px 22px 0 0;
+    background: var(--panel);
+    box-shadow: 0 -2px 0 var(--line), 0 -8px 24px rgba(0, 0, 0, .06);
+  }
+  .play-main .side::before { content: ""; display: block; width: 44px; height: 5px; margin: 0 auto 6px; border-radius: 3px; background: #D6D6D6; }
+  #app:not([data-tab="map"]) .play-main .side { height: 58dvh; max-height: none; }
+  /* Thẻ trong ngăn: phẳng, không khung (ngăn đã là khung) */
+  .play-main .side > .card { margin: 0 0 12px; padding: 0; border: 0; background: none; box-shadow: none; }
+  .play-main .side > .card::before, .play-main .side > .card::after { display: none; }
+  .play-main .side > .card.end-card { padding: 12px; border-radius: 16px; background: #F1FBE8; }
+  .play-main .side > .card h2 { font-size: 16px; }
+  .play-main .side .where { font-size: 19px; }
+  .play-main .side #reachTitle { display: none; }
+  .play-main .side .neighbors { margin-top: 8px; }
+  .play-main .side .journal ol { font-size: 14px; }
+  /* Chỉ hiện thẻ của tab đang chọn */
+  #app[data-tab="map"] .play-main .side > .card:not([data-tab~="map"]),
+  #app[data-tab="cards"] .play-main .side > .card:not([data-tab~="cards"]),
+  #app[data-tab="team"] .play-main .side > .card:not([data-tab~="team"]),
+  #app[data-tab="log"] .play-main .side > .card:not([data-tab~="log"]) { display: none; }
+
+  .tabbar {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    padding: 4px 6px calc(4px + env(safe-area-inset-bottom, 0px));
+    border-top: 2px solid var(--line);
+    background: var(--panel);
+  }
+  .tabbar button {
+    position: relative;
+    display: grid;
+    justify-items: center;
+    gap: 1px;
+    min-height: 48px;
+    padding: 4px 0;
+    border: 0;
+    border-radius: 12px;
+    background: none;
+    color: var(--muted);
+    font: inherit;
+    font-size: 12px;
+    font-weight: 800;
+    cursor: pointer;
+  }
+  .tabbar .icon { width: 24px; height: 24px; }
+  .tabbar button[aria-pressed="true"] { background: #E8F7FF; color: var(--blue-dark); }
+  .tabbar .badge { position: absolute; top: 2px; left: calc(50% + 6px); min-width: 18px; height: 18px; padding: 0 5px; border-radius: 9px; background: var(--red); color: #fff; font-size: 11px; line-height: 18px; text-align: center; }
+
+  .map-overlay h2 { font-size: 22px; }
+  .map-overlay .big { font-size: 54px; }
+  .alert-lost { top: 70px; width: max-content; max-width: calc(100% - 24px); padding: 12px 18px; font-size: 18px; text-align: center; }
+
+  /* Hộp thoại: trượt lên từ đáy, rộng hết màn */
+  dialog, dialog.docked, dialog.journey-dlg {
+    width: 100%;
+    max-width: 100%;
+    max-height: 88dvh;
+    margin: auto 0 0;
+    padding: 18px 16px calc(18px + env(safe-area-inset-bottom, 0px));
+    border-radius: 26px 26px 0 0;
+    rotate: 0deg;
+  }
+  /* Khung câu hỏi: thấp hơn để tỉnh vẫn thấy ở phần trên (team/dialogs.js dockReserve) */
+  dialog.docked { max-height: 64dvh; }
+  dialog[open] { animation: sheet-in .32s cubic-bezier(.25, 1.1, .5, 1); }
+  dialog.docked[open]:not(.shake) { animation: sheet-in .32s cubic-bezier(.25, 1.1, .5, 1); }
+  .q-text { margin: 10px 0 14px; font-size: 18px; }
+  .options .btn { min-height: 54px; font-size: 16px; }
+  .bet-row { grid-template-columns: 1fr; gap: 10px; }
+  .topic-grid { gap: 8px; }
+  .btn.topic { min-height: 52px; font-size: 15px; }
+  .result h2 { font-size: 24px; }
+
+  /* Bảng chủ phòng: trượt lên từ đáy, nền sau tối lại */
+  .host-drawer {
+    top: auto;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    max-height: 88dvh;
+    padding: 16px 16px calc(18px + env(safe-area-inset-bottom, 0px));
+    border-radius: 26px 26px 0 0;
+    box-shadow: 0 0 0 100vmax rgba(60, 60, 60, .45);
+  }
+  .host-drawer .btn-row > .btn { flex: 1 1 auto; }
+
+  .cover h2 { padding: 0 20px; font-size: 28px; }
+}
+@keyframes sheet-in { from { transform: translateY(40%); opacity: 0; } }
+
+/* ---------- Màn ngoài (vào phòng / tạo phòng) trên điện thoại ---------- */
+@media (max-width: 699px) {
+  .login.entry { padding: 12px; }
+  .login.entry .card { padding: 18px 16px; }
+  .entry-brand h1 { font-size: 26px; }
+  .entry-mascots { flex-wrap: nowrap; overflow: hidden; }
+  .entry-mascots .icon, .entry-mascots svg { width: 28px; height: 28px; }
+  .tabs { gap: 0; padding: 4px; border-radius: 14px; background: #F0F0F0; }
+  .tabs .btn { flex: 1; min-height: 40px; padding: 6px 4px; border-radius: 10px; --fill: transparent; --drop: 0px; color: var(--muted); font-size: 15px; white-space: nowrap; rotate: 0deg !important; }
+  .tabs .btn::before, .tabs .btn::after { display: none; }
+  .tabs .btn.on { --fill: #fff; color: var(--ink); box-shadow: 0 2px 0 var(--line); }
+  .mode-pick { grid-template-columns: 1fr; }
+  .facts { grid-template-columns: 1fr; gap: 2px; }
+  .facts dd { margin-bottom: 6px; }
+  .field-row { grid-template-columns: 1fr; }
+}
+
+/* ---------- Trang chủ phòng ---------- */
+@media (max-width: 699px) {
+  .admin-tabs { display: flex; }
+}
+.admin-tabs, .admin-bot { display: none; }
+@media (max-width: 699px) {
+  /* Thanh trên: tên phòng + đồng hồ, dòng dưới là mã phòng / mã màn chiếu; các nút dời xuống .admin-bot */
+  #app:has(.owner-main) { display: flex; flex-direction: column; height: 100dvh; min-height: 0; }
+  #app:has(.owner-main) .topbar { gap: 4px 14px; padding: calc(10px + env(safe-area-inset-top, 0px)) 14px 10px; }
+  #app:has(.owner-main) .topbar :is(.btn, .spacer) { display: none; }
+  #app:has(.owner-main) .topbar { flex-wrap: wrap; }
+  #app:has(.owner-main) .team-name { flex: 1 1 calc(100% - 110px); min-width: 0; gap: 8px; font-size: 18px; white-space: nowrap; }
+  #app:has(.owner-main) #roomName { overflow: hidden; text-overflow: ellipsis; }
+  #app:has(.owner-main) #statusText { flex: none; padding: 0 8px; border-radius: 8px; background: #E9F9D9; color: var(--green-dark); font-size: 12px; }
+  #app:has(.owner-main) .stat { white-space: nowrap; }
+  #app:has(.owner-main) .stat b { font-size: 16px; }
+  #app:has(.owner-main) .stat .muted { font-size: 13px; }
+  #app:has(.owner-main) #timerBox { order: -1; }
+  #app:has(.owner-main) .team-name { order: -2; }
+  #app:has(.owner-main) .stat:not(#timerBox) { order: 1; }
+  .admin-tabs { display: flex; gap: 2px; padding: 0 8px; overflow-x: auto; border-bottom: 2px solid var(--line); background: var(--panel); scrollbar-width: none; }
+  .admin-tabs button { flex: none; padding: 10px 12px 8px; border: 0; border-bottom: 4px solid transparent; background: none; color: var(--muted); font: inherit; font-size: 15px; font-weight: 900; cursor: pointer; }
+  .admin-tabs button[aria-pressed="true"] { border-color: var(--blue); color: var(--blue-dark); }
+
+  .owner-main { display: flex; flex-direction: column; flex: 1; min-height: 0; padding: 12px; }
+  .owner-main .side { display: block; flex: 1; max-height: none; overflow-y: auto; margin: 0; padding: 0 2px 12px; }
+  .owner-main .side > .card { rotate: 0deg !important; margin-bottom: 12px; padding: 16px; }
+  #app:not([data-tab="map"]) .owner-main .map-wrap { display: none; }
+  #app[data-tab="map"] .owner-main .side { display: none; }
+  #app[data-tab="map"] .owner-main .map-wrap { flex: 1; }
+  #app[data-tab="game"] .owner-main .side > .card:not([data-tab="game"]),
+  #app[data-tab="teams"] .owner-main .side > .card:not([data-tab="teams"]),
+  #app[data-tab="events"] .owner-main .side > .card:not([data-tab="events"]) { display: none; }
+  .owner-main .journal { min-height: 240px; }
+  .owner-main .btn-row .input.compact { flex: 1 1 140px; }
+
+  .admin-bot { display: grid; grid-template-columns: 1fr 1fr auto; gap: 8px; padding: 10px 12px calc(10px + env(safe-area-inset-bottom, 0px)); border-top: 2px solid var(--line); background: var(--panel); }
+  .admin-bot .btn { min-height: 44px; padding: 6px 10px; font-size: 15px; }
+  dialog.stats-dlg, dialog.results-dlg { width: 100%; }
+}
+
+/* ---------- Màn chiếu mở trên máy nhỏ: nhắc mở trên máy tính nối máy chiếu ---------- */
+.screen-hint { display: none; }
+@media (max-width: 899px) {
+  .screen-hint { display: block; margin: 10px 0 0; padding: 8px 12px; border-radius: 12px; background: #FFF6D1; color: #8A5A00; font-size: 14px; font-weight: 800; }
+}

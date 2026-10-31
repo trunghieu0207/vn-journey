@@ -1,0 +1,199 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Hành trình 3 miền – Chủ phòng</title>
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="/favicon.png" type="image/png" sizes="32x32">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="stylesheet" href="/style.css">
+<script type="module" src="/admin.js"></script>
+</head>
+<body>
+<!-- Bộ lọc vẽ tay (css/hand.css) — chỉ áp lên lớp nền ::before/::after; hand-ic-wob: icon (shared/icons.js), tính theo lưới 32 của icon -->
+<svg class="hand-defs" width="0" height="0" aria-hidden="true" focusable="false">
+  <filter id="hand-wob-s" x="-20%" y="-60%" width="140%" height="220%"><feTurbulence type="fractalNoise" baseFrequency="0.05" numOctaves="1" seed="5" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="2.2" xChannelSelector="R" yChannelSelector="G"/></filter>
+  <filter id="hand-wob2" x="-20%" y="-60%" width="140%" height="220%"><feTurbulence type="fractalNoise" baseFrequency="0.04" numOctaves="2" seed="11" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="4" xChannelSelector="R" yChannelSelector="G"/></filter>
+  <filter id="hand-ic-wob" x="-15%" y="-15%" width="130%" height="130%"><feTurbulence type="fractalNoise" baseFrequency="0.16" numOctaves="1" seed="3" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="1.3" xChannelSelector="R" yChannelSelector="G"/></filter>
+</svg>
+
+<section class="login" id="entry" hidden>
+  <div class="card">
+    <h1>Trang chủ phòng</h1>
+    <p class="muted">Nhập mã phòng và mã chủ phòng (nhận được lúc tạo phòng)</p>
+    <form id="loginForm" autocomplete="off">
+      <label class="field">Mã phòng
+        <input class="input pin-input" id="code" maxlength="6" required placeholder="6 ký tự">
+      </label>
+      <label class="field">Mã chủ phòng
+        <input class="input pin-input" id="ownerKey" maxlength="8" required placeholder="8 ký tự">
+      </label>
+      <div class="form-error" id="loginError" role="alert"></div>
+      <button class="btn green" type="submit">Vào trang chủ phòng</button>
+    </form>
+    <p class="entry-foot"><a class="link" href="/">← Tạo phòng mới / vào chơi</a></p>
+  </div>
+</section>
+
+<div id="app" hidden>
+  <header class="topbar">
+    <div class="team-name"><span id="roomName"></span><span class="mascot" id="statusText"></span></div>
+    <div class="stat"><span class="muted">Mã phòng</span><b id="roomCode"></b></div>
+    <div class="stat"><span class="muted">Màn chiếu</span><b id="screenCode"></b></div>
+    <div class="stat" id="timerBox"><span data-icon="timer"></span><b id="timer">--:--</b></div>
+    <div class="pill" id="eventPill" hidden></div>
+    <div class="spacer"></div>
+    <span class="conn" id="conn" hidden>● Mất kết nối, đang thử lại…</span>
+    <a class="btn green" href="/" id="playLink">Vào chơi</a>
+    <a class="btn" href="/rules" target="_blank" rel="noopener">Luật chơi</a>
+    <button class="btn" type="button" id="logoutBtn">Thoát</button>
+  </header>
+  <!-- Điện thoại (css/mobile.css): mỗi lần xem một nhóm thẻ; bản đồ là một tab -->
+  <nav class="admin-tabs" id="adminTabs" aria-label="Nhóm điều khiển">
+    <button type="button" data-tab="game" aria-pressed="true">Trận đấu</button>
+    <button type="button" data-tab="teams" aria-pressed="false">Team</button>
+    <button type="button" data-tab="events" aria-pressed="false">Sự kiện</button>
+    <button type="button" data-tab="map" aria-pressed="false">Bản đồ</button>
+  </nav>
+
+  <main class="team-main owner-main">
+    <section class="map-wrap" id="mapWrap">
+      <div class="toast" id="toast" role="status" hidden></div>
+    </section>
+
+    <aside class="side">
+      <div class="card" data-tab="game">
+        <h2>Điều khiển trận</h2>
+        <div class="control-grid" id="gameButtons"></div>
+        <label class="check switch-row">
+          <input type="checkbox" id="topicChoice">
+          <span><span data-icon="target"></span> Cho người chơi chọn chủ đề câu hỏi <small class="muted">(áp dụng từ lần tới tỉnh kế tiếp)</small></span>
+        </label>
+        <label class="check switch-row">
+          <input type="checkbox" id="betChoice">
+          <span><span data-icon="bet"></span> Đặt cược: chọn <b>Chắc ăn</b> / <b>Mạo hiểm</b> trước câu hỏi <small class="muted">(Mạo hiểm: đúng +50% điểm, sai nghỉ chân thêm 30 giây)</small></span>
+        </label>
+        <p class="field-label">Link mời người chơi</p>
+        <div class="copy-box">
+          <span id="inviteLink"></span>
+          <button class="btn" type="button" id="copyBtn"><span data-icon="copy"></span> Sao chép</button>
+        </div>
+        <a class="btn wide" href="/screen.html" target="_blank" rel="noopener"><span data-icon="screen"></span> Mở màn chiếu</a>
+        <p class="hint">Máy chiếu khác: mở <b>/screen.html</b>, nhập mã phòng + mã màn chiếu.</p>
+      </div>
+
+      <div class="card" data-tab="events">
+        <h2>Sự kiện</h2>
+        <div class="btn-row">
+          <select class="input compact" id="eventKind" aria-label="Loại sự kiện">
+            <option value="festival">Lễ hội (+100, 5 phút)</option>
+            <option value="storm">Bão (chặn đường, 3 phút)</option>
+            <option value="golden">Câu hỏi vàng (×2 điểm, 2 phút)</option>
+            <option value="rumor">Tin đồn</option>
+          </select>
+          <select class="input compact" id="eventRegion" aria-label="Miền">
+            <option value="north">Miền Bắc</option>
+            <option value="central">Miền Trung</option>
+            <option value="south">Miền Nam</option>
+          </select>
+          <button class="btn on" type="button" id="eventBtn">Tung sự kiện</button>
+        </div>
+        <div class="shared-row">
+          <button class="btn" type="button" id="sharedBtn"><span data-icon="question"></span> Câu hỏi chung cả phòng</button>
+          <small class="muted">Trận tạm dừng, mỗi người chọn trên máy mình trong 30 giây. Cả phòng đúng từ 70% → mọi team +100. Công bố xong, dẫn 1–2 phút rồi bấm Tiếp tục.</small>
+        </div>
+        <div class="shared-admin" id="sharedAdmin" hidden></div>
+      </div>
+
+      <div class="card" data-tab="teams">
+        <h2 id="teamsTitle">Team & điểm</h2>
+        <!-- Phòng đơn (tới 50 người): ô tìm tên — nằm ngoài danh sách nên SSE vẽ lại không mất chữ đang gõ -->
+        <input class="input compact player-search" id="playerSearch" type="search" placeholder="Tìm tên lữ khách…" aria-label="Tìm lữ khách" hidden>
+        <div id="teams"></div>
+      </div>
+
+      <div class="card" data-tab="teams">
+        <h2>Sửa điểm</h2>
+        <form id="scoreForm" class="score-form" autocomplete="off">
+          <select class="input compact" id="scoreTeam" aria-label="Team"></select>
+          <input class="input compact" id="scoreDelta" type="number" step="10" min="-2000" max="2000" required placeholder="±điểm" aria-label="Số điểm cộng/trừ">
+          <input class="input compact" id="scoreReason" maxlength="200" required placeholder="Lý do (bắt buộc)" aria-label="Lý do">
+          <button class="btn" type="submit">Áp dụng</button>
+        </form>
+      </div>
+
+      <div class="card" data-tab="teams">
+        <h2>Thống kê câu hỏi</h2>
+        <p class="muted">% trả lời đúng trong phòng này và mức độ đề xuất (cần ≥ 3 lượt trả lời).</p>
+        <button class="btn" type="button" id="statsBtn"><span data-icon="stats"></span> Xem thống kê</button>
+      </div>
+
+      <div class="card journal" data-tab="events">
+        <h2>Diễn biến</h2>
+        <ol id="log"></ol>
+      </div>
+    </aside>
+  </main>
+  <!-- Điện thoại: các nút của thanh trên dời xuống đáy, trong tầm ngón cái -->
+  <nav class="admin-bot" aria-label="Chuyển trang">
+    <a class="btn green" href="/" id="playLinkBot">Vào chơi</a>
+    <a class="btn" href="/screen.html" target="_blank" rel="noopener"><span data-icon="screen"></span> Màn chiếu</a>
+    <button class="btn" type="button" id="logoutBtnBot">Thoát</button>
+  </nav>
+</div>
+
+<dialog id="statsDlg" class="stats-dlg">
+  <div class="q-head">
+    <h2><span data-icon="stats"></span> Thống kê câu hỏi</h2>
+    <div class="btn-row">
+      <button class="btn" type="button" id="statsRefresh">↻ Làm mới</button>
+      <button class="btn" type="button" id="statsClose">Đóng</button>
+    </div>
+  </div>
+  <div class="stats-summary" id="statsSummary"></div>
+  <label class="check stats-all"><input type="checkbox" id="statsAll"> Hiện cả câu chưa ai trả lời</label>
+  <div class="results-board stats-board">
+   <div class="table-wrap">
+    <table class="stats results-table">
+      <thead>
+        <tr><th>Câu</th><th>Tỉnh</th><th>Loại</th><th>Lượt</th><th>% đúng</th><th>Mức hiện tại</th><th>Đề xuất</th></tr>
+      </thead>
+      <tbody id="statsBody"></tbody>
+    </table>
+   </div>
+  </div>
+</dialog>
+
+<dialog id="resultsDlg" class="results-dlg">
+  <div id="resultsBody"></div>
+  <div class="dialog-actions">
+    <button class="btn green" type="button" id="resultsClose"><span data-icon="map"></span> Xem bản đồ</button>
+  </div>
+</dialog>
+
+<dialog id="renameDlg">
+  <form class="result" id="renameForm" autocomplete="off">
+    <h2 id="renameTitle"></h2>
+    <p class="explain">Tên mới hiện ngay trên máy người chơi, máy đồng đội và nhật ký (tên cũ được thay ở mọi chỗ).</p>
+    <input class="input" id="renameInput" maxlength="24" required aria-label="Tên mới">
+    <div class="dialog-actions">
+      <button class="btn" type="button" id="renameNo">Hủy</button>
+      <button class="btn green" type="submit">Đổi tên</button>
+    </div>
+  </form>
+</dialog>
+
+<dialog id="confirmDlg">
+  <div class="result">
+    <h2 id="confirmTitle"></h2>
+    <p class="explain" id="confirmText"></p>
+    <div class="dialog-actions">
+      <button class="btn" type="button" id="confirmNo">Hủy</button>
+      <button class="btn green" type="button" id="confirmYes"></button>
+    </div>
+  </div>
+</dialog>
+
+</body>
+</html>

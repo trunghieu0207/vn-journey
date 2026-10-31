@@ -1,0 +1,99 @@
+{
+  "version": "2026-10-27",
+  "note": "Dữ liệu 34 tỉnh/thành sau sắp xếp 2025 (+ nâng cấp thành phố 2026). Đã đối chiếu 27/10/2026: adminCenterAt khớp Nghị quyết 60-NQ/TW, mergedFrom khớp Nghị quyết 202/2025/QH15. Tên tỉnh cũ ghi theo tên trước 1/7/2025.",
+  "scoring": {
+    "city": 300,
+    "merged3": 200,
+    "merged2": 150,
+    "single": 100
+  },
+  "provinces": [
+    { "id": "ha-noi", "code": "01", "name": "Hà Nội", "fullName": "Thành phố Hà Nội", "region": "north", "mergedFrom": ["Hà Nội"], "adminCenterAt": "Hà Nội", "isCity": true, "isCapital": true, "points": 300 },
+    { "id": "cao-bang", "code": "04", "name": "Cao Bằng", "fullName": "Tỉnh Cao Bằng", "region": "north", "mergedFrom": ["Cao Bằng"], "adminCenterAt": "Cao Bằng", "isCity": false, "isCapital": false, "points": 100 },
+    { "id": "tuyen-quang", "code": "08", "name": "Tuyên Quang", "fullName": "Tỉnh Tuyên Quang", "region": "north", "mergedFrom": ["Tuyên Quang", "Hà Giang"], "adminCenterAt": "Tuyên Quang", "isCity": false, "isCapital": false, "points": 150 },
+    { "id": "dien-bien", "code": "11", "name": "Điện Biên", "fullName": "Tỉnh Điện Biên", "region": "north", "mergedFrom": ["Điện Biên"], "adminCenterAt": "Điện Biên", "isCity": false, "isCapital": false, "points": 100 },
+    { "id": "lai-chau", "code": "12", "name": "Lai Châu", "fullName": "Tỉnh Lai Châu", "region": "north", "mergedFrom": ["Lai Châu"], "adminCenterAt": "Lai Châu", "isCity": false, "isCapital": false, "points": 100 },
+    { "id": "son-la", "code": "14", "name": "Sơn La", "fullName": "Tỉnh Sơn La", "region": "north", "mergedFrom": ["Sơn La"], "adminCenterAt": "Sơn La", "isCity": false, "isCapital": false, "points": 100 },
+    { "id": "lao-cai", "code": "15", "name": "Lào Cai", "fullName": "Tỉnh Lào Cai", "region": "north", "mergedFrom": ["Lào Cai", "Yên Bái"], "adminCenterAt": "Yên Bái", "isCity": false, "isCapital": false, "points": 150 },
+    { "id": "thai-nguyen", "code": "19", "name": "Thái Nguyên", "fullName": "Tỉnh Thái Nguyên", "region": "north", "mergedFrom": ["Thái Nguyên", "Bắc Kạn"], "adminCenterAt": "Thái Nguyên", "isCity": false, "isCapital": false, "points": 150 },
+    { "id": "lang-son", "code": "20", "name": "Lạng Sơn", "fullName": "Tỉnh Lạng Sơn", "region": "north", "mergedFrom": ["Lạng Sơn"], "adminCenterAt": "Lạng Sơn", "isCity": false, "isCapital": false, "points": 100 },
+    { "id": "quang-ninh", "code": "22", "name": "Quảng Ninh", "fullName": "Thành phố Quảng Ninh", "region": "north", "mergedFrom": ["Quảng Ninh"], "adminCenterAt": "Quảng Ninh", "isCity": true, "isCapital": false, "points": 300 },
+    { "id": "bac-ninh", "code": "24", "name": "Bắc Ninh", "fullName": "Thành phố Bắc Ninh", "region": "north", "mergedFrom": ["Bắc Ninh", "Bắc Giang"], "adminCenterAt": "Bắc Giang", "isCity": true, "isCapital": false, "points": 300 },
+    { "id": "phu-tho", "code": "25", "name": "Phú Thọ", "fullName": "Tỉnh Phú Thọ", "region": "north", "mergedFrom": ["Phú Thọ", "Vĩnh Phúc", "Hòa Bình"], "adminCenterAt": "Phú Thọ", "isCity": false, "isCapital": false, "points": 200 },
+    { "id": "hai-phong", "code": "31", "name": "Hải Phòng", "fullName": "Thành phố Hải Phòng", "region": "north", "mergedFrom": ["Hải Phòng", "Hải Dương"], "adminCenterAt": "Hải Phòng", "isCity": true, "isCapital": false, "points": 300 },
+    { "id": "hung-yen", "code": "33", "name": "Hưng Yên", "fullName": "Tỉnh Hưng Yên", "region": "north", "mergedFrom": ["Hưng Yên", "Thái Bình"], "adminCenterAt": "Hưng Yên", "isCity": false, "isCapital": false, "points": 150 },
+    { "id": "ninh-binh", "code": "37", "name": "Ninh Bình", "fullName": "Tỉnh Ninh Bình", "region": "north", "mergedFrom": ["Ninh Bình", "Hà Nam", "Nam Định"], "adminCenterAt": "Ninh Bình", "isCity": false, "isCapital": false, "points": 200 },
+
+    { "id": "thanh-hoa", "code": "38", "name": "Thanh Hóa", "fullName": "Tỉnh Thanh Hóa", "region": "central", "mergedFrom": ["Thanh Hóa"], "adminCenterAt": "Thanh Hóa", "isCity": false, "isCapital": false, "points": 100 },
+    { "id": "nghe-an", "code": "40", "name": "Nghệ An", "fullName": "Tỉnh Nghệ An", "region": "central", "mergedFrom": ["Nghệ An"], "adminCenterAt": "Nghệ An", "isCity": false, "isCapital": false, "points": 100 },
+    { "id": "ha-tinh", "code": "42", "name": "Hà Tĩnh", "fullName": "Tỉnh Hà Tĩnh", "region": "central", "mergedFrom": ["Hà Tĩnh"], "adminCenterAt": "Hà Tĩnh", "isCity": false, "isCapital": false, "points": 100 },
+    { "id": "quang-tri", "code": "44", "name": "Quảng Trị", "fullName": "Tỉnh Quảng Trị", "region": "central", "mergedFrom": ["Quảng Trị", "Quảng Bình"], "adminCenterAt": "Quảng Bình", "isCity": false, "isCapital": false, "points": 150 },
+    { "id": "hue", "code": "46", "name": "Huế", "fullName": "Thành phố Huế", "region": "central", "mergedFrom": ["Thừa Thiên Huế"], "adminCenterAt": "Huế", "isCity": true, "isCapital": false, "points": 300 },
+    { "id": "da-nang", "code": "48", "name": "Đà Nẵng", "fullName": "Thành phố Đà Nẵng", "region": "central", "mergedFrom": ["Đà Nẵng", "Quảng Nam"], "adminCenterAt": "Đà Nẵng", "isCity": true, "isCapital": false, "points": 300 },
+    { "id": "quang-ngai", "code": "51", "name": "Quảng Ngãi", "fullName": "Tỉnh Quảng Ngãi", "region": "central", "mergedFrom": ["Quảng Ngãi", "Kon Tum"], "adminCenterAt": "Quảng Ngãi", "isCity": false, "isCapital": false, "points": 150 },
+    { "id": "gia-lai", "code": "52", "name": "Gia Lai", "fullName": "Tỉnh Gia Lai", "region": "central", "mergedFrom": ["Gia Lai", "Bình Định"], "adminCenterAt": "Bình Định", "isCity": false, "isCapital": false, "points": 150 },
+    { "id": "khanh-hoa", "code": "56", "name": "Khánh Hòa", "fullName": "Tỉnh Khánh Hòa", "region": "central", "mergedFrom": ["Khánh Hòa", "Ninh Thuận"], "adminCenterAt": "Khánh Hòa", "isCity": false, "isCapital": false, "points": 150 },
+    { "id": "dak-lak", "code": "66", "name": "Đắk Lắk", "fullName": "Tỉnh Đắk Lắk", "region": "central", "mergedFrom": ["Đắk Lắk", "Phú Yên"], "adminCenterAt": "Đắk Lắk", "isCity": false, "isCapital": false, "points": 150 },
+    { "id": "lam-dong", "code": "68", "name": "Lâm Đồng", "fullName": "Tỉnh Lâm Đồng", "region": "central", "mergedFrom": ["Lâm Đồng", "Đắk Nông", "Bình Thuận"], "adminCenterAt": "Lâm Đồng", "isCity": false, "isCapital": false, "points": 200 },
+
+    { "id": "dong-nai", "code": "75", "name": "Đồng Nai", "fullName": "Thành phố Đồng Nai", "region": "south", "mergedFrom": ["Đồng Nai", "Bình Phước"], "adminCenterAt": "Đồng Nai", "isCity": true, "isCapital": false, "points": 300 },
+    { "id": "ho-chi-minh", "code": "79", "name": "TP. Hồ Chí Minh", "short": "TP.HCM", "fullName": "Thành phố Hồ Chí Minh", "region": "south", "mergedFrom": ["TP. Hồ Chí Minh", "Bình Dương", "Bà Rịa – Vũng Tàu"], "adminCenterAt": "TP. Hồ Chí Minh", "isCity": true, "isCapital": false, "points": 300 },
+    { "id": "tay-ninh", "code": "80", "name": "Tây Ninh", "fullName": "Tỉnh Tây Ninh", "region": "south", "mergedFrom": ["Tây Ninh", "Long An"], "adminCenterAt": "Long An", "isCity": false, "isCapital": false, "points": 150 },
+    { "id": "dong-thap", "code": "82", "name": "Đồng Tháp", "fullName": "Tỉnh Đồng Tháp", "region": "south", "mergedFrom": ["Đồng Tháp", "Tiền Giang"], "adminCenterAt": "Tiền Giang", "isCity": false, "isCapital": false, "points": 150 },
+    { "id": "vinh-long", "code": "86", "name": "Vĩnh Long", "fullName": "Tỉnh Vĩnh Long", "region": "south", "mergedFrom": ["Vĩnh Long", "Bến Tre", "Trà Vinh"], "adminCenterAt": "Vĩnh Long", "isCity": false, "isCapital": false, "points": 200 },
+    { "id": "an-giang", "code": "91", "name": "An Giang", "fullName": "Tỉnh An Giang", "region": "south", "mergedFrom": ["An Giang", "Kiên Giang"], "adminCenterAt": "Kiên Giang", "isCity": false, "isCapital": false, "points": 150 },
+    { "id": "can-tho", "code": "92", "name": "Cần Thơ", "fullName": "Thành phố Cần Thơ", "region": "south", "mergedFrom": ["Cần Thơ", "Sóc Trăng", "Hậu Giang"], "adminCenterAt": "Cần Thơ", "isCity": true, "isCapital": false, "points": 300 },
+    { "id": "ca-mau", "code": "96", "name": "Cà Mau", "fullName": "Tỉnh Cà Mau", "region": "south", "mergedFrom": ["Cà Mau", "Bạc Liêu"], "adminCenterAt": "Cà Mau", "isCity": false, "isCapital": false, "points": 150 }
+  ],
+  "collections": [
+    {
+      "id": "unesco",
+      "name": "Di sản thế giới UNESCO",
+      "description": "Tỉnh/thành có Di sản văn hóa hoặc thiên nhiên thế giới",
+      "members": ["ha-noi", "hue", "quang-ninh", "hai-phong", "ninh-binh", "thanh-hoa", "da-nang", "quang-tri", "bac-ninh"],
+      "need": 3,
+      "bonus": 300,
+      "verified": "Đủ 9 di sản thế giới của Việt Nam. bac-ninh: Yên Tử – Vĩnh Nghiêm – Côn Sơn, Kiếp Bạc ghi danh 12/7/2025 (chùa Vĩnh Nghiêm thuộc Bắc Giang cũ)"
+    },
+    {
+      "id": "bien-dao",
+      "name": "Biển đảo tiền tiêu",
+      "description": "Tỉnh/thành quản lý các đảo, quần đảo xa bờ",
+      "members": ["quang-ninh", "hai-phong", "quang-tri", "da-nang", "quang-ngai", "khanh-hoa", "ho-chi-minh", "an-giang"],
+      "need": 3,
+      "bonus": 300
+    },
+    {
+      "id": "tay-bac",
+      "name": "Nóc nhà Tây Bắc",
+      "description": "Vùng núi cao Tây Bắc",
+      "members": ["lai-chau", "dien-bien", "son-la", "lao-cai"],
+      "need": 3,
+      "bonus": 300
+    },
+    {
+      "id": "tay-nguyen",
+      "name": "Đại ngàn Tây Nguyên",
+      "description": "Tỉnh có phần lãnh thổ Tây Nguyên",
+      "members": ["gia-lai", "dak-lak", "lam-dong", "quang-ngai"],
+      "need": 3,
+      "bonus": 300
+    },
+    {
+      "id": "cuu-long",
+      "name": "Chín rồng Cửu Long",
+      "description": "Đồng bằng sông Cửu Long",
+      "members": ["an-giang", "dong-thap", "vinh-long", "can-tho", "ca-mau", "tay-ninh"],
+      "need": 3,
+      "bonus": 300
+    },
+    {
+      "id": "kinh-do",
+      "name": "Kinh đô xưa",
+      "description": "Đất từng là kinh đô: Văn Lang, Hoa Lư, Tây Đô, Thăng Long, Phú Xuân",
+      "members": ["phu-tho", "ninh-binh", "thanh-hoa", "ha-noi", "hue"],
+      "need": 3,
+      "bonus": 300
+    }
+  ]
+}

@@ -1,0 +1,44 @@
+/* Trong trận: làm nổi tỉnh khi camera bay tới, khung câu hỏi neo phải, bỏ qua, chọn chủ đề, ô tích. Thứ tự nạp: xem style.css. */
+
+/* Bấm tỉnh → camera bay tới, tỉnh được chọn nổi lên, các tỉnh khác mờ đi */
+.prov .geo, .prov .islet, .lbl, #layer-trail, .fog .geo { transition: opacity .45s, fill .5s, stroke .3s; }
+.map.focusing .prov:not(.is-focus) :is(.geo, .islet),
+.map.focusing .fog .geo { opacity: .4; }
+.map.focusing #layer-clouds { opacity: .45; }
+#layer-clouds { transition: opacity .45s; }
+.map.focusing .lbl:not(.is-focus) { opacity: .3; }
+.map.focusing #layer-trail { opacity: .35; }
+.map.focusing #layer-paper { opacity: 0; } /* bóng giấy lộ qua tỉnh đang mờ → thành nét đôi lem nhem */
+#layer-paper { transition: opacity .45s; }
+.map.focusing .prov.is-focus .geo { stroke: #fff; stroke-width: 3px; }
+
+/* Khung câu hỏi neo bên phải, trượt vào sau khi camera tới nơi — tỉnh vẫn nhìn thấy bên trái */
+dialog.docked {
+  width: min(520px, 40vw);
+  max-height: calc(100vh - 48px);
+  margin: auto 24px auto auto;
+  overflow: auto;
+}
+dialog.docked::backdrop { background: transparent; }
+dialog.docked[open]:not(.shake) { animation: dock-in .5s cubic-bezier(.25, 1.25, .5, 1); }
+@keyframes dock-in { from { transform: translateX(90px); opacity: 0; } }
+
+/* Nút Bỏ qua trong khung câu hỏi */
+.q-foot { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: 14px; font-size: 14px; }
+.btn.skip { min-height: 34px; padding: 4px 12px; color: var(--muted); font-size: 14px; }
+.btn.skip.armed { --fill: #FFE1E1; --bd: var(--red); color: var(--red-dark); }
+
+/* Chọn chủ đề câu hỏi */
+.topic-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.btn.topic { justify-content: flex-start; min-height: 56px; padding: 8px 14px; font-size: 17px; text-align: left; }
+.btn.topic.random { --fill: #F2FBFF; --bd: #84D8FF; }
+.topic-icon { font-size: 22px; }
+
+/* Ô tích (tạo phòng, trang chủ phòng) */
+.check { display: flex; align-items: flex-start; gap: 10px; text-align: left; font-size: 15px; cursor: pointer; }
+.check input { width: 20px; height: 20px; margin-top: 2px; flex: none; accent-color: var(--green); }
+.switch-row { margin-top: 14px; padding: 10px 12px; border: 2px solid var(--line); border-radius: 14px; }
+.switch-row:has(input:checked) { border-color: var(--green); background: #F1FBE8; }
+
+/* Camera đang bay: tạm dừng hiệu ứng chạy liên tục để dồn sức cho khung hình (giảm giật) */
+.map.flying :is(.trail, .hop, .swirl, .lantern use, .cloud .bob) { animation-play-state: paused; }

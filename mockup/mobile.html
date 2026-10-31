@@ -1,0 +1,593 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mockup: Điện thoại & máy tính bảng</title>
+<!-- Mockup responsive: mỗi màn có ảnh hiện tại (iPhone 390px, chụp từ app thật) và bản đề xuất. Dùng CSS + bản đồ thật của app -->
+<link rel="stylesheet" href="../public/style.css">
+<script src="culture-data.js"></script>
+<script src="map-data.js"></script>
+<script src="icons-data.js"></script>
+<style>
+@font-face { font-family: "Nunito"; src: url("../public/fonts/nunito.ttf") format("truetype"); font-weight: 200 1000; }
+html, body { height: auto; }
+.head { position: sticky; top: 0; z-index: 30; display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: center; padding: 12px 24px; background: #fff; border-bottom: 2px solid var(--line); }
+.head h1 { color: var(--green); font-size: 20px; font-weight: 900; }
+.head nav { display: flex; flex-wrap: wrap; gap: 6px; }
+.head nav a { padding: 4px 12px; border-radius: 10px; border: 2px solid var(--line); color: var(--ink); font-weight: 800; font-size: 14px; text-decoration: none; }
+.intro { max-width: 1320px; margin: 16px auto 0; padding: 0 24px; color: var(--muted); }
+.intro b { color: var(--ink); }
+.intro ul { margin: 6px 0 0; padding-left: 20px; }
+.frame-wrap { max-width: 1320px; margin: 0 auto; padding: 22px 24px 40px; }
+.frame-wrap h2 { display: flex; align-items: center; gap: 8px; margin-bottom: 4px; scroll-margin-top: 80px; }
+.frame-wrap .num { display: inline-grid; place-items: center; width: 28px; height: 28px; border-radius: 50%; background: var(--green); color: #fff; font-size: 15px; }
+.frame-wrap .when { margin: 0 0 14px; color: var(--muted); }
+.frame-wrap .how { margin: 14px 0 0; padding-left: 20px; }
+.frame-wrap .how li { margin: 3px 0; }
+.ic { display: inline-grid; place-items: center; width: 1.25em; height: 1.25em; vertical-align: -.25em; }
+.ic svg { width: 100%; height: 100%; }
+
+/* ---------- Hàng khung máy ---------- */
+.row { display: flex; flex-wrap: wrap; gap: 28px; align-items: flex-start; }
+.dev { display: grid; gap: 8px; justify-items: center; }
+.dev > b { font-size: 14px; color: var(--muted); }
+.dev > b.new { color: var(--green-dark); }
+.dev > b.old { color: var(--red-dark); }
+.phone { position: relative; width: 390px; height: 780px; overflow: hidden; border-radius: 34px; background: var(--bg); box-shadow: 0 0 0 10px #2b2b2b, 0 18px 40px rgba(0,0,0,.18); }
+.phone.tab { width: 820px; height: 1000px; border-radius: 28px; }
+.phone.tab-l { width: 1080px; height: 760px; border-radius: 28px; }
+.shot { width: 390px; height: 780px; overflow: hidden; border-radius: 34px; box-shadow: 0 0 0 10px #9a9a9a, 0 18px 40px rgba(0,0,0,.1); opacity: .9; }
+.shot img { display: block; width: 390px; }
+.notch { position: absolute; top: 8px; left: 50%; z-index: 40; width: 110px; height: 26px; translate: -50% 0; border-radius: 14px; background: #2b2b2b; }
+.screen { position: absolute; inset: 0; display: flex; flex-direction: column; padding-top: 40px; }
+.tab .screen, .tab-l .screen { padding-top: 0; }
+.problems { max-width: 390px; margin: 0; padding-left: 18px; color: var(--red-dark); font-size: 14px; font-weight: 700; }
+
+/* ---------- Thanh trên gọn (màn chơi) ---------- */
+.mbar { display: flex; align-items: center; gap: 8px; padding: 8px 12px; background: var(--panel); border-bottom: 2px solid var(--line); }
+.mbar .masc { display: inline-grid; width: 30px; height: 30px; flex: none; }
+.mbar .masc svg { width: 100%; height: 100%; }
+.mbar .tn { display: grid; line-height: 1.1; min-width: 0; }
+.mbar .tn b { font-size: 16px; font-weight: 900; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.mbar .tn small { color: var(--muted); font-size: 12px; font-weight: 700; }
+.mbar .stat { display: grid; justify-items: center; line-height: 1.05; margin-left: auto; }
+.mbar .stat + .stat { margin-left: 0; }
+.mbar .stat b { font-size: 18px; font-weight: 900; color: var(--green); }
+.mbar .stat small { font-size: 11px; font-weight: 800; color: var(--muted); }
+.mbar .timer { display: flex; align-items: center; gap: 3px; padding: 3px 8px; border-radius: 10px; background: #E8F7FF; color: var(--blue-dark); font-weight: 900; font-size: 15px; font-variant-numeric: tabular-nums; }
+.mbar .menu { width: 40px; height: 40px; padding: 0; font-size: 20px; flex: none; }
+.host-chip { display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px; border-radius: 8px; background: #E9F9D9; color: var(--green-dark); font-size: 11px; font-weight: 900; }
+
+/* ---------- Bản đồ toàn màn ---------- */
+.mmap { position: relative; flex: 1; min-height: 0; overflow: hidden; background: var(--map-bg); }
+.mmap svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+.mmap .prov path { stroke: #fff; stroke-width: 1.4; stroke-linejoin: round; }
+.mmap .prov.n path { fill: var(--tile-n); } .mmap .prov.c path { fill: var(--tile-c); } .mmap .prov.s path { fill: var(--tile-s); }
+.mmap .prov.fog path { fill: var(--fog); }
+.mmap .prov.mine path { fill: var(--green); }
+.mmap .prov.nb path { stroke: var(--blue-dark); stroke-width: 3; }
+.mmap text { font: 900 11px var(--font); fill: #3c3c3c; paint-order: stroke; stroke: #fff; stroke-width: 3px; text-anchor: middle; }
+.mmap .zoomb { position: absolute; right: 10px; top: 10px; display: grid; gap: 8px; }
+.mmap .zoomb .btn { width: 40px; height: 40px; padding: 0; font-size: 18px; }
+
+/* ---------- Ngăn dưới (bottom sheet) ---------- */
+.sheet { position: relative; z-index: 3; margin-top: -18px; padding: 8px 14px 10px; border-radius: 22px 22px 0 0; background: var(--panel); box-shadow: 0 -2px 0 var(--line), 0 -8px 24px rgba(0,0,0,.06); }
+.sheet .grab { width: 44px; height: 5px; margin: 0 auto 8px; border-radius: 3px; background: #D6D6D6; }
+.sheet .where { font-size: 18px; }
+.sheet .sub { color: var(--muted); font-size: 13px; font-weight: 700; }
+.sheet .nbs { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+.sheet .nbs .btn { padding: 8px 14px; font-size: 15px; }
+.sheet.tall { flex: none; height: 62%; margin-top: -40%; display: flex; flex-direction: column; }
+.sheet.tall .body { flex: 1; min-height: 0; overflow: hidden; display: grid; gap: 10px; align-content: start; }
+.sec-t { font-size: 15px; font-weight: 900; }
+.mpill { display: inline-block; padding: 3px 10px; border-radius: 10px; background: #E8F7FF; color: var(--blue-dark); font-weight: 800; font-size: 14px; }
+.log { margin: 0; padding: 0; list-style: none; display: grid; gap: 4px; font-size: 14px; }
+.log time { color: var(--muted); margin-right: 6px; }
+.tcard { display: flex; align-items: center; gap: 8px; padding: 8px 10px; border: 2px solid var(--line); border-radius: 14px; font-weight: 800; font-size: 14px; }
+.tcard .ic { color: var(--orange); }
+
+/* ---------- Thanh tab dưới ---------- */
+.tabbar { display: grid; grid-template-columns: repeat(4, 1fr); padding: 6px 6px 22px; background: var(--panel); border-top: 2px solid var(--line); }
+.tabbar a { position: relative; display: grid; justify-items: center; gap: 2px; padding: 4px 0; border-radius: 12px; color: var(--muted); font-size: 12px; font-weight: 800; text-decoration: none; }
+.tabbar a .ic { width: 24px; height: 24px; }
+.tabbar a.on { color: var(--blue-dark); background: #E8F7FF; }
+.tabbar .badge { position: absolute; top: 0; right: 22%; min-width: 18px; height: 18px; padding: 0 5px; border-radius: 9px; background: var(--red); color: #fff; font-size: 11px; line-height: 18px; text-align: center; }
+
+/* ---------- Menu ≡ ---------- */
+.dim { position: absolute; inset: 0; z-index: 10; background: rgba(60,60,60,.45); }
+.menu-pop { position: absolute; z-index: 11; top: 86px; right: 10px; width: 230px; display: grid; gap: 4px; padding: 8px; border: 2px solid var(--line); border-radius: 18px; background: var(--panel); box-shadow: 0 6px 0 var(--line); }
+.menu-pop a { display: flex; align-items: center; gap: 10px; padding: 10px 10px; border-radius: 12px; color: var(--ink); font-weight: 800; text-decoration: none; }
+.menu-pop a.host { background: #E9F9D9; color: var(--green-dark); }
+.menu-pop hr { border: 0; border-top: 2px solid var(--line); margin: 2px 0; }
+.menu-pop small { margin-left: auto; color: var(--muted); font-weight: 700; }
+
+/* ---------- Hộp thoại dạng ngăn kéo từ dưới ---------- */
+.bs { position: absolute; left: 0; right: 0; bottom: 0; z-index: 11; max-height: 88%; display: flex; flex-direction: column; padding: 8px 16px 26px; border-radius: 26px 26px 0 0; background: var(--panel); box-shadow: 0 -8px 30px rgba(0,0,0,.15); }
+.bs .grab { width: 44px; height: 5px; margin: 0 auto 10px; border-radius: 3px; background: #D6D6D6; }
+.bs .tag { display: inline-flex; align-items: center; gap: 6px; color: var(--green-dark); font-weight: 900; font-size: 14px; }
+.bs h3 { margin: 6px 0 10px; font-size: 21px; line-height: 1.25; }
+.bs .bar { height: 10px; border-radius: 6px; background: var(--line); overflow: hidden; margin-bottom: 4px; }
+.bs .bar i { display: block; height: 100%; width: 68%; border-radius: 6px; background: var(--blue); }
+.bs .barl { display: flex; justify-content: space-between; color: var(--muted); font-size: 13px; font-weight: 800; margin-bottom: 10px; }
+.bs .opts { display: grid; gap: 10px; }
+.bs .opts .btn { justify-content: flex-start; min-height: 54px; padding: 10px 14px; text-align: left; font-size: 16px; }
+.bs .opts .btn b { display: inline-grid; place-items: center; width: 28px; height: 28px; margin-right: 6px; border-radius: 8px; background: var(--line); font-size: 14px; flex: none; }
+.bs .bet { display: grid; gap: 10px; }
+.bs .bet .btn { display: grid; grid-template-columns: 40px 1fr; align-items: center; gap: 4px 10px; min-height: 76px; padding: 12px 14px; text-align: left; }
+.bs .bet .btn .ic { grid-row: span 2; width: 34px; height: 34px; }
+.bs .bet .btn small { color: var(--muted); font-weight: 700; }
+.bs .note { margin-top: 10px; color: var(--muted); font-size: 13px; text-align: center; }
+.bs .acts { display: flex; gap: 10px; margin-top: 12px; }
+.bs .acts .btn { flex: 1; }
+.bs .grp { margin: 10px 0 6px; color: var(--muted); font-size: 12px; font-weight: 900; letter-spacing: .06em; }
+.bs select { width: 100%; padding: 8px 10px; font-size: 14px; }
+.bs .two { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+
+/* ---------- Màn ngoài ---------- */
+.ent { flex: 1; overflow: hidden; padding: 12px 14px; display: grid; gap: 14px; align-content: start; }
+.ent .card { padding: 18px; }
+.ent .brand b { color: var(--green); font-size: 26px; font-weight: 900; line-height: 1.1; }
+.ent .brand small { display: block; color: var(--muted); font-size: 13px; font-weight: 700; }
+.ent .masc-row { display: flex; gap: 4px; margin: 10px 0 14px; }
+.ent .masc-row span { display: inline-grid; width: 30px; height: 30px; }
+.ent .masc-row svg { width: 100%; height: 100%; }
+.seg { display: grid; grid-template-columns: 1fr 1fr; padding: 4px; border-radius: 14px; background: #F0F0F0; margin-bottom: 12px; }
+.seg a { padding: 8px 4px; border-radius: 10px; text-align: center; color: var(--muted); font-weight: 900; font-size: 15px; text-decoration: none; }
+.seg a.on { background: #fff; color: var(--ink); box-shadow: 0 2px 0 var(--line); }
+.ent input { width: 100%; }
+.ent label { display: block; margin-bottom: 6px; font-weight: 800; font-size: 14px; }
+.rlist { display: grid; gap: 0; }
+.rrow { display: grid; grid-template-columns: 12px 1fr auto; align-items: center; gap: 10px; padding: 10px 2px; border-top: 2px solid var(--line); }
+.rrow:first-child { border-top: 0; }
+.rrow i { width: 12px; height: 12px; border-radius: 50%; }
+.rrow b { font-size: 16px; }
+.rrow small { display: block; color: var(--muted); font-size: 12px; font-weight: 700; }
+.rrow small.free { color: var(--accent-dark); }
+.rrow .btn { padding: 6px 16px; font-size: 14px; }
+
+/* ---------- Trang chủ phòng ---------- */
+.abar { position: relative; padding: 10px 14px 0; background: var(--panel); border-bottom: 2px solid var(--line); }
+.abar .r1 { display: flex; align-items: center; gap: 8px; }
+.abar .r1 b { font-size: 18px; font-weight: 900; }
+.abar .r1 .st { color: var(--green-dark); font-size: 12px; font-weight: 900; background: #E9F9D9; border-radius: 8px; padding: 1px 8px; }
+.abar .r2 { display: flex; gap: 14px; margin: 6px 0 8px; font-size: 13px; color: var(--muted); font-weight: 700; }
+.abar .r2 b { color: var(--green); font-size: 15px; letter-spacing: .04em; }
+.atabs { display: flex; gap: 4px; overflow: hidden; }
+.atabs a { padding: 8px 12px; border-bottom: 4px solid transparent; color: var(--muted); font-weight: 900; font-size: 14px; text-decoration: none; white-space: nowrap; }
+.atabs a.on { color: var(--blue-dark); border-color: var(--blue); }
+.abody { flex: 1; overflow: hidden; padding: 12px 14px; display: grid; gap: 12px; align-content: start; }
+.abody .card { padding: 14px; }
+.abody .btns { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.abody .btns .btn { font-size: 15px; padding: 10px 8px; }
+.opt { display: flex; gap: 10px; align-items: flex-start; padding: 10px; border: 2px solid var(--line); border-radius: 14px; font-size: 14px; font-weight: 700; }
+.opt.on { border-color: var(--green); background: #F2FBEA; }
+.opt input { margin-top: 3px; }
+.link-box { display: flex; align-items: center; gap: 8px; padding: 8px 8px 8px 12px; border-radius: 12px; background: #E8F7FF; font-size: 13px; font-weight: 800; color: var(--blue-dark); }
+.link-box span { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.link-box .btn { padding: 6px 10px; font-size: 13px; }
+.trow { display: grid; grid-template-columns: 26px 1fr auto auto; gap: 8px; align-items: center; padding: 8px 0; border-top: 2px solid var(--line); font-size: 14px; font-weight: 800; }
+.trow:first-of-type { border-top: 0; }
+.trow .masc { width: 26px; height: 26px; display: inline-grid; } .trow .masc svg { width: 100%; height: 100%; }
+.trow small { color: var(--muted); font-weight: 700; }
+.trow .btn { padding: 4px 10px; font-size: 13px; }
+.abot { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; padding: 10px 14px 24px; background: var(--panel); border-top: 2px solid var(--line); }
+
+/* ---------- Luật chơi ---------- */
+.rhead { padding: 10px 14px 0; background: var(--panel); border-bottom: 2px solid var(--line); }
+.rhead .r1 { display: flex; align-items: center; gap: 10px; }
+.rhead .r1 b { color: var(--green); font-size: 22px; font-weight: 900; }
+.rhead .r1 small { color: var(--muted); font-size: 12px; font-weight: 700; display: block; }
+.rhead .r1 .btn { margin-left: auto; padding: 6px 14px; font-size: 14px; }
+.chips { display: flex; gap: 6px; overflow: hidden; padding: 10px 0; mask-image: linear-gradient(90deg, #000 80%, transparent); }
+.chips a { flex: none; padding: 5px 12px; border-radius: 999px; background: #F0F0F0; color: var(--ink); font-weight: 800; font-size: 13px; text-decoration: none; }
+.chips a.on { background: var(--blue); color: #fff; }
+.rbody { flex: 1; overflow: hidden; padding: 14px; }
+.rbody .card { padding: 16px; }
+.rbody h3 { display: flex; align-items: center; gap: 8px; margin: 0 0 8px; font-size: 20px; }
+.rbody h3 i { display: inline-grid; place-items: center; width: 26px; height: 26px; border-radius: 50%; background: var(--green); color: #fff; font-style: normal; font-size: 14px; }
+.rbody p { margin: 0 0 8px; font-size: 15px; line-height: 1.5; }
+
+/* ---------- Màn che ---------- */
+.cover { position: absolute; inset: 0; z-index: 20; display: grid; place-content: center; gap: 10px; padding: 24px; background: var(--green); color: #fff; text-align: center; }
+.cover b { font-size: 28px; font-weight: 900; line-height: 1.2; }
+
+/* ---------- Tablet ---------- */
+.tgrid { flex: 1; min-height: 0; display: grid; grid-template-rows: minmax(0, 1fr) auto; }
+.tside { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; padding: 12px; background: var(--bg); }
+.tside .card { padding: 14px; }
+.tl { flex: 1; min-height: 0; display: grid; grid-template-columns: minmax(0, 1fr) 300px; gap: 12px; padding: 12px; }
+.tl .mmap { border-radius: 18px; border: 2px solid var(--line); }
+.tl .col { display: grid; gap: 12px; align-content: start; }
+.tl .col .card { padding: 14px; }
+</style>
+</head>
+<body>
+<header class="head">
+  <h1>Mockup: điện thoại &amp; máy tính bảng</h1>
+  <nav>
+    <a href="#play">1 Màn chơi</a><a href="#dlg">2 Câu hỏi</a><a href="#host">3 Chủ phòng</a><a href="#entry">4 Màn ngoài</a>
+    <a href="#admin">5 Trang chủ phòng</a><a href="#rules">6 Luật chơi</a><a href="#tablet">7 Máy tính bảng</a><a href="#screen">8 Màn chiếu</a>
+  </nav>
+</header>
+<div class="intro">
+  <p><b>Bên trái (khung xám): ảnh chụp app hiện tại</b> ở khổ iPhone 390px. <b>Bên phải (khung đen): đề xuất.</b> Máy tính (từ 1100px) giữ nguyên như bây giờ.</p>
+  <ul>
+    <li><b>Điểm gãy:</b> dưới 700px là điện thoại (bản đồ toàn màn + thanh tab dưới); 700 đến 1100px là máy tính bảng (bản đồ trên, bảng dưới); từ 1100px giữ bố cục 2 cột hiện tại.</li>
+    <li><b>Ngón tay:</b> nút bấm tối thiểu 44px, phím tắt bàn phím (Esc) đều có nút chạm thay thế.</li>
+    <li><b>Không có gì tràn ngang:</b> chữ dài thì xuống dòng hoặc cắt "…", bảng rộng cuộn trong khung của nó.</li>
+  </ul>
+</div>
+
+<!-- 1. Màn chơi -->
+<section class="frame-wrap" id="play">
+  <h2><span class="num">1</span>Màn chơi (điện thoại)</h2>
+  <p class="when">Màn quan trọng nhất. Hiện tại cột bên phải 330px chiếm gần hết, bản đồ bị bóp còn một dải 60px, không chơi được.</p>
+  <div class="row">
+    <div class="dev"><b class="old">Hiện tại</b><div class="shot"><img src="mobile-now/play.png" alt=""></div>
+      <ul class="problems"><li>Bản đồ còn 60px, không bấm được tỉnh</li><li>4 nút (Chủ phòng, Luật chơi, Âm thanh, Thoát) chiếm 2 dòng</li><li>Mọi thẻ xếp dọc, phải cuộn mới thấy Nhật ký</li></ul></div>
+    <div class="dev"><b class="new">1a. Bản đồ toàn màn + ngăn "Đang ở"</b>
+      <div class="phone"><span class="notch"></span><div class="screen">
+        <div class="mbar"><span class="masc" data-mascot="Rồng"></span><span class="tn"><b>Team Rồng</b><small>Phòng thử</small></span>
+          <span class="stat"><b>150</b><small>điểm</small></span><span class="stat"><b>1</b><small>tỉnh</small></span>
+          <span class="timer"><span class="ic" data-ic="timer"></span>44:57</span><button class="btn menu" type="button">≡</button></div>
+        <div class="mmap" data-map="quang-ngai" data-mine="quang-ngai"><div class="zoomb"><button class="btn" type="button">+</button><button class="btn" type="button">−</button><button class="btn" type="button"><span class="ic" data-ic="hat"></span></button></div></div>
+        <div class="sheet"><div class="grab"></div>
+          <div class="sub">Đang ở · tỉnh của đội bạn · 150 điểm</div><div class="where">Quảng Ngãi</div>
+          <div class="nbs"><button class="btn primary" type="button">Đà Nẵng · 300</button><button class="btn primary" type="button">Gia Lai · 200</button></div>
+        </div>
+        <nav class="tabbar"><a class="on"><span class="ic" data-ic="map"></span>Bản đồ</a><a><span class="badge">2</span><span class="ic" data-ic="card"></span>Thẻ bài</a><a><span class="ic" data-ic="flag"></span>Đội</a><a><span class="ic" data-ic="rumor"></span>Nhật ký</a></nav>
+      </div></div></div>
+    <div class="dev"><b class="new">1b. Kéo ngăn lên / bấm tab "Đội"</b>
+      <div class="phone"><span class="notch"></span><div class="screen">
+        <div class="mbar"><span class="masc" data-mascot="Rồng"></span><span class="tn"><b>Team Rồng</b><small>Phòng thử</small></span>
+          <span class="stat"><b>150</b><small>điểm</small></span><span class="stat"><b>1</b><small>tỉnh</small></span>
+          <span class="timer"><span class="ic" data-ic="timer"></span>44:57</span><button class="btn menu" type="button">≡</button></div>
+        <div class="mmap" data-map="quang-ngai" data-mine="quang-ngai"></div>
+        <div class="sheet tall"><div class="grab"></div><div class="body">
+          <div class="sec-t">Thành viên · 3</div>
+          <div><span class="mpill">Sếp (bạn)</span> <span class="mpill">Lan</span> <span class="mpill">Minh</span></div>
+          <div class="sec-t">Thẻ bài · tối đa 3</div>
+          <div class="tcard"><span class="ic" data-ic="scout"></span>Do thám <small class="sub">· xem tỉnh quanh đây</small></div>
+          <div class="tcard"><span class="ic" data-ic="shield"></span>Khiên <small class="sub">· giữ tỉnh 3 phút</small></div>
+          <div class="sec-t">Nhật ký team</div>
+          <ol class="log"><li><time>15:36</time>Sếp: đi đến Đà Nẵng</li><li><time>15:36</time>Trận đấu bắt đầu!</li><li><time>15:35</time>Xuất phát ở Quảng Ngãi</li></ol>
+        </div></div>
+        <nav class="tabbar"><a><span class="ic" data-ic="map"></span>Bản đồ</a><a><span class="badge">2</span><span class="ic" data-ic="card"></span>Thẻ bài</a><a class="on"><span class="ic" data-ic="flag"></span>Đội</a><a><span class="ic" data-ic="rumor"></span>Nhật ký</a></nav>
+      </div></div></div>
+    <div class="dev"><b class="new">1c. Nút ≡ gom các nút phụ</b>
+      <div class="phone"><span class="notch"></span><div class="screen">
+        <div class="mbar"><span class="masc" data-mascot="Rồng"></span><span class="tn"><b>Team Rồng</b><small>Phòng thử</small></span>
+          <span class="stat"><b>150</b><small>điểm</small></span><span class="stat"><b>1</b><small>tỉnh</small></span>
+          <span class="timer"><span class="ic" data-ic="timer"></span>44:57</span><button class="btn menu" type="button">≡</button></div>
+        <div class="mmap" data-map="quang-ngai" data-mine="quang-ngai"></div>
+        <div class="sheet"><div class="grab"></div><div class="sub">Đang ở</div><div class="where">Quảng Ngãi</div></div>
+        <nav class="tabbar"><a class="on"><span class="ic" data-ic="map"></span>Bản đồ</a><a><span class="ic" data-ic="card"></span>Thẻ bài</a><a><span class="ic" data-ic="flag"></span>Đội</a><a><span class="ic" data-ic="rumor"></span>Nhật ký</a></nav>
+        <div class="dim"></div>
+        <div class="menu-pop">
+          <a class="host"><span class="ic" data-ic="play"></span>Chủ phòng</a>
+          <a><span class="ic" data-ic="star"></span>Sổ tay hành trình</a>
+          <a><span class="ic" data-ic="question"></span>Luật chơi</a>
+          <a><span class="ic" data-ic="sound-on"></span>Âm thanh<small>Bật</small></a>
+          <a><span class="ic" data-ic="fog"></span>Che màn hình</a>
+          <hr><a><span class="ic" data-ic="retreat"></span>Thoát</a>
+        </div>
+      </div></div></div>
+  </div>
+  <ul class="how">
+    <li><b>Thanh trên một dòng:</b> linh vật, tên team, điểm, số tỉnh, đồng hồ, nút ≡. Tên dài thì cắt "…". Chế độ chơi đơn thay "tỉnh" bằng "hạng".</li>
+    <li><b>Bản đồ chiếm toàn bộ phần giữa</b>, kéo và chụm 2 ngón để phóng to. Nút + / − / nón lá (về vị trí mình) dời lên góc trên phải để không bị ngăn che.</li>
+    <li><b>Ngăn "Đang ở" luôn hiện ở đáy:</b> tên tỉnh và các tỉnh đi được (bấm luôn, không cần chạm đúng vào tỉnh nhỏ trên bản đồ). Kéo lên để xem đầy đủ.</li>
+    <li><b>Thanh tab dưới:</b> Bản đồ / Thẻ bài (chấm đỏ = số thẻ đang có) / Đội / Nhật ký. Chọn tab khác thì ngăn kéo lên 60% màn, bản đồ vẫn thấy phía trên.</li>
+    <li><b>Nút ≡:</b> Chủ phòng (chỉ hiện với chủ phòng), Sổ tay, Luật chơi, Âm thanh, Che màn hình, Thoát.</li>
+  </ul>
+</section>
+
+<!-- 2. Câu hỏi -->
+<section class="frame-wrap" id="dlg">
+  <h2><span class="num">2</span>Câu hỏi, chọn cược, câu hỏi chung (điện thoại)</h2>
+  <p class="when">Hộp thoại hiện tại rộng cố định nên bị bóp méo, chữ xuống dòng từng từ. Đề xuất: mọi hộp thoại trượt lên từ đáy, rộng hết màn.</p>
+  <div class="row">
+    <div class="dev"><b class="old">Hiện tại (chọn cược)</b><div class="shot"><img src="mobile-now/bet.png" alt=""></div>
+      <ul class="problems"><li>Hộp bị bóp, "Trạm: Cao Bằng · 100 điểm" xuống 5 dòng</li><li>Lựa chọn "Mạo hiểm" bị cắt mất bên phải</li></ul></div>
+    <div class="dev"><b class="new">2a. Chọn cược</b>
+      <div class="phone"><span class="notch"></span><div class="screen">
+        <div class="mbar"><span class="masc" data-mascot="Rồng"></span><span class="tn"><b>Team Rồng</b><small>Phòng thử</small></span><span class="stat"><b>150</b><small>điểm</small></span><span class="timer"><span class="ic" data-ic="timer"></span>44:24</span><button class="btn menu" type="button">≡</button></div>
+        <div class="mmap" data-map="da-nang" data-mine="quang-ngai"></div>
+        <div class="dim"></div>
+        <div class="bs"><div class="grab"></div>
+          <span class="tag"><span class="ic" data-ic="flag"></span>Trạm: Đà Nẵng · 300 điểm</span>
+          <h3>Trả lời câu này theo kiểu nào?</h3>
+          <div class="bet">
+            <button class="btn" type="button"><span class="ic" data-ic="flag"></span><b>Chắc ăn</b><small>Điểm thường</small></button>
+            <button class="btn" type="button"><span class="ic" data-ic="dice"></span><b>Mạo hiểm</b><small>Đúng +50% · sai nghỉ thêm 30 giây</small></button>
+          </div>
+          <p class="note">Đồng hồ trả lời chỉ bắt đầu chạy sau khi chọn.</p>
+          <div class="acts"><button class="btn" type="button">Bỏ qua</button></div>
+        </div>
+      </div></div></div>
+    <div class="dev"><b class="new">2b. Câu hỏi</b>
+      <div class="phone"><span class="notch"></span><div class="screen">
+        <div class="mbar"><span class="masc" data-mascot="Rồng"></span><span class="tn"><b>Team Rồng</b><small>Phòng thử</small></span><span class="stat"><b>150</b><small>điểm</small></span><span class="timer"><span class="ic" data-ic="timer"></span>44:20</span><button class="btn menu" type="button">≡</button></div>
+        <div class="mmap" data-map="da-nang" data-mine="quang-ngai"></div>
+        <div class="dim"></div>
+        <div class="bs"><div class="grab"></div>
+          <span class="tag"><span class="ic" data-ic="topic-am-thuc"></span>Ẩm thực · Đà Nẵng</span>
+          <h3>Món bún nổi tiếng của Đà Nẵng ăn kèm chả cá là gì?</h3>
+          <div class="bar"><i></i></div><div class="barl"><span>Siêu tốc +10%</span><span>11 giây</span></div>
+          <div class="opts">
+            <button class="btn" type="button"><b>A</b>Bún chả cá</button>
+            <button class="btn" type="button"><b>B</b>Bún bò</button>
+            <button class="btn" type="button"><b>C</b>Bún mắm nêm</button>
+            <button class="btn" type="button"><b>D</b>Bún riêu</button>
+          </div>
+        </div>
+      </div></div></div>
+    <div class="dev"><b class="new">2c. Câu hỏi chung cả phòng</b>
+      <div class="phone"><span class="notch"></span><div class="screen">
+        <div class="mbar"><span class="masc" data-mascot="Rồng"></span><span class="tn"><b>Team Rồng</b><small>Phòng thử</small></span><span class="stat"><b>150</b><small>điểm</small></span><span class="timer"><span class="ic" data-ic="pause"></span>Tạm dừng</span><button class="btn menu" type="button">≡</button></div>
+        <div class="mmap" data-map="quang-ngai" data-mine="quang-ngai"></div>
+        <div class="dim"></div>
+        <div class="bs"><div class="grab"></div>
+          <span class="tag"><span class="ic" data-ic="question"></span>Câu hỏi chung cả phòng</span>
+          <h3>Lễ hội đền Hùng được tổ chức vào ngày nào âm lịch?</h3>
+          <div class="bar"><i></i></div><div class="barl"><span>12/18 người đã chọn</span><span>21 giây</span></div>
+          <div class="opts">
+            <button class="btn" type="button"><b>A</b>Mùng 10 tháng 3</button>
+            <button class="btn on" type="button"><b>B</b>Rằm tháng Giêng</button>
+            <button class="btn" type="button"><b>C</b>Mùng 5 tháng 5</button>
+            <button class="btn" type="button"><b>D</b>Rằm tháng 8</button>
+          </div>
+          <p class="note">Từ 70% cả phòng đúng: mọi team +100 điểm.</p>
+        </div>
+      </div></div></div>
+  </div>
+  <ul class="how">
+    <li><b>Trượt lên từ đáy, rộng hết màn</b>, cao tối đa 88%; nội dung dài thì cuộn bên trong. Áp dụng cho mọi hộp thoại: câu hỏi, chọn cược, kết quả, thẻ bài, Sổ tay, kết quả cuối trận.</li>
+    <li><b>Đáp án xếp 1 cột, mỗi nút cao ít nhất 54px</b>, có chữ A/B/C/D, ngón cái bấm thoải mái.</li>
+    <li>Thanh thời gian ngay dưới câu hỏi; nhãn "Siêu tốc +10%" còn hiện thì trả lời nhanh được thưởng.</li>
+  </ul>
+</section>
+
+<!-- 3. Chủ phòng -->
+<section class="frame-wrap" id="host">
+  <h2><span class="num">3</span>Bảng chủ phòng trong màn chơi (điện thoại)</h2>
+  <p class="when">Hiện tại là ô nổi góc trên, đè lên nhau với thanh trên. Đề xuất: mở từ nút ≡ → "Chủ phòng", trượt lên từ đáy như hộp thoại.</p>
+  <div class="row">
+    <div class="dev"><b class="old">Hiện tại</b><div class="shot"><img src="mobile-now/drawer.png" alt=""></div>
+      <ul class="problems"><li>Đè lên thanh trên, không có lớp mờ phía sau</li><li>Nút nhỏ, chữ màn chiếu xuống dòng giữa mã</li></ul></div>
+    <div class="dev"><b class="new">3a. Đang chơi</b>
+      <div class="phone"><span class="notch"></span><div class="screen">
+        <div class="mbar"><span class="masc" data-mascot="Rồng"></span><span class="tn"><b>Team Rồng</b><span class="host-chip">Chủ phòng</span></span><span class="stat"><b>150</b><small>điểm</small></span><span class="timer"><span class="ic" data-ic="timer"></span>44:57</span><button class="btn menu" type="button">≡</button></div>
+        <div class="mmap" data-map="quang-ngai" data-mine="quang-ngai"></div>
+        <div class="dim"></div>
+        <div class="bs"><div class="grab"></div>
+          <h3>Chủ phòng</h3>
+          <div class="grp">TRẬN ĐẤU</div>
+          <div class="two"><button class="btn" type="button"><span class="ic" data-ic="pause"></span> Tạm dừng</button><button class="btn danger" type="button"><span class="ic" data-ic="stop"></span> Kết thúc</button></div>
+          <div class="grp">SỰ KIỆN</div>
+          <div class="two"><select class="input"><option>Lễ hội (+100, 5 phút)</option></select><select class="input"><option>Miền Bắc</option></select></div>
+          <div class="two" style="margin-top:8px"><button class="btn on" type="button"><span class="ic" data-ic="festival"></span> Tung sự kiện</button><button class="btn" type="button"><span class="ic" data-ic="question"></span> Câu hỏi chung</button></div>
+          <div class="grp">MÀN CHIẾU</div>
+          <div class="link-box"><span>Mã phòng QDB49F · màn chiếu D8QUQW</span><button class="btn" type="button"><span class="ic" data-ic="screen"></span></button></div>
+          <div class="acts"><button class="btn primary" type="button">Trang chủ phòng đầy đủ</button></div>
+        </div>
+      </div></div></div>
+  </div>
+  <ul class="how">
+    <li>Nút <b>Kết thúc</b> và <b>Chơi lại</b> vẫn bấm 2 lần trong 4 giây mới chạy (giống bây giờ).</li>
+    <li>Thanh trên có nhãn nhỏ <b>Chủ phòng</b> thay cho nút "Chủ phòng ▾" chiếm chỗ.</li>
+  </ul>
+</section>
+
+<!-- 4. Màn ngoài -->
+<section class="frame-wrap" id="entry">
+  <h2><span class="num">4</span>Màn ngoài: vào phòng / tạo phòng / phòng có sẵn (điện thoại)</h2>
+  <p class="when">Đã dùng được trên điện thoại nhưng dài: 4 thẻ phòng có sẵn cao gần 2 màn. Đề xuất gọn lại thành danh sách.</p>
+  <div class="row">
+    <div class="dev"><b class="old">Hiện tại (phần trên)</b><div class="shot"><img src="mobile-now/entry.png" alt=""></div>
+      <ul class="problems"><li>Tab "Tham gia phòng" xuống 2 dòng</li><li>Mỗi phòng có sẵn là một thẻ cao ~210px</li><li>Hàng linh vật rớt 1 con xuống dòng</li></ul></div>
+    <div class="dev"><b class="new">4a. Gọn trong một màn</b>
+      <div class="phone"><span class="notch"></span><div class="screen"><div class="ent">
+        <div class="card">
+          <div class="brand"><b>Hành trình 3 miền</b><small>Mini game Ngày Văn hóa Việt Nam 24/11</small></div>
+          <div class="masc-row" data-mascots></div>
+          <div class="seg"><a class="on">Vào phòng</a><a>Tạo phòng</a></div>
+          <label>Mã phòng · chủ phòng gửi cho bạn</label>
+          <input class="input pin-input" type="text" placeholder="6 ký tự">
+          <button class="btn green" type="button" style="width:100%;margin-top:12px">Tiếp tục</button>
+          <p class="sub" style="margin:10px 0 0;font-size:13px;color:var(--muted)">Lần đầu chơi? <a href="#">Xem luật chơi</a></p>
+        </div>
+        <div class="card">
+          <div class="sec-t">Phòng chơi đơn có sẵn</div>
+          <p style="margin:2px 0 6px;color:var(--muted);font-size:13px">Mỗi người một hành trình · ai vào trước làm chủ phòng</p>
+          <div class="rlist">
+            <div class="rrow"><i style="background:#E8478B"></i><span><b>Phòng Sen</b><small>Đang chờ · 2/50 người · 30 phút</small></span><button class="btn green" type="button">Vào</button></div>
+            <div class="rrow"><i style="background:#E5A800"></i><span><b>Phòng Mai</b><small class="free">Chưa có chủ phòng · 0/50</small></span><button class="btn green" type="button">Vào</button></div>
+            <div class="rrow"><i style="background:#FF8A80"></i><span><b>Phòng Đào</b><small class="free">Chưa có chủ phòng · 0/50</small></span><button class="btn green" type="button">Vào</button></div>
+            <div class="rrow"><i style="background:#58A700"></i><span><b>Phòng Trúc</b><small>Đang chơi · 14/50 người · còn 12 phút</small></span><button class="btn green" type="button">Vào</button></div>
+          </div>
+        </div>
+      </div></div></div></div>
+  </div>
+  <ul class="how">
+    <li>Tab dạng <b>công tắc 2 nửa</b>, chữ ngắn: "Vào phòng" / "Tạo phòng". Hàng linh vật thu nhỏ để đủ một dòng.</li>
+    <li>Phòng có sẵn thành <b>danh sách 1 dòng mỗi phòng</b>; thanh tiến độ số người bỏ đi, ghi số người bằng chữ.</li>
+    <li>Phần giải thích chế độ chơi (khi đang ở tab "Tạo phòng") nằm ngay dưới ô chọn chế độ, thu gọn được.</li>
+  </ul>
+</section>
+
+<!-- 5. Trang chủ phòng -->
+<section class="frame-wrap" id="admin">
+  <h2><span class="num">5</span>Trang chủ phòng (điện thoại)</h2>
+  <p class="when">Hiện tại bị tràn ngang (trang rộng 422px trên màn 390px) và mọi khối xếp dọc rất dài. Đề xuất chia tab.</p>
+  <div class="row">
+    <div class="dev"><b class="old">Hiện tại</b><div class="shot"><img src="mobile-now/admin.png" alt=""></div>
+      <ul class="problems"><li>Tràn ngang, nút "Kết thúc" lòi ra ngoài</li><li>Phải cuộn rất dài mới tới Team / Sự kiện</li></ul></div>
+    <div class="dev"><b class="new">5a. Tab "Trận đấu"</b>
+      <div class="phone"><span class="notch"></span><div class="screen">
+        <div class="abar"><div class="r1"><b>Phòng thử</b><span class="st">Đang chơi</span><span class="timer" style="margin-left:auto"><span class="ic" data-ic="timer"></span>44:50</span></div>
+          <div class="r2"><span>Mã phòng <b>QDB49F</b></span><span>Màn chiếu <b>D8QUQW</b></span></div>
+          <nav class="atabs"><a class="on">Trận đấu</a><a>Team · 6</a><a>Sự kiện</a><a>Thống kê</a></nav></div>
+        <div class="abody">
+          <div class="card"><div class="sec-t" style="margin-bottom:10px">Điều khiển trận</div>
+            <div class="btns"><button class="btn" type="button"><span class="ic" data-ic="pause"></span> Tạm dừng</button><button class="btn danger" type="button"><span class="ic" data-ic="stop"></span> Kết thúc</button></div>
+          </div>
+          <label class="opt"><input type="checkbox">Cho người chơi chọn chủ đề câu hỏi</label>
+          <label class="opt on"><input type="checkbox" checked>Đặt cược: Chắc ăn / Mạo hiểm trước câu hỏi</label>
+          <div class="card"><div class="sec-t" style="margin-bottom:8px">Mời người chơi</div>
+            <div class="link-box"><span>127.0.0.1:3000/?room=QDB49F</span><button class="btn" type="button"><span class="ic" data-ic="copy"></span> Chép</button></div>
+          </div>
+        </div>
+        <div class="abot"><button class="btn green" type="button">← Quay lại chơi</button><button class="btn" type="button"><span class="ic" data-ic="screen"></span> Màn chiếu</button></div>
+      </div></div></div>
+    <div class="dev"><b class="new">5b. Tab "Team"</b>
+      <div class="phone"><span class="notch"></span><div class="screen">
+        <div class="abar"><div class="r1"><b>Phòng thử</b><span class="st">Đang chơi</span><span class="timer" style="margin-left:auto"><span class="ic" data-ic="timer"></span>44:50</span></div>
+          <div class="r2"><span>Mã phòng <b>QDB49F</b></span><span>Màn chiếu <b>D8QUQW</b></span></div>
+          <nav class="atabs"><a>Trận đấu</a><a class="on">Team · 6</a><a>Sự kiện</a><a>Thống kê</a></nav></div>
+        <div class="abody"><div class="card" data-teams></div></div>
+        <div class="abot"><button class="btn green" type="button">← Quay lại chơi</button><button class="btn" type="button"><span class="ic" data-ic="screen"></span> Màn chiếu</button></div>
+      </div></div></div>
+  </div>
+  <ul class="how">
+    <li><b>Thanh trên cố định:</b> tên phòng, trạng thái, đồng hồ, mã phòng và mã màn chiếu luôn thấy.</li>
+    <li><b>4 tab:</b> Trận đấu (điều khiển, tuỳ chọn, link mời) / Team (điểm, người chơi, sửa tên, mời ra) / Sự kiện (tung sự kiện, câu hỏi chung) / Thống kê.</li>
+    <li><b>Thanh dưới:</b> "Quay lại chơi" (hoặc "Vào chơi") và "Màn chiếu" luôn trong tầm ngón cái.</li>
+  </ul>
+</section>
+
+<!-- 6. Luật chơi -->
+<section class="frame-wrap" id="rules">
+  <h2><span class="num">6</span>Luật chơi (điện thoại)</h2>
+  <p class="when">Đọc được nhưng đầu trang chật: nút "Vào chơi" bị bẻ 2 dòng, dải mục lục cắt cụt mà không biết là cuộn được.</p>
+  <div class="row">
+    <div class="dev"><b class="old">Hiện tại</b><div class="shot"><img src="mobile-now/rules.png" alt=""></div>
+      <ul class="problems"><li>"Vào chơi" xuống 2 dòng</li><li>Dải mục lục bị cắt, không có dấu hiệu cuộn</li></ul></div>
+    <div class="dev"><b class="new">6a. Đầu trang gọn, mục lục dính trên</b>
+      <div class="phone"><span class="notch"></span><div class="screen">
+        <div class="rhead"><div class="r1"><span class="ic" data-ic="map" style="width:30px;height:30px"></span><span><b>Luật chơi</b><small>Đọc trong 3 phút</small></span><button class="btn green" type="button">Vào chơi</button></div>
+          <div class="chips"><a class="on">Mục tiêu</a><a>Bắt đầu</a><a>Di chuyển</a><a>Trả lời</a><a>Thẻ bài</a></div></div>
+        <div class="rbody"><div class="card">
+          <h3><i>1</i>Mục tiêu</h3>
+          <p>Các team chơi <b>cùng lúc</b> trên bản đồ <b>34 tỉnh, thành</b> sau sáp nhập. Đi từ tỉnh này sang tỉnh giáp ranh, trả lời đúng câu hỏi về tỉnh đó để <b>cắm cờ</b>.</p>
+          <p>Hết giờ, team nào có <b>nhiều điểm nhất</b> thắng.</p>
+          <div class="mmap" data-map="quang-ngai" data-mine="quang-ngai" style="height:230px;border-radius:16px;margin-top:10px"></div>
+        </div></div>
+      </div></div></div>
+  </div>
+  <ul class="how">
+    <li>Hình minh hoạ trong luật chơi co theo bề rộng màn, không cắt.</li>
+    <li>Dải mục lục cuộn ngang, mờ dần ở mép phải để biết còn mục; mục đang đọc tự cuộn vào giữa.</li>
+  </ul>
+</section>
+
+<!-- 7. Tablet -->
+<section class="frame-wrap" id="tablet">
+  <h2><span class="num">7</span>Máy tính bảng</h2>
+  <p class="when">iPad dọc (820px) dùng bản đồ trên, bảng 2 cột dưới. iPad ngang (1080px) giữ bố cục máy tính, cột phải hẹp lại 300px.</p>
+  <div class="row">
+    <div class="dev"><b class="new">7a. iPad dọc 820px</b>
+      <div class="phone tab"><div class="screen">
+        <div class="mbar"><span class="masc" data-mascot="Rồng"></span><span class="tn"><b>Team Rồng</b><small>Phòng thử · QDB49F</small></span>
+          <span class="stat"><b>150</b><small>điểm</small></span><span class="stat"><b>1</b><small>tỉnh</small></span>
+          <span class="timer"><span class="ic" data-ic="timer"></span>44:57</span><button class="btn" type="button">Luật chơi</button><button class="btn menu" type="button">≡</button></div>
+        <div class="tgrid">
+          <div class="mmap" data-map="quang-ngai" data-mine="quang-ngai" data-zoom="1.6"><div class="zoomb"><button class="btn" type="button">+</button><button class="btn" type="button">−</button></div></div>
+          <div class="tside">
+            <div class="card"><div class="sub" style="color:var(--muted);font-weight:700">Đang ở · tỉnh của đội bạn</div><div class="where">Quảng Ngãi</div>
+              <div class="nbs" style="display:flex;gap:8px;margin-top:8px"><button class="btn primary" type="button">Đà Nẵng · 300</button><button class="btn primary" type="button">Gia Lai · 200</button></div></div>
+            <div class="card"><div class="sec-t">Nhật ký team</div><ol class="log"><li><time>15:36</time>Sếp: đi đến Đà Nẵng</li><li><time>15:36</time>Trận đấu bắt đầu!</li></ol></div>
+            <div class="card"><div class="sec-t">Thẻ bài · tối đa 3</div><div class="tcard" style="margin-top:6px"><span class="ic" data-ic="scout"></span>Do thám</div></div>
+            <div class="card"><div class="sec-t">Thành viên · 3</div><div style="margin-top:6px"><span class="mpill">Sếp (bạn)</span> <span class="mpill">Lan</span> <span class="mpill">Minh</span></div></div>
+          </div>
+        </div>
+      </div></div></div>
+  </div>
+  <div class="row" style="margin-top:28px">
+    <div class="dev"><b class="new">7b. iPad ngang 1080px</b>
+      <div class="phone tab-l"><div class="screen">
+        <div class="mbar"><span class="masc" data-mascot="Rồng"></span><span class="tn"><b>Team Rồng</b><small>Phòng thử · QDB49F</small></span>
+          <span class="stat"><b>150</b><small>điểm</small></span><span class="stat"><b>1</b><small>tỉnh</small></span>
+          <span class="timer"><span class="ic" data-ic="timer"></span>44:57</span><button class="btn" type="button">Luật chơi</button><button class="btn" type="button"><span class="ic" data-ic="sound-on"></span></button><button class="btn" type="button">Thoát</button></div>
+        <div class="tl">
+          <div class="mmap" data-map="quang-ngai" data-mine="quang-ngai" data-zoom="1.3"></div>
+          <div class="col">
+            <div class="card"><div class="sub" style="color:var(--muted);font-weight:700">Đang ở</div><div class="where">Quảng Ngãi</div>
+              <div class="nbs" style="display:flex;gap:8px;margin-top:8px"><button class="btn primary" type="button">Đà Nẵng</button><button class="btn primary" type="button">Gia Lai</button></div></div>
+            <div class="card"><div class="sec-t">Thẻ bài · tối đa 3</div><div class="tcard" style="margin-top:6px"><span class="ic" data-ic="scout"></span>Do thám</div></div>
+            <div class="card"><div class="sec-t">Thành viên · 3</div><div style="margin-top:6px"><span class="mpill">Sếp (bạn)</span> <span class="mpill">Lan</span></div></div>
+            <div class="card"><div class="sec-t">Nhật ký team</div><ol class="log"><li><time>15:36</time>Sếp: đi đến Đà Nẵng</li><li><time>15:36</time>Trận đấu bắt đầu!</li></ol></div>
+          </div>
+        </div>
+      </div></div></div>
+  </div>
+</section>
+
+<!-- 8. Màn chiếu -->
+<section class="frame-wrap" id="screen">
+  <h2><span class="num">8</span>Màn chiếu &amp; màn che</h2>
+  <p class="when">Màn chiếu dành cho máy chiếu / TV nên giữ nguyên. Chỉ sửa màn che vì trên điện thoại không có phím Esc.</p>
+  <div class="row">
+    <div class="dev"><b class="new">8a. Màn che trên điện thoại</b>
+      <div class="phone"><span class="notch"></span><div class="screen"><div class="cover"><b>Màn hình đang được che</b><span>Chạm 2 lần để mở lại</span></div></div></div></div>
+  </div>
+  <ul class="how">
+    <li><b>Màn che:</b> máy có cảm ứng thì ghi "Chạm 2 lần để mở lại"; mở từ nút ≡ → "Che màn hình" (máy tính vẫn dùng Esc).</li>
+    <li><b>Màn chiếu</b> mở trên máy nhỏ hơn 900px thì hiện nhắc "Màn này dành cho máy chiếu, hãy mở trên máy tính", vẫn cho xem nếu muốn.</li>
+  </ul>
+</section>
+
+<script>
+// Vẽ bản đồ thật (MAP_DATA) vào các .mmap, phóng quanh tỉnh data-map; tỉnh giáp ranh tỉnh mình viền xanh, xa thì sương mù
+const REGION = { north: 'n', central: 'c', south: 's' }
+const REG = Object.fromEntries(('ha-noi cao-bang tuyen-quang dien-bien lai-chau son-la lao-cai thai-nguyen lang-son quang-ninh bac-ninh phu-tho hai-phong hung-yen ninh-binh').split(' ').map(id => [id, 'n'])
+  .concat('thanh-hoa nghe-an ha-tinh quang-tri hue da-nang quang-ngai gia-lai khanh-hoa dak-lak lam-dong'.split(' ').map(id => [id, 'c']))
+  .concat('dong-nai ho-chi-minh tay-ninh dong-thap vinh-long an-giang can-tho ca-mau'.split(' ').map(id => [id, 's'])))
+const M = window.MAP_DATA
+const byId = Object.fromEntries(M.provinces.map(p => [p.id, p]))
+const adj = new Map(M.provinces.map(p => [p.id, new Set()]))
+for (const [a, b] of M.adjacency) { adj.get(a).add(b); adj.get(b).add(a) }
+const NS = 'http://www.w3.org/2000/svg'
+const short = n => n.replace('Thành phố ', '').replace('Hồ Chí Minh', 'TP.HCM')
+for (const box of document.querySelectorAll('.mmap[data-map]')) {
+  const focus = byId[box.dataset.map], mine = box.dataset.mine, zoom = +(box.dataset.zoom || 2.4)
+  const near = new Set([mine, ...adj.get(mine)])
+  for (const n of [...near]) for (const m of adj.get(n)) near.add(m)
+  const svg = document.createElementNS(NS, 'svg')
+  const w = box.clientWidth || 390, h = box.clientHeight || 500
+  const vw = 900 / zoom, vh = vw * h / w
+  svg.setAttribute('viewBox', `${focus.label[0] - vw / 2} ${focus.label[1] - vh / 2} ${vw} ${vh}`)
+  svg.setAttribute('preserveAspectRatio', 'xMidYMid slice')
+  for (const p of M.provinces) {
+    const g = document.createElementNS(NS, 'g')
+    const cls = ['prov', REG[p.id]]
+    if (p.id === mine) cls.push('mine')
+    else if (adj.get(mine).has(p.id)) cls.push('nb')
+    else if (!near.has(p.id)) cls.push('fog')
+    g.setAttribute('class', cls.join(' '))
+    const path = document.createElementNS(NS, 'path'); path.setAttribute('d', p.d); g.append(path)
+    svg.append(g)
+  }
+  for (const p of M.provinces) {
+    if (!near.has(p.id)) continue
+    const t = document.createElementNS(NS, 'text'); t.setAttribute('x', p.label[0]); t.setAttribute('y', p.label[1] + 4)
+    t.setAttribute('font-size', 26 / zoom * 2.4 * .45); t.textContent = short(p.name); svg.append(t)
+  }
+  const hat = byId[mine].label
+  const g = document.createElementNS(NS, 'g'); const s = 34 / zoom
+  g.setAttribute('transform', `translate(${hat[0] - s / 2} ${hat[1] - s * 1.6}) scale(${s / 24})`)
+  g.innerHTML = (window.CULTURE_DATA.icons.hat || window.ICON_SVG.hat).replace(/^<svg[^>]*>|<\/svg>$/g, '')
+  svg.append(g)
+  box.prepend(svg)
+}
+// Biểu tượng + linh vật
+for (const el of document.querySelectorAll('[data-ic]')) el.innerHTML = window.ICON_SVG[el.dataset.ic] || window.CULTURE_DATA.icons[el.dataset.ic] || ''
+for (const el of document.querySelectorAll('[data-mascot]')) el.innerHTML = window.CULTURE_DATA.mascots[el.dataset.mascot]
+for (const el of document.querySelectorAll('[data-mascots]')) el.innerHTML = Object.values(window.CULTURE_DATA.mascots).map(s => `<span>${s}</span>`).join('')
+for (const el of document.querySelectorAll('[data-teams]')) el.innerHTML = '<div class="sec-t" style="margin-bottom:6px">Team · 6</div>' +
+  [['Rồng', 'Team Rồng', '3 người · 450đ'], ['Lân', 'Team Lân', '4 người · 400đ'], ['Rùa', 'Team Rùa', '2 người · 300đ'], ['Phượng', 'Team Phượng', '3 người · 250đ'], ['Hạc', 'Team Hạc', '3 người · 150đ'], ['Trâu', 'Team Trâu', '1 người · 100đ']]
+    .map(([m, n, s]) => `<div class="trow"><span class="masc">${window.CULTURE_DATA.mascots[m]}</span><span>${n}<br><small>${s}</small></span><button class="btn" type="button">Người chơi</button><button class="btn" type="button">±</button></div>`).join('')
+</script>
+</body>
+</html>

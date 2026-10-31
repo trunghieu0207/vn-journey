@@ -1,0 +1,259 @@
+/* Màn team: bố cục, khung bản đồ, tooltip, thông báo, lớp phủ, hộp thoại, cảnh báo mất tỉnh, che màn hình. Thứ tự nạp: xem style.css. */
+
+/* ---------- Bố cục màn team ---------- */
+#app { display: flex; flex-direction: column; height: 100%; min-height: 680px; }
+.team-main {
+  display: grid;
+  flex: 1;
+  grid-template-columns: minmax(0, 1fr) 330px;
+  gap: 16px;
+  min-height: 0;
+  padding: 16px;
+}
+.side { display: flex; flex-direction: column; gap: 16px; min-height: 0; overflow-y: auto; margin: -10px -10px 0; padding: 10px 10px 14px; }
+.where { font-size: 20px; font-weight: 900; }
+.neighbors { margin-top: 10px; }
+.cards .btn { flex: 1 1 auto; }
+/* Nhật ký dài dần trong trận: thẻ lấp chỗ còn lại của cột, danh sách cuộn bên trong (không tràn khỏi nền thẻ) */
+.journal { display: flex; flex-direction: column; flex: 1 1 0; min-height: 180px; }
+.journal ol { flex: 1; min-height: 0; overflow-y: auto; list-style: none; margin: 0; padding: 0; display: grid; align-content: start; gap: 4px; font-size: 15px; }
+.journal time { color: var(--muted); font-variant-numeric: tabular-nums; margin-right: 6px; }
+.journal .bad { color: var(--red-dark); font-weight: 800; }
+.journal .good { color: var(--green-dark); font-weight: 800; }
+
+/* ---------- Khung bản đồ ---------- */
+.map-wrap {
+  position: relative;
+  min-height: 0;
+  overflow: hidden;
+  border: 2px solid var(--line);
+  border-radius: 20px;
+  background: var(--map-bg);
+  box-shadow: 0 6px 0 var(--line);
+}
+.map { display: block; width: 100%; height: 100%; cursor: grab; touch-action: none; user-select: none; }
+.map.dragging { cursor: grabbing; }
+/* Camera đang chuyển động: <svg> được dời / phóng bằng CSS transform thay vì đổi viewBox (map.js setCamera) —
+   vẽ cả phần ngoài viewBox để khi thu nhỏ không lộ khoảng trống; khung chứa (.map-wrap) cắt phần thừa */
+.map.moving { overflow: visible; transform-origin: 0 0; will-change: transform; }
+/* Trong lúc camera chuyển động, nhãn / mây / chấm team co giãn theo bản đồ (không đặt lại từng khung cho nhẹ);
+   zoom quá ~1,35 lần thì mờ đi cho đỡ méo, dừng lại mới hiện đúng cỡ */
+.map :is(#layer-labels, #layer-clouds, .team-pins) { transition: opacity .12s; }
+.map.movers-off :is(#layer-labels, #layer-clouds, .team-pins) { opacity: 0; }
+.zoom { position: absolute; right: 12px; bottom: 14px; display: flex; flex-direction: column; gap: 8px; }
+.zoom .btn { width: 42px; height: 42px; padding: 0; font-size: 20px; }
+
+.tooltip {
+  position: absolute;
+  z-index: 5;
+  max-width: 260px;
+  padding: 8px 12px;
+  border: 2px solid var(--line);
+  border-radius: 14px;
+  background: var(--panel);
+  box-shadow: 0 4px 0 var(--line);
+  font-size: 14px;
+  pointer-events: none;
+}
+.tooltip strong { display: block; font-size: 16px; font-weight: 900; }
+
+.toast {
+  position: absolute;
+  top: 14px;
+  left: 50%;
+  z-index: 6;
+  max-width: 90%;
+  padding: 10px 18px;
+  border-radius: 16px;
+  --fill: var(--green);
+  --bd: var(--green-dark);
+  color: #fff;
+  font-weight: 800;
+  transform: translateX(-50%);
+}
+.toast.bad { --fill: var(--red); --bd: var(--red-dark); }
+
+/* Lớp phủ trên bản đồ: bị khóa, chờ bắt đầu, tạm dừng, hết giờ */
+.map-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  display: grid;
+  place-items: center;
+  align-content: center;
+  gap: 8px;
+  padding: 24px;
+  background: rgba(247, 247, 247, .72);
+  backdrop-filter: blur(3px);
+  text-align: center;
+}
+.map-overlay h2 { font-size: 30px; font-weight: 900; }
+.map-overlay .big { color: var(--red); font-size: 72px; font-weight: 900; font-variant-numeric: tabular-nums; line-height: 1; }
+.map-overlay.calm .big { color: var(--green); }
+
+/* ---------- Hộp thoại (câu hỏi, công thành, thẻ bài) ---------- */
+dialog {
+  width: min(640px, calc(100% - 32px));
+  padding: 24px;
+  border: 2px solid var(--line);
+  border-radius: 22px;
+  background: var(--panel);
+  color: var(--ink);
+  box-shadow: 0 6px 0 var(--line), 0 20px 50px rgba(0, 0, 0, .2);
+}
+dialog::backdrop { background: rgba(60, 60, 60, .45); }
+dialog.shake { animation: shake .45s; }
+.q-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 4px; }
+.q-head h2 { color: var(--green); font-size: 20px; font-weight: 900; }
+.q-head .tag { --fill: #FFF4D6; --bd: #F5D58A; position: relative; padding: 2px 10px; border-radius: 999px; color: #A86B00; font-size: 14px; font-weight: 900; }
+.q-head .tag.siege { --fill: #FFE1E1; --bd: #FFB3B3; color: var(--red-dark); }
+/* Câu hỏi vàng: nhãn vàng đậm + khung viền vàng */
+.q-head .tag.golden { --fill: var(--accent); --bd: var(--accent-dark); margin-left: auto; color: #7A4A00; rotate: 2deg; }
+dialog.docked.golden { border-color: var(--accent); box-shadow: 0 0 0 4px #fff, 0 8px 0 3px var(--accent-dark), 0 0 0 10px rgba(255, 200, 0, .25), 0 20px 50px rgba(0, 0, 0, .2); }
+/* Đấu tay đôi: dòng báo đỏ + khung phòng thủ viền đỏ */
+.defense-alert { margin: 8px 0 0; padding: 8px 12px; border-radius: 10px 14px 9px 13px; background: #FFECEC; color: var(--red-dark); font-size: 15px; font-weight: 800; }
+.defense-alert.safe { background: #F1FBE8; color: var(--green-dark); } /* đội công thành đã thua: tỉnh an toàn */
+dialog.docked.defense { border-color: #FFB3B3; box-shadow: 0 0 0 4px #fff, 0 8px 0 3px var(--red), 0 0 0 10px rgba(255, 75, 75, .18), 0 20px 50px rgba(0, 0, 0, .2); }
+/* Thẻ trợ giúp trong khung câu hỏi */
+.help-bar { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-top: 14px; }
+.help-bar .btn.help { min-height: 36px; padding: 4px 12px; --fill: #F2FBFF; --bd: var(--blue); color: var(--blue-dark); font-size: 15px; }
+/* Đáp án bị 50:50 loại: mờ + gạch */
+.options .btn.gone { opacity: .35; text-decoration: line-through; text-decoration-thickness: 2px; }
+.q-timer { color: var(--muted); font-weight: 900; font-variant-numeric: tabular-nums; }
+.q-timer.late { color: var(--red); }
+.q-text { margin: 14px 0 18px; font-size: 21px; font-weight: 800; line-height: 1.4; }
+.quiz-steps { display: flex; align-items: center; gap: 10px; margin-top: 8px; color: var(--muted); font-size: 15px; font-weight: 700; } /* phòng nhiều câu/tỉnh */
+.quiz-steps b { color: var(--ink); }
+.quiz-bars { display: inline-flex; gap: 4px; }
+.quiz-bars i { width: 22px; height: 8px; border-radius: 4px; background: #E5E5E5; }
+.quiz-bars i.done { background: var(--green); }
+.quiz-bars i.now { background: #fff; box-shadow: inset 0 0 0 2px var(--green); }
+/* Khung chọn trước câu hỏi: tách "1 · Mức cược" và "2 · Chủ đề" (mockup/quiz-steps.html, S1) */
+.pick-sec { margin-top: 14px; }
+.pick-sec + .pick-sec { padding-top: 14px; border-top: 2px solid #F0F0F0; }
+.pick-sec h3 { display: flex; align-items: baseline; gap: 8px; margin: 0 0 10px; font-size: 17px; font-weight: 900; }
+.pick-sec h3 small { color: var(--muted); font-size: 13px; font-weight: 700; }
+.sec-no { display: inline-grid; place-items: center; align-self: center; width: 22px; height: 22px; border-radius: 50%; background: var(--ink); color: #fff; font-size: 12px; }
+.pick-sec .bet-row { margin-bottom: 0; }
+.options { display: grid; gap: 10px; }
+.options .btn { justify-content: flex-start; min-height: 52px; padding: 8px 14px; text-align: left; font-size: 18px; }
+.options .key {
+  display: inline-grid;
+  place-items: center;
+  flex: none;
+  width: 28px;
+  height: 28px;
+  border: 2px solid var(--line);
+  border-radius: 8px;
+  color: var(--muted);
+  font-size: 14px;
+}
+.text-answer { display: grid; grid-template-columns: 1fr auto; gap: 10px; }
+/* Bỏ phiếu đáp án: đáp án mình chọn viền xanh dương; tên đồng đội đã chọn hiện cuối dòng */
+.options .btn.picked { --fill: #DDF4FF; --bd: var(--blue); }
+.options .voters { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 4px; margin-left: auto; }
+.options .voter { padding: 1px 8px; border-radius: 8px 10px 7px 9px; background: #FFF6D1; box-shadow: 0 0 0 1.5px var(--accent-dark); color: #9A5B00; font-size: 12px; font-weight: 900; white-space: nowrap; }
+.vote-bar { display: flex; align-items: center; min-height: 40px; }
+.vote-bar .btn.commit { min-height: 40px; padding: 4px 16px; font-size: 16px; }
+.q-head .tag.bet { --fill: #FFE1E1; --bd: var(--red); color: var(--red-dark); rotate: -2deg; }
+/* Đặt cược trước câu hỏi: Chắc ăn / Liều */
+.bet-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 14px; }
+.bet-opt { justify-content: flex-start; gap: 10px; min-height: 64px; padding: 8px 14px; text-align: left; }
+.bet-text { display: grid; gap: 2px; }
+.bet-text b { font-size: 18px; }
+.bet-text small { color: var(--muted); font-size: 13px; font-weight: 700; }
+.bet-opt.risky { --fill: #FFF2F2; --bd: #FFB3B3; }
+/* Cược số hiệp khi thử tài (team/siege-bet.js) */
+.rounds-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 14px 0 8px; }
+.rounds-opt { justify-content: center; text-align: center; }
+.rounds-opt .bet-text { justify-items: center; }
+.rounds-opt.picked { --fill: #F1FBE8; --bd: var(--green); }
+.rounds-opt:disabled:not(.picked) { opacity: .5; }
+.bet-wait { margin: 4px 0 0; }
+/* Đấu nhiều hiệp: "Hiệp 2/3 · Đội bạn 1 – 0 Chủ nhà" */
+.round-line { margin: 8px 0 0; font-weight: 700; }
+.round-line .score { padding: 0 6px; border-radius: 8px; background: #F0F0F0; font-variant-numeric: tabular-nums; }
+.round-line small { color: var(--muted); }
+/* Có cả chủ đề: hai nút cược là công tắc, nút đang chọn đậm màu */
+.bet-row.toggle .bet-opt[aria-pressed="false"] { opacity: .6; }
+.bet-row.toggle .bet-opt[aria-pressed="true"] { --fill: #F1FBE8; --bd: var(--green); opacity: 1; }
+.bet-row.toggle .bet-opt.risky[aria-pressed="true"] { --fill: #FFE1E1; --bd: var(--red); }
+.result { text-align: center; }
+.result h2 { font-size: 28px; font-weight: 900; }
+.result.good h2 { color: var(--green); }
+.result.warn h2 { color: var(--orange); }
+.result .answer { margin: 10px 0; font-size: 19px; font-weight: 800; }
+.result .explain { margin: 8px 0 16px; color: var(--muted); }
+.result .reward { margin: 8px 0; color: var(--orange); font-size: 18px; font-weight: 900; }
+.result .reward.late { color: var(--red-dark); }
+.result .reward.golden { color: #B86E00; }
+.result .reward.home { color: #C7305F; }
+.result .reward.streak { color: var(--orange-dark, #E07B00); }
+.dialog-actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin-top: 18px; }
+
+/* Thông báo lớn "Bạn vừa mất X!" */
+.alert-lost {
+  position: fixed;
+  top: 80px;
+  left: 50%;
+  z-index: 20;
+  padding: 16px 28px;
+  border-radius: 20px;
+  --fill: var(--red);
+  --bd: var(--red-dark);
+  color: #fff;
+  font-size: 24px;
+  font-weight: 900;
+  transform: translateX(-50%);
+}
+
+/* Esc: che màn hình (tránh team khác nhìn trộm) */
+.cover {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: grid;
+  place-items: center;
+  align-content: center;
+  gap: 10px;
+  background: var(--green);
+  color: #fff;
+  text-align: center;
+}
+.cover h2 { font-size: 40px; font-weight: 900; }
+body.covered dialog, body.covered .alert-lost { visibility: hidden; }
+
+@keyframes shake {
+  20%, 60% { transform: translateX(-8px); }
+  40%, 80% { transform: translateX(8px); }
+}
+/* "Đã từng / Muốn thử" trong khung kết quả */
+.react-box { display: grid; gap: 8px; margin: 12px 0 0; padding: 12px; border-radius: 14px; background: #F4FAFF; }
+.react-box .react-ask { margin: 0; font-weight: 800; }
+.react-box .react-count { margin: 0; color: var(--muted); font-size: 14px; font-weight: 700; }
+.react-opt { min-height: 40px; padding: 4px 16px; font-size: 16px; }
+.react-opt[aria-pressed="true"] { --fill: #DDF4FF; --bd: var(--blue); color: var(--blue-dark); }
+/* Phòng đơn: sổ tay hành trình */
+dialog.journey-dlg { width: min(760px, calc(100% - 32px)); }
+.journey { display: grid; gap: 12px; }
+.journey h2 { color: var(--green); font-size: 22px; font-weight: 900; }
+.journey p { margin: 0; }
+.jr-region h3 { margin: 0 0 6px; font-size: 16px; font-weight: 900; }
+.jr-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(104px, 1fr)); gap: 8px; }
+.jr-stamp { min-height: 46px; padding: 6px; border: 2px dashed #D6D6D6; border-radius: 12px; background: #FAFAFA; color: var(--muted); font: inherit; font-size: 13px; font-weight: 800; cursor: pointer; }
+.jr-stamp.got { border: 2px solid #E07A7A; background: #FFF1F1; color: #B03030; rotate: -2deg; }
+.jr-stamp.first { border-color: var(--accent-dark); background: #FFF6D1; color: #8A5A00; rotate: 2deg; }
+.jr-detail { padding: 12px 14px; border-radius: 14px; background: #F4FAFF; }
+.jr-detail h3 { display: flex; align-items: center; gap: 8px; margin: 0 0 6px; font-size: 17px; font-weight: 900; }
+.jr-badge { padding: 1px 8px; border-radius: 8px; background: #FFF6D1; color: #8A5A00; font-size: 12px; }
+.jr-q { font-weight: 800; }
+.jr-a { margin-top: 6px !important; padding: 6px 10px; border-radius: 10px; background: #F1FBE8; }
+/* Chủ phòng đang chơi: bảng điều khiển ngay trong màn chơi (team/host.js) */
+.host-drawer { position: fixed; top: calc(72px + env(safe-area-inset-top, 0px)); right: 16px; z-index: 20; display: grid; gap: 14px; width: min(380px, calc(100% - 32px)); max-height: calc(100% - 96px); overflow: auto; padding: 18px 20px; border: 2px solid var(--line); border-radius: 20px; background: var(--panel); box-shadow: 0 6px 0 var(--line), 0 20px 50px rgba(0, 0, 0, .18); }
+.host-head { display: flex; align-items: center; justify-content: space-between; }
+.host-head h2 { margin: 0; color: var(--green); font-size: 20px; font-weight: 900; }
+.host-drawer section { display: grid; gap: 8px; }
+.host-drawer h3 { margin: 0; color: var(--muted); font-size: 13px; font-weight: 900; text-transform: uppercase; letter-spacing: .04em; }
+.host-drawer p { margin: 0; }
+.host-drawer .input.compact { width: auto; }
+.host-row { justify-content: center; margin-top: 14px; }

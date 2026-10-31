@@ -1,0 +1,284 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mockup: Về quê</title>
+<!-- "Về quê": chọn quê lúc vào phòng (chỉ đồng đội thấy), team chiếm tỉnh quê của một thành viên → +50, tối đa 3 tỉnh/team. Dùng CSS thật của app -->
+<link rel="stylesheet" href="../public/style.css">
+<style>
+@font-face { font-family: "Nunito"; src: url("../public/fonts/nunito.ttf") format("truetype"); font-weight: 200 1000; }
+html, body { height: auto; }
+.head { position: sticky; top: 0; z-index: 30; display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: center; padding: 12px 24px; background: #fff; border-bottom: 2px solid var(--line); }
+.head h1 { color: var(--green); font-size: 20px; font-weight: 900; }
+.head nav { display: flex; flex-wrap: wrap; gap: 6px; }
+.head nav a { padding: 4px 12px; border-radius: 10px; border: 2px solid var(--line); color: var(--ink); font-weight: 800; font-size: 14px; text-decoration: none; }
+.intro { max-width: 1240px; margin: 16px auto 0; padding: 0 24px; color: var(--muted); }
+.intro b { color: var(--ink); }
+.tiles { max-width: 1240px; margin: 0 auto; padding: 20px 24px 60px; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 28px; }
+@media (max-width: 900px) { .tiles { grid-template-columns: 1fr; } }
+.tile.wide { grid-column: 1 / -1; }
+.tile h2 { display: flex; align-items: center; gap: 8px; scroll-margin-top: 80px; }
+.tile .num { display: inline-grid; place-items: center; width: 26px; height: 26px; border-radius: 50%; background: var(--green); color: #fff; font-size: 14px; }
+.tile .when { margin: 2px 0 12px; color: var(--muted); font-size: 14px; }
+.tile .how { margin: 12px 0 0; padding-left: 20px; font-size: 14px; }
+.tile .how li { margin: 3px 0; }
+.screen { position: relative; padding: 18px; border-radius: 16px 20px 15px 19px / 19px 15px 20px 16px; background: var(--bg); }
+.label-tag { position: absolute; top: -11px; left: 16px; z-index: 2; padding: 1px 10px; border-radius: 8px; background: var(--ink); color: #fff; font-size: 12px; font-weight: 800; }
+.mini { display: inline-grid; place-items: center; width: 28px; height: 28px; flex: none; }
+.mini svg { width: 28px; height: 28px; }
+.optional { color: var(--muted); font-weight: 700; font-size: 13px; }
+
+/* 1 · Vào phòng */
+.join { display: grid; gap: 12px; max-width: 420px; margin: 0 auto; }
+.join .note { display: flex; gap: 8px; align-items: flex-start; padding: 10px 12px; border-radius: 14px; background: #EAF7FF; font-size: 13px; font-weight: 700; }
+.join .note .home-dot { margin-top: 2px; }
+
+/* 2 · Sảnh team */
+.lobby-team { display: grid; gap: 10px; max-width: 420px; margin: 0 auto; }
+.lobby-team h3 { display: flex; align-items: center; gap: 8px; font-size: 18px; font-weight: 900; }
+.mem { display: flex; align-items: center; gap: 10px; padding: 8px 12px; border-radius: 14px; background: #fff; font-weight: 800; }
+.mem .q { margin-left: auto; display: inline-flex; align-items: center; gap: 6px; color: var(--muted); font-weight: 700; font-size: 14px; }
+.mem.me { box-shadow: inset 0 0 0 2px var(--blue); }
+.lock-note { color: var(--muted); font-size: 13px; text-align: center; }
+
+/* Dấu quê */
+.home-dot { display: inline-block; width: 14px; height: 14px; flex: none; border-radius: 50% 50% 50% 0; background: #E8457A; transform: rotate(-45deg); box-shadow: inset 0 0 0 3px #fff, 0 0 0 1.5px #E8457A; }
+
+/* 3 · Bản đồ team */
+.play { display: grid; grid-template-columns: minmax(0, 1fr) 300px; gap: 14px; }
+@media (max-width: 860px) { .play { grid-template-columns: 1fr; } }
+.pbar { grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: center; padding: 8px 12px; border-radius: 14px; background: #fff; font-weight: 800; }
+.pbar .spacer { flex: 1; }
+.pbar .stat small { color: var(--muted); font-weight: 700; }
+.pbar .stat b { font-size: 18px; }
+.home-count { display: inline-flex; align-items: center; gap: 6px; padding: 3px 10px; border-radius: 10px; background: #FDE7EF; color: #B0285A; }
+.mapbox { position: relative; height: 600px; border-radius: 16px; background: var(--map-bg); overflow: hidden; }
+.mapbox svg { width: 100%; height: 100%; }
+.sp { stroke: #fff; stroke-width: 1.4px; vector-effect: non-scaling-stroke; stroke-linejoin: round; }
+.sp.n { fill: #FFC2D1; } .sp.c { fill: #F6CD72; } .sp.s { fill: #FFE65C; }
+.sp.fog { fill: #DCE5EC; }
+.sp.mine { fill: #E67E22; }
+.pin { position: absolute; display: flex; align-items: center; gap: 4px; padding: 2px 8px 2px 5px; border-radius: 999px; background: #fff; color: #B0285A; font-size: 11px; font-weight: 900; white-space: nowrap; transform: translate(-50%, -100%); box-shadow: 0 2px 0 rgba(0, 0, 0, .1); pointer-events: none; }
+.pin .home-dot { width: 11px; height: 11px; }
+.pin.done { background: #E8457A; color: #fff; }
+.pin.done .home-dot { background: #fff; box-shadow: inset 0 0 0 3px #E8457A, 0 0 0 1.5px #fff; }
+.pin.capped { opacity: .55; }
+.pside { display: grid; gap: 12px; align-content: start; }
+.panel { padding: 12px; border-radius: 16px; background: #fff; }
+.panel h3 { font-size: 15px; font-weight: 900; margin-bottom: 8px; }
+.homes { display: grid; gap: 6px; font-size: 14px; }
+.homes .r { display: flex; align-items: center; gap: 8px; }
+.homes .r .who { color: var(--muted); font-weight: 700; }
+.homes .r .st { margin-left: auto; font-weight: 900; font-size: 13px; }
+.homes .r .st.ok { color: #B0285A; }
+.homes .r .st.off { color: var(--muted); font-weight: 700; }
+.sim { display: grid; gap: 6px; }
+
+/* Cảnh "Về quê" */
+.scene { position: absolute; inset: 0; z-index: 5; display: grid; place-items: center; background: rgba(40, 48, 60, .28); }
+.scene[hidden] { display: none; }
+.home-card { display: grid; justify-items: center; gap: 8px; width: min(340px, 90%); padding: 22px 20px 18px; border-radius: 22px; background: #fff; text-align: center; box-shadow: 0 10px 0 rgba(0, 0, 0, .08); }
+.home-card .big-pin { width: 56px; height: 56px; }
+.home-card h3 { font-size: 24px; font-weight: 900; color: #B0285A; }
+.home-card .sub { font-weight: 800; }
+.home-card .plus { padding: 4px 14px; border-radius: 12px; background: #FDE7EF; color: #B0285A; font-weight: 900; font-size: 20px; }
+.home-card .cnt { color: var(--muted); font-size: 13px; font-weight: 800; }
+.pop { animation: pop .55s cubic-bezier(.3, 1.6, .5, 1) both; }
+@keyframes pop { from { transform: scale(.6); opacity: 0; } }
+.drop { animation: drop .7s cubic-bezier(.3, 1.6, .5, 1) .1s both; }
+@keyframes drop { from { transform: rotate(-45deg) translate(-30px, -30px); opacity: 0; } to { transform: rotate(-45deg); } }
+@media (prefers-reduced-motion: reduce) { .pop, .drop { animation: none; } }
+</style>
+</head>
+<body>
+<header class="head">
+  <h1>Mockup · Về quê</h1>
+  <nav>
+    <a href="#t1">1 · Vào phòng</a>
+    <a href="#t2">2 · Sảnh team</a>
+    <a href="#t3">3 · Bản đồ + Về quê</a>
+  </nav>
+</header>
+<p class="intro">Luật: chọn quê lúc vào phòng (không bắt buộc, <b>chỉ đồng đội thấy</b>, khóa khi trận bắt đầu). Team chiếm được tỉnh quê của một thành viên → <b>+50 "Về quê"</b>, mỗi tỉnh 1 lần, <b>tối đa 3 tỉnh mỗi team</b>. Màn chiếu và team khác không thấy gì về quê.</p>
+
+<main class="tiles">
+  <!-- 1 -->
+  <section class="tile card">
+    <h2 id="t1"><span class="num">1</span>Vào phòng: chọn quê</h2>
+    <p class="when">Màn team, sau ô tên, trước khi chọn team.</p>
+    <div class="screen">
+      <span class="label-tag">Màn team · vào phòng</span>
+      <form class="join" id="joinForm">
+        <label class="field">Tên của bạn
+          <input class="input" value="Phúc" maxlength="24">
+        </label>
+        <label class="field"><span>Quê bạn ở đâu? <span class="optional">· không bắt buộc</span></span>
+          <select class="input" id="homeSel"></select>
+        </label>
+        <p class="note"><span class="home-dot"></span><span>Team chiếm được tỉnh quê của bạn sẽ được <b>+50 "Về quê"</b>. Chỉ đồng đội thấy quê của bạn. Không đổi được sau khi trận bắt đầu.</span></p>
+      </form>
+    </div>
+    <ul class="how">
+      <li>Danh sách là <b>34 tỉnh mới</b>, theo tên sau sáp nhập. Không có ô tự gõ.</li>
+      <li>"Không chọn" là mặc định; không chọn thì vẫn chơi bình thường.</li>
+      <li>Trước khi bắt đầu đổi được (qua "Đổi team / rời phòng"); sau khi bắt đầu thì khóa. Người vào muộn chọn được một lần.</li>
+    </ul>
+  </section>
+
+  <!-- 2 -->
+  <section class="tile card">
+    <h2 id="t2"><span class="num">2</span>Sảnh team: đồng đội quê đâu</h2>
+    <p class="when">Màn team lúc chờ bắt đầu. Chỉ hiện thành viên team mình.</p>
+    <div class="screen">
+      <span class="label-tag">Màn team · Team Lân · chờ bắt đầu</span>
+      <div class="lobby-team" id="lobbyTeam"></div>
+    </div>
+    <ul class="how">
+      <li>Cả team thấy "nhà" của nhau ngay từ đầu để <b>bàn đường đi</b>: về quê ai trước.</li>
+      <li>Nhiều người cùng quê → một tỉnh, tính <b>1 lần</b>.</li>
+    </ul>
+  </section>
+
+  <!-- 3 -->
+  <section class="tile card wide">
+    <h2 id="t3"><span class="num">3</span>Bản đồ team + cảnh "Về quê"</h2>
+    <p class="when">Trong trận. Bấm các nút bên phải để thử chiếm từng tỉnh.</p>
+    <div class="screen">
+      <span class="label-tag">Màn team · Team Lân</span>
+      <div class="play">
+        <div class="pbar">
+          <span class="mini" id="teamMascot"></span><span>Team Lân</span>
+          <span class="spacer"></span>
+          <span class="stat"><small>Điểm</small> <b id="score">450</b></span>
+          <span class="home-count"><span class="home-dot"></span>Về quê <b id="homeN">0</b>/3</span>
+        </div>
+        <div class="mapbox" id="mapbox">
+          <svg id="map"></svg>
+          <div id="pins"></div>
+          <div class="scene" id="scene" hidden></div>
+        </div>
+        <div class="pside">
+          <div class="panel">
+            <h3>Quê của team</h3>
+            <div class="homes" id="homes"></div>
+          </div>
+          <div class="panel">
+            <h3>Thử chiếm tỉnh</h3>
+            <div class="sim" id="sim"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <ul class="how">
+      <li><b>Dấu quê</b> hiện cả trên tỉnh còn sương mù (đó là thông tin của team mình, không lộ gì về team khác).</li>
+      <li>Chiếm được (cắm cờ hoặc thắng thử tài) → cảnh "Về quê Phúc rồi!" + <b>+50</b>. Điểm này là thưởng tích lũy, <b>không mất</b> khi tỉnh đổi chủ.</li>
+      <li>Đủ <b>3/3</b>: các dấu quê còn lại mờ đi, ghi "đã đủ 3"; chiếm vẫn được điểm tỉnh như thường, chỉ không có +50.</li>
+      <li>Bản tin màn chiếu <b>không</b> nhắc tới quê ai.</li>
+    </ul>
+  </section>
+</main>
+
+<script src="map-data.js"></script>
+<script src="culture-data.js"></script>
+<script>
+const { mascots: MASCOT } = window.CULTURE_DATA
+const P = window.MAP_DATA.provinces
+const byId = new Map(P.map(p => [p.id, p]))
+const NORTH = new Set(['ha-noi', 'cao-bang', 'tuyen-quang', 'dien-bien', 'lai-chau', 'son-la', 'lao-cai', 'thai-nguyen', 'lang-son', 'quang-ninh', 'bac-ninh', 'phu-tho', 'hai-phong', 'hung-yen', 'ninh-binh'])
+const CENTRAL = new Set(['thanh-hoa', 'nghe-an', 'ha-tinh', 'quang-tri', 'hue', 'da-nang', 'quang-ngai', 'gia-lai', 'khanh-hoa', 'dak-lak', 'lam-dong'])
+const region = id => NORTH.has(id) ? 'n' : CENTRAL.has(id) ? 'c' : 's'
+const NS = 'http://www.w3.org/2000/svg'
+const $ = id => document.getElementById(id)
+const h = (tag, attrs = {}, ...kids) => {
+  const e = document.createElement(tag)
+  for (const [k, v] of Object.entries(attrs)) { if (v == null) continue; k === 'html' ? e.innerHTML = v : k.startsWith('on') ? e.addEventListener(k.slice(2), v) : e.setAttribute(k, v) }
+  e.append(...kids.filter(k => k != null && k !== false))
+  return e
+}
+const dot = (cls = '') => h('span', { class: `home-dot ${cls}` })
+const CAP = 3, BONUS = 50
+
+// ---------- 1 · Vào phòng ----------
+const sel = $('homeSel')
+sel.append(h('option', { value: '' }, 'Không chọn'))
+for (const p of [...P].sort((a, b) => a.name.localeCompare(b.name, 'vi'))) sel.append(h('option', { value: p.id }, p.name))
+sel.value = 'nghe-an'
+$('joinForm').addEventListener('submit', e => e.preventDefault())
+
+// ---------- Dữ liệu team ----------
+const TEAM = [
+  { name: 'Phúc', home: 'nghe-an', me: true },
+  { name: 'Thảo', home: 'thanh-hoa' },
+  { name: 'Hà', home: 'thanh-hoa' },
+  { name: 'Nhi', home: 'ha-noi' },
+  { name: 'Minh', home: 'can-tho' },
+  { name: 'Tâm', home: '' },
+]
+const homes = [...new Set(TEAM.map(m => m.home).filter(Boolean))]
+const whoOf = id => TEAM.filter(m => m.home === id).map(m => m.name)
+
+// ---------- 2 · Sảnh team ----------
+const lt = $('lobbyTeam')
+lt.append(h('h3', {}, h('span', { class: 'mini', html: MASCOT['Lân'] }), 'Team Lân · 6 người'))
+for (const m of TEAM) lt.append(h('div', { class: `mem${m.me ? ' me' : ''}` }, m.name + (m.me ? ' (bạn)' : ''),
+  h('span', { class: 'q' }, m.home ? dot() : null, m.home ? byId.get(m.home).name : 'Không chọn quê')))
+lt.append(h('p', { class: 'lock-note' }, `${homes.length} tỉnh quê · tối đa ${CAP} tỉnh được thưởng · quê khóa khi trận bắt đầu`))
+
+// ---------- 3 · Bản đồ team ----------
+$('teamMascot').innerHTML = MASCOT['Lân']
+const svg = $('map'), box = $('mapbox')
+let x0 = 1e9, y0 = 1e9, x1 = -1e9, y1 = -1e9
+for (const p of P) { const n = p.d.match(/-?\d+(\.\d+)?/g).map(Number); for (let i = 0; i < n.length; i += 2) { x0 = Math.min(x0, n[i]); x1 = Math.max(x1, n[i]); y0 = Math.min(y0, n[i + 1]); y1 = Math.max(y1, n[i + 1]) } }
+const VB = [x0 - 10, y0 - 10, x1 - x0 + 20, y1 - y0 + 20]
+svg.setAttribute('viewBox', VB.join(' '))
+const START_MINE = ['ha-tinh', 'quang-tri']
+const SEEN = new Set(['ha-tinh', 'quang-tri', 'nghe-an', 'hue', 'thanh-hoa', 'lao-cai', 'gia-lai'])
+let mine, got
+const paths = {}
+for (const p of P) { const e = document.createElementNS(NS, 'path'); e.setAttribute('d', p.d); paths[p.id] = e; svg.append(e) }
+function toScreen([x, y]) {
+  const W = box.clientWidth, H = box.clientHeight, k = Math.min(W / VB[2], H / VB[3])
+  return [(W - VB[2] * k) / 2 + (x - VB[0]) * k, (H - VB[3] * k) / 2 + (y - VB[1]) * k]
+}
+function render() {
+  for (const [id, e] of Object.entries(paths)) e.setAttribute('class', `sp ${mine.has(id) ? 'mine' : SEEN.has(id) ? region(id) : 'fog'}`)
+  const full = got.length >= CAP
+  $('pins').replaceChildren(...homes.map(id => {
+    const [x, y] = toScreen(byId.get(id).label), done = got.includes(id)
+    const e = h('div', { class: `pin${done ? ' done' : full ? ' capped' : ''}` }, dot(), done ? `Đã về quê ${whoOf(id).join(', ')}` : `Quê ${whoOf(id).join(', ')}`)
+    e.style.left = `${x}px`; e.style.top = `${y - 4}px`
+    return e
+  }))
+  $('homeN').textContent = got.length
+  $('homes').replaceChildren(...homes.map(id => h('div', { class: 'r' }, dot(), h('b', {}, byId.get(id).name), h('span', { class: 'who' }, whoOf(id).join(', ')),
+    got.includes(id) ? h('span', { class: 'st ok' }, '+50') : full ? h('span', { class: 'st off' }, 'đã đủ 3') : h('span', { class: 'st off' }, 'chưa về'))))
+  $('sim').replaceChildren(...['nghe-an', 'thanh-hoa', 'hue', 'ha-noi', 'can-tho'].map(id => h('button', { class: 'btn', type: 'button', disabled: mine.has(id) ? '' : null, onclick: () => capture(id) },
+    `Chiếm ${byId.get(id).name}${homes.includes(id) ? '' : ' (không phải quê)'}`)),
+    h('button', { class: 'btn', type: 'button', onclick: reset }, 'Làm lại'))
+}
+function capture(id) {
+  mine.add(id); SEEN.add(id)
+  const pts = byId.get(id).isCity ? 300 : 150
+  let score = Number($('score').textContent) + pts
+  const isHome = homes.includes(id) && !got.includes(id) && got.length < CAP
+  if (isHome) { got.push(id); score += BONUS }
+  $('score').textContent = score
+  render()
+  if (isHome) showScene(id)
+}
+function showScene(id) {
+  const s = $('scene')
+  const pin = h('span', { class: 'home-dot big-pin drop' })
+  s.replaceChildren(h('div', { class: 'home-card pop' }, pin, h('h3', {}, `Về quê ${whoOf(id).join(', ')} rồi!`),
+    h('span', { class: 'sub' }, `Team vừa cắm cờ ở ${byId.get(id).name}`), h('span', { class: 'plus' }, `+${BONUS} Về quê`),
+    h('span', { class: 'cnt' }, `Về quê ${got.length}/${CAP}${got.length >= CAP ? ' · đã đủ' : ''}`),
+    h('button', { class: 'btn primary', type: 'button', onclick: () => { s.hidden = true } }, 'Chơi tiếp')))
+  s.hidden = false
+}
+function reset() { mine = new Set(START_MINE); got = []; $('score').textContent = 450; $('scene').hidden = true; render() }
+reset()
+addEventListener('resize', render)
+</script>
+</body>
+</html>

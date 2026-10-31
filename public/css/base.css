@@ -1,0 +1,332 @@
+/* Màu chung, font, nút, icon, thẻ, màn đăng nhập, thanh trạng thái. Thứ tự nạp: xem style.css. */
+
+/* Hành trình 3 miền — phong cách "Hoạt hình" kiểu Duolingo (mục 5.2 PLAN.md), thêm chất vẽ tay "sticker phác tay".
+   Bản tham chiếu: mockup/map-styles.html (bản đồ), mockup/hand-drawn.html bản A+B ② (chất vẽ tay).
+   Không viền đen, không viền dày, không nét đứt vàng.
+   Nút / thẻ / thông báo: màu đặt qua biến --fill (nền), --bd (viền), --ledge (gờ đáy); phần vẽ nằm ở css/hand.css. */
+
+/* Nunito (SIL OFL 1.1, xem public/fonts/OFL-Nunito.txt) — lưu trong project, không tải từ CDN.
+   Font biến thiên: một file cho mọi độ đậm 200–1000. */
+@font-face {
+  font-family: "Nunito";
+  src: url("/fonts/nunito.ttf") format("truetype");
+  font-weight: 200 1000;
+  font-display: swap;
+}
+
+:root {
+  --font: "Nunito", ui-rounded, "SF Pro Rounded", "Segoe UI", system-ui, sans-serif;
+  --bg: #F7F7F7;
+  --panel: #FFFFFF;
+  --ink: #3C3C3C;
+  --muted: #777777;
+  --line: #E5E5E5;
+  --map-bg: #DDF4FF;
+  --map-shadow: #8CCBEA;
+  --border: rgba(255, 255, 255, .95);
+  --border-on-color: rgba(255, 255, 255, .8);
+  --islet: #7FA7BF;
+  /* 3 miền: Bắc hồng hoa đào · Trung vàng trầm · Nam vàng tươi hoa mai */
+  --tile-n: #FFC2D1;
+  --tile-c: #F6CD72;
+  --tile-s: #FFE65C;
+  --tile-n-dark: #E07A96;
+  --tile-c-dark: #C8992F;
+  --tile-s-dark: #D9B70F;
+  --taken: #AFAFAF;
+  --fog: #DCE5EC;
+  --accent: #FFC800;
+  --accent-dark: #E5A800;
+  --orange: #FF9600;
+  --red: #FF4B4B;
+  --red-dark: #EA2B2B;
+  --green: #58CC02;
+  --green-dark: #58A700;
+  --blue: #1CB0F6;
+  --blue-dark: #1899D6;
+}
+
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+html, body { height: 100%; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font: 16px/1.45 var(--font);
+}
+h1, h2, h3 { margin: 0; }
+.muted { color: var(--muted); }
+
+/* ---------- Nút "3D" có gờ đáy ---------- */
+.btn {
+  --fill: #fff;
+  --bd: var(--line);
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 40px;
+  padding: 6px 14px;
+  border: 2px solid transparent;
+  border-radius: 14px;
+  background: transparent;
+  color: var(--ink);
+  font: 800 16px var(--font);
+  cursor: pointer;
+  transition: transform .08s, rotate .15s;
+}
+.btn:hover { --fill: #F2FBFF; --bd: #84D8FF; }
+.btn:active:not(:disabled) { --drop: 0px; transform: translateY(4px); }
+.btn:disabled { opacity: .5; cursor: not-allowed; }
+.btn:focus-visible { outline: 3px solid var(--blue); outline-offset: 2px; }
+.btn.primary { --fill: var(--blue); --bd: var(--blue-dark); color: #fff; }
+.btn.green { --fill: var(--green); --bd: var(--green-dark); color: #fff; }
+.btn.danger { --fill: var(--red); --bd: var(--red-dark); color: #fff; }
+.btn.on { --fill: var(--accent); --bd: var(--accent-dark); }
+.btn-row { display: flex; flex-wrap: wrap; gap: 8px; }
+
+/* ---------- Icon tự vẽ (shared/icons.js) — cỡ theo chữ ---------- */
+.icon { flex: none; overflow: visible; vertical-align: -0.25em; }
+.with-icon { display: inline-flex; align-items: center; gap: .35em; }
+.stat .icon { align-self: center; }
+
+/* ---------- Thẻ / panel ---------- */
+.card {
+  --fill: var(--panel);
+  --bd: #EDEDED;
+  --ledge: var(--line);
+  position: relative;
+  padding: 14px 16px;
+  border: 2px solid transparent;
+  border-radius: 18px;
+}
+.card h2 { margin-bottom: 8px; font-size: 17px; font-weight: 900; }
+.card p { margin: 4px 0; }
+.chip { display: inline-block; width: 18px; height: 18px; border-radius: 6px; border: 2px solid rgba(0, 0, 0, .2); flex: none; }
+
+/* ---------- Màn đăng nhập ---------- */
+.login {
+  display: grid;
+  place-items: center;
+  min-height: 100%;
+  padding: 24px;
+}
+.login .card { width: min(420px, 100%); padding: 28px; text-align: center; }
+.login h1 { color: var(--green); font-size: 30px; font-weight: 900; }
+.login p { margin: 8px 0 20px; }
+.login form { display: grid; gap: 14px; }
+.input {
+  width: 100%;
+  padding: 12px 14px;
+  border: 2px solid var(--line);
+  border-radius: 14px;
+  background: #F7F7F7;
+  color: var(--ink);
+  font: 800 18px var(--font);
+}
+.input:focus { outline: none; border-color: var(--blue); background: #fff; }
+.pin-input { text-align: center; font-size: 28px; letter-spacing: 8px; text-transform: uppercase; }
+/* Chữ gợi ý nhỏ, nhạt, không giãn cách — chỉ chữ mã thật mới to */
+.input::placeholder { color: #AFAFAF; font-size: 16px; font-weight: 700; letter-spacing: normal; text-transform: none; }
+.pin-input::placeholder { font-size: 18px; }
+/* Link kiểu game: xanh dương đậm, không gạch chân mặc định */
+a.link { color: var(--blue-dark); font-weight: 800; text-decoration: none; }
+a.link:hover { text-decoration: underline; }
+.entry-foot { margin: 18px 0 0; }
+.form-error { min-height: 22px; color: var(--red-dark); font-weight: 800; }
+
+/* Tab, chọn team, mã phòng */
+.tabs { display: flex; gap: 8px; justify-content: center; margin: 16px 0 18px; }
+.tabs .btn { flex: 1; }
+.btn-row.center { justify-content: center; }
+a.btn { text-decoration: none; }
+.rules-link { margin: 14px 0 0; text-align: center; }
+.field { display: grid; gap: 6px; text-align: left; font-weight: 800; }
+.field-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap: 12px; } /* 2–3 ô (phòng đơn ẩn ô Số team) */
+.team-pick { display: grid; gap: 8px; text-align: left; }
+.team-option {
+  display: grid;
+  grid-template-columns: auto auto 1fr auto;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  border: 2px solid var(--line);
+  border-radius: 14px;
+  cursor: pointer;
+}
+.team-option:has(input:checked) { border-color: var(--blue); background: #F2FBFF; }
+.team-option.full { opacity: .5; cursor: not-allowed; }
+.team-option input { accent-color: var(--blue); }
+.big-code { margin: 4px 0 10px; color: var(--green); font-size: 44px; font-weight: 900; letter-spacing: 8px; }
+.secret { margin: 14px 0; padding: 12px; border-radius: 14px; background: #FFF4D6; text-align: left; }
+.secret p { margin: 4px 0; }
+.members { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 6px; }
+.members li { padding: 2px 10px; border-radius: 999px; background: #F2F2F2; font-weight: 700; }
+.members li.self { background: #DDF4FF; }
+.members li .home { color: var(--muted); font-weight: 700; }
+.home-note { display: flex; gap: 8px; align-items: flex-start; margin: 0; padding: 8px 12px; border-radius: 12px; background: #FDEEF3; text-align: left; font-size: 13px; }
+.home-note b { color: #B0285A; }
+.stat.home-stat b { color: #C7305F; }
+
+/* ---------- Thanh trạng thái ---------- */
+.topbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 22px;
+  padding: 10px 16px;
+  border-bottom: 2px solid var(--line);
+  background: var(--panel);
+}
+.team-name { display: flex; align-items: center; gap: 8px; font-size: 20px; font-weight: 900; }
+.team-name .mascot { color: var(--muted); font-size: 15px; font-weight: 800; }
+.stat { display: flex; align-items: baseline; gap: 6px; }
+.stat b { color: var(--green); font-size: 22px; font-weight: 900; font-variant-numeric: tabular-nums; }
+.stat.warn b { color: var(--red); }
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 12px;
+  border-radius: 999px;
+  --fill: var(--accent);
+  --bd: var(--accent-dark);
+  font-weight: 900;
+}
+.pill.storm { --fill: #CFD8DC; --bd: #A9B6BC; }
+.pill.golden { --fill: #FFF1C2; --bd: var(--accent-dark); color: #9A5B00; }
+.stat.streak b { color: var(--orange); }
+.topbar .spacer { flex: 1; }
+.conn { color: var(--red-dark); font-weight: 800; }
+
+/* ---------- Câu hỏi chung cả phòng (shared/shared-q.js: màn team, màn chiếu, trang chủ phòng) ---------- */
+.sq { display: grid; gap: 12px; }
+.sq-head { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
+.sq-tag { padding: 3px 12px; border-radius: 999px; background: #E9F7FF; color: var(--blue-dark); font-size: 14px; font-weight: 900; }
+.sq-where { color: var(--muted); font-weight: 800; }
+.sq-timer { margin-left: auto; color: var(--muted); font-weight: 900; font-variant-numeric: tabular-nums; }
+.sq-timer.late { color: var(--red); }
+.sq-hint { margin: 0; color: var(--muted); font-size: 15px; font-weight: 700; }
+.sq-summary { margin: 0; padding: 8px 12px; border-radius: 12px; background: #F4F4F4; font-size: 17px; font-weight: 900; }
+.sq-summary.pass { background: #F1FBE8; color: var(--green-dark); }
+.sq-text-main { margin: 0; font-size: 21px; font-weight: 800; line-height: 1.4; }
+.sq-options { display: grid; gap: 10px; }
+.sq-opt {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 52px;
+  padding: 8px 14px;
+  overflow: hidden;
+  border: 2px solid var(--line);
+  border-radius: 14px;
+  background: var(--panel);
+  color: var(--ink);
+  font: inherit;
+  font-size: 18px;
+  font-weight: 800;
+  text-align: left;
+}
+button.sq-opt { cursor: pointer; }
+button.sq-opt:hover { border-color: #BDE6FA; }
+.sq-opt.mine { border-color: var(--blue); background: #DDF4FF; }
+.sq-letter {
+  display: inline-grid;
+  place-items: center;
+  flex: none;
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  background: #F0F0F0;
+  color: var(--muted);
+  font-size: 14px;
+  font-weight: 900;
+}
+.sq-opt.mine .sq-letter { background: var(--blue); color: #fff; }
+.sq-text { position: relative; flex: 1; }
+/* Sau khi công bố: thanh tỉ lệ chọn phía sau chữ; đáp án đúng xanh lá */
+.sq-bar { position: absolute; inset: 0 auto 0 0; background: #EEF1F3; transition: width .8s cubic-bezier(.3, 1, .5, 1); }
+.sq-opt.right { border-color: var(--green); }
+.sq-opt.right .sq-bar { background: #D7F5BF; }
+.sq-opt.right .sq-letter { background: var(--green); color: #fff; }
+.sq-letter, .sq-pct, .sq-you { position: relative; }
+.sq-pct { flex: none; font-variant-numeric: tabular-nums; font-weight: 900; }
+.sq-you { flex: none; padding: 1px 8px; border-radius: 8px; background: #DDF4FF; color: var(--blue-dark); font-size: 12px; font-weight: 900; }
+.sq-count { margin: 0; color: var(--muted); font-weight: 800; text-align: center; }
+.sq-explain { padding: 10px 14px; border-radius: 12px; background: #FFF8E1; line-height: 1.45; }
+@media (prefers-reduced-motion: reduce) { .sq-bar { transition: none; } }
+
+/* ---------- Sảnh chờ "Bạn có biết?" (shared/facts.js: màn chiếu + máy người chơi lúc chờ bắt đầu) ---------- */
+.fact-box { width: min(640px, 100%); min-height: 200px; margin-top: 10px; text-align: left; } /* giữ sẵn chỗ cho đáp án: hiện ra không đẩy cả khung */
+.fact { display: grid; gap: 8px; padding: 16px 20px; border-radius: 18px; background: var(--panel); box-shadow: 0 4px 0 var(--line), 0 10px 30px rgba(0, 0, 0, .08); animation: fact-in .45s cubic-bezier(.3, 1.4, .5, 1); }
+.fact-head { display: flex; align-items: center; gap: 10px; }
+.fact-tag { padding: 2px 12px; border-radius: 999px; background: #FFF4D6; color: #A86B00; font-size: 14px; font-weight: 900; }
+.fact-where { color: var(--muted); font-weight: 800; }
+.fact .fact-q { margin: 0; font-size: 18px; font-weight: 800; line-height: 1.4; }
+.fact-a { display: none; padding: 8px 12px; border-radius: 12px; background: #F1FBE8; line-height: 1.45; }
+.fact-a b { color: var(--green-dark); }
+.fact .fact-wait { margin: 0; color: var(--muted); font-size: 14px; font-weight: 700; }
+.fact-box.revealed .fact-a { display: block; animation: fact-in .35s ease-out; }
+.fact-box.revealed .fact-wait { display: none; }
+@keyframes fact-in { from { opacity: 0; transform: translateY(8px); } }
+@media (prefers-reduced-motion: reduce) { .fact, .fact-box.revealed .fact-a { animation: none; } }
+
+/* ---------- Tổng kết "Hành trình văn hóa" (shared/culture.js) ---------- */
+.culture { display: grid; gap: 14px; margin-top: 18px; text-align: left; }
+.culture h2 { color: var(--green); font-size: 22px; font-weight: 900; }
+.cul-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; }
+.cul-stats div { display: grid; gap: 2px; padding: 10px 14px; border-radius: 14px; background: #F4FAFF; }
+.cul-stats b { color: var(--blue-dark); font-size: 24px; font-weight: 900; }
+.cul-stats span { color: var(--muted); font-size: 14px; font-weight: 700; }
+.cul-sec h3 { margin: 0 0 6px; font-size: 17px; font-weight: 900; }
+.cul-sec ul { display: grid; gap: 10px; margin: 0; padding: 0; list-style: none; }
+.cul-q { padding: 10px 14px; border-radius: 14px; background: #FAFAFA; }
+.cul-where { font-weight: 900; }
+.cul-stat { margin-left: 8px; color: var(--muted); font-size: 14px; font-weight: 700; }
+.cul-text { margin: 4px 0; font-weight: 700; }
+.cul-answer { margin: 0; padding: 6px 10px; border-radius: 10px; background: #F1FBE8; line-height: 1.45; }
+.cul-answer b { color: var(--green-dark); }
+.cul-lists { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; }
+.cul-lists .cul-sec { padding: 10px 14px; border-radius: 14px; background: #FFF8E1; }
+.cul-top { margin: 0; padding-left: 20px; }
+.cul-rivals { margin: 0; color: var(--muted); font-weight: 800; }
+
+/* Tạo phòng: chọn kiểu phòng Theo team / Chơi đơn */
+.mode-pick { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 4px; text-align: left; }
+.mode-option { display: grid; grid-template-columns: auto 1fr; align-items: center; gap: 2px 8px; padding: 10px 14px; border: 2px solid var(--line); border-radius: 14px; cursor: pointer; }
+.mode-option input { accent-color: var(--blue); }
+.mode-option small { grid-column: 2; color: var(--muted); font-weight: 700; }
+.mode-option:has(input:checked) { border-color: var(--blue); background: #F2FBFF; }
+
+/* ---------- Màn ngoài 2 cột (team.html #entry — mockup/entry.html phương án A) ----------
+   Trái: vào bằng mã / tạo phòng. Phải: phòng chơi đơn có sẵn / giải thích kiểu phòng / mã phòng vừa tạo. Hẹp thì xếp chồng */
+.login.entry { align-items: start; padding-block: 40px; }
+.entry-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr); gap: 28px; width: min(1180px, 100%); align-items: start; }
+@media (max-width: 960px) { .entry-grid { grid-template-columns: 1fr; width: min(560px, 100%); } }
+.login.entry .card { width: auto; padding: 26px 28px; text-align: left; }
+.login.entry p { margin: 0; }
+.login.entry form { gap: 12px; margin-top: 16px; }
+.entry-brand { margin-bottom: 18px; }
+.entry-brand h1 { font-size: 32px; line-height: 1.15; }
+.entry-brand .muted { margin-top: 2px; font-weight: 700; }
+.entry-mascots { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px; }
+.login.entry .entry-title { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 0 0 4px; font-size: 22px; font-weight: 900; }
+.login.entry .entry-title .muted { font-size: 16px; }
+.entry-side > div > .muted:first-of-type { margin-bottom: 16px; }
+.field-label { font-weight: 800; }
+.entry-actions .btn.green { flex: 1; }
+.entry-next { display: grid; gap: 10px; margin-top: 16px; }
+.entry-foot { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-top: 18px; font-size: 14px; font-weight: 700; }
+.entry-or { display: flex; align-items: center; gap: 10px; margin: 18px 0 8px !important; color: var(--muted); font-size: 14px; font-weight: 800; }
+.entry-or::before, .entry-or::after { content: ""; flex: 1; height: 2px; background: var(--line); }
+/* Tab Tạo phòng: giải thích kiểu phòng đang chọn */
+.mode-explain .kicker { margin-bottom: 4px !important; color: var(--muted); font-size: 13px; font-weight: 800; text-transform: uppercase; letter-spacing: .04em; }
+.mode-explain .lead { margin: 6px 0 14px !important; font-size: 16px; line-height: 1.5; }
+.facts { display: grid; grid-template-columns: 110px 1fr; gap: 8px 12px; margin: 0; }
+.facts dt { color: var(--muted); font-weight: 900; }
+.facts dd { margin: 0; font-weight: 700; }
+.mode-explain .fit { margin-top: 14px !important; padding: 8px 12px; border-radius: 12px; background: #F1FBE8; }
+.owner-note { padding: 8px 12px; border-radius: 12px; background: #FFF6D1; color: #8A5A00; font-size: 14px; font-weight: 800; }

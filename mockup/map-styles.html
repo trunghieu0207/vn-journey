@@ -1,0 +1,1679 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mockup bản đồ – Hành trình 3 miền</title>
+<style>
+  :root {
+    --font-head: Georgia, "Times New Roman", serif;
+    --font-body: "Segoe UI", -apple-system, "Helvetica Neue", Arial, sans-serif;
+  }
+
+  /* ---------- Theme: Giấy dó cổ ---------- */
+  body[data-theme="paper"] {
+    --bg: #EFE4CB;
+    --panel: #F7F0DF;
+    --ink: #2B2420;
+    --muted: #6B5E4E;
+    --line: #CDBF9F;
+    --map-bg: #F6EEDB;
+    --tile-n-dark: #C08A8A; --tile-c-dark: #B89A55; --tile-s-dark: #C2A84E;
+    --border: rgba(43, 36, 32, .28);
+    --border-on-color: rgba(255, 255, 255, .55);
+    --islet: #A89880;
+    --halo: rgba(246, 238, 219, .92);
+    --sea-wave: #9CC7BE;
+    /* 3 miền: Bắc hồng hoa đào · Trung vàng trầm · Nam vàng tươi hoa mai */
+    --tile-n: #EFC9C9;
+    --tile-c: #E3C98F;
+    --tile-s: #EED98A;
+    --tile-stroke: #8B7B62;
+    --taken: #8E8676;
+    --fog: #C9C0B1;
+    --accent: #E0A526;
+    --red: #B3261E;
+    --region: #2B2420;
+    --title-font: var(--font-head);
+  }
+
+  /* ---------- Theme: Hiện đại phẳng ---------- */
+  /* ---------- Theme: Hoạt hình (lấy cảm hứng từ Duolingo) ---------- */
+  body[data-theme="toon"] {
+    --font-toon: ui-rounded, "SF Pro Rounded", "Nunito", "Varela Round", "Segoe UI", system-ui, sans-serif;
+    --bg: #F7F7F7;
+    --panel: #FFFFFF;
+    --ink: #3C3C3C;
+    --muted: #777777;
+    --line: #E5E5E5;
+    --map-bg: #DDF4FF;
+    --halo: #FFFFFF;
+    --border: rgba(255, 255, 255, .95);
+    --border-on-color: rgba(255, 255, 255, .8);
+    --islet: #7FA7BF;
+    --sea-wave: #1CB0F6;
+    /* 3 miền: Bắc hồng hoa đào · Trung vàng trầm · Nam vàng tươi hoa mai */
+    --tile-n: #FFC2D1;
+    --tile-c: #F6CD72;
+    --tile-s: #FFE65C;
+    --tile-n-dark: #E07A96;
+    --tile-c-dark: #C8992F;
+    --tile-s-dark: #D9B70F;
+    --tile-stroke: #3C3C3C;
+    --taken: #AFAFAF;
+    --fog: #D5DEE6;
+    --accent: #FFC800;
+    --red: #FF4B4B;
+    --region: #3C3C3C;
+    --toon-outline: #FFFFFF;
+    --toon-shadow: #8CCBEA;
+    --green: #58CC02;
+    --green-dark: #58A700;
+    --blue: #1CB0F6;
+    --blue-dark: #1899D6;
+    --title-font: var(--font-toon);
+  }
+
+  body[data-theme="flat"] {
+    --bg: #F4F6F8;
+    --panel: #FFFFFF;
+    --ink: #1F2933;
+    --muted: #616E7C;
+    --line: #D9E2EC;
+    --map-bg: #FFFFFF;
+    --tile-n-dark: #D58FA2; --tile-c-dark: #C4A45E; --tile-s-dark: #CDB94A;
+    --border: rgba(31, 41, 51, .22);
+    --border-on-color: rgba(255, 255, 255, .6);
+    --islet: #9AA5B1;
+    --halo: rgba(255, 255, 255, .92);
+    --sea-wave: #9FC3EA;
+    /* 3 miền: Bắc hồng hoa đào · Trung vàng trầm · Nam vàng tươi hoa mai */
+    --tile-n: #F7D3DC;
+    --tile-c: #EFD9A6;
+    --tile-s: #F8EBA0;
+    --tile-stroke: #FFFFFF;
+    --taken: #7B8794;
+    --fog: #C3CCD6;
+    --accent: #F0B429;
+    --red: #D64545;
+    --region: #3E4C59;
+    --title-font: var(--font-body);
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font: 14px/1.5 var(--font-body);
+  }
+
+  header {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 12px 24px;
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--line);
+    background: var(--panel);
+  }
+  header h1 {
+    margin: 0;
+    font: 700 20px/1.2 var(--title-font);
+    letter-spacing: .3px;
+  }
+  header h1 small {
+    display: block;
+    font: 400 12px var(--font-body);
+    color: var(--muted);
+  }
+  .controls { display: flex; flex-wrap: wrap; gap: 12px; }
+  .seg { display: flex; align-items: center; gap: 6px; }
+  .seg > span { font-size: 12px; color: var(--muted); }
+  .seg-buttons { display: flex; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
+  .seg-buttons button {
+    border: 0;
+    background: transparent;
+    color: var(--ink);
+    padding: 6px 10px;
+    font: inherit;
+    font-size: 13px;
+    cursor: pointer;
+  }
+  .seg-buttons button + button { border-left: 1px solid var(--line); }
+  .seg-buttons button[aria-pressed="true"] { background: var(--ink); color: var(--panel); }
+
+  main {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 320px;
+    gap: 16px;
+    padding: 16px;
+  }
+  @media (max-width: 900px) {
+    main { grid-template-columns: 1fr; }
+  }
+
+  .map-wrap {
+    position: relative;
+    height: calc(100vh - 120px);
+    min-height: 560px;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    overflow: hidden;
+    background: var(--map-bg);
+  }
+  #map { width: 100%; height: 100%; display: block; cursor: grab; touch-action: none; user-select: none; }
+  #map.dragging { cursor: grabbing; }
+
+  .zoom {
+    position: absolute;
+    right: 12px;
+    bottom: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  body[data-view="screen"] .zoom { bottom: 56px; }
+  .zoom button {
+    width: 34px;
+    height: 34px;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: var(--panel);
+    color: var(--ink);
+    font-size: 18px;
+    cursor: pointer;
+  }
+
+  .toast {
+    position: absolute;
+    left: 50%;
+    top: 12px;
+    transform: translateX(-50%);
+    max-width: 90%;
+    padding: 8px 14px;
+    border-radius: 8px;
+    background: var(--ink);
+    color: var(--panel);
+    font-size: 13px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, .2);
+  }
+
+  .tooltip {
+    position: absolute;
+    pointer-events: none;
+    max-width: 240px;
+    padding: 8px 10px;
+    border-radius: 8px;
+    background: var(--panel);
+    border: 1px solid var(--line);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, .15);
+    font-size: 12px;
+  }
+  .tooltip strong { display: block; font-size: 13px; }
+  .tooltip .muted { color: var(--muted); }
+
+  .ticker {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    padding: 8px 0;
+    background: var(--ink);
+    color: var(--panel);
+    font: 600 16px var(--font-body);
+    white-space: nowrap;
+    overflow: hidden;
+  }
+  .ticker span { display: inline-block; padding-left: 100%; animation: ticker 22s linear infinite; }
+  @keyframes ticker { to { transform: translateX(-100%); } }
+
+  aside { display: flex; flex-direction: column; gap: 12px; }
+  .card {
+    padding: 12px 14px;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    background: var(--panel);
+  }
+  .card h2 { margin: 0 0 8px; font: 700 15px var(--title-font); }
+  .card p { margin: 4px 0; }
+  .card ul { margin: 4px 0; padding-left: 18px; }
+  .muted { color: var(--muted); }
+  .team-head { display: flex; align-items: center; gap: 8px; font-weight: 700; font-size: 16px; }
+  .chip { display: inline-block; width: 14px; height: 14px; border-radius: 4px; border: 1px solid rgba(0, 0, 0, .25); flex: none; }
+  .stats { display: flex; gap: 16px; margin-top: 6px; }
+  .stats b { display: block; font-size: 18px; }
+  .btn-row { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
+  .btn-row button {
+    border: 1px solid var(--line);
+    background: var(--bg);
+    color: var(--ink);
+    border-radius: 8px;
+    padding: 5px 10px;
+    font: inherit;
+    font-size: 13px;
+    cursor: pointer;
+  }
+  .btn-row button[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: #2B2420; }
+  .legend { list-style: none; padding: 0 !important; display: grid; gap: 4px; }
+  .legend li { display: flex; align-items: center; gap: 8px; font-size: 13px; }
+  .score-row { display: grid; grid-template-columns: 18px 64px 1fr 48px; align-items: center; gap: 6px; font-size: 13px; }
+  .score-row .bar { height: 10px; border-radius: 5px; }
+  details summary { cursor: pointer; }
+
+  /* ---------- SVG: nền ---------- */
+  .paper-tex { display: none; pointer-events: none; }
+  body[data-theme="paper"] .paper-tex { display: inline; }
+  /* Chỉ vẽ lãnh thổ Việt Nam: bóng đổ nhẹ để bản đồ nổi lên khỏi nền */
+  #layer-tiles { filter: drop-shadow(0 2px 3px rgba(31, 41, 51, .18)); }
+  .sea-label { fill: var(--sea-wave); font: italic 700 16px var(--title-font); letter-spacing: 4px; text-anchor: middle; filter: brightness(.75); }
+  .island { fill: var(--tile-n); stroke: var(--tile-stroke); stroke-width: 1; }
+  body[data-theme="flat"] .island { stroke: var(--muted); stroke-width: .6; }
+  .island-label { fill: var(--muted); font: italic 7px var(--font-body); text-anchor: middle; pointer-events: none; }
+  .archi-dot { fill: var(--tile-n); stroke: var(--ink); stroke-width: .8; }
+  .archi-frame { fill: none; stroke: var(--ink); stroke-width: 1; stroke-dasharray: 3 3; opacity: .5; }
+  .archi-label { fill: var(--ink); font: 700 10px var(--font-body); text-anchor: middle; pointer-events: none; }
+  .archi-owner { fill: var(--muted); font: 8px var(--font-body); text-anchor: middle; pointer-events: none; }
+  .island-hit, .archi-hit { fill: transparent; cursor: help; }
+
+  /* ---------- SVG: tỉnh ---------- */
+  .prov .hex, .prov .node, .prov .geo, .prov .islet { stroke: var(--tile-stroke); transition: fill .5s, stroke .3s; }
+  .prov .hex { stroke-width: 1.2; }
+  .prov .node { stroke-width: 2; }
+  /* Đường ranh giới tỉnh: nét mảnh, mờ, luôn 1px trên màn hình dù zoom bao nhiêu */
+  .prov .geo { stroke-width: 1px; stroke-linejoin: round; fill-rule: evenodd; vector-effect: non-scaling-stroke; }
+  .prov .islet { stroke: none; }
+  .prov[data-region="north"] :is(.hex, .node, .geo, .islet) { fill: var(--tile-n); }
+  .prov[data-region="central"] :is(.hex, .node, .geo, .islet) { fill: var(--tile-c); }
+  .prov[data-region="south"] :is(.hex, .node, .geo, .islet) { fill: var(--tile-s); }
+  .prov[data-region] .islet { fill: var(--islet); }
+  .prov .geo, .fog .geo { stroke: var(--border); }
+  .prov:is(.is-mine, .is-owned, .is-taken) .geo { stroke: var(--border-on-color); }
+  .prov:is(.is-mine, .is-owned) :is(.hex, .node, .geo, .islet) { fill: var(--team-color); }
+  .prov.is-taken :is(.hex, .node, .geo, .islet) { fill: var(--taken); }
+  .prov.is-current :is(.hex, .node, .geo) { stroke: var(--accent); stroke-width: 4; }
+  .prov.is-current .geo { stroke: var(--border-on-color); stroke-width: 1px; }
+  .prov.is-neighbor { cursor: pointer; }
+  .prov.is-neighbor :is(.hex, .node, .geo) {
+    stroke: var(--accent);
+    stroke-width: 2.5;
+    stroke-dasharray: 5 4;
+    animation: march 1s linear infinite;
+  }
+  /* Tỉnh có thể đi (bản đồ thật): tô đậm đường ranh giới bằng sắc đậm của chính màu tỉnh, nét liền, không nét đứt vàng */
+  .prov.is-neighbor .geo { stroke-width: 2.5px; stroke-dasharray: none; animation: none; }
+  .prov.is-neighbor[data-region="north"] .geo { stroke: var(--tile-n-dark); }
+  .prov.is-neighbor[data-region="central"] .geo { stroke: var(--tile-c-dark); }
+  .prov.is-neighbor[data-region="south"] .geo { stroke: var(--tile-s-dark); }
+  .prov.is-neighbor:is(.is-mine, .is-taken) .geo { stroke: rgba(0, 0, 0, .35); }
+  .prov.is-neighbor:hover :is(.hex, .node) { filter: brightness(1.08) saturate(1.3); stroke-width: 3.5; }
+  .prov.is-neighbor:hover .geo { filter: brightness(1.05) saturate(1.2); stroke-width: 3.5px; }
+  .prov:focus { outline: none; }
+  .prov:focus-visible :is(.hex, .node, .geo) { stroke: var(--ink); stroke-width: 3; stroke-dasharray: none; }
+
+  body[data-style="metro"] .hex { display: none; }
+  body:not([data-style="metro"]) .node { display: none; }
+
+  .flag, .flag-q, .shield { display: none; pointer-events: none; }
+  .lbl:is(.is-mine, .is-owned) .flag { display: inline; }
+  .lbl.is-taken .flag-q { display: inline; }
+  .lbl.is-shielded .shield { display: inline; }
+  .lbl.just .flag { animation: drop .6s cubic-bezier(.3, 1.6, .5, 1); }
+  @keyframes drop { from { transform: translateY(-16px); opacity: 0; } }
+
+  .road { fill: none; stroke: var(--tile-stroke); stroke-width: 2.2; stroke-dasharray: 1 5; stroke-linecap: round; }
+  body[data-theme="flat"] .road { stroke: var(--muted); }
+  .edge { stroke: var(--tile-stroke); stroke-width: 3; opacity: .6; }
+  body[data-theme="flat"] .edge { stroke: var(--muted); opacity: .45; }
+  .nopass { stroke: var(--red); stroke-width: 3.5; stroke-linecap: round; }
+  .region-edge { stroke: var(--region); stroke-width: 3; stroke-linecap: round; }
+  body[data-style="hex"] .road { display: none; }
+  body[data-style="metro"] .road,
+  body[data-style="metro"] .nopass,
+  body[data-style="metro"] .region-edge { display: none; }
+  body:not([data-style="metro"]) .edge { display: none; }
+  body[data-view="screen"] .nopass { display: none; }
+
+  /* Đường hành trình: nền trắng + nét đứt màu team để không bị chìm khi đi qua tỉnh cùng màu */
+  .trail-casing, .trail {
+    fill: none;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    vector-effect: non-scaling-stroke;
+  }
+  .trail-casing { stroke: #fff; stroke-width: 7px; opacity: .95; }
+  .trail {
+    stroke: var(--team-color, #C0392B);
+    stroke-width: 3px;
+    stroke-dasharray: 7 6;
+    animation: march 1.2s linear infinite;
+  }
+  .trail-stop { fill: #fff; stroke: var(--team-color, #C0392B); stroke-width: 2px; vector-effect: non-scaling-stroke; }
+  @keyframes march { to { stroke-dashoffset: -26; } }
+
+  .fog { pointer-events: none; transition: opacity .7s; }
+  .fog.off { opacity: 0; }
+  .fog .hex, .fog .node { fill: var(--fog); stroke: var(--fog); stroke-width: 1; }
+  .fog .geo { fill: var(--fog); stroke-width: 1px; fill-rule: evenodd; vector-effect: non-scaling-stroke; }
+  body[data-style="metro"] .fog .hex { display: none; }
+  body:not([data-style="metro"]) .fog .node { display: none; }
+
+  /* Nhãn vẽ theo pixel màn hình (layoutLabels bù tỉ lệ zoom) + viền sáng cho dễ đọc */
+  .lbl, .lbl-fixed { pointer-events: none; }
+  .lbl-hidden { display: none; }
+  .lbl-compact .pts { display: none; }
+  .lbl text, .lbl-fixed text {
+    paint-order: stroke fill;
+    stroke: var(--halo);
+    stroke-width: 3px;
+    stroke-linejoin: round;
+  }
+  .label { fill: var(--ink); font: 600 12px var(--font-body); text-anchor: middle; }
+  .pts { fill: var(--muted); font: 600 10px var(--font-body); text-anchor: middle; }
+  .lbl.fogged .label { fill: var(--muted); }
+  .lbl.on-color text { fill: #fff; stroke: rgba(0, 0, 0, .45); }
+  body[data-style="metro"] .lbl.on-color text { fill: var(--ink); stroke: var(--halo); }
+  .lbl-fixed .island-label { font-size: 10px; }
+  .lbl-fixed .archi-label { font-size: 12px; }
+  .lbl-fixed .archi-owner { font-size: 10px; }
+  .sea-label.small { font-size: 11px; letter-spacing: 2px; }
+  /* Huy hiệu thủ đô: nền đỏ cờ + sao vàng + vòng trắng → nổi trên mọi màu nền, kể cả tỉnh màu đỏ */
+  .capital-bg { fill: #DA251D; stroke: #fff; stroke-width: 1.5; }
+  .capital-star { fill: #FFCD00; }
+  .badge-bg { fill: #fff; stroke: rgba(0, 0, 0, .18); stroke-width: 1; }
+  .archi-frame { vector-effect: non-scaling-stroke; }
+  .city { fill: var(--accent); stroke: var(--ink); stroke-width: .6; }
+
+  #marker { pointer-events: none; }
+  #marker.moving { transition: transform .55s cubic-bezier(.3, 1.4, .5, 1); }
+  .bob { animation: bob 1.2s ease-in-out infinite; }
+  @keyframes bob { 50% { transform: translateY(-3px); } }
+  .hat { fill: var(--accent); stroke: var(--ink); stroke-width: 1.2; }
+  .hat-line { fill: none; stroke: var(--ink); stroke-width: .8; opacity: .6; }
+  .team-pin circle { stroke: #fff; stroke-width: 1.5; }
+  .team-pin text { fill: #fff; font: 700 9px var(--font-body); text-anchor: middle; }
+
+  .storm { display: none; pointer-events: none; }
+  .storm.on { display: inline; }
+  .storm .hatch { fill: url(#hatch); fill-rule: evenodd; }
+  .swirl { animation: spin 3s linear infinite; transform-box: fill-box; transform-origin: center; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .lantern { display: none; pointer-events: none; }
+  .lantern.on { display: inline; }
+  .lantern use { animation: rise 3s ease-in infinite; }
+  @keyframes rise {
+    from { transform: translateY(10px); opacity: 0; }
+    30% { opacity: 1; }
+    to { transform: translateY(-24px); opacity: 0; }
+  }
+
+  .burst, .ripple {
+    fill: none;
+    stroke-width: 3;
+    transform-box: fill-box;
+    transform-origin: center;
+    animation: ripple 1.4s ease-out forwards;
+    pointer-events: none;
+  }
+  .ripple { stroke: var(--accent); }
+  @keyframes ripple {
+    from { transform: scale(.3); opacity: 1; }
+    to { transform: scale(2.6); opacity: 0; }
+  }
+
+  body[data-view="screen"] #layer-trail,
+  body[data-view="screen"] #marker,
+  body[data-view="mc"] #layer-trail,
+  body[data-view="mc"] #marker { display: none; }
+
+  /* ---------- Hoạt hình: viền dày, khối "3D", chữ bo tròn đậm, chuyển động nảy ---------- */
+  #layer-shadow, #layer-outline { display: none; pointer-events: none; }
+  body[data-theme="toon"] #layer-shadow, body[data-theme="toon"] #layer-outline { display: inline; }
+  .geo-under { stroke-width: 6px; stroke-linejoin: round; vector-effect: non-scaling-stroke; fill-rule: evenodd; }
+  #layer-outline .geo-under { fill: var(--toon-outline); stroke: var(--toon-outline); }
+  #layer-shadow .geo-under { fill: var(--toon-shadow); stroke: var(--toon-shadow); }
+  body[data-theme="toon"] #layer-tiles { filter: none; }
+  body[data-theme="toon"] .prov .geo, body[data-theme="toon"] .fog .geo { stroke-width: 2px; }
+
+  body[data-theme="toon"] { font-family: var(--font-toon); }
+  body[data-theme="toon"] header { border-bottom: 2px solid var(--line); }
+  body[data-theme="toon"] header h1 { color: var(--green); font-weight: 900; font-size: 24px; }
+  body[data-theme="toon"] .seg-buttons { border: 2px solid var(--line); border-radius: 14px; box-shadow: 0 4px 0 var(--line); }
+  body[data-theme="toon"] .seg-buttons button { font-weight: 800; padding: 8px 12px; }
+  body[data-theme="toon"] .seg-buttons button[aria-pressed="true"] { background: var(--blue); color: #fff; }
+  body[data-theme="toon"] .card { border: 2px solid var(--line); border-radius: 18px; box-shadow: 0 4px 0 var(--line); }
+  body[data-theme="toon"] .card h2 { font-weight: 900; }
+  body[data-theme="toon"] .map-wrap { border: 2px solid var(--line); border-radius: 20px; box-shadow: 0 6px 0 var(--line); }
+  body[data-theme="toon"] :is(.btn-row button, .zoom button) {
+    border: 2px solid var(--line);
+    border-bottom-width: 2px;
+    border-radius: 14px;
+    background: #fff;
+    font-weight: 800;
+    box-shadow: 0 4px 0 var(--line);
+    transition: transform .08s, box-shadow .08s;
+  }
+  body[data-theme="toon"] .btn-row button:hover { background: #F2FBFF; border-color: #84D8FF; box-shadow: 0 4px 0 #84D8FF; }
+  body[data-theme="toon"] :is(.btn-row button, .zoom button):active { transform: translateY(4px); box-shadow: 0 0 0 var(--line); }
+  body[data-theme="toon"] .btn-row button[aria-pressed="true"] { background: var(--accent); border-color: #E5A800; box-shadow: 0 4px 0 #E5A800; color: #3C3C3C; }
+  body[data-theme="toon"] .team-head { font-weight: 900; }
+  body[data-theme="toon"] .stats b { font-size: 22px; font-weight: 900; color: var(--green); }
+  body[data-theme="toon"] .chip { border-radius: 6px; border: 2px solid rgba(0, 0, 0, .2); }
+  body[data-theme="toon"] .toast { background: var(--green); border-radius: 16px; font-weight: 800; box-shadow: 0 4px 0 var(--green-dark); }
+  body[data-theme="toon"] .tooltip { border: 2px solid var(--line); border-radius: 14px; box-shadow: 0 4px 0 var(--line); }
+  body[data-theme="toon"] .ticker { background: var(--blue); }
+
+  /* Chữ trên bản đồ kiểu game: trắng, viền đậm */
+  body[data-theme="toon"] .label { font: 800 13px var(--font-toon); fill: #3C3C3C; }
+  body[data-theme="toon"] .lbl text { stroke: #fff; stroke-width: 4px; }
+  body[data-theme="toon"] .pts { font: 800 11px var(--font-toon); fill: #FF9600; }
+  body[data-theme="toon"] .lbl.fogged .label { fill: #8A99A6; }
+  body[data-theme="toon"] .lbl.on-color text { fill: #fff; stroke: rgba(0, 0, 0, .3); stroke-width: 3px; }
+  body[data-theme="toon"] .sea-label { fill: var(--blue); font-weight: 900; font-style: normal; filter: none; }
+  body[data-theme="toon"] .lbl-fixed text { stroke: #fff; stroke-width: 4px; }
+  body[data-theme="toon"] .island-label { font-style: normal; font-weight: 700; fill: var(--ink); }
+  body[data-theme="toon"] .archi-label { font-weight: 900; }
+  body[data-theme="toon"] .archi-frame { stroke: var(--blue); stroke-width: 2; stroke-dasharray: 6 5; opacity: .8; }
+  body[data-theme="toon"] .city { fill: var(--accent); stroke: #fff; stroke-width: 1.5; }
+
+  /* Nón lá nhảy có co giãn (squash & stretch) */
+  body[data-theme="toon"] .bob { transform-box: fill-box; transform-origin: 50% 100%; animation: hop .9s cubic-bezier(.3, .7, .4, 1) infinite; }
+  @keyframes hop {
+    0%, 100% { transform: translateY(0) scale(1.12, .88); }
+    35% { transform: translateY(-9px) scale(.94, 1.08); }
+    65% { transform: translateY(0) scale(1.1, .9); }
+    80% { transform: translateY(-2px) scale(.98, 1.02); }
+  }
+  body[data-theme="toon"] .hat { stroke: #B7791F; stroke-width: 1.5; }
+  body[data-theme="toon"] .hat-line { stroke: #B7791F; }
+  body[data-theme="toon"] .lbl.just .flag { animation: pop .7s cubic-bezier(.2, 1.8, .4, 1); }
+  @keyframes pop { from { transform: scale(0); } }
+  body[data-theme="toon"] .flag { transform-box: fill-box; transform-origin: 20% 100%; }
+
+  /* Tỉnh đang đứng: nổi khối lên (mặt trên + thành khối + bóng) */
+  #layer-lift { pointer-events: visiblePainted; }
+  .lift { filter: drop-shadow(0 0 6px rgba(255, 200, 0, .6)) drop-shadow(0 8px 6px rgba(0, 0, 0, .3)); }
+  .lift path { fill-rule: evenodd; vector-effect: non-scaling-stroke; stroke-linejoin: round; }
+  .lift-walls { filter: brightness(.6) saturate(1.1); }
+  .lift-wall { stroke-width: 3px; }
+  /* Mặt trên sáng hơn + ánh bóng + quầng sáng vàng → tách khỏi các tỉnh cùng màu xung quanh (viền mảnh như tỉnh thường) */
+  .lift-top { stroke: var(--border-on-color); stroke-width: 1.5px; filter: brightness(1.12) saturate(1.05); }
+  .lift-shine { fill: url(#liftShine); stroke: none; }
+  body[data-theme="toon"] .lift-walls path { stroke-width: 4px; }
+  .lift.rise { animation: rise .5s cubic-bezier(.3, 1.6, .5, 1); }
+  @keyframes rise { from { transform: translateY(var(--rise-from)); } }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation: none !important; transition: none !important; }
+  }
+</style>
+</head>
+<body data-theme="toon" data-style="real" data-view="team">
+
+<header>
+  <h1>Hành trình 3 miền <small>Mockup so sánh kiểu bản đồ · 34 tỉnh/thành sau sáp nhập</small></h1>
+  <div class="controls">
+    <div class="seg">
+      <span>Kiểu bản đồ</span>
+      <div class="seg-buttons" data-key="style">
+        <button type="button" data-value="hex">Lục giác</button>
+        <button type="button" data-value="metro">Tuyến đường</button>
+        <button type="button" data-value="hybrid">Lai</button>
+        <button type="button" data-value="real">Bản đồ thật ⭐</button>
+      </div>
+    </div>
+    <div class="seg">
+      <span>Phong cách</span>
+      <div class="seg-buttons" data-key="theme">
+        <button type="button" data-value="paper">Giấy dó cổ</button>
+        <button type="button" data-value="flat">Hiện đại phẳng</button>
+        <button type="button" data-value="toon">Hoạt hình 🎮</button>
+      </div>
+    </div>
+    <div class="seg">
+      <span>Màn hình</span>
+      <div class="seg-buttons" data-key="view">
+        <button type="button" data-value="team">Team</button>
+        <button type="button" data-value="screen">Máy chiếu</button>
+        <button type="button" data-value="mc">MC</button>
+      </div>
+    </div>
+  </div>
+</header>
+
+<main>
+  <section class="map-wrap" id="mapWrap">
+    <svg id="map" role="application" aria-label="Bản đồ 34 tỉnh, thành phố Việt Nam"></svg>
+    <div class="zoom">
+      <button type="button" id="zoomIn" aria-label="Phóng to">+</button>
+      <button type="button" id="zoomOut" aria-label="Thu nhỏ">−</button>
+      <button type="button" id="zoomReset" aria-label="Xem toàn bộ">⟲</button>
+      <button type="button" id="zoomTeam" aria-label="Về vị trí của team">📍</button>
+    </div>
+    <div class="toast" id="toast" hidden></div>
+    <div class="tooltip" id="tooltip" hidden></div>
+    <div class="ticker" id="ticker" hidden><span id="tickerText"></span></div>
+  </section>
+  <aside id="panel"></aside>
+</main>
+
+<script src="map-data.js"></script>
+<script>
+'use strict';
+
+/* =====================================================================
+ * DỮ LIỆU (bản nháp cho mockup — sẽ đối chiếu văn bản chính thức ở Phase 1)
+ * ===================================================================== */
+
+// r, c: tọa độ ô lục giác (hàng lẻ lệch phải nửa ô)
+const PROVINCES = [
+  // Miền Bắc
+  { id: 'lai-chau', name: 'Lai Châu', region: 'north', r: 0, c: 0, merged: ['Lai Châu'] },
+  { id: 'tuyen-quang', name: 'Tuyên Quang', region: 'north', r: 0, c: 1, merged: ['Tuyên Quang', 'Hà Giang'] },
+  { id: 'cao-bang', name: 'Cao Bằng', region: 'north', r: 0, c: 2, merged: ['Cao Bằng'] },
+  { id: 'dien-bien', name: 'Điện Biên', region: 'north', r: 1, c: -1, merged: ['Điện Biên'] },
+  { id: 'lao-cai', name: 'Lào Cai', region: 'north', r: 1, c: 0, merged: ['Lào Cai', 'Yên Bái'] },
+  { id: 'thai-nguyen', name: 'Thái Nguyên', region: 'north', r: 1, c: 1, merged: ['Thái Nguyên', 'Bắc Kạn'] },
+  { id: 'lang-son', name: 'Lạng Sơn', region: 'north', r: 1, c: 2, merged: ['Lạng Sơn'] },
+  { id: 'son-la', name: 'Sơn La', region: 'north', r: 2, c: 0, merged: ['Sơn La'] },
+  { id: 'phu-tho', name: 'Phú Thọ', region: 'north', r: 2, c: 1, merged: ['Phú Thọ', 'Vĩnh Phúc', 'Hòa Bình'] },
+  { id: 'ha-noi', name: 'Hà Nội', region: 'north', r: 2, c: 2, merged: ['Hà Nội'], city: true, capital: true },
+  { id: 'bac-ninh', name: 'Bắc Ninh', region: 'north', r: 2, c: 3, merged: ['Bắc Ninh', 'Bắc Giang'] },
+  { id: 'quang-ninh', name: 'Quảng Ninh', region: 'north', r: 2, c: 4, merged: ['Quảng Ninh'] },
+  { id: 'ninh-binh', name: 'Ninh Bình', region: 'north', r: 3, c: 1, merged: ['Ninh Bình', 'Hà Nam', 'Nam Định'] },
+  { id: 'hung-yen', name: 'Hưng Yên', region: 'north', r: 3, c: 2, merged: ['Hưng Yên', 'Thái Bình'] },
+  { id: 'hai-phong', name: 'Hải Phòng', region: 'north', r: 3, c: 3, merged: ['Hải Phòng', 'Hải Dương'], city: true },
+  // Miền Trung
+  { id: 'thanh-hoa', name: 'Thanh Hóa', region: 'central', r: 3, c: 0, merged: ['Thanh Hóa'] },
+  { id: 'nghe-an', name: 'Nghệ An', region: 'central', r: 4, c: 0, merged: ['Nghệ An'] },
+  { id: 'ha-tinh', name: 'Hà Tĩnh', region: 'central', r: 5, c: 0, merged: ['Hà Tĩnh'] },
+  { id: 'quang-tri', name: 'Quảng Trị', region: 'central', r: 6, c: 1, merged: ['Quảng Trị', 'Quảng Bình'] },
+  { id: 'hue', name: 'Huế', region: 'central', r: 7, c: 1, merged: ['Thừa Thiên Huế'], city: true },
+  { id: 'da-nang', name: 'Đà Nẵng', region: 'central', r: 8, c: 2, merged: ['Đà Nẵng', 'Quảng Nam'], city: true },
+  { id: 'quang-ngai', name: 'Quảng Ngãi', region: 'central', r: 9, c: 2, merged: ['Quảng Ngãi', 'Kon Tum'] },
+  { id: 'gia-lai', name: 'Gia Lai', region: 'central', r: 10, c: 3, merged: ['Gia Lai', 'Bình Định'] },
+  { id: 'dak-lak', name: 'Đắk Lắk', region: 'central', r: 11, c: 3, merged: ['Đắk Lắk', 'Phú Yên'] },
+  { id: 'lam-dong', name: 'Lâm Đồng', region: 'central', r: 12, c: 3, merged: ['Lâm Đồng', 'Đắk Nông', 'Bình Thuận'] },
+  { id: 'khanh-hoa', name: 'Khánh Hòa', region: 'central', r: 12, c: 4, merged: ['Khánh Hòa', 'Ninh Thuận'] },
+  // Miền Nam
+  { id: 'dong-nai', name: 'Đồng Nai', region: 'south', r: 12, c: 2, merged: ['Đồng Nai', 'Bình Phước'] },
+  { id: 'tay-ninh', name: 'Tây Ninh', region: 'south', r: 13, c: 1, merged: ['Tây Ninh', 'Long An'] },
+  { id: 'ho-chi-minh', name: 'TP. Hồ Chí Minh', short: 'TP.HCM', region: 'south', r: 13, c: 2, merged: ['TP. Hồ Chí Minh', 'Bình Dương', 'Bà Rịa – Vũng Tàu'], city: true },
+  { id: 'an-giang', name: 'An Giang', region: 'south', r: 14, c: 1, merged: ['An Giang', 'Kiên Giang'] },
+  { id: 'dong-thap', name: 'Đồng Tháp', region: 'south', r: 14, c: 2, merged: ['Đồng Tháp', 'Tiền Giang'] },
+  { id: 'can-tho', name: 'Cần Thơ', region: 'south', r: 15, c: 1, merged: ['Cần Thơ', 'Sóc Trăng', 'Hậu Giang'], city: true },
+  { id: 'vinh-long', name: 'Vĩnh Long', region: 'south', r: 15, c: 2, merged: ['Vĩnh Long', 'Bến Tre', 'Trà Vinh'] },
+  { id: 'ca-mau', name: 'Cà Mau', region: 'south', r: 16, c: 1, merged: ['Cà Mau', 'Bạc Liêu'] },
+];
+
+// Giáp ranh nhập tay (bản nháp) — chỉ còn dùng để so sánh với dữ liệu
+const DRAFT_ADJ_PAIRS = [
+  ['lai-chau', 'dien-bien'], ['lai-chau', 'lao-cai'], ['lai-chau', 'son-la'],
+  ['dien-bien', 'son-la'],
+  ['son-la', 'lao-cai'], ['son-la', 'phu-tho'], ['son-la', 'thanh-hoa'],
+  ['lao-cai', 'tuyen-quang'], ['lao-cai', 'phu-tho'],
+  ['tuyen-quang', 'cao-bang'], ['tuyen-quang', 'thai-nguyen'], ['tuyen-quang', 'phu-tho'],
+  ['cao-bang', 'thai-nguyen'], ['cao-bang', 'lang-son'],
+  ['thai-nguyen', 'lang-son'], ['thai-nguyen', 'phu-tho'], ['thai-nguyen', 'ha-noi'], ['thai-nguyen', 'bac-ninh'],
+  ['lang-son', 'bac-ninh'], ['lang-son', 'quang-ninh'],
+  ['phu-tho', 'ha-noi'], ['phu-tho', 'ninh-binh'], ['phu-tho', 'thanh-hoa'],
+  ['ha-noi', 'bac-ninh'], ['ha-noi', 'hung-yen'], ['ha-noi', 'ninh-binh'],
+  ['bac-ninh', 'quang-ninh'], ['bac-ninh', 'hai-phong'], ['bac-ninh', 'hung-yen'],
+  ['quang-ninh', 'hai-phong'],
+  ['hai-phong', 'hung-yen'],
+  ['hung-yen', 'ninh-binh'],
+  ['ninh-binh', 'thanh-hoa'],
+  ['thanh-hoa', 'nghe-an'],
+  ['nghe-an', 'ha-tinh'],
+  ['ha-tinh', 'quang-tri'],
+  ['quang-tri', 'hue'],
+  ['hue', 'da-nang'],
+  ['da-nang', 'quang-ngai'],
+  ['quang-ngai', 'gia-lai'],
+  ['gia-lai', 'dak-lak'],
+  ['dak-lak', 'lam-dong'], ['dak-lak', 'khanh-hoa'],
+  ['khanh-hoa', 'lam-dong'],
+  ['lam-dong', 'dong-nai'], ['lam-dong', 'ho-chi-minh'],
+  ['dong-nai', 'ho-chi-minh'], ['dong-nai', 'tay-ninh'],
+  ['tay-ninh', 'ho-chi-minh'], ['tay-ninh', 'dong-thap'],
+  ['ho-chi-minh', 'dong-thap'],
+  ['dong-thap', 'an-giang'], ['dong-thap', 'can-tho'], ['dong-thap', 'vinh-long'],
+  ['an-giang', 'can-tho'], ['an-giang', 'ca-mau'],
+  ['can-tho', 'vinh-long'], ['can-tho', 'ca-mau'],
+];
+
+// Đảo ven bờ — gx, gy: tọa độ theo đơn vị ô (gx = cột, gy = hàng)
+const ISLANDS = [
+  { name: 'Cô Tô', owner: 'TP. Quảng Ninh', gx: 5.05, gy: 2.2, rx: 3.5, ry: 2 },
+  { name: 'Vân Đồn', owner: 'TP. Quảng Ninh', gx: 4.75, gy: 2.75, rx: 4, ry: 2.2, rot: -30 },
+  { name: 'Cát Bà', owner: 'TP. Hải Phòng', gx: 4.15, gy: 3.45, rx: 5, ry: 3.5 },
+  { name: 'Bạch Long Vĩ', owner: 'TP. Hải Phòng', gx: 5.6, gy: 3.9, rx: 2.2, ry: 1.6 },
+  { name: 'Hòn Mê', owner: 'tỉnh Thanh Hóa', gx: 1.15, gy: 3.85, rx: 2.2, ry: 1.6 },
+  { name: 'Cồn Cỏ', owner: 'tỉnh Quảng Trị', gx: 1.85, gy: 5.75, rx: 2.2, ry: 1.8 },
+  { name: 'Cù Lao Chàm', owner: 'TP. Đà Nẵng', gx: 2.85, gy: 8.05, rx: 3, ry: 2 },
+  { name: 'Lý Sơn', owner: 'tỉnh Quảng Ngãi', gx: 3.35, gy: 9.0, rx: 3, ry: 2 },
+  { name: 'Phú Quý', owner: 'tỉnh Lâm Đồng', gx: 3.95, gy: 13.15, rx: 3, ry: 2.2 },
+  { name: 'Côn Đảo', owner: 'TP. Hồ Chí Minh', gx: 2.75, gy: 16.4, rx: 5, ry: 3, rot: -20 },
+  { name: 'Phú Quốc', owner: 'tỉnh An Giang', gx: -0.05, gy: 14.55, rx: 6, ry: 11, rot: 10 },
+  { name: 'Nam Du', owner: 'tỉnh An Giang', gx: 0.2, gy: 15.45, rx: 2.5, ry: 1.8 },
+  { name: 'Thổ Chu', owner: 'tỉnh An Giang', gx: -0.6, gy: 16.6, rx: 2.5, ry: 1.8 },
+  { name: 'Hòn Khoai', owner: 'tỉnh Cà Mau', gx: 1.05, gy: 17.25, rx: 2.5, ry: 1.8 },
+];
+
+// Quần đảo
+const ARCHIPELAGOS = [
+  { name: 'QĐ. Hoàng Sa', full: 'Quần đảo Hoàng Sa', owner: 'TP. Đà Nẵng', gx: 6.3, gy: 7.3, rx: 30, ry: 22, dots: 14, seed: 7 },
+  { name: 'QĐ. Trường Sa', full: 'Quần đảo Trường Sa', owner: 'tỉnh Khánh Hòa', gx: 6.6, gy: 14.4, rx: 42, ry: 58, dots: 24, seed: 21 },
+];
+
+const GEO_LABELS = [
+  { text: 'Vịnh Bắc Bộ', gx: 3.0, gy: 4.9, cls: 'sea-label', small: true },
+  { text: 'BIỂN ĐÔNG', gx: 5.6, gy: 10.6, cls: 'sea-label' },
+  { text: 'Vịnh Thái Lan', gx: -1.3, gy: 13.4, cls: 'sea-label', small: true },
+];
+
+const TEAMS = [
+  { id: 1, name: 'Rồng', color: '#C0392B' },
+  { id: 2, name: 'Lân', color: '#E67E22' },
+  { id: 3, name: 'Rùa', color: '#27AE60' },
+  { id: 4, name: 'Phượng', color: '#8E44AD' },
+  { id: 5, name: 'Hạc', color: '#2E86C1' },
+  { id: 6, name: 'Trâu', color: '#8D6E63' },
+];
+const ME = 1;
+const REGION_NAME = { north: 'Miền Bắc', central: 'Miền Trung', south: 'Miền Nam' };
+
+function initialState() {
+  return {
+    owner: {
+      'hung-yen': 1, 'ha-noi': 1, 'ninh-binh': 1, 'thanh-hoa': 1,
+      'hue': 2, 'quang-tri': 2, 'da-nang': 2,
+      'phu-tho': 3, 'son-la': 3, 'lao-cai': 3,
+      'can-tho': 4, 'ca-mau': 4, 'an-giang': 4, 'vinh-long': 4,
+      'lam-dong': 5, 'khanh-hoa': 5, 'dak-lak': 5,
+      'quang-ninh': 6, 'lang-son': 6, 'cao-bang': 6,
+    },
+    visited: new Set(['hai-phong', 'phu-tho']),
+    current: 'thanh-hoa',
+    trail: ['hung-yen', 'hai-phong', 'hung-yen', 'ha-noi', 'phu-tho', 'ha-noi', 'ninh-binh', 'thanh-hoa'],
+    shield: new Set(['ha-noi']),
+    teamPos: { 2: 'hue', 3: 'phu-tho', 4: 'can-tho', 5: 'lam-dong', 6: 'quang-ninh' },
+    storm: false,
+    festival: false,
+  };
+}
+let state = initialState();
+
+/* =====================================================================
+ * DỮ LIỆU BẢN ĐỒ THẬT (sinh bởi scripts/build-map.mjs từ GeoJSON)
+ * ===================================================================== */
+const GEO = window.MAP_DATA || null;
+const GEO_BY_ID = GEO ? Object.fromEntries(GEO.provinces.map(g => [g.id, g])) : {};
+function proj([lon, lat]) {
+  const { lon0, lat0, k, cos } = GEO.projection;
+  return [(lon - lon0) * cos * k, (lat0 - lat) * k];
+}
+
+const GEO_TEXT = [
+  { text: 'Vịnh Bắc Bộ', lon: 107.4, lat: 19.5, cls: 'sea-label', small: true },
+  { text: 'BIỂN ĐÔNG', lon: 113.0, lat: 13.2, cls: 'sea-label' },
+  { text: 'Vịnh Thái Lan', lon: 102.6, lat: 8.2, cls: 'sea-label', small: true },
+];
+// Vị trí nhãn các đảo ven bờ trên bản đồ thật (hình đảo lấy từ dữ liệu)
+const ISLAND_GEO = [
+  { name: 'Cô Tô', owner: 'TP. Quảng Ninh', lon: 107.77, lat: 20.98 },
+  { name: 'Vân Đồn', owner: 'TP. Quảng Ninh', lon: 107.47, lat: 21.02 },
+  { name: 'Cát Bà', owner: 'TP. Hải Phòng', lon: 107.05, lat: 20.76 },
+  { name: 'Bạch Long Vĩ', owner: 'TP. Hải Phòng', lon: 107.73, lat: 20.13 },
+  { name: 'Hòn Mê', owner: 'tỉnh Thanh Hóa', lon: 105.93, lat: 19.37 },
+  { name: 'Cồn Cỏ', owner: 'tỉnh Quảng Trị', lon: 107.34, lat: 17.16 },
+  { name: 'Cù Lao Chàm', owner: 'TP. Đà Nẵng', lon: 108.53, lat: 15.95 },
+  { name: 'Lý Sơn', owner: 'tỉnh Quảng Ngãi', lon: 109.12, lat: 15.38 },
+  { name: 'Phú Quý', owner: 'tỉnh Lâm Đồng', lon: 108.93, lat: 10.52 },
+  { name: 'Côn Đảo', owner: 'TP. Hồ Chí Minh', lon: 106.6, lat: 8.69 },
+  { name: 'Phú Quốc', owner: 'tỉnh An Giang', lon: 103.97, lat: 10.23 },
+  { name: 'Nam Du', owner: 'tỉnh An Giang', lon: 104.35, lat: 9.68 },
+  { name: 'Thổ Chu', owner: 'tỉnh An Giang', lon: 103.47, lat: 9.3 },
+  { name: 'Hòn Khoai', owner: 'tỉnh Cà Mau', lon: 104.83, lat: 8.43 },
+];
+// Đảo có ý nghĩa nhưng quá nhỏ để vẽ đúng hình: vẽ hình cách điệu, cỡ cố định trên màn hình
+const STYLIZED_ISLANDS = [
+  { name: 'Bạch Long Vĩ', province: 'hai-phong', lon: 107.73, lat: 20.13 },
+];
+const STYLIZED_ISLAND_D = 'M-6,-2 Q-3,-7 3,-5 Q7,-3 6,1 Q5,5 0,5 Q-4,5 -6,2 Q-7,0 -6,-2 Z';
+
+const ARCHI_GEO = [
+  { name: 'QĐ. Hoàng Sa', full: 'Quần đảo Hoàng Sa', owner: 'TP. Đà Nẵng', province: 'da-nang', minLon: 110.5 },
+  { name: 'QĐ. Trường Sa', full: 'Quần đảo Trường Sa', owner: 'tỉnh Khánh Hòa', province: 'khanh-hoa', minLon: 109.6 },
+];
+
+/* =====================================================================
+ * HÌNH HỌC
+ * ===================================================================== */
+const NS = 'http://www.w3.org/2000/svg';
+const SIZE = 30;
+const W = Math.sqrt(3) * SIZE;
+const ROW = 1.5 * SIZE;
+
+const gridX = gx => W * gx;
+const gridY = gy => ROW * gy;
+
+// Giáp ranh dùng cho luật chơi: tính tự động từ dữ liệu nếu có, nếu không dùng bản nháp
+const pairKey = ([a, b]) => (a < b ? `${a}|${b}` : `${b}|${a}`);
+const ADJ_PAIRS = GEO ? GEO.adjacency.map(([a, b]) => [a, b]) : DRAFT_ADJ_PAIRS;
+const DRAFT_SET = new Set(DRAFT_ADJ_PAIRS.map(pairKey));
+const DATA_SET = new Set(ADJ_PAIRS.map(pairKey));
+const ADJ_WRONG = DRAFT_ADJ_PAIRS.filter(p => !DATA_SET.has(pairKey(p)));   // bản nháp có, dữ liệu không có
+const ADJ_MISSED = ADJ_PAIRS.filter(p => !DRAFT_SET.has(pairKey(p)));       // dữ liệu có, bản nháp thiếu
+
+for (const p of PROVINCES) {
+  p.hx = W * (p.c + 0.5 * (p.r & 1));
+  p.hy = ROW * p.r;
+  if (GEO_BY_ID[p.id]) p.city = GEO_BY_ID[p.id].isCity;
+  p.points = p.city ? 300 : p.merged.length >= 3 ? 200 : p.merged.length === 2 ? 150 : 100;
+}
+const BY_ID = Object.fromEntries(PROVINCES.map(p => [p.id, p]));
+const ADJ = new Map(PROVINCES.map(p => [p.id, new Set()]));
+for (const [a, b] of ADJ_PAIRS) {
+  ADJ.get(a).add(b);
+  ADJ.get(b).add(a);
+}
+
+function corners(x, y, size = SIZE) {
+  const pts = [];
+  for (let i = 0; i < 6; i++) {
+    const a = Math.PI / 180 * (60 * i - 30);
+    pts.push([x + size * Math.cos(a), y + size * Math.sin(a)]);
+  }
+  return pts;
+}
+const ptsAttr = pts => pts.map(([x, y]) => `${x.toFixed(1)},${y.toFixed(1)}`).join(' ');
+
+const CELL = new Map(PROVINCES.map(p => [`${p.r},${p.c}`, p]));
+function touching(p) {
+  const dirs = (p.r & 1)
+    ? [[-1, 0], [-1, 1], [0, -1], [0, 1], [1, 0], [1, 1]]
+    : [[-1, -1], [-1, 0], [0, -1], [0, 1], [1, -1], [1, 0]];
+  return dirs.map(([dr, dc]) => CELL.get(`${p.r + dr},${p.c + dc}`)).filter(Boolean);
+}
+const TOUCH_PAIRS = [];
+for (const p of PROVINCES) {
+  for (const q of touching(p)) if (p.id < q.id) TOUCH_PAIRS.push([p, q]);
+}
+const isTouching = (a, b) => touching(a).includes(b);
+const ROADS = ADJ_PAIRS.map(([a, b]) => [BY_ID[a], BY_ID[b]]).filter(([a, b]) => !isTouching(a, b));
+const NOPASS = TOUCH_PAIRS.filter(([a, b]) => !ADJ.get(a.id).has(b.id));
+const REGION_EDGES = TOUCH_PAIRS.filter(([a, b]) => a.region !== b.region);
+
+function sharedEdge(a, b) {
+  return corners(a.hx, a.hy).filter(([x, y]) => Math.hypot(x - b.hx, y - b.hy) < SIZE + 0.5);
+}
+
+function rng(seed) {
+  return () => {
+    seed = (seed + 0x6D2B79F5) | 0;
+    let t = Math.imul(seed ^ (seed >>> 15), 1 | seed);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+function starPoints(cx, cy, outer, inner) {
+  const pts = [];
+  for (let i = 0; i < 10; i++) {
+    const r = i % 2 ? inner : outer;
+    const a = Math.PI / 5 * i - Math.PI / 2;
+    pts.push([cx + r * Math.cos(a), cy + r * Math.sin(a)]);
+  }
+  return ptsAttr(pts);
+}
+
+/* =====================================================================
+ * DỰNG SVG
+ * ===================================================================== */
+function svgEl(tag, attrs = {}, parent) {
+  const el = document.createElementNS(NS, tag);
+  for (const [k, v] of Object.entries(attrs)) el.setAttribute(k, v);
+  if (parent) parent.appendChild(el);
+  return el;
+}
+function svgText(parent, x, y, text, cls) {
+  const t = svgEl('text', { x, y, class: cls }, parent);
+  t.textContent = text;
+  return t;
+}
+
+const body = document.body;
+const svg = document.getElementById('map');
+const isReal = () => body.dataset.style === 'real' && GEO !== null;
+
+// defs: chỉ là nội dung tĩnh, không chứa dữ liệu động
+const DEFS = `
+  <defs>
+    <pattern id="hatch" width="7" height="7" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+      <line x1="0" y1="0" x2="0" y2="7" stroke="var(--ink)" stroke-width="2" opacity=".35"/>
+    </pattern>
+    <linearGradient id="liftShine" x1="0" y1="0" x2="0.6" y2="1">
+      <stop offset="0" stop-color="#fff" stop-opacity=".5"/>
+      <stop offset=".55" stop-color="#fff" stop-opacity="0"/>
+    </linearGradient>
+    <filter id="paperTex" x="0" y="0" width="100%" height="100%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="2" seed="4"/>
+      <feColorMatrix type="matrix" values="0 0 0 0 0.42  0 0 0 0 0.35  0 0 0 0 0.25  0 0 0 0.22 0"/>
+    </filter>
+    <symbol id="i-flag" viewBox="0 0 16 16">
+      <rect x="2" y="1" width="1.6" height="14" fill="#2B2420"/>
+      <path d="M3.6 1.5 L14 4.5 L3.6 7.5 Z" fill="currentColor" stroke="#fff" stroke-width=".8"/>
+    </symbol>
+    <symbol id="i-flag-q" viewBox="0 0 16 16">
+      <rect x="2" y="1" width="1.6" height="14" fill="#2B2420"/>
+      <path d="M3.6 1.5 L14 4.5 L3.6 7.5 Z" fill="#2B2420" stroke="#fff" stroke-width=".8"/>
+      <text x="8.2" y="6.4" font-size="5" font-weight="700" fill="#fff" text-anchor="middle" font-family="Arial">?</text>
+    </symbol>
+    <symbol id="i-shield" viewBox="0 0 16 16">
+      <path d="M8 1 L14 3.5 V8 C14 11.5 11 14 8 15 C5 14 2 11.5 2 8 V3.5 Z" fill="#F4F6F8" stroke="#2B2420" stroke-width="1.2"/>
+      <path d="M8 4 V12 M5 7.5 H11" stroke="#2B2420" stroke-width="1.2"/>
+    </symbol>
+    <symbol id="i-swirl" viewBox="0 0 16 16">
+      <path d="M8 8 m-5 0 a5 5 0 1 1 5 5 a3 3 0 1 1 -3 -3 a1.5 1.5 0 1 1 1.5 1.5" fill="none" stroke="#2B2420" stroke-width="1.6"/>
+    </symbol>
+    <symbol id="i-lantern" viewBox="0 0 16 16">
+      <rect x="6.5" y="1" width="3" height="1.5" fill="#2B2420"/>
+      <ellipse cx="8" cy="8" rx="5" ry="5.5" fill="#E74C3C" stroke="#8E1B10" stroke-width=".8"/>
+      <path d="M8 2.5 V13.5 M4.5 5 Q8 8 4.5 11 M11.5 5 Q8 8 11.5 11" stroke="#F7C948" stroke-width=".7" fill="none"/>
+      <rect x="6.5" y="13.3" width="3" height="1.5" fill="#F7C948"/>
+    </symbol>
+  </defs>`;
+
+let layers, tileEls, fogEls, lblEls, stormEls, lanternEls, trail, trailCasing, trailStops, marker, pinLayer, BASE, vb;
+let labelItems = [], pinItems = [], stylizedEls = [];
+
+function build() {
+  const real = isReal();
+  for (const p of PROVINCES) [p.x, p.y] = real ? GEO_BY_ID[p.id].label : [p.hx, p.hy];
+
+  svg.innerHTML = DEFS;
+  labelItems = [];
+  pinItems = [];
+  stylizedEls = [];
+  layers = {};
+  for (const name of ['bg', 'shadow', 'outline', 'roads', 'edges', 'tiles', 'borders', 'trail', 'fog', 'lift', 'labels', 'marker', 'fx']) {
+    layers[name] = svgEl('g', { id: `layer-${name}` }, svg);
+  }
+  BASE = real ? buildRealBackground() : buildHexBackground();
+  if (!real) buildHexConnectors();
+
+  tileEls = {}; fogEls = {}; lblEls = {}; stormEls = {}; lanternEls = {};
+  for (const p of PROVINCES) buildProvince(p, real);
+
+  trailCasing = svgEl('polyline', { class: 'trail-casing' }, layers.trail);
+  trail = svgEl('polyline', { class: 'trail' }, layers.trail);
+  trailStops = svgEl('g', { class: 'trail-stops' }, layers.trail);
+  marker = svgEl('g', { id: 'marker' }, layers.marker);
+  const bob = svgEl('g', { class: 'bob' }, marker);
+  svgEl('ellipse', { cx: 0, cy: 5, rx: 10, ry: 2.4, fill: 'rgba(0,0,0,.25)' }, bob);
+  svgEl('path', { class: 'hat', d: 'M-12 3 Q-2 -16 0 -16 Q2 -16 12 3 Q0 7 -12 3 Z' }, bob);
+  svgEl('path', { class: 'hat-line', d: 'M-7 -2 Q0 1 7 -2 M-4 -8 Q0 -6 4 -8' }, bob);
+  pinLayer = svgEl('g', { id: 'team-pins' }, layers.marker);
+
+  vb = { ...BASE };
+  setVB();
+}
+
+function buildHexBackground() {
+  const allX = [], allY = [];
+  for (const p of PROVINCES) { allX.push(p.hx - W / 2, p.hx + W / 2); allY.push(p.hy - SIZE, p.hy + SIZE); }
+  for (const a of ARCHIPELAGOS) { allX.push(gridX(a.gx) + a.rx + 30); allY.push(gridY(a.gy) + a.ry + 10); }
+  for (const i of ISLANDS) { allX.push(gridX(i.gx) - 20); allY.push(gridY(i.gy) + 14); }
+  const PAD = 36;
+  const base = {
+    x: Math.min(...allX) - PAD - 30,
+    y: Math.min(...allY) - PAD - 30,
+    w: Math.max(...allX) - Math.min(...allX) + PAD * 2 + 30,
+    h: Math.max(...allY) - Math.min(...allY) + PAD * 2 + 30,
+  };
+
+  svgEl('rect', { class: 'paper-tex', x: base.x - base.w, y: base.y - base.h / 2, width: base.w * 3, height: base.h * 2, filter: 'url(#paperTex)' }, layers.bg);
+
+  for (const g of GEO_LABELS) {
+    const t = svgText(layers.bg, gridX(g.gx), gridY(g.gy), g.text, g.cls);
+    if (g.small) t.style.fontSize = '11px';
+  }
+  for (const isl of ISLANDS) {
+    const x = gridX(isl.gx), y = gridY(isl.gy);
+    const g = svgEl('g', { 'data-island': isl.name }, layers.bg);
+    svgEl('ellipse', {
+      class: 'island', cx: x, cy: y, rx: isl.rx, ry: isl.ry,
+      transform: isl.rot ? `rotate(${isl.rot} ${x} ${y})` : '',
+    }, g);
+    svgText(g, x, y + isl.ry + 8, isl.name, 'island-label');
+    svgEl('circle', { class: 'island-hit', cx: x, cy: y, r: Math.max(isl.rx, isl.ry) + 6 }, g);
+  }
+  for (const a of ARCHIPELAGOS) {
+    const cx = gridX(a.gx), cy = gridY(a.gy);
+    const g = svgEl('g', { 'data-archi': a.name }, layers.bg);
+    svgEl('ellipse', { class: 'archi-frame', cx, cy, rx: a.rx + 8, ry: a.ry + 8 }, g);
+    const rand = rng(a.seed);
+    for (let i = 0; i < a.dots; i++) {
+      const ang = rand() * Math.PI * 2, dist = Math.sqrt(rand());
+      svgEl('circle', {
+        class: 'archi-dot',
+        cx: cx + Math.cos(ang) * dist * a.rx,
+        cy: cy + Math.sin(ang) * dist * a.ry,
+        r: 1.4 + rand() * 1.6,
+      }, g);
+    }
+    svgText(g, cx, cy + a.ry + 22, a.name, 'archi-label');
+    svgText(g, cx, cy + a.ry + 32, `(${a.owner})`, 'archi-owner');
+    svgEl('ellipse', { class: 'archi-hit', cx, cy, rx: a.rx + 8, ry: a.ry + 8 }, g);
+  }
+  return base;
+}
+
+function buildRealBackground() {
+  const [x0, y0, x1, y1] = GEO.bounds;
+  const PAD = 30;
+  const base = { x: x0 - PAD, y: y0 - PAD, w: x1 - x0 + PAD * 2, h: y1 - y0 + PAD * 2 + 60 };
+
+  svgEl('rect', { class: 'paper-tex', x: base.x - base.w, y: base.y - base.h / 2, width: base.w * 3, height: base.h * 2, filter: 'url(#paperTex)' }, layers.bg);
+
+  for (const g of GEO_TEXT) {
+    const [x, y] = proj([g.lon, g.lat]);
+    const lg = svgEl('g', { class: 'lbl-fixed' }, layers.bg);
+    svgText(lg, 0, 0, g.text, g.small ? `${g.cls} small` : g.cls);
+    labelItems.push({ el: lg, x, y, kind: 'sea' });
+  }
+
+  // Khung + nhãn hai quần đảo, tính từ các chấm đảo trong dữ liệu
+  for (const a of ARCHI_GEO) {
+    const offshoreX = proj([a.minLon, 0])[0];
+    // Gồm cả chấm đảo nhỏ lẫn các đảo đủ lớn để vẽ thành hình (từng đoạn "M…Z" trong path)
+    const shapePts = GEO_BY_ID[a.province].d.split('M').filter(Boolean)
+      .map(seg => seg.replace('Z', '').split('L').map(xy => xy.split(',').map(Number)))
+      .filter(seg => seg.every(([x]) => x > offshoreX))
+      .flat();
+    const pts = [...GEO_BY_ID[a.province].islets.filter(([x]) => x > offshoreX), ...shapePts];
+    if (!pts.length) continue;
+    const xs = pts.map(p => p[0]), ys = pts.map(p => p[1]);
+    const cx = (Math.min(...xs) + Math.max(...xs)) / 2, cy = (Math.min(...ys) + Math.max(...ys)) / 2;
+    const rx = (Math.max(...xs) - Math.min(...xs)) / 2 + 14, ry = (Math.max(...ys) - Math.min(...ys)) / 2 + 14;
+    const g = svgEl('g', { 'data-archi': a.name }, layers.bg);
+    const box = { x: cx - rx, y: cy - ry, width: rx * 2, height: ry * 2, rx: 18 };
+    svgEl('rect', { class: 'archi-frame', ...box }, g);
+    svgEl('rect', { class: 'archi-hit', ...box }, g);
+    const lg = svgEl('g', { class: 'lbl-fixed' }, layers.labels);
+    svgText(lg, 0, 14, a.name, 'archi-label');
+    svgText(lg, 0, 27, `(${a.owner})`, 'archi-owner');
+    labelItems.push({ el: lg, x: cx, y: cy + ry, kind: 'archi' });
+  }
+  // Nhãn đảo ven bờ đặt ở lớp nhãn để không bị tỉnh che.
+  // Chỉ ghi tên đảo có hình trên bản đồ; đảo quá nhỏ không vẽ thì cũng không ghi tên.
+  const shapeBoxes = GEO.provinces.flatMap(g => g.d.split('M').filter(Boolean).map(seg => {
+    const pts = seg.replace('Z', '').split('L').map(xy => xy.split(',').map(Number));
+    const xs = pts.map(q => q[0]), ys = pts.map(q => q[1]);
+    return [Math.min(...xs) - 4, Math.min(...ys) - 4, Math.max(...xs) + 4, Math.max(...ys) + 4];
+  }));
+  const hasShape = (x, y) => shapeBoxes.some(([x0, y0, x1, y1]) => x >= x0 && x <= x1 && y >= y0 && y <= y1);
+  for (const isl of ISLAND_GEO) {
+    const [x, y] = proj([isl.lon, isl.lat]);
+    if (!hasShape(x, y) && !STYLIZED_ISLANDS.some(si => si.name === isl.name)) continue;
+    const g = svgEl('g', { class: 'lbl-fixed', 'data-island': isl.name }, layers.labels);
+    svgText(g, 0, 13, isl.name, 'island-label');
+    svgEl('circle', { class: 'island-hit', cx: 0, cy: 0, r: 7 }, g);
+    g.style.pointerEvents = 'auto';
+    labelItems.push({ el: g, x, y, kind: 'island' });
+  }
+  return base;
+}
+
+function buildHexConnectors() {
+  for (const [a, b] of ROADS) {
+    svgEl('line', { class: 'road', x1: a.hx, y1: a.hy, x2: b.hx, y2: b.hy }, layers.roads);
+  }
+  for (const [a, b] of ADJ_PAIRS.map(([a, b]) => [BY_ID[a], BY_ID[b]])) {
+    svgEl('line', { class: 'edge', x1: a.hx, y1: a.hy, x2: b.hx, y2: b.hy }, layers.edges);
+  }
+  for (const [a, b] of REGION_EDGES) {
+    const [[x1, y1], [x2, y2]] = sharedEdge(a, b);
+    svgEl('line', { class: 'region-edge', x1, y1, x2, y2 }, layers.borders);
+  }
+  for (const [a, b] of NOPASS) {
+    const [[x1, y1], [x2, y2]] = sharedEdge(a, b);
+    const mx = (x1 + x2) / 2, my = (y1 + y2) / 2;
+    // vẽ ngắn hơn cạnh một chút để phân biệt với viền miền
+    svgEl('line', {
+      class: 'nopass',
+      x1: mx + (x1 - mx) * .7, y1: my + (y1 - my) * .7,
+      x2: mx + (x2 - mx) * .7, y2: my + (y2 - my) * .7,
+    }, layers.borders);
+  }
+}
+
+function buildProvince(p, real) {
+  const geo = GEO_BY_ID[p.id];
+  const shape = parent => {
+    if (real) return [svgEl('path', { class: 'geo', d: geo.d }, parent)];
+    return [
+      svgEl('polygon', { class: 'hex', points: ptsAttr(corners(p.x, p.y, SIZE - 0.6)) }, parent),
+      svgEl('circle', { class: 'node', cx: p.x, cy: p.y, r: 13 }, parent),
+    ];
+  };
+
+  const g = svgEl('g', {
+    class: 'prov', 'data-id': p.id, 'data-region': p.region,
+    role: 'button', 'aria-label': `${p.name} – ${p.points} điểm`, tabindex: '-1',
+  }, layers.tiles);
+  shape(g);
+  // Đảo quá nhỏ để vẽ hình: bỏ qua, trừ Hoàng Sa / Trường Sa (bắt buộc thể hiện) — vẽ chấm tượng trưng cỡ cố định
+  if (real) {
+    const archi = ARCHI_GEO.find(a => a.province === p.id);
+    const minX = archi ? proj([archi.minLon, 0])[0] : Infinity;
+    for (const [x, y] of geo.islets) if (x > minX) svgEl('circle', { class: 'islet', cx: x, cy: y, r: 1.2 }, g);
+    for (const si of STYLIZED_ISLANDS.filter(si => si.province === p.id)) {
+      const [x, y] = proj([si.lon, si.lat]);
+      stylizedEls.push({ el: svgEl('path', { class: 'geo islet-shape', d: STYLIZED_ISLAND_D }, g), x, y });
+    }
+  }
+  // Phong cách hoạt hình: bản sao hình tỉnh làm viền ngoài dày + bóng khối phía dưới (ẩn ở phong cách khác)
+  // Chỉ lấy đất liền + đảo lớn; đảo nhỏ mà thêm viền dày sẽ thành khối đen.
+  if (real) {
+    const bigD = geo.d.split('M').filter(Boolean).filter(seg => {
+      const pts = seg.replace('Z', '').split('L').map(xy => xy.split(',').map(Number));
+      const xs = pts.map(q => q[0]), ys = pts.map(q => q[1]);
+      return Math.max(Math.max(...xs) - Math.min(...xs), Math.max(...ys) - Math.min(...ys)) > 12;
+    }).map(seg => 'M' + seg).join('');
+    svgEl('path', { class: 'geo-under', d: bigD }, layers.outline);
+    svgEl('path', { class: 'geo-under', d: bigD }, layers.shadow);
+  }
+  tileEls[p.id] = g;
+  p.shapeD = real ? geo.d : 'M' + corners(p.x, p.y, SIZE - 0.6).map(([x, y]) => `${x.toFixed(1)},${y.toFixed(1)}`).join('L') + 'Z';
+
+  const f = svgEl('g', { class: 'fog' }, layers.fog);
+  shape(f);
+  fogEls[p.id] = f;
+
+  // Nhãn vẽ quanh gốc (0,0) theo pixel màn hình; layoutLabels() đặt vị trí, bù zoom và tránh chồng chữ.
+  // Hàng biểu tượng phía trên tên: sao thủ đô / chấm thành phố, cờ, khiên.
+  const l = svgEl('g', { class: 'lbl', 'data-id': p.id }, layers.labels);
+  const badges = svgEl('g', { class: 'badges' }, l);
+  if (p.capital) {
+    svgEl('circle', { class: 'capital-bg', cx: -15, cy: -17, r: 7 }, badges);
+    svgEl('polygon', { class: 'capital-star', points: starPoints(-15, -17, 4.6, 1.9) }, badges);
+  }
+  else if (p.city) svgEl('circle', { class: 'city', cx: -15, cy: -17, r: 3.5 }, badges);
+  // Cờ đặt trên huy hiệu tròn nền trắng → không chìm khi tỉnh mang cùng màu team
+  for (const [cls, icon] of [['flag', '#i-flag'], ['flag-q', '#i-flag-q']]) {
+    const f = svgEl('g', { class: cls }, badges);
+    svgEl('circle', { class: 'badge-bg', cx: 1, cy: -17, r: 8 }, f);
+    svgEl('use', { href: icon, x: -5, y: -23, width: 12, height: 12 }, f);
+  }
+  svgEl('use', { class: 'shield', href: '#i-shield', x: 11, y: -23, width: 12, height: 12 }, badges);
+  const dy = body.dataset.style === 'metro' ? 26 : 0;
+  const names = svgEl('g', { class: 'names' }, l);
+  svgText(names, 0, dy + 4, p.short || p.name, 'label');
+  svgText(l, 0, dy + 17, `${p.points}đ`, 'pts');
+  lblEls[p.id] = l;
+  labelItems.push({ el: l, x: p.x, y: p.y, prov: p });
+
+  const s = svgEl('g', { class: 'storm' }, layers.fx);
+  if (real) svgEl('path', { class: 'hatch', d: geo.d }, s);
+  else svgEl('polygon', { class: 'hatch', points: ptsAttr(corners(p.x, p.y, SIZE - 0.6)) }, s);
+  svgEl('use', { class: 'swirl', href: '#i-swirl', x: p.x - 9, y: p.y - 9, width: 18, height: 18 }, s);
+  stormEls[p.id] = s;
+
+  const ln = svgEl('g', { class: 'lantern' }, layers.fx);
+  svgEl('use', { href: '#i-lantern', x: p.x - 18, y: p.y - 6, width: 10, height: 10 }, ln);
+  const u2 = svgEl('use', { href: '#i-lantern', x: p.x + 9, y: p.y - 2, width: 9, height: 9 }, ln);
+  u2.style.animationDelay = '1.4s';
+  lanternEls[p.id] = ln;
+}
+
+/* =====================================================================
+ * RENDER
+ * ===================================================================== */
+const teamOf = id => TEAMS.find(t => t.id === id);
+svg.style.setProperty('--team-color', teamOf(ME).color);
+
+function knownSet() {
+  const known = new Set([...state.visited, state.current, ...ADJ.get(state.current)]);
+  for (const [id, t] of Object.entries(state.owner)) if (t === ME) known.add(id);
+  return known;
+}
+
+function render() {
+  const view = body.dataset.view;
+  const known = knownSet();
+  const neighbors = ADJ.get(state.current);
+
+  for (const p of PROVINCES) {
+    const g = tileEls[p.id];
+    const l = lblEls[p.id];
+    const owner = state.owner[p.id];
+    g.classList.remove('is-mine', 'is-owned', 'is-taken', 'is-current', 'is-neighbor', 'is-shielded');
+    l.classList.remove('on-color', 'fogged', 'is-mine', 'is-owned', 'is-taken', 'is-shielded');
+    g.style.removeProperty('--team-color');
+    g.setAttribute('tabindex', '-1');
+    let fogged = false;
+
+    if (view === 'team') {
+      fogged = !known.has(p.id);
+      if (owner === ME) {
+        g.classList.add('is-mine');
+        g.style.setProperty('--team-color', teamOf(ME).color);
+        l.querySelector('.flag').style.color = teamOf(ME).color;
+        l.classList.add('on-color', 'is-mine');
+        if (state.shield.has(p.id)) l.classList.add('is-shielded');
+      } else if (owner && state.visited.has(p.id)) {
+        g.classList.add('is-taken');
+        l.classList.add('on-color', 'is-taken');
+      }
+      if (p.id === state.current) g.classList.add('is-current');
+      if (neighbors.has(p.id)) {
+        g.classList.add('is-neighbor');
+        g.setAttribute('tabindex', '0');
+      }
+    } else if (view === 'mc' && owner) {
+      const color = teamOf(owner).color;
+      g.classList.add('is-owned');
+      g.style.setProperty('--team-color', color);
+      l.querySelector('.flag').style.color = color;
+      l.classList.add('on-color', 'is-owned');
+    }
+
+    fogEls[p.id].classList.toggle('off', !fogged);
+    if (fogged) l.classList.add('fogged');
+    stormEls[p.id].classList.toggle('on', state.storm && p.region === 'south');
+    lanternEls[p.id].classList.toggle('on', state.festival && p.region === 'central');
+  }
+
+  const trailPts = ptsAttr(state.trail.map(id => [BY_ID[id].x, BY_ID[id].y]));
+  trail.setAttribute('points', trailPts);
+  trailCasing.setAttribute('points', trailPts);
+  trailStops.replaceChildren();
+  for (const id of new Set(state.trail)) {
+    if (id !== state.current) svgEl('circle', { class: 'trail-stop', cx: BY_ID[id].x, cy: BY_ID[id].y, r: 3 }, trailStops);
+  }
+
+  pinLayer.replaceChildren();
+  pinItems = [];
+  if (view === 'mc') {
+    const pos = { ...state.teamPos, [ME]: state.current };
+    const count = {};
+    for (const t of TEAMS) {
+      const p = BY_ID[pos[t.id]];
+      const i = count[p.id] = (count[p.id] || 0) + 1;
+      const g = svgEl('g', { class: 'team-pin' }, pinLayer);
+      svgEl('circle', { cx: 0, cy: 0, r: 7, fill: t.color }, g);
+      svgText(g, 0, 3, String(t.id), '');
+      pinItems.push({ el: g, x: p.x, y: p.y, dx: -30 - (i - 1) * 16, dy: -16 });
+    }
+  }
+  renderLift();
+  measureLabels();
+  layoutLabels();
+
+  document.getElementById('ticker').hidden = view !== 'screen';
+  renderPanel();
+}
+
+/* =====================================================================
+ * TỈNH ĐANG ĐỨNG NỔI KHỐI
+ * ===================================================================== */
+const LIFT_PX = 18;     // độ nổi trên màn hình (pixel)
+const LIFT_STEPS = 10;  // số lớp xếp chồng tạo thành khối
+
+function renderLift() {
+  layers.lift.replaceChildren();
+  if (body.dataset.view !== 'team') return;
+  const p = BY_ID[state.current];
+  const fill = state.owner[p.id] === ME ? teamOf(ME).color : `var(--tile-${p.region[0]})`;
+  const g = svgEl('g', { class: 'lift' }, layers.lift);
+  const walls = svgEl('g', { class: 'lift-walls' }, g);
+  for (let i = 0; i < LIFT_STEPS; i++) {
+    const w = svgEl('path', { class: 'lift-wall', d: p.shapeD }, walls);
+    w.style.fill = fill;
+    w.style.stroke = fill;
+  }
+  svgEl('path', { class: 'lift-top', d: p.shapeD }, g).style.fill = fill;
+  svgEl('path', { class: 'lift-shine', d: p.shapeD }, g);
+}
+
+// Độ lệch (đơn vị bản đồ) của tỉnh đang đứng ở mức zoom hiện tại
+const liftOffset = (id, k) => (body.dataset.view === 'team' && id === state.current ? LIFT_PX * k : 0);
+
+/* =====================================================================
+ * XẾP NHÃN: giữ cỡ chữ cố định trên màn hình + tránh chồng chữ
+ * ===================================================================== */
+const unionBox = (a, b) => {
+  if (!b.width && !b.height) return a;
+  const x = Math.min(a.x, b.x), y = Math.min(a.y, b.y);
+  return { x, y, width: Math.max(a.x + a.width, b.x + b.width) - x, height: Math.max(a.y + a.height, b.y + b.height) - y };
+};
+
+// Số đơn vị bản đồ trên 1 pixel màn hình ở mức zoom hiện tại
+function unitsPerPx() {
+  const r = svg.getBoundingClientRect();
+  return r.width && r.height ? Math.max(vb.w / r.width, vb.h / r.height) : 1;
+}
+
+// Nhãn quan trọng hơn được xếp trước; >= 900 luôn hiện
+function priorityOf(it) {
+  if (it.kind === 'archi') return 1000;
+  if (it.kind === 'sea') return 20;
+  if (it.kind === 'island') return 10;
+  const p = it.prov;
+  const view = body.dataset.view;
+  if (view === 'team' && p.id === state.current) return 950;
+  let pr = 100 + (GEO_BY_ID[p.id]?.areaKm2 || 0) / 1000;
+  if (p.capital) pr += 400;
+  else if (p.city) pr += 200;
+  if (view === 'team') {
+    if (state.owner[p.id] === ME) pr += 300;
+    if (ADJ.get(state.current).has(p.id)) pr += 250;
+  }
+  return pr;
+}
+
+// Đo khung nhãn (pixel, chưa zoom). Chỉ cần đo lại khi nội dung nhãn đổi.
+function measureLabels() {
+  for (const it of labelItems) {
+    it.el.classList.remove('lbl-hidden', 'lbl-compact');
+    it.full = it.el.getBBox();
+    const names = it.el.querySelector('.names');
+    it.compact = names ? unionBox(names.getBBox(), it.el.querySelector('.badges').getBBox()) : it.full;
+    it.priority = priorityOf(it);
+  }
+  labelItems.sort((a, b) => b.priority - a.priority);
+}
+
+// Đặt nhãn theo thứ tự ưu tiên: đủ chỗ → hiện đầy đủ; chật → bỏ dòng điểm; vẫn chật → ẩn (rê chuột vẫn xem được)
+// Phóng to bao nhiêu lần so với xem toàn bộ → nhãn & biểu tượng to theo, nhưng chậm hơn bản đồ
+// (căn bậc hai, tối đa 2,4 lần) để vẫn còn chỗ trống, không chồng chữ.
+const LABEL_GROW_MAX = 2.4;
+function labelScale() {
+  return Math.min(LABEL_GROW_MAX, Math.max(1, Math.sqrt(BASE.w / vb.w)));
+}
+
+function layoutLabels() {
+  if (!labelItems.length || !labelItems[0].full) return;
+  const px = unitsPerPx();       // 1 pixel màn hình = bao nhiêu đơn vị bản đồ
+  const k = px * labelScale();   // tỉ lệ cho nhãn, biểu tượng, nón lá, độ nổi khối
+  const GAP = 2;
+  for (const c of trailStops.children) c.setAttribute('r', 4 * k);
+  for (const c of layers.tiles.querySelectorAll('.islet')) c.setAttribute('r', 1.8 * px);
+  for (const { el, x, y } of stylizedEls) el.setAttribute('transform', `translate(${x} ${y}) scale(${k})`);
+  layers.shadow.setAttribute('transform', `translate(0 ${6 * px})`);
+  const placed = [];
+  const boxAt = (x, y, b) => ({
+    x0: x + (b.x - GAP) * k, y0: y + (b.y - GAP) * k,
+    x1: x + (b.x + b.width + GAP) * k, y1: y + (b.y + b.height + GAP) * k,
+  });
+  const hits = bx => placed.some(o => bx.x0 < o.x1 && bx.x1 > o.x0 && bx.y0 < o.y1 && bx.y1 > o.y0);
+
+  if (body.dataset.view === 'team') {
+    const cur = BY_ID[state.current];
+    const lift = layers.lift.firstChild;
+    if (lift) {
+      lift.querySelectorAll('.lift-wall').forEach((w, i) =>
+        w.setAttribute('transform', `translate(0 ${-(i + 1) * LIFT_PX / (LIFT_STEPS + 1) * k})`));
+      for (const el of lift.querySelectorAll('.lift-top, .lift-shine')) {
+        el.setAttribute('transform', `translate(0 ${-LIFT_PX * k})`);
+      }
+      lift.style.setProperty('--rise-from', `${LIFT_PX * k}px`);
+    }
+    const cy = cur.y - LIFT_PX * k;
+    marker.style.transform = `translate(${cur.x}px, ${cy}px) scale(${k}) translate(0px, -42px)`;
+    placed.push(boxAt(cur.x, cy, { x: -14, y: -60, width: 28, height: 26 }));
+  }
+  for (const pin of pinItems) {
+    pin.el.setAttribute('transform', `translate(${pin.x} ${pin.y}) scale(${k}) translate(${pin.dx} ${pin.dy})`);
+    placed.push(boxAt(pin.x, pin.y, { x: pin.dx - 7, y: pin.dy - 7, width: 14, height: 14 }));
+  }
+
+  for (const it of labelItems) {
+    const y = it.y - (it.prov ? liftOffset(it.prov.id, k) : 0);
+    it.el.setAttribute('transform', `translate(${it.x} ${y}) scale(${k})`);
+    let mode = 'full';
+    let bx = boxAt(it.x, y, it.full);
+    if (it.priority < 900 && hits(bx)) {
+      mode = 'compact';
+      bx = boxAt(it.x, y, it.compact);
+      if (hits(bx)) mode = 'hidden';
+    }
+    it.el.classList.toggle('lbl-compact', mode === 'compact');
+    it.el.classList.toggle('lbl-hidden', mode === 'hidden');
+    if (mode !== 'hidden') placed.push(bx);
+  }
+}
+window.addEventListener('resize', layoutLabels);
+
+/* =====================================================================
+ * PANEL BÊN PHẢI
+ * ===================================================================== */
+function h(tag, attrs = {}, ...children) {
+  const el = document.createElement(tag);
+  for (const [k, v] of Object.entries(attrs)) {
+    if (k === 'style') el.style.cssText = v;
+    else if (k.startsWith('on')) el.addEventListener(k.slice(2), v);
+    else el.setAttribute(k, v);
+  }
+  for (const c of children) el.append(c);
+  return el;
+}
+const chip = color => h('span', { class: 'chip', style: `background:${color}` });
+
+function legendCard() {
+  const items = [
+    ['var(--team-color-me)', 'Tỉnh của mình (màu team + cờ)'],
+    ['var(--accent)', 'Tỉnh đang đứng (nổi khối) / tỉnh có thể đi (viền đậm)'],
+    ['var(--taken)', 'Đã ghé, có chủ khác (cờ “?” – không biết team nào)'],
+    ['var(--fog)', 'Sương mù – chưa khám phá'],
+    ['var(--red)', 'Cạnh “không thông”: chạm nhau nhưng không giáp ranh thật'],
+    ['var(--region)', 'Viền phân chia 3 miền'],
+  ];
+  return h('div', { class: 'card' },
+    h('h2', {}, 'Chú giải'),
+    h('ul', { class: 'legend', style: `--team-color-me:${teamOf(ME).color}` },
+      ...items.map(([c, t]) => h('li', {}, chip(c), t)),
+      h('li', {}, h('span', { class: 'muted', style: 'width:14px;text-align:center' }, '⋯'), 'Đường nối: giáp ranh thật nhưng ô không chạm nhau (kiểu Lai)'),
+      h('li', {}, h('span', { style: 'display:inline-flex;align-items:center;justify-content:center;width:16px;height:16px;border-radius:50%;background:#DA251D;color:#FFCD00;font-size:11px;line-height:1' }, '★'), 'Thủ đô · ', h('span', { style: 'color:var(--accent)' }, '●'), ' Thành phố trực thuộc TW'),
+    ),
+  );
+}
+
+function checkCard() {
+  const name = id => BY_ID[id].short || BY_ID[id].name;
+  const pairList = pairs => h('ul', {}, ...pairs.map(([a, b]) => h('li', {}, `${name(a)} – ${name(b)}`)));
+  const items = [
+    h('h2', {}, 'Kiểm tra giáp ranh'),
+    h('p', {}, GEO ? `Tính tự động từ dữ liệu: ${ADJ_PAIRS.length} cặp giáp ranh` : `Bản nháp: ${ADJ_PAIRS.length} cặp giáp ranh`),
+  ];
+  if (GEO) {
+    items.push(
+      h('details', {}, h('summary', {}, `Bản nháp nhập tay bị sai ${ADJ_WRONG.length} cặp`), pairList(ADJ_WRONG)),
+      h('details', {}, h('summary', {}, `Bản nháp nhập tay bị thiếu ${ADJ_MISSED.length} cặp`), pairList(ADJ_MISSED)),
+    );
+  }
+  if (!isReal()) {
+    items.push(
+      h('details', {}, h('summary', {}, `Lục giác: ${ROADS.length} cặp cần đường nối`), pairList(ROADS.map(([a, b]) => [a.id, b.id]))),
+      h('details', {}, h('summary', {}, `Lục giác: ${NOPASS.length} cạnh “không thông”`), pairList(NOPASS.map(([a, b]) => [a.id, b.id]))),
+    );
+  }
+  return h('div', { class: 'card' }, ...items);
+}
+
+function islandsCard() {
+  return h('div', { class: 'card' },
+    h('h2', {}, 'Biển đảo'),
+    h('ul', {},
+      ...ARCHIPELAGOS.map(a => h('li', {}, h('b', {}, a.full), ` – ${a.owner}`)),
+      ...ISLANDS.map(i => h('li', {}, `${i.name} – ${i.owner}`)),
+    ),
+    h('p', { class: 'muted' }, 'Đảo chỉ để hiển thị, không phải ô chơi. Rê chuột vào đảo để xem.'),
+  );
+}
+
+function teamPanel() {
+  const mine = PROVINCES.filter(p => state.owner[p.id] === ME);
+  const score = mine.reduce((s, p) => s + p.points, 0) + 150;
+  const cur = BY_ID[state.current];
+  return [
+    h('div', { class: 'card' },
+      h('div', { class: 'team-head' }, chip(teamOf(ME).color), `Team ${teamOf(ME).name}`),
+      h('div', { class: 'stats' },
+        h('div', {}, h('b', {}, score.toLocaleString('vi-VN')), h('span', { class: 'muted' }, 'điểm')),
+        h('div', {}, h('b', {}, String(mine.length)), h('span', { class: 'muted' }, 'tỉnh')),
+        h('div', {}, h('b', {}, '23:41'), h('span', { class: 'muted' }, 'còn lại')),
+      ),
+      h('p', {}, 'Đang ở: ', h('b', {}, cur.name)),
+      h('p', { class: 'muted' }, 'Bấm vào tỉnh có viền đậm trên bản đồ (hoặc nút dưới) để di chuyển:'),
+      h('div', { class: 'btn-row' },
+        ...[...ADJ.get(state.current)].map(id => h('button', { type: 'button', onclick: () => moveTo(id) }, BY_ID[id].short || BY_ID[id].name)),
+      ),
+    ),
+    h('div', { class: 'card' },
+      h('h2', {}, 'Thử sự kiện'),
+      h('div', { class: 'btn-row' },
+        h('button', { type: 'button', 'aria-pressed': String(state.storm), onclick: () => { state.storm = !state.storm; render(); } }, '🌪️ Bão miền Nam'),
+        h('button', { type: 'button', 'aria-pressed': String(state.festival), onclick: () => { state.festival = !state.festival; render(); } }, '🏮 Lễ hội miền Trung'),
+        h('button', { type: 'button', onclick: () => { state = initialState(); render(); } }, '↺ Reset demo'),
+      ),
+    ),
+    legendCard(),
+  ];
+}
+
+const FAKE_SCORES = { 1: 1250, 2: 1050, 3: 800, 4: 1150, 5: 900, 6: 650 };
+function screenPanel() {
+  const max = Math.max(...Object.values(FAKE_SCORES));
+  return [
+    h('div', { class: 'card' },
+      h('h2', {}, 'Bảng điểm (màn chiếu)'),
+      ...TEAMS.slice().sort((a, b) => FAKE_SCORES[b.id] - FAKE_SCORES[a.id]).map(t =>
+        h('div', { class: 'score-row' },
+          chip(t.color), h('span', {}, t.name),
+          h('span', { class: 'bar', style: `background:${t.color};width:${FAKE_SCORES[t.id] / max * 100}%` }),
+          h('b', {}, FAKE_SCORES[t.id].toLocaleString('vi-VN')),
+        )),
+    ),
+    h('div', { class: 'card' },
+      h('h2', {}, 'Màn chiếu không lộ vị trí'),
+      h('p', {}, 'Bản đồ không có màu team. Khi có tin, ô liên quan nháy sóng vàng và bản tin chạy chữ bên dưới.'),
+    ),
+  ];
+}
+
+function mcPanel() {
+  return [
+    h('div', { class: 'card' },
+      h('h2', {}, 'Toàn cảnh (chỉ MC thấy)'),
+      ...TEAMS.map(t => {
+        const n = PROVINCES.filter(p => state.owner[p.id] === t.id).length;
+        return h('div', { class: 'team-head', style: 'font-size:14px;font-weight:600;margin:4px 0' },
+          chip(t.color), `${t.id}. ${t.name}`, h('span', { class: 'muted', style: 'font-weight:400' }, ` – ${n} tỉnh`));
+      }),
+      h('p', { class: 'muted' }, 'Chấm tròn có số = vị trí hiện tại của từng team.'),
+    ),
+  ];
+}
+
+function renderPanel() {
+  const view = body.dataset.view;
+  const parts = view === 'team' ? teamPanel() : view === 'screen' ? screenPanel() : mcPanel();
+  document.getElementById('panel').replaceChildren(...parts, checkCard(), islandsCard());
+}
+
+/* =====================================================================
+ * TƯƠNG TÁC
+ * ===================================================================== */
+let toastTimer;
+function toast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.hidden = false;
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => { t.hidden = true; }, 2800);
+}
+
+function burst(p, color, cls = 'burst') {
+  const c = svgEl('circle', { class: cls, cx: p.x, cy: p.y, r: SIZE * 0.8 }, layers.fx);
+  if (color) c.style.stroke = color;
+  c.addEventListener('animationend', () => c.remove());
+  setTimeout(() => c.remove(), 2000);
+}
+
+function moveTo(id) {
+  if (body.dataset.view !== 'team' || !ADJ.get(state.current).has(id)) return;
+  const p = BY_ID[id];
+  if (state.storm && p.region === 'south') {
+    toast('🌪️ Bão miền Nam! Tạm thời không thể đi vào tỉnh này.');
+    return;
+  }
+  state.current = id;
+  state.trail.push(id);
+  marker.classList.add('moving');
+  setTimeout(() => marker.classList.remove('moving'), 600);
+  const rise = () => layers.lift.firstChild?.classList.add('rise');
+  if (state.owner[id] === ME) { render(); rise(); return; }
+  state.visited.add(id);
+  render();
+  rise();
+  if (state.owner[id]) {
+    toast(`${p.name} đã có chủ! (Game thật: chọn Công thành hoặc Rút lui)`);
+    return;
+  }
+  toast(`Trạm ${p.name}: trả lời đúng → chiếm tỉnh (mockup tự chiếm sau 0,8 giây)`);
+  setTimeout(() => {
+    if (state.owner[id]) return;
+    state.owner[id] = ME;
+    render();
+    const g = lblEls[id];
+    g.classList.add('just');
+    setTimeout(() => g.classList.remove('just'), 700);
+    burst(p, teamOf(ME).color);
+  }, 800);
+}
+
+// Nút chọn kiểu / phong cách / màn hình
+for (const group of document.querySelectorAll('.seg-buttons')) {
+  const key = group.dataset.key;
+  const sync = () => {
+    for (const b of group.querySelectorAll('button')) b.setAttribute('aria-pressed', String(b.dataset.value === body.dataset[key]));
+  };
+  group.addEventListener('click', e => {
+    const b = e.target.closest('button');
+    if (!b) return;
+    body.dataset[key] = b.dataset.value;
+    sync();
+    if (key === 'style') build();
+    render();
+  });
+  sync();
+}
+
+// Click / bàn phím trên tỉnh
+let dragged = false;
+svg.addEventListener('click', e => {
+  if (dragged) return;
+  const g = e.target.closest('.prov');
+  if (g) moveTo(g.dataset.id);
+});
+svg.addEventListener('keydown', e => {
+  if (e.key !== 'Enter' && e.key !== ' ') return;
+  const g = e.target.closest('.prov');
+  if (g) { e.preventDefault(); moveTo(g.dataset.id); }
+});
+
+// Tooltip
+const tip = document.getElementById('tooltip');
+const wrap = document.getElementById('mapWrap');
+function showTip(e, title, lines) {
+  tip.replaceChildren(h('strong', {}, title), ...lines.map(([t, muted]) => h('div', muted ? { class: 'muted' } : {}, t)));
+  tip.hidden = false;
+  const r = wrap.getBoundingClientRect();
+  let x = e.clientX - r.left + 14, y = e.clientY - r.top + 14;
+  if (x + 250 > r.width) x -= 270;
+  tip.style.left = `${x}px`;
+  tip.style.top = `${y}px`;
+}
+svg.addEventListener('pointermove', e => {
+  if (pan) { tip.hidden = true; return; }
+  const prov = e.target.closest('.prov');
+  const isl = e.target.closest('[data-island]');
+  const archi = e.target.closest('[data-archi]');
+  if (prov) {
+    const p = BY_ID[prov.dataset.id];
+    const view = body.dataset.view;
+    const lines = [
+      [`${REGION_NAME[p.region]} · ${p.points} điểm`, true],
+      [p.merged.length > 1 ? `Hợp nhất từ: ${p.merged.join(', ')}` : 'Giữ nguyên, không sáp nhập'],
+    ];
+    if (view === 'team' && !knownSet().has(p.id)) lines.push(['☁ Chưa khám phá', true]);
+    else if (view === 'mc' && state.owner[p.id]) lines.push([`Chủ: Team ${teamOf(state.owner[p.id]).name}`]);
+    showTip(e, p.name, lines);
+  } else if (isl) {
+    const i = [...ISLAND_GEO, ...ISLANDS].find(x => x.name === isl.dataset.island);
+    showTip(e, `Đảo ${i.name}`, [[`Thuộc ${i.owner}`, true]]);
+  } else if (archi) {
+    const a = [...ARCHI_GEO, ...ARCHIPELAGOS].find(x => x.name === archi.dataset.archi);
+    showTip(e, a.full, [[`Thuộc ${a.owner}`, true]]);
+  } else {
+    tip.hidden = true;
+  }
+});
+svg.addEventListener('pointerleave', () => { tip.hidden = true; });
+
+// Zoom & kéo bản đồ
+const setVB = () => {
+  svg.setAttribute('viewBox', `${vb.x} ${vb.y} ${vb.w} ${vb.h}`);
+  layoutLabels();
+};
+function toUser(clientX, clientY) {
+  const pt = new DOMPoint(clientX, clientY).matrixTransform(svg.getScreenCTM().inverse());
+  return { x: pt.x, y: pt.y };
+}
+function zoom(f, cx = vb.x + vb.w / 2, cy = vb.y + vb.h / 2) {
+  const nw = Math.min(Math.max(vb.w * f, BASE.w * 0.2), BASE.w * 1.5);
+  const k = nw / vb.w;
+  vb = { x: cx - (cx - vb.x) * k, y: cy - (cy - vb.y) * k, w: nw, h: vb.h * k };
+  setVB();
+}
+svg.addEventListener('wheel', e => {
+  e.preventDefault();
+  const u = toUser(e.clientX, e.clientY);
+  zoom(e.deltaY > 0 ? 1.15 : 1 / 1.15, u.x, u.y);
+}, { passive: false });
+document.getElementById('zoomIn').addEventListener('click', () => zoom(1 / 1.3));
+document.getElementById('zoomOut').addEventListener('click', () => zoom(1.3));
+document.getElementById('zoomReset').addEventListener('click', () => { vb = { ...BASE }; setVB(); });
+document.getElementById('zoomTeam').addEventListener('click', () => {
+  const p = BY_ID[state.current];
+  const w = BASE.w * 0.35, hgt = BASE.h * 0.35;
+  vb = { x: p.x - w / 2, y: p.y - hgt / 2, w, h: hgt };
+  setVB();
+});
+
+let pan = null;
+svg.addEventListener('pointerdown', e => {
+  dragged = false;
+  pan = { x: e.clientX, y: e.clientY, vb: { ...vb }, id: e.pointerId };
+});
+svg.addEventListener('pointermove', e => {
+  if (!pan) return;
+  const dx = e.clientX - pan.x, dy = e.clientY - pan.y;
+  if (!dragged && Math.hypot(dx, dy) < 4) return;
+  if (!dragged) {
+    dragged = true;
+    svg.setPointerCapture(pan.id);
+    svg.classList.add('dragging');
+  }
+  const scale = 1 / svg.getScreenCTM().a;
+  vb = { ...pan.vb, x: pan.vb.x - dx * scale, y: pan.vb.y - dy * scale };
+  setVB();
+});
+const endPan = () => {
+  pan = null;
+  svg.classList.remove('dragging');
+  setTimeout(() => { dragged = false; }, 0);
+};
+svg.addEventListener('pointerup', endPan);
+svg.addEventListener('pointercancel', endPan);
+
+// Màn chiếu: tin giả lập
+const news = ['Trận đấu đã bắt đầu! Chúc các đội may mắn!'];
+document.getElementById('tickerText').textContent = `📢 ${news[0]}`;
+setInterval(() => {
+  if (body.dataset.view !== 'screen') return;
+  const p = PROVINCES[Math.floor(Math.random() * PROVINCES.length)];
+  burst(p, null, 'ripple');
+  const msgs = [`Một đội vừa chiếm ${p.name}!`, `${p.name} vừa đổi chủ!`, `Có đội đang công thành ${p.name}!`];
+  news.unshift(msgs[Math.floor(Math.random() * msgs.length)]);
+  news.length = Math.min(news.length, 5);
+  document.getElementById('tickerText').textContent = `📢 ${news.join('   ·   ')}`;
+}, 2600);
+
+build();
+render();
+</script>
+</body>
+</html>

@@ -1,0 +1,470 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mockup: công thành</title>
+<!-- Dùng CSS thật của app (nút/thẻ/thông báo sticker) — trang này chỉ thêm phần dàn cảnh + hiệu ứng công thành -->
+<link rel="stylesheet" href="../public/style.css">
+<style>
+@font-face { font-family: "Nunito"; src: url("../public/fonts/nunito.ttf") format("truetype"); font-weight: 200 1000; }
+html, body { height: auto; }
+.picker { position: sticky; top: 0; z-index: 30; display: flex; flex-wrap: wrap; gap: 10px 16px; align-items: center; padding: 12px 24px; background: #fff; border-bottom: 2px solid var(--line); }
+.picker h1 { color: var(--green); font-size: 20px; font-weight: 900; }
+.seg { display: flex; gap: 6px; align-items: center; color: var(--muted); font-weight: 800; font-size: 14px; }
+.seg button { font: 800 14px var(--font); padding: 5px 12px; border-radius: 10px; border: 2px solid var(--line); background: #fff; color: var(--ink); cursor: pointer; }
+.seg button[aria-pressed="true"] { background: var(--blue); border-color: var(--blue-dark); color: #fff; }
+.intro { max-width: 1240px; margin: 16px auto 0; padding: 0 24px; color: var(--muted); }
+.intro b { color: var(--ink); }
+.tiles { max-width: 1240px; margin: 0 auto; padding: 20px 24px 60px; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 28px; }
+@media (max-width: 900px) { .tiles { grid-template-columns: 1fr; } }
+.tile.wide { grid-column: 1 / -1; }
+.tile h2 { display: flex; align-items: center; gap: 8px; }
+.tile .num { display: inline-grid; place-items: center; width: 26px; height: 26px; border-radius: 50%; background: var(--green); color: #fff; font-size: 14px; }
+.tile .when { margin: 2px 0 10px; color: var(--muted); font-size: 14px; }
+.tile .how { margin: 10px 0 0; font-size: 14px; }
+.tile .how li { margin: 2px 0; }
+.tile-foot { display: flex; flex-wrap: wrap; gap: 10px; justify-content: flex-end; align-items: center; margin-top: 10px; }
+.tile-foot .seg { margin-right: auto; }
+
+.stage { position: relative; height: 340px; overflow: hidden; border-radius: 16px 20px 15px 19px / 19px 15px 20px 16px; background: var(--map-bg); cursor: pointer; }
+.stage.tall { height: 400px; }
+.stage svg.map { position: absolute; inset: 0; width: 100%; height: 100%; }
+.mprov { stroke: #fff; stroke-width: 3px; stroke-linejoin: round; vector-effect: non-scaling-stroke; fill-rule: evenodd; }
+.mprov.dim { opacity: .45; }
+.mprov.target { stroke-width: 4px; }
+.mlabel { font: 900 9px var(--font); text-anchor: middle; paint-order: stroke; stroke: #fff; stroke-width: 2.4px; stroke-linejoin: round; fill: var(--ink); }
+.fx { transform-box: fill-box; transform-origin: center; }
+.layer { position: absolute; inset: 0; pointer-events: none; }
+.veil { position: absolute; inset: 0; background: rgba(40, 40, 60, .28); opacity: 0; }
+
+/* Huy hiệu đội: linh vật thật của đội mình; đối thủ luôn ẩn danh ("?") — luật: không biết đội nào */
+.badge { position: absolute; display: grid; justify-items: center; gap: 6px; width: 120px; margin-left: -60px; }
+.badge .disc { position: relative; display: grid; place-items: center; width: 92px; height: 92px; border-radius: 50%; background: #fff; box-shadow: 0 0 0 4px #fff, 0 6px 0 4px rgba(0, 0, 0, .12); }
+.badge .disc svg { width: 84px; height: 84px; }
+.badge.small { width: 64px; margin-left: -32px; gap: 2px; }
+.badge.small .disc { width: 40px; height: 40px; box-shadow: 0 0 0 3px #fff, 0 3px 0 3px rgba(0, 0, 0, .1); }
+.badge.small .disc svg { width: 36px; height: 36px; }
+.mystery { display: grid; place-items: center; width: 84px; height: 84px; border-radius: 50%; background: #6B7280; color: #fff; font: 900 50px/1 var(--font); }
+.badge.small .mystery { width: 36px; height: 36px; font-size: 22px; }
+.badge .who { padding: 2px 10px; border-radius: 9px 12px 8px 11px; background: #fff; font-weight: 900; font-size: 14px; white-space: nowrap; box-shadow: 0 2px 0 rgba(0, 0, 0, .08); }
+.badge.small .who { display: none; }
+
+/* Phương án A — hai nửa màn hình chéo lao vào nhau */
+.half { position: absolute; top: -10%; bottom: -10%; width: 62%; }
+.half.l { left: -6%; background: var(--team); transform-origin: right center; }
+.half.r { right: -6%; background: #565C66; }
+.half::after { content: ""; position: absolute; inset: 0; opacity: .14; background: repeating-linear-gradient(-60deg, #fff 0 2px, transparent 2px 22px); }
+.half .badge { top: 32%; }
+.half.l .badge { left: 34%; }
+.half.r .badge { left: 64%; }
+.half .badge .who { color: var(--ink); }
+.vs { position: absolute; left: 50%; top: 42%; width: 104px; height: 104px; margin: -52px 0 0 -52px; display: grid; place-items: center;
+  border-radius: 46% 54% 50% 50% / 52% 46% 54% 48%; background: var(--accent); color: #fff; font: 900 46px/1 var(--font); letter-spacing: -2px;
+  box-shadow: 0 0 0 5px #fff, 0 7px 0 5px var(--accent-dark); text-shadow: 0 3px 0 var(--accent-dark); }
+.caption-x { position: absolute; left: 50%; bottom: 26px; translate: -50% 0; white-space: nowrap; }
+.caption-x .alert-lost { position: static; transform: none; animation: none; }
+.caption-x.calm .alert-lost { --fill: #fff; --bd: #FFB3B3; color: var(--red-dark); }
+.spark { position: absolute; width: 14px; height: 14px; margin: -7px 0 0 -7px; border-radius: 3px; background: var(--accent); }
+.spark.w { background: #fff; }
+.slash { position: absolute; left: 50%; top: -10%; bottom: -10%; width: 12px; margin-left: -6px; background: #fff; transform: skewX(-12deg); opacity: 0; }
+
+/* Phương án B — hai lá cờ cắm vào tỉnh, giành nhau */
+.sflag { position: absolute; width: 0; height: 0; }
+.sflag .pole { position: absolute; left: -3px; bottom: 0; width: 6px; height: 110px; border-radius: 3px; background: #8D6E63; box-shadow: 0 0 0 2px #fff; }
+.sflag .cloth { position: absolute; bottom: 50px; width: 74px; height: 56px; display: grid; place-items: center; background: var(--team); box-shadow: 0 0 0 3px #fff, 0 4px 0 3px rgba(0, 0, 0, .12); }
+.sflag.l .cloth { left: 3px; border-radius: 4px 14px 10px 4px / 4px 10px 14px 4px; }
+.sflag.r .cloth { right: 3px; border-radius: 14px 4px 4px 10px / 10px 4px 4px 14px; background: #565C66; }
+.sflag .cloth svg { width: 44px; height: 44px; }
+.sflag .cloth .mystery { width: 40px; height: 40px; font-size: 26px; background: transparent; }
+.flag-who { position: absolute; bottom: 116px; translate: -50% 0; white-space: nowrap; font-weight: 900; font-size: 13px; padding: 1px 8px; border-radius: 8px 11px 7px 10px; background: #fff; }
+.dust { position: absolute; width: 22px; height: 22px; margin: -11px 0 0 -11px; border-radius: 50%; background: #fff; opacity: 0; }
+
+/* Phương án C + thanh đấu trong khung câu hỏi: kéo co */
+.tug { position: absolute; left: 6%; right: 6%; top: 44%; height: 0; }
+.tug .rope { position: absolute; left: 40px; right: 40px; top: -5px; height: 10px; border-radius: 5px;
+  background: repeating-linear-gradient(-45deg, #C8992F 0 6px, #E5B95A 6px 12px); box-shadow: 0 0 0 3px #fff; }
+.tug .knot { position: absolute; left: 50%; top: -22px; width: 0; }
+.tug .knot i { position: absolute; left: -9px; top: 0; width: 18px; height: 44px; border-radius: 6px; background: var(--red); box-shadow: 0 0 0 3px #fff; }
+.tug .mid { position: absolute; left: 50%; top: -34px; bottom: -34px; width: 0; border-left: 3px dashed rgba(60, 60, 60, .25); }
+.tug .badge { top: -60px; }
+.tug .badge.l { left: 40px; }
+.tug .badge.r { left: calc(100% - 40px); }
+
+/* Khung câu hỏi thu nhỏ có thanh đấu tay đôi */
+.qwrap { position: absolute; inset: 14px 18px; display: grid; grid-template-rows: auto auto 1fr; }
+.duelbar { position: relative; display: grid; grid-template-columns: 64px 1fr 64px; align-items: center; gap: 4px; padding: 6px 4px 8px; margin: 2px 0 6px; }
+.duelbar .lane { position: relative; height: 54px; }
+.duelbar .tug { left: 0; right: 0; top: 50%; }
+.duelbar .tug .rope { left: 0; right: 0; height: 8px; top: -4px; }
+.duelbar .tug .knot { top: -16px; }
+.duelbar .tug .knot i { height: 32px; width: 14px; left: -7px; }
+.duelbar .badge.small { position: relative; left: auto; margin: 0; }
+.duelbar .state { position: absolute; top: -2px; left: 50%; translate: -50% -100%; white-space: nowrap; font-size: 11px; font-weight: 900; color: var(--muted); }
+.duelbar .state.r { left: auto; right: 0; translate: 0 -100%; }
+.duelbar .state.l { left: 0; translate: 0 -100%; }
+.dots i { display: inline-block; width: 5px; height: 5px; margin: 0 1px; border-radius: 50%; background: currentColor; animation: dot 1s infinite ease-in-out; }
+.dots i:nth-child(2) { animation-delay: .15s; }
+.dots i:nth-child(3) { animation-delay: .3s; }
+@keyframes dot { 0%, 60%, 100% { transform: translateY(0); } 30% { transform: translateY(-4px); } }
+.qwrap .q-text { margin: 4px 0 10px; font-size: 16px; }
+.qwrap .options { gap: 8px; grid-template-columns: 1fr 1fr; }
+.qwrap .options .btn { min-height: 40px; font-size: 14px; }
+.miss { color: var(--green-dark); }
+
+.result-x { position: absolute; left: 50%; top: 50%; translate: -50% -50%; display: grid; justify-items: center; gap: 6px; text-align: center; white-space: nowrap; }
+.result-x h3 { font-size: 30px; font-weight: 900; color: var(--green); paint-order: stroke; -webkit-text-stroke: 6px #fff; }
+.result-x.bad h3 { color: var(--red); }
+.result-x b { color: var(--orange); font-size: 20px; font-weight: 900; paint-order: stroke; -webkit-text-stroke: 5px #fff; }
+.result-x p { margin: 0; font-weight: 900; color: var(--ink); paint-order: stroke; -webkit-text-stroke: 5px #fff; }
+.bigicon { position: absolute; width: 96px; height: 96px; margin: -48px 0 0 -48px; }
+.bigicon svg { width: 100%; height: 100%; }
+.notes { font-size: 14px; color: var(--muted); margin-top: 6px; }
+.notes b { color: var(--ink); }
+</style>
+</head>
+<body>
+<svg class="hand-defs" width="0" height="0" aria-hidden="true">
+  <filter id="hand-wob-s" x="-20%" y="-60%" width="140%" height="220%"><feTurbulence type="fractalNoise" baseFrequency="0.05" numOctaves="1" seed="5" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="2.2" xChannelSelector="R" yChannelSelector="G"/></filter>
+  <filter id="hand-wob2" x="-20%" y="-60%" width="140%" height="220%"><feTurbulence type="fractalNoise" baseFrequency="0.04" numOctaves="2" seed="11" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="4" xChannelSelector="R" yChannelSelector="G"/></filter>
+  <filter id="hand-ic-wob" x="-15%" y="-15%" width="130%" height="130%"><feTurbulence type="fractalNoise" baseFrequency="0.16" numOctaves="1" seed="3" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="1.3" xChannelSelector="R" yChannelSelector="G"/></filter>
+</svg>
+
+<header class="picker">
+  <h1>Mockup: công thành</h1>
+  <button class="btn green" type="button" id="playAll">Phát tất cả</button>
+  <div class="seg" role="group" aria-label="Góc nhìn">Góc nhìn
+    <button type="button" data-view="atk" aria-pressed="true">Đội công thành</button>
+    <button type="button" data-view="def">Đội giữ tỉnh</button>
+  </div>
+  <div class="seg" role="group" aria-label="Tốc độ">Tốc độ
+    <button type="button" data-rate="1" aria-pressed="true">1×</button>
+    <button type="button" data-rate="0.5">0,5×</button>
+    <button type="button" data-rate="0.25">0,25×</button>
+  </div>
+</header>
+<p class="intro">Ví dụ: <b>Team Lân</b> công thành <b>Nghệ An</b> (đang của Team Rùa). Đổi <b>Góc nhìn</b> để xem màn của đội giữ tỉnh.
+  Theo luật, <b>đối thủ luôn hiện ẩn danh "?"</b> (đội công thành không biết ai giữ tỉnh, đội giữ tỉnh không biết ai đánh) — chỉ đội mình hiện linh vật thật.
+  Bấm vào khung để phát lại. Chỉ dùng <b>transform + opacity</b>, tắt khi máy bật "giảm chuyển động".</p>
+
+<main class="tiles">
+  <section class="tile wide card">
+    <h2><span class="num">1</span> Mở màn: hai đội đối đầu</h2>
+    <p class="when">Ngay khi bấm "Công thành" (đội công thành) / khi khung Phòng thủ bật lên (đội giữ tỉnh). Dài ~2 giây, rồi khung câu hỏi trượt vào.</p>
+    <div class="stage tall" id="s1"></div>
+    <div class="tile-foot">
+      <div class="seg" role="group" aria-label="Phương án">Phương án
+        <button type="button" data-opt="A" aria-pressed="true">A · Đối mặt (VS)</button>
+        <button type="button" data-opt="B">B · Giành cờ trên tỉnh</button>
+        <button type="button" data-opt="C">C · Kéo co</button>
+      </div>
+      <button class="btn" type="button" data-play="s1">Phát lại</button>
+    </div>
+    <ul class="how" id="how1"></ul>
+  </section>
+
+  <section class="tile wide card">
+    <h2><span class="num">2</span> Trong lúc đấu: thanh kéo co trên khung câu hỏi</h2>
+    <p class="when">Thay nhãn "Đấu tay đôi" hiện tại bằng thanh này. Hai đội ở hai đầu dây; đồng hồ 45 giây chạy thì dây giằng qua lại.
+      Đối thủ trả lời sai → nút dây trượt hẳn về phía mình + "Đối thủ trượt rồi!" (đội giữ tỉnh: dòng xanh "trả lời đúng vẫn được +50").</p>
+    <div class="stage" id="s2"></div>
+    <div class="tile-foot"><button class="btn" type="button" data-play="s2">Phát lại</button></div>
+  </section>
+
+  <section class="tile card">
+    <h2><span class="num">3</span> Kết quả: công thành thắng</h2>
+    <p class="when" id="w3"></p>
+    <div class="stage" id="s3"></div>
+    <div class="tile-foot"><button class="btn" type="button" data-play="s3">Phát lại</button></div>
+  </section>
+
+  <section class="tile card">
+    <h2><span class="num">4</span> Kết quả: đội giữ tỉnh thắng</h2>
+    <p class="when" id="w4"></p>
+    <div class="stage" id="s4"></div>
+    <div class="tile-foot"><button class="btn" type="button" data-play="s4">Phát lại</button></div>
+  </section>
+</main>
+
+<script src="map-data.js"></script>
+<script src="siege-data.js"></script>
+<script>
+const { mascots: MASCOT, icons: ICON } = window.SIEGE_DATA
+const NS = 'http://www.w3.org/2000/svg'
+const TARGET = 'nghe-an'
+const NORTH = new Set(['ha-noi', 'cao-bang', 'tuyen-quang', 'dien-bien', 'lai-chau', 'son-la', 'lao-cai', 'thai-nguyen', 'lang-son', 'quang-ninh', 'bac-ninh', 'phu-tho', 'hai-phong', 'hung-yen', 'ninh-binh'])
+const CENTRAL = new Set(['thanh-hoa', 'nghe-an', 'ha-tinh', 'quang-tri', 'hue', 'da-nang', 'quang-ngai', 'gia-lai', 'khanh-hoa', 'dak-lak', 'lam-dong'])
+const TEAMS = {
+  atk: { me: { name: 'Lân', color: '#E67E22' }, myLabel: 'Đội bạn', foeLabel: 'Chủ tỉnh' },
+  def: { me: { name: 'Rùa', color: '#27AE60' }, myLabel: 'Đội bạn', foeLabel: 'Đội lạ' },
+}
+let view = 'atk', rate = 1, opt = 'A'
+const T = () => TEAMS[view]
+const rm = (tag, attrs = {}, html = '') => { const e = document.createElement(tag); for (const [k, v] of Object.entries(attrs)) e.setAttribute(k, v); e.innerHTML = html; return e }
+const play = (el, frames, o = {}) => el.animate(frames, { fill: 'both', easing: 'cubic-bezier(.2, .8, .3, 1)', ...o })
+const BOUNCE = 'cubic-bezier(.3, 1.6, .5, 1)'
+const all = new Set()
+function A(el, frames, o) { const a = play(el, frames, o); a.playbackRate = rate; all.add(a); return a }
+
+// ---------- Bản đồ thu nhỏ quanh Nghệ An ----------
+const P = window.MAP_DATA.provinces
+const byId = new Map(P.map(p => [p.id, p]))
+function bboxOf(d) {
+  const n = d.match(/-?\d+(\.\d+)?/g).map(Number); let x0 = 1e9, y0 = 1e9, x1 = -1e9, y1 = -1e9
+  for (let i = 0; i < n.length; i += 2) { x0 = Math.min(x0, n[i]); x1 = Math.max(x1, n[i]); y0 = Math.min(y0, n[i + 1]); y1 = Math.max(y1, n[i + 1]) }
+  return [x0, y0, x1, y1]
+}
+const tb = bboxOf(byId.get(TARGET).d)
+function mapSvg(stage, { mine = false } = {}) {
+  const W = stage.clientWidth, H = stage.clientHeight
+  const cx = (tb[0] + tb[2]) / 2, cy = (tb[1] + tb[3]) / 2, span = Math.max(tb[2] - tb[0], (tb[3] - tb[1]) * W / H) * 1.9
+  const vw = span, vh = span * H / W
+  const svg = document.createElementNS(NS, 'svg')
+  svg.setAttribute('class', 'map'); svg.setAttribute('viewBox', `${cx - vw / 2} ${cy - vh / 2} ${vw} ${vh}`)
+  for (const p of P) {
+    const path = document.createElementNS(NS, 'path')
+    path.setAttribute('d', p.d)
+    path.setAttribute('class', `mprov fx${p.id === TARGET ? ' target' : ' dim'}`)
+    path.setAttribute('fill', p.id === TARGET ? (mine ? T().me.color : '#AFAFAF') : NORTH.has(p.id) ? '#FFC2D1' : CENTRAL.has(p.id) ? '#F6CD72' : '#FFE65C')
+    if (p.id === TARGET) path.id = `${stage.id}-target`
+    svg.append(path)
+  }
+  const t = byId.get(TARGET), label = document.createElementNS(NS, 'text')
+  label.setAttribute('class', 'mlabel'); label.setAttribute('x', t.label[0]); label.setAttribute('y', t.label[1] + 12); label.textContent = t.name
+  svg.append(label)
+  stage.append(svg)
+  // Toạ độ màn hình của tâm tỉnh (để đặt cờ / khiên)
+  const k = W / vw
+  return { x: (t.label[0] - (cx - vw / 2)) * k, y: (t.label[1] - (cy - vh / 2)) * k, path: svg.querySelector('.target') }
+}
+const myDisc = () => MASCOT[T().me.name]
+const foeDisc = '<span class="mystery">?</span>'
+function badge(side, small = false) {
+  const me = side === 'me'
+  const b = rm('div', { class: `badge${small ? ' small' : ''}` },
+    `<div class="disc">${me ? myDisc() : foeDisc}</div><div class="who">${me ? T().myLabel : T().foeLabel}</div>`)
+  return b
+}
+function sparks(box, x, y, n = 10, spread = 90) {
+  for (let i = 0; i < n; i++) {
+    const s = rm('i', { class: `spark${i % 3 ? '' : ' w'}` }); s.style.left = `${x}px`; s.style.top = `${y}px`; box.append(s)
+    const a = Math.random() * Math.PI * 2, d = spread * (.5 + Math.random() * .6)
+    A(s, [{ transform: 'scale(0) rotate(0)', opacity: 1 }, { transform: `translate(${Math.cos(a) * d}px, ${Math.sin(a) * d}px) scale(1) rotate(${200 + Math.random() * 200}deg)`, opacity: 1, offset: .7 },
+      { transform: `translate(${Math.cos(a) * d * 1.15}px, ${Math.sin(a) * d * 1.15 + 20}px) scale(.4) rotate(420deg)`, opacity: 0 }], { duration: 700 })
+  }
+}
+function shake(el, amp = 8, delay = 0) {
+  A(el, [0, -amp, amp * .8, -amp * .5, amp * .3, 0].map(x => ({ transform: `translate(${x}px, ${x * .3}px)` })), { duration: 380, delay, easing: 'linear', fill: 'none' })
+}
+function captionX(stage, html, cls = '') {
+  const c = rm('div', { class: `caption-x ${cls}` }, `<div class="alert-lost">${html}</div>`); stage.append(c); return c
+}
+
+// ---------- 1. Mở màn ----------
+const HOW = {
+  A: ['Màn hình tối nhẹ; hai nửa chéo (màu đội mình ← → xám "?") lao vào giữa, chạm nhau thì cả khung rung + tia lửa.',
+      'Con dấu "VS" đóng xuống giữa, dải chữ "Công thành Nghệ An!" (đội giữ tỉnh: "Nghệ An đang bị công thành!") bật lên.',
+      'Giữ ~1 giây rồi hai nửa tách ra, huy hiệu thu nhỏ bay lên chỗ thanh kéo co của khung câu hỏi (mục 2). Kịch tính nhất, che bản đồ ~2 giây.'],
+  B: ['Không che bản đồ: camera đã bay tới tỉnh, hai lá cờ (cờ đội mình + cờ xám "?") rơi cắm xuống hai bên tỉnh, bụi bay.',
+      'Hai cờ nghiêng vào nhau va 3 nhịp, mỗi nhịp tóe tia lửa; tỉnh nhấp nháy viền đỏ.',
+      'Nhẹ nhàng hơn A, giữ được ngữ cảnh "đang giành tỉnh nào". Cờ có thể giữ nguyên trên bản đồ suốt lượt đấu.'],
+  C: ['Sợi dây kéo co căng ngang màn, hai huy hiệu ở hai đầu giật dây qua lại, nút đỏ ở giữa lắc.',
+      'Dải chữ bật lên rồi cả cụm thu nhỏ thành thanh kéo co trên khung câu hỏi — mở màn và thanh đấu (mục 2) là một hình ảnh liền mạch.',
+      'Đơn giản, dễ hiểu luật "ai đúng trước thắng" nhất.'],
+}
+function intro(stage) {
+  const pos = mapSvg(stage, { mine: view === 'def' })
+  const veil = rm('div', { class: 'veil' }); stage.append(veil)
+  const L = rm('div', { class: 'layer' }); stage.append(L)
+  const cap = view === 'atk' ? `Công thành Nghệ An!` : `Nghệ An đang bị công thành!`
+  const W = stage.clientWidth
+  if (opt === 'A') {
+    A(veil, [{ opacity: 0 }, { opacity: 1 }], { duration: 250 })
+    const l = rm('div', { class: 'half l' }), r = rm('div', { class: 'half r' })
+    l.style.setProperty('--team', T().me.color)
+    l.append(badge('me')); r.append(badge('foe'))
+    L.append(l, r)
+    const slash = rm('div', { class: 'slash' }); L.append(slash)
+    A(l, [{ transform: 'translateX(-110%) skewX(-12deg)' }, { transform: 'translateX(0) skewX(-12deg)' }], { duration: 380, easing: 'cubic-bezier(.5, 0, .9, .6)' })
+    A(r, [{ transform: 'translateX(110%) skewX(-12deg)' }, { transform: 'translateX(0) skewX(-12deg)' }], { duration: 380, easing: 'cubic-bezier(.5, 0, .9, .6)' })
+    for (const [h, d] of [[l, -1], [r, 1]]) A(h.querySelector('.badge'), [{ transform: `translateX(${d * 60}px) scale(.6) skewX(12deg)` }, { transform: 'translateX(0) scale(1) skewX(12deg)' }], { duration: 500, delay: 280, easing: BOUNCE })
+    A(slash, [{ opacity: 0 }, { opacity: 1, offset: .2 }, { opacity: 0 }], { duration: 400, delay: 370 })
+    shake(stage, 10, 380)
+    setTimeout(() => sparks(L, W / 2, stage.clientHeight * .42, 14, 110), 380 / rate)
+    const vs = rm('div', { class: 'vs' }, 'VS'); L.append(vs)
+    A(vs, [{ transform: 'scale(2.6) rotate(-30deg)', opacity: 0 }, { transform: 'scale(1) rotate(-8deg)', opacity: 1 }], { duration: 380, delay: 450, easing: BOUNCE })
+    const c = captionX(L, cap)
+    A(c, [{ transform: 'translateY(80px) rotate(4deg)', opacity: 0 }, { transform: 'translateY(0) rotate(-2deg)', opacity: 1 }], { duration: 420, delay: 650, easing: BOUNCE })
+    // Rời màn: tách ra hai bên
+    const out = 1900
+    A(l, [{ transform: 'translateX(0) skewX(-12deg)' }, { transform: 'translateX(-115%) skewX(-12deg)' }], { duration: 420, delay: out, easing: 'cubic-bezier(.6, 0, .8, .4)', fill: 'forwards', composite: 'replace' })
+    A(r, [{ transform: 'translateX(0) skewX(-12deg)' }, { transform: 'translateX(115%) skewX(-12deg)' }], { duration: 420, delay: out, easing: 'cubic-bezier(.6, 0, .8, .4)', fill: 'forwards' })
+    for (const e of [vs, c, veil]) A(e, [{ opacity: 1 }, { opacity: 0 }], { duration: 250, delay: out, fill: 'forwards' })
+  } else if (opt === 'B') {
+    A(pos.path, [{ transform: 'scale(1)' }, { transform: 'scale(1.06)', offset: .5 }, { transform: 'scale(1)' }], { duration: 500, iterations: 3, delay: 500 })
+    const gap = 95
+    const mk = (side, x) => {
+      const f = rm('div', { class: `sflag ${side}` }); f.style.left = `${x}px`; f.style.top = `${pos.y + 30}px`
+      f.style.setProperty('--team', T().me.color)
+      f.innerHTML = `<div class="pole"></div><div class="cloth">${side === 'l' ? myDisc() : foeDisc}</div><div class="flag-who">${side === 'l' ? T().myLabel : T().foeLabel}</div>`
+      f.querySelector('.flag-who').style.left = side === 'l' ? '40px' : '-40px'
+      L.append(f); return f
+    }
+    const fl = mk('l', pos.x - gap), fr = mk('r', pos.x + gap)
+    A(fl, [{ transform: 'translateY(-300px) rotate(-20deg)' }, { transform: 'translateY(0) rotate(0)' }], { duration: 420, easing: 'cubic-bezier(.6, 0, .9, .5)' })
+    A(fr, [{ transform: 'translateY(-300px) rotate(20deg)' }, { transform: 'translateY(0) rotate(0)' }], { duration: 420, delay: 120, easing: 'cubic-bezier(.6, 0, .9, .5)' })
+    for (const [x, d] of [[pos.x - gap, 0], [pos.x + gap, 120]]) {
+      for (let i = 0; i < 4; i++) {
+        const s = rm('i', { class: 'dust' }); s.style.left = `${x}px`; s.style.top = `${pos.y + 30}px`; L.append(s)
+        const dir = i < 2 ? -1 : 1
+        A(s, [{ transform: 'translate(0,0) scale(.3)', opacity: .9 }, { transform: `translate(${dir * (20 + i * 8)}px, -${6 + i * 3}px) scale(1.2)`, opacity: 0 }], { duration: 500, delay: 420 + d })
+      }
+    }
+    // 3 nhịp va nhau: nghiêng vào giữa rồi bật ra
+    for (let k = 0; k < 3; k++) {
+      const t0 = 700 + k * 380
+      A(fl, [{ transform: 'rotate(0)' }, { transform: 'rotate(16deg)', offset: .45 }, { transform: 'rotate(-6deg)', offset: .75 }, { transform: 'rotate(0)' }], { duration: 360, delay: t0, fill: 'none', easing: 'ease-in-out' })
+      A(fr, [{ transform: 'rotate(0)' }, { transform: 'rotate(-16deg)', offset: .45 }, { transform: 'rotate(6deg)', offset: .75 }, { transform: 'rotate(0)' }], { duration: 360, delay: t0, fill: 'none', easing: 'ease-in-out' })
+      setTimeout(() => sparks(L, pos.x, pos.y - 70, 8, 60), (t0 + 160) / rate)
+    }
+    for (const f of [fl, fr]) f.style.transformOrigin = '0 0'
+    const c = captionX(L, cap, 'calm')
+    A(c, [{ transform: 'translateY(80px)', opacity: 0 }, { transform: 'translateY(0) rotate(-2deg)', opacity: 1 }], { duration: 420, delay: 600, easing: BOUNCE })
+  } else {
+    A(veil, [{ opacity: 0 }, { opacity: .6 }], { duration: 250 })
+    const tug = rm('div', { class: 'tug' }, '<div class="mid"></div><div class="rope"></div><div class="knot"><i></i></div>')
+    const bl = badge('me'), br = badge('foe'); bl.classList.add('l'); br.classList.add('r')
+    tug.append(bl, br); L.append(tug)
+    const rope = [tug.querySelector('.rope'), tug.querySelector('.knot')]
+    A(tug, [{ transform: 'scaleX(.2)', opacity: 0 }, { transform: 'scaleX(1)', opacity: 1 }], { duration: 450, easing: BOUNCE })
+    A(bl, [{ transform: 'translateX(-120px)' }, { transform: 'translateX(0)' }], { duration: 450, delay: 150, easing: BOUNCE })
+    A(br, [{ transform: 'translateX(120px)' }, { transform: 'translateX(0)' }], { duration: 450, delay: 150, easing: BOUNCE })
+    const pulls = [0, -28, 18, -10, 24, 0]
+    A(rope[1], pulls.map(x => ({ transform: `translateX(${x}px)` })), { duration: 1400, delay: 600, easing: 'ease-in-out' })
+    A(rope[0], pulls.map(x => ({ transform: `translateX(${x}px)` })), { duration: 1400, delay: 600, easing: 'ease-in-out' })
+    A(bl, pulls.map(x => ({ transform: `translateX(${x - (x < 0 ? 8 : 0)}px) rotate(${x < 0 ? -8 : 4}deg)` })), { duration: 1400, delay: 600, easing: 'ease-in-out', composite: 'add' })
+    A(br, pulls.map(x => ({ transform: `translateX(${x + (x > 0 ? 8 : 0)}px) rotate(${x > 0 ? 8 : -4}deg)` })), { duration: 1400, delay: 600, easing: 'ease-in-out', composite: 'add' })
+    const c = captionX(L, cap)
+    A(c, [{ transform: 'translateY(80px)', opacity: 0 }, { transform: 'translateY(0) rotate(-2deg)', opacity: 1 }], { duration: 420, delay: 500, easing: BOUNCE })
+    // Thu về thanh kéo co của khung câu hỏi (góc trên phải)
+    A(tug, [{ transform: 'translate(0, 0) scale(1)' }, { transform: `translate(${W * .18}px, -${stage.clientHeight * .36}px) scale(.42)`, opacity: .9 }], { duration: 500, delay: 2200, easing: 'cubic-bezier(.6, 0, .3, 1)', fill: 'forwards', composite: 'add' })
+    for (const e of [c, veil]) A(e, [{ opacity: 1 }, { opacity: 0 }], { duration: 250, delay: 2200, fill: 'forwards' })
+    A(L, [{ opacity: 1 }, { opacity: 0 }], { duration: 300, delay: 3000, fill: 'forwards' }) // mockup không có khung câu hỏi thật: mờ đi sau khi thu về
+  }
+  document.getElementById('how1').innerHTML = HOW[opt].map(s => `<li>${s}</li>`).join('')
+}
+
+// ---------- 2. Thanh kéo co trong khung câu hỏi ----------
+function duelBar(host) {
+  const bar = rm('div', { class: 'duelbar' })
+  const bl = badge('me', true), br = badge('foe', true)
+  const lane = rm('div', { class: 'lane' }, `<div class="tug"><div class="mid"></div><div class="rope"></div><div class="knot"><i></i></div></div>
+    <span class="state l">Đội bạn <span class="dots"><i></i><i></i><i></i></span></span>
+    <span class="state r foe-state">${T().foeLabel} <span class="dots"><i></i><i></i><i></i></span></span>`)
+  bar.append(bl, lane, br); host.append(bar)
+  return { bar, bl, br, lane, knot: lane.querySelector('.knot'), rope: lane.querySelector('.rope'), foe: lane.querySelector('.foe-state') }
+}
+function question(stage) {
+  const w = rm('div', { class: 'qwrap' }); stage.append(w)
+  w.insertAdjacentHTML('beforeend', `<div class="q-head"><h2>${view === 'atk' ? 'Công thành Nghệ An' : 'Phòng thủ Nghệ An'}</h2><div class="q-timer">0:31</div></div>`)
+  return w
+}
+function during(stage) {
+  stage.style.background = '#fff'
+  const w = question(stage)
+  const d = duelBar(w)
+  w.insertAdjacentHTML('beforeend', `<div><p class="q-text">Món "bánh mướt" ăn kèm gì là đặc trưng của Nghệ An?</p>
+    <div class="options">${['Lòng lợn', 'Chả quế', 'Nước mắm ớt', 'Thịt luộc'].map((t, i) => `<button class="btn" type="button"><span class="key">${'ABCD'[i]}</span>${t}</button>`).join('')}</div></div>`)
+  A(d.bar, [{ transform: 'translateY(-20px) scale(.9)', opacity: 0 }, { transform: 'none', opacity: 1 }], { duration: 400, easing: BOUNCE })
+  // Dây giằng nhẹ liên tục (nhẹ máy: 1 animation transform lặp)
+  const sway = [0, -6, 5, -3, 0]
+  for (const e of [d.knot, d.rope]) A(e, sway.map(x => ({ transform: `translateX(${x}px)` })), { duration: 1600, iterations: 2, easing: 'ease-in-out', fill: 'none' })
+  A(d.bl, [{ transform: 'rotate(0)' }, { transform: 'rotate(-6deg)' }, { transform: 'rotate(0)' }], { duration: 800, iterations: 4, fill: 'none' })
+  A(d.br, [{ transform: 'rotate(0)' }, { transform: 'rotate(6deg)' }, { transform: 'rotate(0)' }], { duration: 800, iterations: 4, delay: 400, fill: 'none' })
+  // 3,4 giây: đối thủ trượt → nút dây trượt về phía mình
+  const t = 3400
+  setTimeout(() => {
+    d.foe.innerHTML = view === 'atk' ? '<span class="miss">Đối thủ trượt rồi!</span>' : '<span class="miss">Đội lạ trượt rồi! Đúng vẫn +50</span>'
+    A(d.foe, [{ transform: 'scale(1.6) rotate(-6deg)', opacity: 0 }, { transform: 'scale(1) rotate(-2deg)', opacity: 1 }], { duration: 380, easing: BOUNCE })
+  }, t / rate)
+  for (const e of [d.knot, d.rope]) A(e, [{ transform: 'translateX(0)' }, { transform: 'translateX(-38%)' }], { duration: 600, delay: t, easing: BOUNCE, fill: 'forwards', composite: 'add' })
+  A(d.br, [{ transform: 'translateX(0) rotate(0)' }, { transform: 'translateX(-14px) rotate(-20deg)', offset: .5 }, { transform: 'translateX(-6px) rotate(-10deg)', opacity: .55 }], { duration: 600, delay: t, fill: 'forwards' })
+  A(d.bl, [{ transform: 'scale(1)' }, { transform: 'scale(1.18)' }, { transform: 'scale(1)' }], { duration: 400, delay: t + 250, easing: BOUNCE, fill: 'none' })
+}
+
+// ---------- 3. Công thành thắng ----------
+function attackerWins(stage) {
+  const atk = view === 'atk'
+  const pos = mapSvg(stage, { mine: !atk })
+  const L = rm('div', { class: 'layer' }); stage.append(L)
+  const bl = badge(atk ? 'me' : 'foe'), br = badge(atk ? 'foe' : 'me')
+  bl.style.left = `${pos.x - 90}px`; br.style.left = `${pos.x + 90}px`
+  for (const b of [bl, br]) b.style.top = `${pos.y - 120}px`
+  L.append(bl, br)
+  for (const [b, d] of [[bl, -1], [br, 1]]) A(b, [{ transform: `translateX(${d * 30}px) scale(.7)`, opacity: 0 }, { transform: 'none', opacity: 1 }], { duration: 300, easing: BOUNCE })
+  // Bên trái (đội công thành) lao tới, húc bên phải văng xoáy ra ngoài
+  A(bl, [{ transform: 'translateX(0)' }, { transform: 'translateX(-24px) rotate(-8deg)', offset: .35 }, { transform: 'translateX(70px) rotate(6deg)', offset: .75 }, { transform: 'translateX(40px) rotate(0)' }], { duration: 650, delay: 500, fill: 'forwards' })
+  A(br, [{ transform: 'translate(0, 0) rotate(0)' }, { transform: 'translate(260px, -150px) rotate(540deg) scale(.5)', opacity: 0 }], { duration: 700, delay: 950, easing: 'cubic-bezier(.2, .6, .4, 1)', fill: 'forwards' })
+  shake(stage, 9, 950)
+  setTimeout(() => sparks(L, pos.x + 40, pos.y - 30, 12, 90), 950 / rate)
+  // Tỉnh đổi màu (app đang có hiệu ứng dập sticker — ở đây chỉ đổi màu cho gọn)
+  setTimeout(() => { pos.path.setAttribute('fill', atk ? T().me.color : '#AFAFAF'); A(pos.path, [{ transform: 'scale(1.12)' }, { transform: 'scale(1)' }], { duration: 450, easing: BOUNCE, fill: 'none' }) }, 1150 / rate)
+  const r = rm('div', { class: `result-x${atk ? '' : ' bad'}` }, atk ? '<h3>Chiếm được Nghệ An!</h3><b>+50 công thành</b>' : '<h3>Mất Nghệ An!</h3><p>Đội lạ đã trả lời đúng trước</p>')
+  r.style.top = '78%'; L.append(r)
+  A(r, [{ transform: 'scale(.4) rotate(-8deg)', opacity: 0 }, { transform: 'scale(1) rotate(-2deg)', opacity: 1 }], { duration: 420, delay: 1350, easing: BOUNCE })
+  document.getElementById('w3').textContent = atk
+    ? 'Đội bạn đúng trước: huy hiệu đội bạn húc văng "?" ra khỏi tỉnh, tỉnh đổi màu, +50.'
+    : 'Đội lạ đúng trước: "?" húc văng huy hiệu đội bạn, tỉnh chuyển xám (nối tiếp thông báo "Bạn vừa mất Nghệ An!" sẵn có).'
+}
+
+// ---------- 4. Đội giữ tỉnh thắng ----------
+function defenderWins(stage) {
+  const atk = view === 'atk'
+  const pos = mapSvg(stage, { mine: !atk })
+  const L = rm('div', { class: 'layer' }); stage.append(L)
+  const bl = badge(atk ? 'me' : 'foe'), br = badge(atk ? 'foe' : 'me')
+  bl.style.left = `${pos.x - 90}px`; br.style.left = `${pos.x + 90}px`
+  for (const b of [bl, br]) b.style.top = `${pos.y - 120}px`
+  L.append(bl, br)
+  for (const [b, d] of [[bl, -1], [br, 1]]) A(b, [{ transform: `translateX(${d * 30}px) scale(.7)`, opacity: 0 }, { transform: 'none', opacity: 1 }], { duration: 300, easing: BOUNCE })
+  // Đội công thành lao vào, đập trúng khiên, bật ngược ra
+  const sh = rm('div', { class: 'bigicon' }, ICON.shield); sh.style.left = `${pos.x + 30}px`; sh.style.top = `${pos.y - 30}px`; L.append(sh)
+  A(sh, [{ transform: 'scale(0) rotate(-30deg)', opacity: 0 }, { transform: 'scale(1) rotate(0)', opacity: 1 }], { duration: 380, delay: 450, easing: BOUNCE })
+  A(bl, [{ transform: 'translateX(0)' }, { transform: 'translateX(70px) rotate(8deg)', offset: .45 }, { transform: 'translateX(-60px) rotate(-18deg)', offset: .8 }, { transform: 'translateX(-50px) rotate(-12deg)', opacity: .6 }], { duration: 800, delay: 650, fill: 'forwards' })
+  A(sh, [{ transform: 'scale(1)' }, { transform: 'scale(1.25)' }, { transform: 'scale(1)' }], { duration: 350, delay: 1000, easing: BOUNCE, fill: 'none', composite: 'add' })
+  shake(stage, 7, 1000)
+  setTimeout(() => sparks(L, pos.x + 10, pos.y - 30, 10, 70), 1000 / rate)
+  A(br, [{ transform: 'scale(1)' }, { transform: 'scale(1.2) translateY(-10px)' }, { transform: 'scale(1)' }], { duration: 450, delay: 1250, easing: BOUNCE, fill: 'none' })
+  const r = rm('div', { class: `result-x${atk ? ' bad' : ''}` }, atk ? '<h3>Bị đẩy lui!</h3><p>Chủ tỉnh trả lời đúng trước · khóa 30 giây</p>' : '<h3>Giữ vững Nghệ An!</h3><b>+50 phòng thủ</b>')
+  r.style.top = '78%'; L.append(r)
+  A(r, [{ transform: 'scale(.4) rotate(8deg)', opacity: 0 }, { transform: 'scale(1) rotate(-2deg)', opacity: 1 }], { duration: 420, delay: 1350, easing: BOUNCE })
+  document.getElementById('w4').textContent = atk
+    ? 'Chủ tỉnh đúng trước: khiên bật lên, huy hiệu đội bạn đập vào khiên rồi bật ngược ra, khóa 30 giây.'
+    : 'Đội bạn đúng trước: khiên bật lên, "?" đập vào khiên rồi bật ngược ra, +50.'
+}
+
+// ---------- Điều khiển ----------
+const SCENES = { s1: intro, s2: during, s3: attackerWins, s4: defenderWins }
+function run(id) {
+  const st = document.getElementById(id)
+  for (const a of all) if (a.effect?.target && st.contains(a.effect.target)) { a.cancel(); all.delete(a) }
+  st.replaceChildren(); st.style.background = ''
+  SCENES[id](st)
+}
+const runAll = () => Object.keys(SCENES).forEach(run)
+for (const s of Object.keys(SCENES)) document.getElementById(s).addEventListener('click', () => run(s))
+document.querySelectorAll('[data-play]').forEach(b => b.addEventListener('click', () => run(b.dataset.play)))
+document.getElementById('playAll').addEventListener('click', runAll)
+function seg(attr, set) {
+  document.querySelectorAll(`[data-${attr}]`).forEach(b => b.addEventListener('click', () => {
+    document.querySelectorAll(`[data-${attr}]`).forEach(x => x.setAttribute('aria-pressed', String(x === b)))
+    set(b.dataset[attr])
+  }))
+}
+seg('view', v => { view = v; runAll() })
+seg('rate', v => { rate = Number(v); for (const a of all) a.playbackRate = rate })
+seg('opt', v => { opt = v; run('s1') })
+runAll()
+</script>
+</body>
+</html>

@@ -1,0 +1,145 @@
+/* Bản đồ SVG: tỉnh, ranh giới, sương mù, nhãn, nón lá, tỉnh đang đứng, bão / lễ hội, sóng. Thứ tự nạp: xem style.css. */
+
+/* =====================================================================
+   SVG BẢN ĐỒ
+   ===================================================================== */
+#layer-shadow, #layer-outline, #layer-paper, #layer-clouds, .lbl, .lbl-fixed, .fog, .marker, .storm, .lantern, #layer-lift { pointer-events: none; }
+.lbl-fixed.island { pointer-events: auto; }
+.geo-under { stroke-width: 6px; stroke-linejoin: round; vector-effect: non-scaling-stroke; fill-rule: evenodd; }
+#layer-outline .geo-under { fill: #fff; stroke: #fff; }
+#layer-shadow .geo-under { fill: var(--map-shadow); stroke: var(--map-shadow); }
+
+.sea-label { fill: var(--blue); font: 900 16px var(--font); letter-spacing: 4px; text-anchor: middle; }
+.sea-label.small { font-size: 11px; letter-spacing: 2px; }
+.island-label { fill: var(--ink); font: 700 10px var(--font); text-anchor: middle; }
+.archi-frame { fill: none; stroke: var(--blue); stroke-width: 2; stroke-dasharray: 6 5; opacity: .8; vector-effect: non-scaling-stroke; }
+.archi-label { fill: var(--ink); font: 900 12px var(--font); text-anchor: middle; }
+.archi-owner { fill: var(--muted); font: 10px var(--font); text-anchor: middle; }
+.island-hit, .archi-hit { fill: transparent; cursor: help; }
+
+/* Tỉnh: ranh giới trắng 2px, luôn 2px dù zoom */
+.prov .geo { stroke: var(--border); stroke-width: 3.2px; stroke-linejoin: round; fill-rule: evenodd; vector-effect: non-scaling-stroke; transition: fill .5s, stroke .3s; }
+.prov .islet { stroke: none; fill: var(--islet); transition: fill .5s; }
+.prov[data-region="north"] .geo { fill: var(--tile-n); }
+.prov[data-region="central"] .geo { fill: var(--tile-c); }
+.prov[data-region="south"] .geo { fill: var(--tile-s); }
+.prov:is(.is-mine, .is-owned, .is-taken) .geo { stroke: var(--border-on-color); }
+.prov:is(.is-mine, .is-owned) :is(.geo, .islet) { fill: var(--tile-color); }
+.prov.is-taken :is(.geo, .islet) { fill: var(--taken); }
+/* Tỉnh có thể đi: tô đậm ranh giới bằng sắc đậm của chính màu tỉnh, nét liền */
+.prov.is-neighbor { cursor: pointer; }
+.prov.is-neighbor .geo { stroke-width: 3px; }
+.prov.is-neighbor[data-region="north"] .geo { stroke: var(--tile-n-dark); }
+.prov.is-neighbor[data-region="central"] .geo { stroke: var(--tile-c-dark); }
+.prov.is-neighbor[data-region="south"] .geo { stroke: var(--tile-s-dark); }
+.prov.is-neighbor:is(.is-mine, .is-taken) .geo { stroke: rgba(0, 0, 0, .35); }
+.prov.is-neighbor:hover .geo { filter: brightness(1.05) saturate(1.2); stroke-width: 4px; }
+.prov:focus { outline: none; }
+.prov:focus-visible .geo { stroke: var(--blue-dark); stroke-width: 3.5px; }
+.prov.lost .geo { animation: lost 1.2s; }
+/* Bóng giấy dưới các mảnh tỉnh đã thấy */
+.paper-shadow { fill: rgba(0, 0, 0, .13); }
+.paper-shadow.off { display: none; }
+@keyframes lost { 15%, 45% { fill: var(--red); } }
+
+.flag, .flag-q, .shield { display: none; }
+.lbl.is-mine .flag { display: inline; }
+.lbl.is-taken .flag-q { display: inline; }
+.lbl.is-shielded .shield { display: inline; }
+.flag { transform-box: fill-box; transform-origin: 20% 100%; }
+.lbl.just :is(.flag, .flag-q) { animation: pop .7s cubic-bezier(.2, 1.8, .4, 1); }
+.flag-q { transform-box: fill-box; transform-origin: 20% 100%; }
+@keyframes pop { from { transform: scale(0); } }
+
+/* Đường hành trình: nền trắng + nét đứt màu team */
+.trail-casing, .trail { fill: none; stroke-linecap: round; stroke-linejoin: round; vector-effect: non-scaling-stroke; }
+.trail-casing { stroke: #fff; stroke-width: 7px; opacity: .95; }
+.trail { stroke: var(--team-color); stroke-width: 3px; stroke-dasharray: 7 6; }
+.trail-stop { fill: #fff; stroke: var(--team-color); stroke-width: 2px; vector-effect: non-scaling-stroke; }
+@keyframes march { to { stroke-dashoffset: -26; } }
+
+/* Sương mù: xám phẳng, không họa tiết */
+.fog { transition: opacity .7s; }
+.fog.off { opacity: 0; }
+.fog .geo { fill: var(--fog); stroke: var(--border); stroke-width: 3.2px; fill-rule: evenodd; vector-effect: non-scaling-stroke; }
+
+/* Nhãn: chữ xám đậm viền trắng; trên nền màu team: chữ trắng viền tối nhẹ */
+.lbl-hidden { display: none; }
+.lbl-compact .pts { display: none; }
+.lbl .abbr { display: none; }
+.lbl-abbr :is(.names, .pts) { display: none; }
+.lbl-abbr .abbr { display: inline; }
+.lbl text, .lbl-fixed text { paint-order: stroke fill; stroke: #fff; stroke-width: 4px; stroke-linejoin: round; }
+.label { fill: var(--ink); font: 800 13px var(--font); text-anchor: middle; }
+.pts { fill: var(--orange); font: 800 11px var(--font); text-anchor: middle; }
+.lbl.noted .pts { fill: var(--blue-dark); } /* phòng đơn: "12 người" đã có tem */
+.lbl.fogged .label { fill: #8A99A6; }
+.lbl.on-color text { fill: #fff; stroke: rgba(0, 0, 0, .3); stroke-width: 3px; }
+.capital-bg { fill: #DA251D; stroke: #fff; stroke-width: 1.5; }
+.capital-star { fill: #FFCD00; }
+.badge-bg { fill: #fff; stroke: rgba(0, 0, 0, .18); stroke-width: 1; }
+.city { fill: var(--accent); stroke: #E5A800; stroke-width: 1; }
+
+/* Nón lá nhảy co giãn (nhảy sang tỉnh mới: map.js arrive()) */
+.hop { transform-box: fill-box; transform-origin: 50% 100%; }
+/* Chuyển động trang trí chỉ chạy vài nhịp sau khi đội tới tỉnh (map.js liven()), rồi đứng yên ở tư thế nghỉ:
+   chuyển động bên trong SVG buộc trình duyệt vẽ lại CẢ bản đồ mỗi khung hình — chạy mãi thì máy nặng (nhất là màn Retina).
+   Xong trong ~2,4 giây — trước khi người chơi kịp trả lời, để không chồng lên hiệu ứng chiếm tỉnh */
+.map.lively .hop { animation: hop .9s cubic-bezier(.3, .7, .4, 1) 2; }
+.map.lively .trail { animation: march 1.2s linear 2; }
+@keyframes hop {
+  0%, 100% { transform: translateY(0) scale(1.12, .88); }
+  35% { transform: translateY(-9px) scale(.94, 1.08); }
+  65% { transform: translateY(0) scale(1.1, .9); }
+  80% { transform: translateY(-2px) scale(.98, 1.02); }
+}
+.hat-halo { fill: #fff; stroke: #fff; stroke-width: 5; stroke-linejoin: round; }
+.hat { fill: var(--accent); stroke: #B7791F; stroke-width: 1.5; }
+.hat-line { fill: none; stroke: #B7791F; stroke-width: .8; opacity: .6; }
+.team-pin circle { stroke: #fff; stroke-width: 1.5; }
+.team-pin text { fill: #fff; font: 700 9px var(--font); text-anchor: middle; }
+/* Về quê: ghim hồng trên tỉnh quê của đồng đội (màn team) — đã nhận thưởng thì đậm hơn, đủ số tỉnh thì mờ */
+.home-pin path { fill: #E8457A; stroke: #fff; stroke-width: 1.5px; stroke-linejoin: round; }
+.home-pin circle { fill: #fff; }
+.home-pin.done path { fill: #C7305F; }
+.home-pin.done circle { fill: #FFC800; }
+.home-pin.capped { opacity: .45; }
+
+/* Tỉnh đang đứng: nổi khối (thành khối + mặt trên sáng + ánh bóng + quầng vàng) */
+.lift path { fill-rule: evenodd; vector-effect: non-scaling-stroke; stroke-linejoin: round; }
+.lift-walls path { stroke-width: 4px; }
+/* Màu thành khối / mặt trên tính sẵn trong map.js; quầng sáng + bóng đổ là bộ lọc SVG #liftFx */
+.lift-top { stroke: #FFC800; stroke-width: 4px; } /* viền vàng sticker: tỉnh đang đứng nổi rõ giữa các tỉnh cùng màu */
+.lift-shine { fill: url(#liftShine); stroke: none; }
+.lift-shadow { fill: rgba(0, 0, 0, .2); stroke: none; }
+.lift.rise { animation: rise-up .5s cubic-bezier(.3, 1.6, .5, 1); }
+/* Tỉnh gốc dưới khối nổi: khối nổi nghiêng nên mép tỉnh gốc lộ ra (thành vệt màu team / viền trắng lệch) → tô cùng màu thành khối */
+.map:not(.lift-off) .prov.is-current .geo { fill: var(--lift-wall); stroke: var(--lift-wall); }
+@keyframes rise-up { from { transform: translateY(var(--rise-from)); } }
+
+/* Bão, lễ hội */
+/* Chỉ trong bản đồ — .pill.storm (nhãn sự kiện Bão) dùng cùng tên lớp */
+.map :is(.storm, .lantern) { display: none; }
+.map :is(.storm, .lantern).on { display: inline; }
+.storm .hatch { fill: url(#hatch); fill-rule: evenodd; }
+/* Xoáy bão / đèn lồng chỉ chuyển động vài nhịp lúc sự kiện bắt đầu + mỗi lần đội tới tỉnh mới (map.js liven()), rồi đứng yên:
+   chạy mãi suốt 3–5 phút sự kiện thì bắt vẽ lại cả bản đồ SVG mỗi khung hình (máy nặng gấp ~5 lần lúc nghỉ) */
+.swirl { transform-box: fill-box; transform-origin: center; animation: spin 3s linear 2; }
+@keyframes spin { to { transform: rotate(360deg); } }
+/* bay lên 2 lần rồi hiện lại đứng yên tại chỗ */
+.lantern use { animation: lantern 3s ease-in 2, lantern-in .8s ease-out 6s; }
+.lantern use.late { animation-delay: 1.4s, 7.4s; }
+@keyframes lantern {
+  from { transform: translateY(10px); opacity: 0; }
+  30% { opacity: 1; }
+  to { transform: translateY(-24px); opacity: 0; }
+}
+@keyframes lantern-in { from { transform: translateY(10px); opacity: 0; } }
+
+
+@media (max-width: 1100px) {
+  .team-main { grid-template-columns: minmax(0, 1fr) 280px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+}

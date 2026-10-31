@@ -1,0 +1,306 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mockup: Màn vào phòng 2 cột</title>
+<!-- Thiết kế lại màn ngoài (vào phòng / tạo phòng / phòng có sẵn): chia 2 bên thay cho 1 cột dọc. Dùng CSS thật của app -->
+<link rel="stylesheet" href="../public/style.css">
+<script src="culture-data.js"></script>
+<style>
+@font-face { font-family: "Nunito"; src: url("../public/fonts/nunito.ttf") format("truetype"); font-weight: 200 1000; }
+html, body { height: auto; }
+.head { position: sticky; top: 0; z-index: 30; display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: center; padding: 12px 24px; background: #fff; border-bottom: 2px solid var(--line); }
+.head h1 { color: var(--green); font-size: 20px; font-weight: 900; }
+.head nav { display: flex; flex-wrap: wrap; gap: 6px; }
+.head nav a { padding: 4px 12px; border-radius: 10px; border: 2px solid var(--line); color: var(--ink); font-weight: 800; font-size: 14px; text-decoration: none; }
+.intro { max-width: 1320px; margin: 16px auto 0; padding: 0 24px; color: var(--muted); }
+.intro b { color: var(--ink); }
+.frame-wrap { max-width: 1320px; margin: 0 auto; padding: 18px 24px 40px; }
+.frame-wrap h2 { display: flex; align-items: center; gap: 8px; margin-bottom: 4px; scroll-margin-top: 80px; }
+.frame-wrap .num { display: inline-grid; place-items: center; width: 28px; height: 28px; border-radius: 50%; background: var(--green); color: #fff; font-size: 15px; }
+.frame-wrap .when { margin: 0 0 12px; color: var(--muted); }
+.frame-wrap .how { margin: 12px 0 0; padding-left: 20px; }
+.frame { position: relative; min-height: 720px; padding: 32px; border-radius: 22px; background: var(--bg); box-shadow: inset 0 0 0 2px var(--line); }
+.label-tag { position: absolute; top: -11px; left: 18px; z-index: 2; padding: 1px 10px; border-radius: 8px; background: var(--ink); color: #fff; font-size: 12px; font-weight: 800; }
+.ic { display: inline-grid; place-items: center; width: 1.25em; height: 1.25em; vertical-align: -.25em; }
+.ic svg { width: 100%; height: 100%; }
+
+/* ---------- Bố cục chung: 2 cột, hẹp thì xếp chồng ---------- */
+.ex { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr); gap: 28px; max-width: 1180px; margin: 0 auto; align-items: start; }
+@media (max-width: 960px) { .ex { grid-template-columns: 1fr; } }
+.ex .card { padding: 26px 28px; }
+.ex h3 { margin: 0 0 4px; font-size: 22px; font-weight: 900; }
+.ex .sub { margin: 0 0 16px; color: var(--muted); font-weight: 700; }
+.ex form { display: grid; gap: 12px; }
+.brand { display: flex; align-items: center; gap: 14px; margin-bottom: 18px; }
+.brand b { color: var(--green); font-size: 30px; font-weight: 900; line-height: 1.1; }
+.brand small { display: block; color: var(--muted); font-size: 15px; font-weight: 700; }
+.mascots { display: flex; gap: 6px; }
+.mascots span { display: inline-grid; width: 34px; height: 34px; }
+.mascots svg { width: 100%; height: 100%; }
+.or { display: flex; align-items: center; gap: 10px; margin: 18px 0 12px; color: var(--muted); font-size: 14px; font-weight: 800; }
+.or::before, .or::after { content: ""; flex: 1; height: 2px; background: var(--line); }
+
+/* Phòng có sẵn: lưới thẻ */
+.rooms { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+@media (max-width: 560px) { .rooms { grid-template-columns: 1fr; } }
+.room { display: grid; gap: 8px; padding: 16px 18px; border: 2px solid var(--line); border-radius: 18px; background: #fff; }
+.room-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.room-top b { font-size: 19px; font-weight: 900; }
+.room .dot { width: 14px; height: 14px; border-radius: 50%; }
+.pill-s { padding: 2px 10px; border-radius: 999px; font-size: 13px; font-weight: 900; }
+.pill-s.wait { background: #F1FBE8; color: var(--green-dark); }
+.pill-s.run { background: #E9F7FF; color: var(--blue-dark); }
+.pill-s.end { background: #F2F2F2; color: var(--muted); }
+.meter { height: 8px; border-radius: 99px; background: #F0F0F0; overflow: hidden; }
+.meter i { display: block; height: 100%; border-radius: 99px; background: var(--green); }
+.room .meta { display: flex; justify-content: space-between; color: var(--muted); font-size: 14px; font-weight: 800; }
+.host-badge { padding: 6px 10px; border-radius: 10px; background: #FFF6D1; color: #8A5A00; font-size: 13px; font-weight: 800; }
+.host-badge.taken { background: #F4F4F4; color: var(--muted); }
+.room .btn { min-height: 40px; }
+.room.ended { opacity: .6; }
+.room.picked { border-color: var(--blue); background: #F2FBFF; }
+.rules-row { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-top: 16px; color: var(--muted); font-size: 14px; font-weight: 700; }
+
+/* Phương án B: cột trái giới thiệu */
+.hero { display: grid; gap: 18px; padding: 8px 6px; }
+.hero .brand b { font-size: 40px; }
+.steps { display: grid; gap: 12px; margin: 0; padding: 0; list-style: none; }
+.steps li { display: grid; grid-template-columns: 44px 1fr; gap: 12px; align-items: center; padding: 12px 14px; border-radius: 16px; background: #fff; }
+.steps .n { display: grid; place-items: center; width: 44px; height: 44px; border-radius: 14px; background: #F1FBE8; }
+.steps .n svg { width: 28px; height: 28px; }
+.steps b { display: block; font-size: 17px; }
+.steps span { color: var(--muted); font-size: 14px; font-weight: 700; }
+.modes { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.mode { padding: 12px 14px; border-radius: 16px; background: #fff; }
+.mode b { display: block; }
+.mode span { color: var(--muted); font-size: 13px; font-weight: 700; }
+.tabs3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-bottom: 18px; }
+.list-rooms { display: grid; gap: 10px; }
+.list-room { display: grid; grid-template-columns: 14px 1fr auto; align-items: center; gap: 12px; padding: 12px 14px; border: 2px solid var(--line); border-radius: 16px; }
+.list-room .dot { width: 14px; height: 14px; border-radius: 50%; }
+.list-room b { display: block; }
+.list-room small { color: var(--muted); font-weight: 700; }
+.list-room .btn { min-height: 38px; }
+/* A3: cột phải giải thích kiểu phòng đang chọn */
+.explain .kicker { margin: 0 0 4px; color: var(--muted); font-size: 13px; font-weight: 800; text-transform: uppercase; letter-spacing: .04em; }
+.explain .lead { margin: 6px 0 14px; font-size: 16px; line-height: 1.5; }
+.facts { display: grid; grid-template-columns: 110px 1fr; gap: 8px 12px; margin: 0; }
+.facts dt { color: var(--muted); font-weight: 900; }
+.facts dd { margin: 0; font-weight: 700; }
+.explain .fit { margin: 14px 0 0; padding: 8px 12px; border-radius: 12px; background: #F1FBE8; }
+</style>
+</head>
+<body>
+<header class="head">
+  <h1>Mockup: màn vào phòng 2 cột</h1>
+  <nav><a href="#a1">A1 · Mới vào</a><a href="#a2">A2 · Đã chọn phòng</a><a href="#a3">A3 · Tạo phòng</a><a href="#b1">B · Giới thiệu + thao tác</a></nav>
+</header>
+<p class="intro">Hiện tại màn ngoài là <b>1 thẻ dọc 420px</b>: ô mã phòng, rồi danh sách 4 phòng có sẵn xếp dưới, phải cuộn. Hai phương án dưới chia <b>2 bên</b>; màn hẹp (điện thoại) thì 2 cột xếp chồng như cũ. Đề xuất: <b>A</b>.</p>
+
+<!-- ================= A1 ================= -->
+<section class="frame-wrap">
+  <h2 id="a1"><span class="num">A</span>1 · Hai cột chức năng — lúc mới vào</h2>
+  <p class="when">Trái: vào bằng mã / tạo phòng. Phải: phòng chơi đơn có sẵn dạng lưới thẻ (không phải cuộn).</p>
+  <div class="frame"><span class="label-tag">Máy tính 1280px</span>
+    <div class="ex">
+      <div class="card">
+        <div class="brand"><div><b>Hành trình 3 miền</b><small>Mini game Ngày Văn hóa Việt Nam 24/11</small></div></div>
+        <div class="mascots" data-mascots></div>
+        <div class="tabs" role="tablist" style="margin-top:18px">
+          <button class="btn on" type="button">Tham gia phòng</button>
+          <button class="btn" type="button">Tạo phòng</button>
+        </div>
+        <form onsubmit="return false" style="margin-top:16px">
+          <label class="field"><span>Mã phòng <span class="muted" style="font-weight:700">· chủ phòng gửi cho bạn</span></span>
+            <input class="input pin-input" maxlength="6" placeholder="6 ký tự">
+          </label>
+          <button class="btn green" type="button">Tiếp tục</button>
+        </form>
+        <div class="rules-row"><span>Lần đầu chơi?</span><a class="link" href="#">Xem luật chơi</a></div>
+      </div>
+
+      <div class="card">
+        <h3><span class="ic" data-icon="map"></span> Phòng chơi đơn có sẵn</h3>
+        <p class="sub">Mỗi người một hành trình · ai vào trước làm chủ phòng</p>
+        <div class="rooms" data-rooms="a1"></div>
+      </div>
+    </div>
+  </div>
+  <ul class="how">
+    <li>Thẻ phòng: chấm màu, tên, trạng thái (Đang chờ / Đang chơi / Đã kết thúc), thanh số người /50, dòng chủ phòng ("Chưa có chủ phòng — vào trước làm chủ phòng" màu vàng; đã có thì xám).</li>
+    <li>Phòng đã kết thúc: mờ, nút khóa ("Đang làm mới"). Danh sách tự cập nhật 10 giây.</li>
+  </ul>
+</section>
+
+<!-- ================= A2 ================= -->
+<section class="frame-wrap">
+  <h2 id="a2"><span class="num">A</span>2 · Đã chọn phòng (bấm "Vào" hoặc nhập mã)</h2>
+  <p class="when">Cột trái đổi thành bước 2 (tên, quê, chọn team nếu là phòng team); thẻ phòng đang chọn bên phải được tô xanh. Không phải mở trang khác.</p>
+  <div class="frame"><span class="label-tag">Máy tính 1280px</span>
+    <div class="ex">
+      <div class="card">
+        <h3>Phòng Sen <span class="muted" style="font-size:16px">· mã Z43QVY</span></h3>
+        <p class="sub">Phòng chơi đơn · 3/50 người · chưa có chủ phòng — bạn vào trước sẽ làm chủ phòng</p>
+        <form onsubmit="return false">
+          <label class="field">Tên của bạn <input class="input" maxlength="24" value="Phúc"></label>
+          <label class="field"><span>Quê bạn ở đâu? <span class="muted" style="font-weight:700">· không bắt buộc</span></span>
+            <select class="input"><option>Không chọn</option><option selected>Nghệ An</option></select>
+          </label>
+          <p class="home-note"><span class="ic" data-icon="home"></span><span>Có tem ở tỉnh quê của bạn được +50 "Về quê". Chỉ bạn thấy quê của mình.</span></p>
+          <div class="btn-row">
+            <button class="btn" type="button">← Đổi phòng</button>
+            <button class="btn green" type="button" style="flex:1">Vào chơi</button>
+          </div>
+        </form>
+      </div>
+
+      <div class="card">
+        <h3><span class="ic" data-icon="map"></span> Phòng chơi đơn có sẵn</h3>
+        <p class="sub">Mỗi người một hành trình · ai vào trước làm chủ phòng</p>
+        <div class="rooms" data-rooms="a2"></div>
+      </div>
+    </div>
+  </div>
+  <ul class="how">
+    <li>Phòng team (vào bằng mã): cột trái thêm lưới chọn team như hiện tại; cột phải vẫn là danh sách phòng có sẵn.</li>
+  </ul>
+</section>
+
+<!-- ================= A3 ================= -->
+<section class="frame-wrap">
+  <h2 id="a3"><span class="num">A</span>3 · Tab "Tạo phòng"</h2>
+  <p class="when">Cột trái là form tạo phòng (chọn kiểu phòng, tên, số team / thời lượng, tùy chọn). Cột phải giải thích kiểu phòng đang chọn — đổi theo lựa chọn bên trái.</p>
+  <div class="frame"><span class="label-tag">Máy tính 1280px</span>
+    <div class="ex">
+      <div class="card">
+        <div class="tabs" role="tablist">
+          <button class="btn" type="button">Tham gia phòng</button>
+          <button class="btn on" type="button">Tạo phòng</button>
+        </div>
+        <form onsubmit="return false" style="margin-top:16px">
+          <div class="mode-pick">
+            <label class="mode-option"><input type="radio" name="m" value="team" checked><b>Theo team</b><small>Chia team, cắm cờ giành tỉnh</small></label>
+            <label class="mode-option"><input type="radio" name="m" value="solo"><b>Chơi đơn</b><small>Mỗi người sưu tầm tem</small></label>
+          </div>
+          <label class="field">Tên phòng <input class="input" placeholder="VD: Ngày Văn hóa 24/11"></label>
+          <div class="field-row">
+            <label class="field" data-teamcount>Số team <select class="input"><option>6</option></select></label>
+            <label class="field">Thời lượng <select class="input"><option>45 phút</option></select></label>
+          </div>
+          <label class="check"><input type="checkbox"><span>Cho người chơi <b>chọn chủ đề</b></span></label>
+          <label class="check"><input type="checkbox" checked><span><b>Đặt cược</b> trước câu hỏi</span></label>
+          <label class="check" data-pioneer hidden><input type="checkbox" checked><span><b>Tem Tiên phong</b>: người đầu tiên có tem một tỉnh +50</span></label>
+          <button class="btn green" type="button">Tạo phòng</button>
+        </form>
+      </div>
+
+      <div class="card explain" data-explain>
+        <div data-mode="team">
+          <p class="kicker">Kiểu phòng bạn đang chọn</p>
+          <h3><span class="ic" data-icon="flag"></span> Theo team</h3>
+          <p class="lead">Các team đi khắp bản đồ, trả lời đúng để <b>cắm cờ giành tỉnh</b>. Tỉnh đã có chủ thì <b>ghé thăm thử tài</b> để giành lại — chủ nhà được trả lời cùng câu để giữ tỉnh.</p>
+          <dl class="facts">
+            <dt>Người chơi</dt><dd>2–8 team, mỗi team tối đa 12 người. Cả team cùng bàn, bỏ phiếu chốt đáp án.</dd>
+            <dt>Bản đồ</dt><dd>Sương mù: chỉ thấy tỉnh mình đã ghé, không biết team khác ở đâu.</dd>
+            <dt>Điểm</dt><dd>Điểm các tỉnh đang giữ + thưởng. Bị giành tỉnh là mất điểm tỉnh đó.</dd>
+            <dt>Màn chiếu</dt><dd>Bảng điểm các team, bản tin ẩn danh; 10 phút cuối đóng băng.</dd>
+          </dl>
+          <p class="fit"><b>Hợp với:</b> sự kiện cả công ty, có MC và máy chiếu.</p>
+        </div>
+        <div data-mode="solo" hidden>
+          <p class="kicker">Kiểu phòng bạn đang chọn</p>
+          <h3><span class="ic" data-icon="map"></span> Chơi đơn</h3>
+          <p class="lead">Mỗi người một hành trình: trả lời đúng là <b>nhận tem</b> tỉnh đó. Tỉnh không thuộc riêng ai — không ai bị lấy mất tỉnh.</p>
+          <dl class="facts">
+            <dt>Người chơi</dt><dd>Tối đa 50 người, mỗi người một máy, không chia team.</dd>
+            <dt>Bản đồ</dt><dd>Vẫn có sương mù; tỉnh đã ghé ghi số người đã có tem.</dd>
+            <dt>Điểm</dt><dd>Điểm các tỉnh có tem + <b>Tiên phong +50</b> cho người đầu tiên tới một tỉnh.</dd>
+            <dt>Màn chiếu</dt><dd>Top 10 lữ khách + bản đồ "cả phòng đang đi đâu".</dd>
+            <dt>Sau trận</dt><dd>Sổ tay hành trình: các tem và điều đã học, mở lại được.</dd>
+          </dl>
+          <p class="fit"><b>Hợp với:</b> nhóm nhỏ, chơi lẻ, hoặc chơi lại sau sự kiện.</p>
+        </div>
+        <div class="or">Sau khi tạo</div>
+        <p class="muted" style="margin:0">Cột này hiện mã phòng, link mời, mã chủ phòng (chỉ hiện 1 lần) và mã màn chiếu.</p>
+      </div>
+    </div>
+  </div>
+  <ul class="how">
+    <li>Cột phải <b>chỉ giải thích</b> kiểu phòng đang chọn ở cột trái (không bấm chọn được ở đây); bấm "Chơi đơn" bên trái thì nội dung đổi theo, ô "Số team" ẩn đi, hiện thêm tùy chọn Tem Tiên phong.</li>
+  </ul>
+</section>
+
+<!-- ================= B ================= -->
+<section class="frame-wrap">
+  <h2 id="b1"><span class="num">B</span> · Giới thiệu + thao tác</h2>
+  <p class="when">Trái: giới thiệu game (cách chơi 3 bước, 2 kiểu phòng). Phải: một thẻ có 3 tab — Nhập mã / Phòng có sẵn / Tạo phòng. Đẹp kiểu "trang chủ", nhưng phòng có sẵn bị giấu sau một tab.</p>
+  <div class="frame"><span class="label-tag">Máy tính 1280px</span>
+    <div class="ex">
+      <div class="hero">
+        <div class="brand"><div><b>Hành trình 3 miền</b><small>Đi khắp 34 tỉnh, thành · trả lời câu hỏi về ẩm thực, phong tục, lễ hội</small></div></div>
+        <div class="mascots" data-mascots></div>
+        <ol class="steps">
+          <li><span class="n" data-icon="hat"></span><div><b>Đi sang tỉnh giáp ranh</b><span>Sương mù che các tỉnh chưa ghé</span></div></li>
+          <li><span class="n" data-icon="question"></span><div><b>Trả lời 1 câu về tỉnh đó</b><span>30 giây · 15 giây đầu đủ điểm</span></div></li>
+          <li><span class="n" data-icon="flag"></span><div><b>Cắm cờ / nhận tem</b><span>Nhiều điểm nhất khi hết giờ thắng</span></div></li>
+        </ol>
+        <div class="modes">
+          <div class="mode"><b>Theo team</b><span>Cả team cùng bàn, giành tỉnh</span></div>
+          <div class="mode"><b>Chơi đơn</b><span>Mỗi người một hành trình</span></div>
+        </div>
+        <a class="link" href="#">Xem luật chơi đầy đủ →</a>
+      </div>
+
+      <div class="card">
+        <div class="tabs3">
+          <button class="btn" type="button">Nhập mã</button>
+          <button class="btn on" type="button">Phòng có sẵn</button>
+          <button class="btn" type="button">Tạo phòng</button>
+        </div>
+        <p class="sub">Phòng chơi đơn · ai vào trước làm chủ phòng</p>
+        <div class="list-rooms" data-list></div>
+      </div>
+    </div>
+  </div>
+  <ul class="how">
+    <li>Ưu: người lần đầu hiểu game trước khi bấm. Nhược: thêm một lần bấm để thấy phòng có sẵn; phần giới thiệu trùng với trang luật chơi.</li>
+  </ul>
+</section>
+
+<script>
+const D = window.CULTURE_DATA
+for (const el of document.querySelectorAll('[data-icon]')) if (D.icons[el.dataset.icon]) el.innerHTML = D.icons[el.dataset.icon]
+for (const el of document.querySelectorAll('[data-mascots]')) el.innerHTML = Object.values(D.mascots).map(s => `<span>${s}</span>`).join('')
+const ROOMS = [
+  { name: 'Phòng Sen', color: '#E8457A', st: 'wait', players: 3, host: false },
+  { name: 'Phòng Mai', color: '#E5A800', st: 'run', players: 18, host: true },
+  { name: 'Phòng Đào', color: '#FF7F7F', st: 'wait', players: 0, host: false },
+  { name: 'Phòng Trúc', color: '#58A700', st: 'end', players: 12, host: true },
+]
+for (const r of document.querySelectorAll('input[name="m"]')) r.addEventListener('change', () => {
+  for (const d of document.querySelectorAll('[data-explain] [data-mode]')) d.hidden = d.dataset.mode !== r.value
+  document.querySelector('[data-teamcount]').hidden = r.value === 'solo'
+  document.querySelector('[data-pioneer]').hidden = r.value !== 'solo'
+})
+const ST = { wait: 'Đang chờ', run: 'Đang chơi', end: 'Đã kết thúc' }
+for (const box of document.querySelectorAll('[data-rooms]')) {
+  box.innerHTML = ROOMS.map((r, i) => `
+    <div class="room${r.st === 'end' ? ' ended' : ''}${box.dataset.rooms === 'a2' && i === 0 ? ' picked' : ''}">
+      <div class="room-top"><span style="display:flex;align-items:center;gap:8px"><span class="dot" style="background:${r.color}"></span><b>${r.name}</b></span><span class="pill-s ${r.st}">${ST[r.st]}</span></div>
+      <div class="meter"><i style="width:${r.players * 2}%"></i></div>
+      <div class="meta"><span>${r.players}/50 người</span><span>30 phút</span></div>
+      <div class="host-badge${r.host ? ' taken' : ''}">${r.host ? 'Đã có chủ phòng' : 'Chưa có chủ phòng — vào trước làm chủ phòng'}</div>
+      <button class="btn ${r.st === 'end' ? '' : 'green'}" type="button" ${r.st === 'end' ? 'disabled' : ''}>${r.st === 'end' ? 'Đang làm mới' : box.dataset.rooms === 'a2' && i === 0 ? 'Đang chọn' : 'Vào'}</button>
+    </div>`).join('')
+}
+for (const box of document.querySelectorAll('[data-list]')) {
+  box.innerHTML = ROOMS.map(r => `
+    <div class="list-room"><span class="dot" style="background:${r.color}"></span>
+      <div><b>${r.name}</b><small>${ST[r.st]} · ${r.players}/50 người · ${r.host ? 'đã có chủ phòng' : 'chưa có chủ phòng'}</small></div>
+      <button class="btn ${r.st === 'end' ? '' : 'green'}" type="button" ${r.st === 'end' ? 'disabled' : ''}>Vào</button></div>`).join('')
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,12 @@
+/* Hành trình 3 miền — điểm vào của toàn bộ CSS (3 màn và các mockup cùng nạp file này; đường dẫn tương đối để mockup mở thẳng từ ổ đĩa cũng chạy).
+   Tách theo phần; GIỮ ĐÚNG THỨ TỰ dưới đây — phần sau ghi đè phần trước
+   (hand.css vẽ lại nút / thẻ / thông báo bằng lớp ::before; motion.css chỉnh thêm cho hiệu ứng). */
+@import url("css/base.css");
+@import url("css/team.css");
+@import url("css/map.css");
+@import url("css/pages.css");
+@import url("css/landing.css");
+@import url("css/play.css");
+@import url("css/hand.css");
+@import url("css/motion.css");
+@import url("css/mobile.css"); /* điện thoại / máy tính bảng: đặt cuối để ghi đè bố cục */

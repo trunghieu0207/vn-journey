@@ -1,0 +1,396 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mockup chất vẽ tay – Hành trình 3 miền</title>
+<style>
+@font-face { font-family: "Nunito"; src: url("../public/fonts/nunito.ttf") format("truetype"); font-weight: 200 1000; }
+:root {
+  --font: "Nunito", ui-rounded, "Segoe UI", system-ui, sans-serif;
+  --bg: #F7F7F7; --ink: #3C3C3C; --muted: #777; --line: #E5E5E5;
+  --green: #58CC02; --green-dark: #58A700; --blue: #1CB0F6; --blue-dark: #1899D6;
+  --red: #FF4B4B; --red-dark: #EA2B2B; --accent: #FFC800; --accent-dark: #E5A800; --orange: #FF9600;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--ink); font: 16px/1.45 var(--font); }
+h2, h3 { margin: 0; }
+.icon { flex: none; vertical-align: -0.25em; }
+.with-icon { display: inline-flex; align-items: center; gap: .35em; }
+
+/* ---------- Thanh chọn phương án (không thuộc thiết kế) ---------- */
+.picker { position: sticky; top: 0; z-index: 20; display: flex; flex-wrap: wrap; gap: 10px 18px; align-items: center; padding: 12px 24px; background: #fff; border-bottom: 2px solid var(--line); }
+.picker h1 { margin: 0; color: var(--green); font-size: 20px; font-weight: 900; }
+.picker .tabs { display: flex; gap: 8px; flex-wrap: wrap; }
+.picker .tabs button { font: 800 15px var(--font); padding: 6px 14px; border-radius: 12px; border: 2px solid var(--line); background: #fff; color: var(--ink); cursor: pointer; }
+.picker .tabs button[aria-pressed="true"] { background: var(--blue); border-color: var(--blue-dark); color: #fff; }
+.picker kbd { color: var(--muted); font: 700 13px var(--font); }
+.desc { max-width: 1260px; margin: 16px auto 0; padding: 0 24px; }
+.desc p { margin: 0 0 4px; } .desc .name { font-size: 18px; font-weight: 900; } .desc .note { color: var(--muted); font-size: 14px; }
+
+/* ---------- Thiết kế hiện tại (nền chung) ---------- */
+.app { max-width: 1260px; margin: 0 auto; padding: 16px 24px 40px; display: grid; gap: 16px; }
+.card { --fill: #fff; --bd: var(--line); --mk: #B9B9B9; position: relative; padding: 14px 16px; background: var(--fill); border: 2px solid var(--bd); border-radius: 18px; box-shadow: 0 4px 0 var(--bd); }
+.btn { --fill: #fff; --bd: var(--line); --mk: #B9B9B9; position: relative; display: inline-flex; align-items: center; justify-content: center; gap: 6px; min-height: 40px; padding: 6px 14px;
+  border: 2px solid var(--bd); border-radius: 14px; background: var(--fill); color: var(--ink); font: 800 16px var(--font); box-shadow: 0 4px 0 var(--bd); cursor: pointer; transition: transform .08s; }
+.btn:active { transform: translateY(3px); }
+.btn.green { --fill: var(--green); --bd: var(--green-dark); --mk: #3F7F00; color: #fff; }
+.btn.primary { --fill: var(--blue); --bd: var(--blue-dark); --mk: #0F78AE; color: #fff; }
+.btn.danger { --fill: var(--red); --bd: var(--red-dark); --mk: #B81F1F; color: #fff; }
+.btn.sel { --fill: #DDF4FF; --bd: #84D8FF; --mk: var(--blue-dark); color: var(--blue-dark); }
+.btn.small { min-height: 34px; padding: 4px 12px; font-size: 14px; color: var(--muted); }
+
+.topbar { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 22px; }
+.team-chip { display: flex; align-items: center; gap: 10px; font-size: 20px; font-weight: 900; }
+.mascot { display: grid; place-items: center; width: 36px; height: 36px; border-radius: 50%; background: #C0392B; color: #fff; font-size: 18px; }
+.stat { display: flex; align-items: center; gap: 6px; color: var(--muted); font-weight: 800; }
+.stat b { color: var(--green); font-size: 22px; font-weight: 900; }
+.pill { --fill: var(--accent); --bd: var(--accent-dark); --mk: #B88600; position: relative; display: inline-flex; align-items: center; gap: 6px; padding: 4px 12px; border-radius: 999px; background: var(--fill); font-weight: 900; }
+.spacer { flex: 1; }
+
+.main { display: grid; grid-template-columns: minmax(0, 1fr) 400px; gap: 16px; align-items: start; }
+.map-card { padding: 0; overflow: hidden; --fill: #DDF4FF; border-radius: 20px; box-shadow: 0 6px 0 var(--bd); }
+.map-card > #map { display: block; width: 100%; height: auto; }
+.zoom { position: absolute; right: 12px; bottom: 14px; display: flex; flex-direction: column; gap: 8px; }
+.zoom .btn { width: 42px; height: 42px; padding: 0; font-size: 20px; }
+.toast { --fill: var(--green); --bd: var(--green-dark); --mk: #3F7F00; position: absolute; top: 14px; left: 50%; transform: translateX(-50%); z-index: 2; padding: 10px 18px; border-radius: 16px;
+  background: var(--fill); color: #fff; font-weight: 800; box-shadow: 0 4px 0 var(--bd); white-space: nowrap; }
+
+.q-head { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+.q-head h2 { font-size: 20px; font-weight: 900; color: var(--green); }
+.tag { --fill: #FFF4D6; --bd: #FFE3A0; --mk: #D9A300; position: relative; padding: 2px 10px; border-radius: 999px; background: var(--fill); color: #A86B00; font-size: 14px; font-weight: 900; white-space: nowrap; }
+.q-timer { margin-top: 8px; color: var(--muted); font-weight: 900; }
+.q-text { margin: 12px 0 16px; font-size: 20px; font-weight: 800; line-height: 1.4; }
+.options { display: grid; gap: 10px; }
+.options .btn { justify-content: flex-start; min-height: 50px; text-align: left; font-size: 17px; }
+.key { display: grid; place-items: center; flex: none; width: 26px; height: 26px; border-radius: 8px; border: 2px solid var(--line); color: var(--muted); font-size: 14px; }
+.btn.sel .key { border-color: #84D8FF; color: var(--blue-dark); }
+.q-foot { display: flex; justify-content: space-between; align-items: center; margin-top: 14px; color: var(--muted); font-size: 14px; }
+
+.bottom { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.bottom h3 { margin-bottom: 10px; font-size: 17px; font-weight: 900; }
+.row { display: flex; flex-wrap: wrap; gap: 10px; }
+.topic-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.topic-grid .btn { justify-content: flex-start; min-height: 52px; font-size: 16px; }
+.topic-grid .icon { width: 28px; height: 28px; }
+.score { display: grid; gap: 8px; }
+.score-row { display: flex; align-items: center; gap: 10px; font-weight: 900; }
+.score-row .bar { flex: 1; height: 12px; border-radius: 6px; background: #EEE; overflow: hidden; }
+.score-row .bar i { display: block; height: 100%; border-radius: 6px; }
+.score-row b { min-width: 60px; text-align: right; color: var(--green); }
+
+/* ================= Chung cho 3 phương án vẽ tay =================
+   Viền + gờ + nền chuyển xuống lớp ::before (có bộ lọc SVG làm run nét) → chữ phía trên vẫn sắc nét. */
+.hand :is(.card, .btn, .toast, .pill, .tag) { background: transparent; border-color: transparent; box-shadow: none; isolation: isolate; }
+.hand :is(.card, .btn, .toast, .pill, .tag)::before { content: ""; position: absolute; inset: -2px; z-index: -1; pointer-events: none; }
+.hand .key { border-color: transparent; position: relative; isolation: isolate; }
+.hand .key::before { content: ""; position: absolute; inset: -2px; z-index: -1; border: 2px solid var(--line); border-radius: 7px 10px 8px 9px; filter: url(#wob-s); }
+.hand .btn.sel .key::before { border-color: #84D8FF; }
+
+/* Các "nét" của A và B tách thành class f-* trên <body> để trộn tự do (xem FEATURES trong script). */
+
+/* ---------- A · Nét bút chì ---------- */
+.f-pen :is(.card, .btn, .toast, .pill, .tag)::before {
+  background: var(--fill); border: 2px solid var(--bd); box-shadow: 0 4px 0 var(--bd);
+  border-radius: 16px 22px 15px 20px / 20px 15px 22px 16px; filter: url(#wob);
+}
+.f-pen :is(.pill, .tag)::before { border-radius: 999px 900px 999px 950px; }
+.f-pen .map-card::before { border-radius: 22px 26px 20px 24px; }
+/* nét vẽ lại lần 2, lệch nhẹ */
+.f-pen2 :is(.card, .btn, .toast)::after {
+  content: ""; position: absolute; inset: -4px -3px -3px -4px; z-index: -1; pointer-events: none;
+  border: 1.5px solid var(--bd); border-radius: 22px 15px 20px 16px / 15px 20px 16px 22px; opacity: .55; filter: url(#wob2);
+}
+.f-pen2 .card::after { border-color: #D6D6D6; }
+/* trên sticker: nét phác nằm ngoài mép trắng */
+.f-sticker.f-pen2 :is(.card, .btn, .toast)::after { inset: -7px -6px -8px -7px; }
+.f-wave :is(.q-head h2, .bottom h3) {
+  padding-bottom: 6px;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 8' preserveAspectRatio='none'%3E%3Cpath d='M2 5c10-4 18 2 28-1s17-3 27 0 18 2 28-1 18-2 33 1' fill='none' stroke='%2358CC02' stroke-width='2.4' stroke-linecap='round'/%3E%3C/svg%3E") left bottom / 100% 7px no-repeat;
+}
+.f-icon-wob .icon { filter: url(#wob-s); }
+
+/* ---------- B · Giấy cắt dán ---------- */
+.f-sticker :is(.card, .btn, .toast, .pill, .tag)::before {
+  background: var(--fill); border: 2px solid var(--bd);
+  box-shadow: 0 0 0 3px #fff, 0 6px 0 2px var(--bd), 0 8px 10px 2px rgba(0, 0, 0, .08);
+  border-radius: 14px 20px 12px 18px / 18px 12px 20px 14px; filter: url(#wob-s);
+}
+.f-sticker .card::before { border-color: #EDEDED; box-shadow: 0 0 0 3px #fff, 0 6px 0 2px var(--line), 0 10px 14px rgba(0, 0, 0, .07); }
+.f-sticker :is(.pill, .tag)::before { border-radius: 10px 14px 9px 13px; }
+/* Nghiêng mạnh (B) */
+.f-tilt .row > .btn:nth-child(odd), .f-tilt .topic-grid > .btn:nth-child(4n+1), .f-tilt .topic-grid > .btn:nth-child(4n) { rotate: -1.2deg; }
+.f-tilt .row > .btn:nth-child(even), .f-tilt .topic-grid > .btn:nth-child(4n+2) { rotate: 1deg; }
+.f-tilt .options > .btn:nth-child(odd) { rotate: -.5deg; }
+.f-tilt .options > .btn:nth-child(even) { rotate: .5deg; }
+.f-tilt .qcard { rotate: .6deg; }
+.f-tilt .topbar { rotate: -.3deg; }
+.f-tilt .bottom > .card:first-child { rotate: -.5deg; }
+.f-tilt .bottom > .card:last-child { rotate: .4deg; }
+/* Nghiêng nhẹ: chỉ khối nhỏ nổi (thông báo, nhãn) — nút + khung đứng thẳng */
+:is(.f-tilt, .f-tilt-lite) .toast { transform: translateX(-50%) rotate(-1.5deg); }
+:is(.f-tilt, .f-tilt-lite) :is(.pill, .tag) { rotate: -2deg; }
+.f-tilt-lite .btn.green, .f-tilt-lite .btn.primary { rotate: -.8deg; }
+:is(.f-tilt, .f-tilt-lite) .btn:hover { rotate: 0deg; }
+/* Băng dính giữ khung câu hỏi + thông báo */
+.tape { display: none; }
+.f-tape .tape {
+  display: block; position: absolute; top: -12px; left: 50%; width: 92px; height: 24px; translate: -50% 0; rotate: -4deg; z-index: 3; pointer-events: none;
+  background: rgba(255, 200, 0, .55);
+  clip-path: polygon(0 8%, 6% 0, 10% 12%, 15% 2%, 85% 0, 90% 10%, 95% 0, 100% 6%, 100% 92%, 94% 100%, 90% 88%, 85% 100%, 14% 98%, 9% 88%, 5% 100%, 0 90%);
+}
+.f-tape .toast .tape { width: 54px; top: -10px; left: 12%; rotate: 8deg; background: rgba(255, 255, 255, .7); }
+.f-green-h .q-head h2 { color: var(--green); }
+
+/* ---------- C · Bút dạ tô màu ---------- */
+[data-v="c"] :is(.card, .btn, .toast, .pill, .tag)::before {
+  background: var(--fill); box-shadow: 0 4px 0 var(--bd);
+  border-radius: 15px 20px 14px 19px / 19px 14px 20px 15px; translate: 3px 2px;
+}
+/* Nét viền bút dạ cùng tông (không đen), lệch khỏi mảng tô */
+[data-v="c"] :is(.card, .btn, .toast, .pill, .tag)::after {
+  content: ""; position: absolute; inset: -3px; z-index: -1; pointer-events: none;
+  border: 2px solid var(--mk); border-radius: 18px 14px 20px 15px / 14px 20px 15px 19px; filter: url(#wob);
+}
+[data-v="c"] .card::after { border-color: #D2D2D2; }
+[data-v="c"] .card::before { translate: 2px 2px; }
+[data-v="c"] :is(.pill, .tag)::before, [data-v="c"] :is(.pill, .tag)::after { border-radius: 999px; }
+[data-v="c"] .map-card::after { border-color: #9FCBE3; }
+/* Vệt dạ quang sau tiêu đề */
+[data-v="c"] .q-head h2, [data-v="c"] .bottom h3 {
+  display: inline-block; padding: 0 6px; margin-left: -6px; color: var(--ink);
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 20' preserveAspectRatio='none'%3E%3Cpath d='M2 12c18-5 40-7 96-4M4 16c30-4 60-5 92-2' fill='none' stroke='%23FFC800' stroke-opacity='.55' stroke-width='8' stroke-linecap='round'/%3E%3C/svg%3E") left 60% / 100% 80% no-repeat;
+}
+[data-v="c"] .key::before { translate: 1px 1px; border-color: var(--mk, #B9B9B9); }
+
+@media (max-width: 900px) { .main, .bottom { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body data-v="a">
+<!-- Bộ lọc làm run nét (chỉ áp lên lớp nền ::before/::after, không áp lên chữ) -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <filter id="wob" x="-5%" y="-10%" width="110%" height="130%"><feTurbulence type="fractalNoise" baseFrequency="0.03" numOctaves="2" seed="3" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="4" xChannelSelector="R" yChannelSelector="G"/></filter>
+  <filter id="wob2" x="-5%" y="-10%" width="110%" height="130%"><feTurbulence type="fractalNoise" baseFrequency="0.04" numOctaves="2" seed="11" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="4" xChannelSelector="R" yChannelSelector="G"/></filter>
+  <filter id="wob-s" x="-10%" y="-10%" width="120%" height="120%"><feTurbulence type="fractalNoise" baseFrequency="0.05" numOctaves="1" seed="5" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="2.2" xChannelSelector="R" yChannelSelector="G"/></filter>
+</svg>
+
+<header class="picker">
+  <h1>Mockup: chất vẽ tay</h1>
+  <div class="tabs" role="group" aria-label="Phương án">
+    <button type="button" data-v="cur">Hiện tại</button>
+    <button type="button" data-v="a">A · Nét bút chì</button>
+    <button type="button" data-v="b">B · Giấy cắt dán</button>
+    <button type="button" data-v="c">C · Bút dạ tô màu</button>
+    <button type="button" data-v="ab1">A+B ① Phác + băng dính</button>
+    <button type="button" data-v="ab2">A+B ② Sticker phác tay</button>
+  </div>
+  <kbd>phím 0 · 1 · 2 · 3 · 4 · 5</kbd>
+</header>
+<div class="desc" id="desc"></div>
+
+<div class="app">
+  <div class="card topbar">
+    <div class="team-chip"><span class="mascot" data-ic="flag"></span>Đội Rồng</div>
+    <div class="stat"><span data-ic="timer"></span><b>18:42</b></div>
+    <div class="stat"><b>1.250</b> điểm</div>
+    <div class="stat"><b>4</b> tỉnh</div>
+    <span class="pill"><span data-ic="festival"></span>Lễ hội Miền Bắc 02:41</span>
+    <span class="spacer"></span>
+    <button class="btn" type="button" aria-label="Âm thanh"><span data-ic="sound-on"></span></button>
+  </div>
+
+  <div class="main">
+    <section class="card map-card">
+      <svg id="map" viewBox="20 28 320 250" aria-label="Bản đồ"></svg>
+      <div class="toast"><i class="tape" aria-hidden="true"></i><span class="with-icon"><span data-ic="flag"></span>Chiếm được Lạng Sơn! +120 điểm</span></div>
+      <div class="zoom"><button class="btn" type="button">+</button><button class="btn" type="button">−</button><button class="btn" type="button"><span data-ic="hat"></span></button></div>
+    </section>
+
+    <aside class="card qcard"><i class="tape" aria-hidden="true"></i>
+      <div class="q-head"><h2>Trạm: Hà Nội · 100 điểm</h2><span class="tag">Mức 2</span></div>
+      <div class="q-timer"><span class="with-icon"><span data-ic="timer"></span>00:12 · còn 100 điểm</span></div>
+      <p class="q-text">Món bún nào của Hà Nội được ăn kèm chả nướng than hoa?</p>
+      <div class="options">
+        <button class="btn" type="button"><span class="key">1</span>Bún thang</button>
+        <button class="btn sel" type="button"><span class="key">2</span>Bún chả</button>
+        <button class="btn" type="button"><span class="key">3</span>Bún ốc</button>
+        <button class="btn" type="button"><span class="key">4</span>Bún đậu mắm tôm</button>
+      </div>
+      <div class="q-foot"><span>Mẹo: bấm phím 1–4</span><button class="btn small" type="button"><span data-ic="skip"></span> Bỏ qua</button></div>
+    </aside>
+  </div>
+
+  <div class="bottom">
+    <div class="card">
+      <h3>Thẻ bài &amp; hành động</h3>
+      <div class="row">
+        <button class="btn" type="button"><span data-ic="scout"></span> Trinh sát</button>
+        <button class="btn" type="button"><span data-ic="shield"></span> Phòng thủ</button>
+        <button class="btn" type="button"><span data-ic="march"></span> Hành quân gấp</button>
+        <button class="btn danger" type="button"><span data-ic="siege"></span> Công thành</button>
+        <button class="btn" type="button"><span data-ic="retreat"></span> Rút lui</button>
+        <button class="btn green" type="button"><span data-ic="play"></span> Bắt đầu</button>
+        <button class="btn primary" type="button"><span data-ic="map"></span> Xem bản đồ</button>
+      </div>
+    </div>
+    <div class="card">
+      <h3>Chọn chủ đề</h3>
+      <div class="topic-grid">
+        <button class="btn" type="button"><span data-ic="topic-am-thuc"></span> Ẩm thực</button>
+        <button class="btn" type="button"><span data-ic="topic-van-hoa"></span> Văn hóa</button>
+        <button class="btn" type="button"><span data-ic="topic-di-san"></span> Di sản</button>
+        <button class="btn sel" type="button"><span data-ic="dice"></span> Ngẫu nhiên</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="map-data.js"></script>
+<script src="icons-data.js"></script>
+<script>
+const DESC = {
+  cur: ['Hiện tại', 'Nét thẳng, bo tròn đều — để so sánh.', ''],
+  a: ['A · Nét bút chì', 'Viền nút/khung run nhẹ như vẽ tay, có nét thứ hai mờ lệch ra (như phác 2 lần). Ranh giới tỉnh cũng vẽ 2 nét. Tiêu đề gạch chân lượn sóng. Icon run nhẹ.',
+    'Thay đổi ít nhất so với hiện tại · màu, gờ đáy, bố cục giữ nguyên.'],
+  b: ['B · Giấy cắt dán', 'Mỗi khối như mẩu giấy/sticker cắt bằng kéo: mép trắng, hơi nghiêng, bóng giấy nhẹ, băng dính trên khung câu hỏi và thông báo. Tỉnh là mảnh giấy rời, khe trắng rộng; tỉnh đang đứng nghiêng như vừa được nhấc lên.',
+    'Vui mắt nhất · nhưng nghiêng nhiều có thể làm đọc chữ chậm hơn chút (đã giữ khung câu hỏi gần thẳng).'],
+  c: ['C · Bút dạ tô màu', 'Viền bút dạ cùng tông màu (không đen), mảng màu tô lệch ra ngoài viền một chút như tô vội. Tiêu đề có vệt dạ quang phía sau. Tỉnh có viền đậm cùng tông, màu lệch nhẹ.',
+    'Rõ chất vẽ tay nhất · thêm một lớp viền nên nhìn "đậm" hơn hai bản kia.'],
+  ab1: ['A+B ① Phác + băng dính', 'Nền là A: nét run + nét phác thứ hai, gạch chân lượn sóng, ranh giới tỉnh 2 nét. Lấy từ B: băng dính trên khung câu hỏi/thông báo, tỉnh đang đứng được nhấc lên nghiêng như mảnh giấy. Chỉ thông báo, nhãn và 2 nút chính hơi nghiêng; còn lại đứng thẳng.',
+    'Gần A nhất · thêm điểm nhấn vui của B mà vẫn dễ đọc.'],
+  ab2: ['A+B ② Sticker phác tay', 'Nền là B: khối sticker mép trắng, bóng giấy, hơi nghiêng, băng dính, bản đồ mảnh giấy rời. Lấy từ A: nét phác thứ hai mờ chạy ngoài mép sticker, gạch chân lượn sóng, tỉnh có thể đi viền 2 nét.',
+    'Gần B nhất · vui mắt, chất "cắt dán + phác tay" rõ hơn ①.'],
+}
+// Mỗi phương án = tập class f-* trên <body> + kiểu bản đồ
+const FEATURES = {
+  cur: { f: [], map: 'cur' },
+  a: { f: ['pen', 'pen2', 'wave', 'icon-wob'], map: 'a' },
+  b: { f: ['sticker', 'tilt', 'tape', 'green-h'], map: 'b', curTilt: true },
+  c: { f: [], map: 'c' },
+  ab1: { f: ['pen', 'pen2', 'wave', 'icon-wob', 'tape', 'tilt-lite'], map: 'a', curTilt: true },
+  ab2: { f: ['sticker', 'pen2', 'wave', 'tilt', 'tape'], map: 'b', curTilt: true, reachDouble: true },
+}
+const PERF = 'Bản đồ: nét run được tính sẵn một lần khi vẽ (không dùng bộ lọc) → không ảnh hưởng camera bay. Nút/khung: bộ lọc SVG chỉ áp lên lớp nền, chữ vẫn sắc nét.'
+
+// ---- Icon ----
+const ICON = (name, size) => window.ICON_SVG[name].replace('width="1.25em" height="1.25em"', size ? `width="${size}" height="${size}"` : 'width="1.25em" height="1.25em"')
+document.querySelectorAll('[data-ic]').forEach(s => { s.outerHTML = ICON(s.dataset.ic) })
+
+// ---- Bản đồ (mảnh miền Bắc) ----
+const D = window.MAP_DATA
+const byId = new Map(D.provinces.map(p => [p.id, p]))
+const TEAM = '#C0392B', TEAM_DARK = '#8E2A20'
+const CUR = 'ha-noi'
+const OWNED = new Set(['lang-son', 'thai-nguyen', 'bac-ninh'])
+const REACH = new Set(['phu-tho', 'hung-yen', 'ninh-binh'])
+const TAKEN = new Set(['quang-ninh'])
+const CENTRAL = new Set(['thanh-hoa', 'nghe-an', 'ha-tinh', 'quang-tri', 'hue'])
+const visible = id => id === CUR || OWNED.has(id) || REACH.has(id) || TAKEN.has(id)
+const fillOf = id => !visible(id) ? '#D5DEE6' : OWNED.has(id) ? TEAM : TAKEN.has(id) ? '#AFAFAF' : CENTRAL.has(id) ? '#F6CD72' : '#FFC2D1'
+const darkOf = id => !visible(id) ? '#B2C0CC' : OWNED.has(id) ? TEAM_DARK : TAKEN.has(id) ? '#8C8C8C' : CENTRAL.has(id) ? '#C8992F' : '#E07A96'
+
+function parse(d) {
+  const polys = []
+  let cur = null
+  const t = d.match(/[MLZ]|-?\d+(?:\.\d+)?/g)
+  for (let i = 0; i < t.length; i++) {
+    if (t[i] === 'M') { cur = []; polys.push(cur); cur.push([+t[++i], +t[++i]]) }
+    else if (t[i] === 'L') cur.push([+t[++i], +t[++i]])
+    else if (t[i] !== 'Z') cur.push([+t[i], +t[++i]])
+  }
+  return polys
+}
+const POLYS = new Map(D.provinces.map(p => [p.id, parse(p.d)]))
+// Nhiễu mượt theo vị trí: cùng điểm → cùng độ lệch, nên ranh giới chung của 2 tỉnh vẫn khít
+const noise = (x, y, s) => Math.sin(x * .11 + s) * Math.cos(y * .13 + s * 1.7) + .6 * Math.sin((x - y) * .23 + s * 2.3) + .25 * Math.sin(x * 1.3 + y * .9 + s)
+function pathOf(id, amp = 0, seed = 1) {
+  return POLYS.get(id).map(poly => 'M' + poly.map(([x, y]) => {
+    const dx = amp * noise(x, y, seed), dy = amp * noise(y + 7, x - 3, seed + 4)
+    return `${(x + dx).toFixed(1)},${(y + dy).toFixed(1)}`
+  }).join('L') + 'Z').join('')
+}
+
+const NSS = 'vector-effect="non-scaling-stroke" stroke-linejoin="round" stroke-linecap="round"'
+const ids = D.provinces.map(p => p.id)
+
+function buildMap({ map: v, curTilt, reachDouble }) {
+  const amp = v === 'cur' ? 0 : v === 'b' ? 1.3 : 1
+  const P = id => pathOf(id, amp, 1)
+  let s = ''
+  // Khối sticker: bóng xanh + viền trắng ngoài
+  s += `<g transform="translate(0 2.6)">${ids.map(id => `<path d="${P(id)}" fill="#8CCBEA" stroke="#8CCBEA" stroke-width="12" ${NSS}/>`).join('')}</g>`
+  s += ids.map(id => `<path d="${P(id)}" fill="#fff" stroke="#fff" stroke-width="12" ${NSS}/>`).join('')
+
+  if (v === 'cur') {
+    s += ids.map(id => `<path d="${P(id)}" fill="${fillOf(id)}" stroke="#fff" stroke-width="1.6" ${NSS}/>`).join('')
+  } else if (v === 'a') {
+    s += ids.map(id => `<path d="${P(id)}" fill="${fillOf(id)}"/>`).join('')
+    s += ids.map(id => `<path d="${P(id)}" fill="none" stroke="#fff" stroke-width="1.8" ${NSS}/>`).join('')
+    s += ids.map(id => `<path d="${pathOf(id, amp, 3.2)}" fill="none" stroke="#fff" stroke-opacity=".75" stroke-width="1" ${NSS}/>`).join('')
+  } else if (v === 'b') {
+    // Mảnh giấy: bóng giấy dưới từng tỉnh đang thấy, khe trắng rộng
+    s += ids.filter(visible).map(id => `<path d="${P(id)}" fill="rgba(0,0,0,.13)" transform="translate(.7 1.1)"/>`).join('')
+    s += ids.map(id => `<path d="${P(id)}" fill="${fillOf(id)}" stroke="#fff" stroke-width="3.2" ${NSS}/>`).join('')
+  } else {
+    // Bút dạ: màu tô lệch khỏi viền, viền cùng tông
+    s += ids.map(id => `<path d="${pathOf(id, amp, 2)}" fill="${fillOf(id)}" transform="translate(.9 .7)"/>`).join('')
+    s += ids.map(id => `<path d="${P(id)}" fill="none" stroke="#fff" stroke-width="1.2" stroke-opacity=".8" ${NSS}/>`).join('')
+    s += ids.map(id => `<path d="${P(id)}" fill="none" stroke="${darkOf(id)}" stroke-width="1.6" stroke-opacity=".75" ${NSS}/>`).join('')
+  }
+
+  // Tỉnh có thể đi: viền đậm cùng tông
+  for (const id of REACH) {
+    s += `<path d="${P(id)}" fill="none" stroke="${darkOf(id)}" stroke-width="${v === 'c' ? 3 : 2.5}" ${NSS}/>`
+    if (v === 'a' || reachDouble) s += `<path d="${pathOf(id, amp, 5)}" fill="none" stroke="${darkOf(id)}" stroke-opacity=".5" stroke-width="1.2" ${NSS}/>`
+  }
+
+  // Tỉnh đang đứng: nổi khối
+  const c = byId.get(CUR), [lx, ly] = c.label
+  const tilt = curTilt ? ` rotate(-4 ${lx} ${ly})` : ''
+  s += `<g transform="translate(0 0)${tilt}">`
+  s += curTilt
+    ? `<path d="${P(CUR)}" fill="rgba(0,0,0,.18)" transform="translate(1.6 3)"/>`
+    : `<path d="${P(CUR)}" fill="#E07A96" stroke="#E07A96" stroke-width="2" ${NSS}/>`
+  s += `<g transform="translate(0 -4)"><path d="${P(CUR)}" fill="#FFD6E1" stroke="#FFC800" stroke-opacity=".7" stroke-width="5" ${NSS}/>`
+  s += `<path d="${P(CUR)}" fill="#FFD6E1" stroke="${v === 'c' ? '#E07A96' : '#fff'}" stroke-width="1.6" ${NSS}/>`
+  if (v === 'c') s += `<path d="${pathOf(CUR, amp, 2)}" fill="#FFC2D1" transform="translate(.9 .7)" opacity=".6"/>`
+  s += `</g></g>`
+
+  // Nhãn + cờ + nón lá
+  for (const p of D.provinces) {
+    const [x, y] = p.label
+    if (x < 10 || x > 350 || y < 20 || y > 290) continue
+    const fog = !visible(p.id)
+    const yy = p.id === CUR ? y - 4 : y
+    const onTeam = OWNED.has(p.id)
+    s += `<text x="${x}" y="${yy + 2}" text-anchor="middle" font-size="5.6" font-weight="800" paint-order="stroke" stroke-width="1.8" stroke-linejoin="round"`
+      + ` fill="${onTeam ? '#fff' : fog ? '#9AA7B2' : '#3C3C3C'}" stroke="${onTeam ? 'rgba(0,0,0,.35)' : '#fff'}" font-family="Nunito, system-ui">${p.name}</text>`
+    if (onTeam) s += svgIcon('flag', x - 4.5, yy - 11, 9, TEAM)
+    if (TAKEN.has(p.id)) s += svgIcon('flag-unknown', x - 4.5, yy - 11, 9)
+  }
+  s += svgIcon('hat', lx - 6.5, ly - 21, 13)
+  return s
+}
+function svgIcon(name, x, y, size, color) {
+  return ICON(name, size).replace('<svg ', `<svg x="${x}" y="${y}" ${color ? `style="--ic:${color}" ` : ''}`)
+}
+
+// ---- Chuyển phương án ----
+function setVariant(v) {
+  document.body.dataset.v = v
+  const ft = FEATURES[v]
+  document.body.className = (v === 'cur' ? '' : 'hand ') + ft.f.map(f => 'f-' + f).join(' ')
+  document.querySelectorAll('.tabs button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.v === v)))
+  const [name, text, note] = DESC[v]
+  document.getElementById('desc').innerHTML = `<p class="name">${name}</p><p>${text}</p>${note ? `<p class="note">${note}</p><p class="note">${PERF}</p>` : ''}`
+  document.getElementById('map').innerHTML = buildMap(ft)
+  try { localStorage.setItem('hand-variant', v) } catch {}
+}
+document.querySelectorAll('.tabs button').forEach(b => b.addEventListener('click', () => setVariant(b.dataset.v)))
+document.addEventListener('keydown', e => { const v = { 0: 'cur', 1: 'a', 2: 'b', 3: 'c', 4: 'ab1', 5: 'ab2' }[e.key]; if (v) setVariant(v) })
+let start = new URLSearchParams(location.search).get('v')
+try { start ??= localStorage.getItem('hand-variant') } catch {}
+setVariant(DESC[start] ? start : 'ab1')
+</script>
+</body>
+</html>

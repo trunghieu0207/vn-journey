@@ -1,0 +1,448 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mockup: Quê tôi + Giao lưu</title>
+<!-- Dùng CSS thật của app; trang này chỉ thêm phần dàn cảnh cho 3 ý: Quê tôi, Hỏi người bản xứ, Giao lưu ghép đôi -->
+<link rel="stylesheet" href="../public/style.css">
+<style>
+@font-face { font-family: "Nunito"; src: url("../public/fonts/nunito.ttf") format("truetype"); font-weight: 200 1000; }
+html, body { height: auto; }
+.head { position: sticky; top: 0; z-index: 30; display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: center; padding: 12px 24px; background: #fff; border-bottom: 2px solid var(--line); }
+.head h1 { color: var(--green); font-size: 20px; font-weight: 900; }
+.head nav { display: flex; flex-wrap: wrap; gap: 6px; }
+.head nav a { padding: 4px 12px; border-radius: 10px; border: 2px solid var(--line); color: var(--ink); font-weight: 800; font-size: 14px; text-decoration: none; }
+.intro { max-width: 1240px; margin: 16px auto 0; padding: 0 24px; color: var(--muted); }
+.intro b { color: var(--ink); }
+.tiles { max-width: 1240px; margin: 0 auto; padding: 20px 24px 60px; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 28px; }
+@media (max-width: 900px) { .tiles { grid-template-columns: 1fr; } }
+.tile.wide { grid-column: 1 / -1; }
+.tile h2 { display: flex; align-items: center; gap: 8px; scroll-margin-top: 80px; }
+.tile .num { display: inline-grid; place-items: center; width: 26px; height: 26px; border-radius: 50%; background: var(--green); color: #fff; font-size: 14px; }
+.tile .when { margin: 2px 0 12px; color: var(--muted); font-size: 14px; }
+.tile .how { margin: 12px 0 0; padding-left: 20px; font-size: 14px; }
+.tile .how li { margin: 3px 0; }
+.tile .how b { color: var(--ink); }
+.tile-foot { display: flex; flex-wrap: wrap; gap: 8px; justify-content: flex-end; margin-top: 12px; }
+.screen { position: relative; padding: 18px; border-radius: 16px 20px 15px 19px / 19px 15px 20px 16px; background: var(--bg); }
+.screen.dark { background: #1F2A36; color: #fff; }
+.label-tag { position: absolute; top: -11px; left: 16px; padding: 1px 10px; border-radius: 8px; background: var(--ink); color: #fff; font-size: 12px; font-weight: 800; }
+.mini { display: inline-grid; place-items: center; width: 28px; height: 28px; flex: none; }
+.mini svg { width: 28px; height: 28px; }
+.ico svg { width: 20px; height: 20px; vertical-align: -4px; }
+
+/* 1 · Vào phòng */
+.join { display: grid; gap: 12px; max-width: 420px; margin: 0 auto; }
+.join textarea { resize: none; min-height: 64px; font: 700 15px var(--font); }
+.join .count { justify-self: end; margin-top: -8px; color: var(--muted); font-size: 12px; font-weight: 700; }
+.join .note { margin: -4px 0 0 30px; color: var(--muted); font-size: 13px; }
+.optional { color: var(--muted); font-weight: 700; font-size: 13px; }
+
+/* 2 · Hỏi người bản xứ */
+.ask-grid { display: grid; grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr); gap: 18px; align-items: start; }
+@media (max-width: 700px) { .ask-grid { grid-template-columns: 1fr; } }
+.qcard { display: grid; gap: 10px; }
+.qtop { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.qtop .where { font-weight: 900; font-size: 18px; }
+.qtop .spacer { flex: 1; }
+.timer { display: inline-flex; align-items: center; gap: 4px; padding: 3px 10px; border-radius: 10px; background: #fff; font-weight: 900; box-shadow: 0 0 0 2px var(--line); }
+.timer.plus { box-shadow: 0 0 0 2px var(--green); color: var(--green-dark); }
+.qtext { font-weight: 800; font-size: 17px; }
+.opts { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.opts .btn { justify-content: flex-start; text-align: left; }
+.opts .btn.right { --fill: var(--green); --bd: var(--green-dark); color: #fff; }
+.natives { display: grid; gap: 8px; padding: 10px 12px; border-radius: 14px; background: #FFF6E0; }
+.natives .row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; font-weight: 800; font-size: 14px; }
+.person { display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px 4px 4px; border-radius: 999px; background: #fff; border: 2px solid transparent; font-weight: 800; font-size: 14px; cursor: pointer; font-family: var(--font); color: var(--ink); }
+.person .mini, .person .mini svg { width: 24px; height: 24px; }
+.person small { color: var(--muted); font-weight: 700; }
+.person[aria-pressed="true"] { border-color: var(--orange); background: #FFF1DD; }
+.person:disabled { cursor: default; }
+.go-ask { padding: 8px 12px; border-radius: 12px; background: var(--orange); color: #fff; font-weight: 800; font-size: 14px; }
+.phone { position: relative; display: grid; gap: 10px; padding: 14px; border-radius: 22px; background: #fff; box-shadow: 0 0 0 6px #2C3440; min-height: 220px; align-content: start; }
+.phone .who { display: flex; align-items: center; gap: 8px; font-weight: 900; }
+.phone .who small { display: block; color: var(--muted); font-weight: 700; font-size: 13px; }
+.ping { display: grid; gap: 6px; padding: 12px; border-radius: 14px; background: #FFF1DD; font-size: 14px; }
+.ping b { font-size: 15px; }
+.ping.ok { background: #E8F8DA; }
+.idle { color: var(--muted); font-size: 14px; }
+
+/* 3 · Giao lưu: màn chiếu */
+.proj { display: grid; grid-template-columns: minmax(0, 1fr) 280px; gap: 18px; }
+@media (max-width: 800px) { .proj { grid-template-columns: 1fr; } }
+.proj h3 { display: flex; align-items: center; gap: 10px; font-size: 24px; font-weight: 900; color: var(--accent); }
+.prompt { margin: 10px 0 14px; padding: 14px 16px; border-radius: 16px; background: #2B3948; font-size: 20px; font-weight: 800; line-height: 1.35; }
+.prompt small { display: block; color: #A8B8C8; font-size: 13px; font-weight: 800; margin-bottom: 4px; }
+.pairs { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 8px; }
+.pair { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 6px; padding: 8px 10px; border-radius: 14px; background: #2B3948; font-weight: 800; font-size: 14px; }
+.pair .p { display: flex; align-items: center; gap: 6px; min-width: 0; }
+.pair .p:last-child { flex-direction: row-reverse; text-align: right; }
+.pair .p span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.pair .p small { display: block; color: #A8B8C8; font-weight: 700; font-size: 12px; }
+.pair .link { color: var(--accent); font-weight: 900; }
+.pair.done { box-shadow: 0 0 0 2px var(--green); }
+.side-clock { display: grid; justify-items: center; align-content: start; gap: 14px; }
+.ring { position: relative; width: 150px; height: 150px; }
+.ring svg { width: 150px; height: 150px; transform: rotate(-90deg); }
+.ring .t { position: absolute; inset: 0; display: grid; place-items: center; font-size: 38px; font-weight: 900; }
+.tally { width: 100%; padding: 12px; border-radius: 14px; background: #2B3948; text-align: center; font-weight: 800; }
+.tally b { display: block; font-size: 32px; color: var(--green); }
+.paused { display: inline-flex; gap: 6px; align-items: center; padding: 3px 10px; border-radius: 10px; background: #3B4A5A; color: #CFE0F0; font-size: 13px; font-weight: 800; }
+
+/* 4 · Giao lưu: máy người chơi */
+.meet { display: grid; gap: 12px; max-width: 420px; margin: 0 auto; }
+.meet .partner { display: flex; align-items: center; gap: 12px; padding: 12px; border-radius: 16px; background: #fff; }
+.meet .partner .mini, .meet .partner .mini svg { width: 48px; height: 48px; }
+.meet .partner b { font-size: 20px; }
+.meet .partner small { display: block; color: var(--muted); font-weight: 700; }
+.meet .hint { padding: 12px; border-radius: 14px; background: #EAF7FF; font-weight: 800; }
+.meet .hint small { display: block; color: var(--blue-dark); font-size: 12px; }
+.steps { display: flex; gap: 6px; justify-content: center; }
+.steps i { width: 28px; height: 6px; border-radius: 3px; background: var(--line); }
+.steps i.on { background: var(--green); }
+
+/* 5 · Sảnh chờ */
+.lobby { display: grid; grid-template-columns: 380px minmax(0, 1fr); gap: 24px; align-items: center; }
+@media (max-width: 800px) { .lobby { grid-template-columns: 1fr; } }
+.lobby svg.vn { width: 100%; height: 560px; }
+.lobby .prov { stroke: #1F2A36; stroke-width: 1.2px; vector-effect: non-scaling-stroke; stroke-linejoin: round; fill: #3A4858; }
+.lobby .prov.h1 { fill: #F6CD72; }
+.lobby .prov.h2 { fill: #FF9600; }
+.lobby .prov.h3 { fill: #FF4B4B; }
+.lobby .prov.pulse { stroke: #fff; stroke-width: 2.5px; }
+.big { font-size: 40px; font-weight: 900; line-height: 1.1; }
+.big b { color: var(--accent); }
+.legend { display: flex; gap: 14px; flex-wrap: wrap; margin: 8px 0 20px; color: #A8B8C8; font-size: 13px; font-weight: 800; }
+.legend i { display: inline-block; width: 14px; height: 14px; border-radius: 4px; vertical-align: -2px; margin-right: 4px; }
+.quote { position: relative; padding: 20px 22px; border-radius: 20px; background: #2B3948; min-height: 120px; }
+.quote p { font-size: 24px; font-weight: 800; line-height: 1.35; }
+.quote footer { display: flex; align-items: center; gap: 8px; margin-top: 10px; color: #A8B8C8; font-weight: 800; }
+.dots { display: flex; gap: 6px; margin-top: 12px; }
+.dots i { width: 8px; height: 8px; border-radius: 50%; background: #3B4A5A; }
+.dots i.on { background: var(--accent); }
+.fade { animation: fade .45s ease both; }
+@keyframes fade { from { opacity: 0; transform: translateY(6px); } }
+@media (prefers-reduced-motion: reduce) { .fade { animation: none; } }
+</style>
+</head>
+<body>
+<header class="head">
+  <h1>Mockup · Quê tôi + Giao lưu</h1>
+  <nav>
+    <a href="#t1">1 · Vào phòng</a>
+    <a href="#t2">2 · Hỏi người bản xứ</a>
+    <a href="#t3">3 · Giao lưu (màn chiếu)</a>
+    <a href="#t4">4 · Giao lưu (máy người chơi)</a>
+    <a href="#t5">5 · Sảnh chờ</a>
+  </nav>
+</header>
+<p class="intro"><b>ĐÃ BỎ HƯỚNG NÀY (29/10/2026)</b>: để tránh phân biệt vùng miền và giữ mọi nội dung có kiểm soát, không thu quê từng người, không chữ tự gõ, không ghép đôi. Chỉ giữ để tham khảo; xem docs/solo-mode.md §4.</p>
+<p class="intro">Ba ý dùng chung <b>một dữ liệu: quê của từng người</b>. Nguyên tắc: <b>mời chứ không ép</b>. Không ai bắt buộc khai quê, làm đại sứ hay ra ghép đôi; không bao giờ gọi tên một người lên biểu diễn. Bấm vào các nút trong từng ô để xem các bước.</p>
+
+<main class="tiles">
+
+  <!-- 1 -->
+  <section class="tile card">
+    <h2 id="t1"><span class="num">1</span>Vào phòng: thêm "Quê tôi"</h2>
+    <p class="when">Màn team, ngay sau ô tên. Cả ba ô mới đều không bắt buộc.</p>
+    <div class="screen">
+      <span class="label-tag">Màn team · vào phòng</span>
+      <form class="join" id="joinForm">
+        <label class="field">Tên của bạn
+          <input class="input" value="Lan" maxlength="24">
+        </label>
+        <label class="field"><span>Quê bạn ở đâu? <span class="optional">· không bắt buộc</span></span>
+          <select class="input" id="homeSel"></select>
+        </label>
+        <label class="field"><span>Một điều về quê bạn <span class="optional">· không bắt buộc</span></span>
+          <textarea class="input" id="homeLine" maxlength="80"></textarea>
+        </label>
+        <span class="count" id="homeCount">0/80</span>
+        <label class="check switch-row">
+          <input type="checkbox" id="ambassador" checked>
+          <span><b>Sẵn sàng làm đại sứ</b><br>Đội bạn có thể sang hỏi bạn về quê khi gặp câu về tỉnh đó.</span>
+        </label>
+        <p class="note">Chỉ hiện tên + quê. Không ai biết team bạn đang ở đâu trên bản đồ.</p>
+      </form>
+    </div>
+    <ul class="how">
+      <li>Danh sách quê là <b>34 tỉnh mới</b>; ai không muốn khai thì chọn "Không chọn".</li>
+      <li>Câu "Một điều về quê bạn" sẽ chạy trên màn chiếu lúc chờ (ô 5): cách <b>viết thay vì nói</b>, hợp người ngại đứng lên.</li>
+      <li>Chưa khai quê thì vẫn chơi bình thường; tick đại sứ chỉ có tác dụng khi đã chọn quê.</li>
+    </ul>
+  </section>
+
+  <!-- 2 -->
+  <section class="tile card">
+    <h2 id="t2"><span class="num">2</span>Hỏi người bản xứ</h2>
+    <p class="when">Khi đang trả lời câu ở một tỉnh có đại sứ trong phòng.</p>
+    <div class="ask-grid">
+      <div class="screen">
+        <span class="label-tag">Team Lân · đang ở Huế</span>
+        <div class="qcard">
+          <div class="qtop">
+            <span class="where">Huế</span><span class="pill">Ẩm thực</span>
+            <span class="spacer"></span>
+            <span class="timer" id="askTimer"><span class="ico" data-icon="timer"></span><span id="askSec">24</span>s</span>
+          </div>
+          <p class="qtext">Bún bò Huế có hương vị đặc trưng nhờ được nêm loại mắm gì?</p>
+          <div class="opts" id="askOpts"></div>
+          <div class="natives" id="natives"></div>
+        </div>
+      </div>
+      <div>
+        <div class="phone" id="phone"></div>
+        <div class="tile-foot"><button class="btn" id="askReset" type="button">Xem lại</button></div>
+      </div>
+    </div>
+    <ul class="how">
+      <li>Mỗi team có <b>2 lượt hỏi</b> mỗi trận (không phải thẻ, ai cũng có). Bấm tên người → <b>+20 giây</b>, cả team đứng dậy sang hỏi.</li>
+      <li>Team trả lời đúng → team của đại sứ <b>+20 "Đại sứ"</b>. Giúp đội khác mà team mình vẫn được lợi, nên ai cũng vui vẻ chỉ.</li>
+      <li>Đánh đổi: đại sứ biết có đội đang ở Huế. Đó là cái giá của lượt hỏi, đội tự cân nhắc. Không dùng cho câu so tài (chủ nhà cũng có thể là đội của đại sứ).</li>
+    </ul>
+  </section>
+
+  <!-- 3 -->
+  <section class="tile card wide">
+    <h2 id="t3"><span class="num">3</span>Sự kiện "Giao lưu": ghép đôi khác team</h2>
+    <p class="when">MC tung như các sự kiện khác. Trận tạm dừng 3 phút (đồng hồ, câu hỏi đều đứng yên).</p>
+    <div class="screen dark">
+      <span class="label-tag">Màn chiếu</span>
+      <div class="proj">
+        <div>
+          <h3><span class="ico" data-icon="festival"></span>Giao lưu · Đi tìm bạn mới!</h3>
+          <span class="paused"><span class="ico" data-icon="timer"></span>Trận đang tạm dừng</span>
+          <div class="prompt" id="prompt"></div>
+          <div class="pairs" id="pairs"></div>
+        </div>
+        <div class="side-clock">
+          <div class="ring"><svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="44" fill="none" stroke="#2B3948" stroke-width="10"/><circle id="ringArc" cx="50" cy="50" r="44" fill="none" stroke="#FFC800" stroke-width="10" stroke-linecap="round" pathLength="100" stroke-dasharray="100" stroke-dashoffset="0"/></svg><span class="t" id="clock">3:00</span></div>
+          <div class="tally"><b id="tally">0/9</b>cặp đã trả lời câu về quê bạn mình</div>
+        </div>
+      </div>
+    </div>
+    <div class="tile-foot">
+      <button class="btn" id="nextPrompt" type="button">Đổi câu gợi chuyện</button>
+      <button class="btn primary" id="runPairs" type="button">Chạy thử 3 phút (tua nhanh)</button>
+    </div>
+    <ul class="how">
+      <li>App ghép mỗi người với <b>một người team khác</b>, ưu tiên khác miền. Lẻ người thì có một nhóm ba.</li>
+      <li>Câu gợi chuyện hiện to cho cả phòng; mỗi đôi tự nói chuyện, không ai phải nói trước đám đông.</li>
+      <li>Tên team hiện rõ ở đây vì không lộ vị trí trên bản đồ. Luật ẩn danh khi so tài vẫn giữ nguyên.</li>
+    </ul>
+  </section>
+
+  <!-- 4 -->
+  <section class="tile card wide">
+    <h2 id="t4"><span class="num">4</span>Giao lưu: trên máy người chơi</h2>
+    <p class="when">Cùng lúc với ô 3. Mỗi người thấy bạn của mình.</p>
+    <div class="screen">
+      <span class="label-tag">Màn team · Lan (Rồng)</span>
+      <div class="meet" id="meet"></div>
+    </div>
+    <ul class="how">
+      <li>Bước 1: đi tìm bạn. Bước 2: nói chuyện. Bước 3: một câu hỏi về <b>quê của bạn mới</b>, lấy từ kho câu sẵn có.</li>
+      <li>Trả lời đúng → <b>cả hai team +20</b>. Hai người cùng có lợi nên tự nhiên hỏi nhau.</li>
+      <li>"Lượt này mình ngồi nghỉ" luôn có sẵn, không bị trừ gì. Bạn mình không khai quê thì câu hỏi lấy ngẫu nhiên từ quê mình, để mình kể cho bạn.</li>
+    </ul>
+  </section>
+
+  <!-- 5 -->
+
+  <section class="tile card wide">
+    <h2 id="t5"><span class="num">5</span>Sảnh chờ: "Phòng mình đến từ đâu"</h2>
+    <p class="when">Màn chiếu trước khi bắt đầu (đang là thời gian chết). Bản đồ tô theo số người cùng quê, cập nhật khi có người vào; các câu "Một điều về quê bạn" chạy luân phiên và tỉnh đó sáng viền.</p>
+    <div class="screen dark" id="lobbyWide">
+      <span class="label-tag">Màn chiếu · sảnh chờ</span>
+      <div class="lobby">
+        <svg class="vn" id="vn"></svg>
+        <div>
+          <p class="big">Phòng mình đến từ <b id="nProv">0</b> tỉnh</p>
+          <div class="legend"><span><i style="background:#F6CD72"></i>1 người</span><span><i style="background:#FF9600"></i>2–3 người</span><span><i style="background:#FF4B4B"></i>4+ người</span></div>
+          <div class="quote" id="quote"></div>
+          <div class="dots" id="dots"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<script src="map-data.js"></script>
+<script src="culture-data.js"></script>
+<script>
+const { mascots: MASCOT, icons: ICON } = window.CULTURE_DATA
+const P = window.MAP_DATA.provinces
+const NAME = Object.fromEntries(P.map(p => [p.id, p.name]))
+const TEAM_COLOR = { 'Rồng': '#C0392B', 'Lân': '#E67E22', 'Rùa': '#27AE60', 'Phượng': '#8E44AD', 'Hạc': '#2E86C1', 'Trâu': '#8D6E63' }
+const $ = id => document.getElementById(id)
+const h = (tag, attrs = {}, ...kids) => {
+  const e = document.createElement(tag)
+  for (const [k, v] of Object.entries(attrs)) k === 'html' ? e.innerHTML = v : k.startsWith('on') ? e.addEventListener(k.slice(2), v) : e.setAttribute(k, v)
+  e.append(...kids.filter(k => k != null && k !== false))
+  return e
+}
+const mini = team => h('span', { class: 'mini', html: MASCOT[team] })
+const icon = name => h('span', { class: 'ico', html: ICON[name] })
+document.querySelectorAll('[data-icon]').forEach(e => { e.innerHTML = ICON[e.dataset.icon] })
+
+// Người trong phòng (dữ liệu mẫu)
+const PEOPLE = [
+  { name: 'Lan', team: 'Rồng', home: 'hue', line: 'Về Huế nhớ nhất chén chè bột lọc bọc dừa ở cửa Thượng Tứ.' },
+  { name: 'Tú', team: 'Hạc', home: 'hue', line: 'Mưa Huế dầm dề cả tháng, nên quán bún bò nào cũng ấm.' },
+  { name: 'Minh', team: 'Lân', home: 'can-tho', line: 'Đi chợ nổi Cái Răng phải dậy từ 5 giờ, hàng treo trên cây bẹo.' },
+  { name: 'Hùng', team: 'Rùa', home: 'nghe-an', line: 'Sáng ra làm bát cháo lươn Vinh là tỉnh cả người.' },
+  { name: 'Mai', team: 'Phượng', home: 'ha-noi', line: 'Mùa thu Hà Nội có cốm làng Vòng gói lá sen.' },
+  { name: 'Quân', team: 'Trâu', home: 'da-nang', line: 'Mì Quảng ở quê tôi nước ít thôi, đừng ai đòi thêm nước nhé.' },
+  { name: 'Ngọc', team: 'Hạc', home: 'an-giang', line: 'Tháng nước nổi có bông điên điển, xào tép là hết nồi cơm.' },
+  { name: 'Bảo', team: 'Rồng', home: 'ho-chi-minh', line: 'Sài Gòn ăn sáng 9 giờ vẫn còn bánh mì nóng.' },
+  { name: 'Thảo', team: 'Lân', home: 'thanh-hoa', line: 'Nem chua Thanh Hoá phải gói lá chuối, ăn kèm lá đinh lăng.' },
+  { name: 'Duy', team: 'Rùa', home: 'quang-ninh', line: 'Chả mực Hạ Long giã tay mới giòn sần sật.' },
+  { name: 'Vy', team: 'Phượng', home: 'dak-lak', line: 'Cà phê Buôn Ma Thuột phải pha phin, chờ từng giọt.' },
+  { name: 'Khoa', team: 'Trâu', home: 'hai-phong', line: 'Bánh đa cua Hải Phòng ăn sáng, bánh mì que ăn chiều.' },
+  { name: 'Hà', team: 'Rồng', home: 'ha-noi' }, { name: 'Long', team: 'Hạc', home: 'ha-noi' }, { name: 'Nhi', team: 'Lân', home: 'ha-noi' },
+  { name: 'Phúc', team: 'Rùa', home: 'nghe-an' }, { name: 'Trang', team: 'Phượng', home: 'nghe-an' },
+  { name: 'Sơn', team: 'Trâu', home: 'lao-cai' }, { name: 'An', team: 'Rồng', home: 'khanh-hoa' },
+]
+
+// ---------- 1 · Vào phòng ----------
+const sel = $('homeSel')
+sel.append(h('option', { value: '' }, 'Không chọn'))
+for (const p of [...P].sort((a, b) => a.name.localeCompare(b.name, 'vi'))) sel.append(h('option', { value: p.id }, p.name))
+sel.value = 'hue'
+const EXAMPLES = ['VD: Về Huế nhớ nhất chén chè bột lọc…', 'VD: Quê tôi sáng nào cũng có bánh canh…', 'VD: Tết ở quê tôi phải có bánh tét…']
+let ex = 0
+const line = $('homeLine'), amb = $('ambassador')
+line.placeholder = EXAMPLES[0]
+setInterval(() => { line.placeholder = EXAMPLES[++ex % EXAMPLES.length] }, 3000)
+line.addEventListener('input', () => { $('homeCount').textContent = `${line.value.length}/80` })
+sel.addEventListener('change', () => { amb.disabled = !sel.value; if (!sel.value) amb.checked = false })
+$('joinForm').addEventListener('submit', e => e.preventDefault())
+
+// ---------- 2 · Hỏi người bản xứ ----------
+const OPTS = ['Mắm ruốc', 'Mắm tôm', 'Mắm nêm', 'Nước mắm cá cơm']
+const natives = PEOPLE.filter(p => p.home === 'hue')
+let ask, tick
+function askState() { return { step: 'idle', who: null, sec: 24, left: 2 } }
+function renderAsk() {
+  const opts = $('askOpts'); opts.replaceChildren()
+  OPTS.forEach((o, i) => opts.append(h('button', {
+    class: `btn${ask.step === 'done' && i === 0 ? ' right' : ''}`, type: 'button',
+    onclick: () => { if (ask.step === 'asking' && i === 0) { ask.step = 'done'; clearInterval(tick); renderAsk() } },
+  }, o)))
+  $('askSec').textContent = ask.sec
+  $('askTimer').classList.toggle('plus', ask.step !== 'idle')
+  const box = $('natives'); box.replaceChildren()
+  if (ask.step === 'idle') {
+    box.append(h('div', { class: 'row' }, `Trong phòng có ${natives.length} người quê Huế. Bấm tên để sang hỏi (+20 giây):`))
+    box.append(h('div', { class: 'row' }, ...natives.map(p => h('button', { class: 'person', type: 'button', 'aria-pressed': 'false', onclick: () => startAsk(p) },
+      mini(p.team), p.name, h('small', {}, `· ${p.team}`))), h('small', { class: 'optional' }, `còn ${ask.left} lượt`)))
+  } else if (ask.step === 'asking') {
+    box.append(h('div', { class: 'go-ask' }, `Sang hỏi ${ask.who.name} (Team ${ask.who.team}) nhé! Đồng hồ được +20 giây.`))
+    box.append(h('div', { class: 'row' }, h('button', { class: 'person', type: 'button', 'aria-pressed': 'true', disabled: '' }, mini(ask.who.team), ask.who.name, h('small', {}, '· quê Huế')),
+      h('small', { class: 'optional' }, 'Hỏi xong thì bấm đáp án như thường (thử bấm "Mắm ruốc")')))
+  } else {
+    box.append(h('div', { class: 'row' }, `Đúng rồi! Cảm ơn ${ask.who.name}, Team ${ask.who.team} được +20 Đại sứ.`))
+  }
+  const ph = $('phone'); ph.replaceChildren(h('div', { class: 'who' }, mini('Rồng'), h('div', {}, 'Lan', h('small', {}, 'Team Rồng · đại sứ Huế'))))
+  if (ask.step === 'idle') ph.append(h('p', { class: 'idle' }, 'Máy của Lan đang chơi bình thường. Bấm tên Lan ở bên trái để xem Lan nhận được gì.'))
+  else if (ask.who.name !== 'Lan') ph.append(h('p', { class: 'idle' }, `Đội bạn đang hỏi ${ask.who.name}, máy Lan không có gì thay đổi.`))
+  else if (ask.step === 'asking') ph.append(h('div', { class: 'ping fade' }, h('b', {}, 'Có đội bạn đang sang hỏi bạn về Huế!'), 'Giúp họ trả lời đúng thì team bạn được +20 Đại sứ.'))
+  else ph.append(h('div', { class: 'ping ok fade' }, h('b', {}, 'Bạn vừa giúp đúng!'), 'Team Rồng +20 Đại sứ. Cảm ơn đại sứ Huế.'))
+}
+function startAsk(p) {
+  ask.step = 'asking'; ask.who = p; ask.sec += 20; ask.left--
+  clearInterval(tick); tick = setInterval(() => { if (ask.sec > 1) { ask.sec--; $('askSec').textContent = ask.sec } }, 1000)
+  renderAsk()
+}
+$('askReset').addEventListener('click', () => { clearInterval(tick); ask = askState(); renderAsk() })
+ask = askState(); renderAsk()
+
+// ---------- 3 · Giao lưu: màn chiếu ----------
+const PROMPTS = [
+  'Món nào ở quê bạn mà người nơi khác hay hiểu nhầm?',
+  'Tết ở quê bạn có món gì nhất định phải có?',
+  'Nếu mình về quê bạn một ngày, bạn dẫn mình đi đâu?',
+  'Có từ địa phương nào ở quê bạn mà người khác nghe không hiểu?',
+]
+let pi = 0
+const showPrompt = () => { $('prompt').replaceChildren(h('small', {}, 'Câu gợi chuyện'), PROMPTS[pi % PROMPTS.length]); $('prompt').classList.remove('fade'); void $('prompt').offsetWidth; $('prompt').classList.add('fade') }
+$('nextPrompt').addEventListener('click', () => { pi++; showPrompt() })
+const PAIRS = [[0, 2], [3, 4], [5, 6], [7, 9], [8, 11], [10, 12], [13, 15], [14, 18], [16, 17]].map(([a, b]) => [PEOPLE[a], PEOPLE[b]])
+const pairEls = PAIRS.map(([a, b]) => {
+  const side = p => h('div', { class: 'p' }, mini(p.team), h('span', {}, p.name, h('small', {}, `${p.team} · ${NAME[p.home] ?? ''}`)))
+  const el = h('div', { class: 'pair' }, side(a), h('span', { class: 'link' }, '+'), side(b))
+  $('pairs').append(el); return el
+})
+showPrompt()
+let run
+$('runPairs').addEventListener('click', () => {
+  cancelAnimationFrame(run); pairEls.forEach(e => e.classList.remove('done'))
+  const total = 180, speed = 18, t0 = performance.now(), doneAt = PAIRS.map((_, i) => 70 + i * 11 + (i % 3) * 7)
+  const step = now => {
+    const s = Math.min(total, (now - t0) / 1000 * speed), left = Math.ceil(total - s)
+    $('clock').textContent = `${Math.floor(left / 60)}:${String(left % 60).padStart(2, '0')}`
+    $('ringArc').setAttribute('stroke-dashoffset', String(s / total * 100))
+    let n = 0; doneAt.forEach((d, i) => { if (s >= d) { pairEls[i].classList.add('done'); n++ } })
+    $('tally').textContent = `${n}/${PAIRS.length}`
+    if (s < total) run = requestAnimationFrame(step)
+  }
+  run = requestAnimationFrame(step)
+})
+
+// ---------- 4 · Giao lưu: máy người chơi ----------
+const partner = PEOPLE[2] // Minh · Lân · Cần Thơ
+const MQ = { q: 'Chợ nổi nổi tiếng nhất của Cần Thơ là?', o: ['Chợ nổi Cái Bè', 'Chợ nổi Cái Răng', 'Chợ nổi Ngã Năm', 'Chợ nổi Long Xuyên'], a: 1, e: 'Chợ nổi Cái Răng, "bẹo hàng" bằng cây sào treo hàng.' }
+let meetStep = 0, picked = null
+function renderMeet() {
+  const m = $('meet'); m.replaceChildren(h('div', { class: 'steps' }, ...[0, 1, 2].map(i => h('i', { class: i <= meetStep ? 'on' : '' }))))
+  const card = h('div', { class: 'partner' }, mini(partner.team), h('div', {}, h('small', {}, meetStep === 0 ? 'Bạn được ghép với' : 'Bạn mới quen'), h('b', {}, partner.name), h('small', {}, `Team ${partner.team} · quê ${NAME[partner.home]}`)))
+  if (meetStep === 0) {
+    m.append(card, h('div', { class: 'hint' }, h('small', {}, 'Đi tìm bạn'), `${partner.name} cũng đang tìm bạn đấy. Gặp nhau rồi thì một trong hai bấm "Đã gặp".`),
+      h('div', { class: 'btn-row center' }, h('button', { class: 'btn green', type: 'button', onclick: () => { meetStep = 1; renderMeet() } }, 'Đã gặp'), h('button', { class: 'btn', type: 'button', onclick: () => { meetStep = 9; renderMeet() } }, 'Lượt này mình ngồi nghỉ')))
+  } else if (meetStep === 1) {
+    m.append(card, h('div', { class: 'hint' }, h('small', {}, 'Câu gợi chuyện'), PROMPTS[pi % PROMPTS.length]),
+      h('p', { class: 'muted' }, `Hỏi ${partner.name} về Cần Thơ nhé, lát nữa có một câu hỏi nhỏ về quê bạn ấy.`),
+      h('div', { class: 'btn-row center' }, h('button', { class: 'btn primary', type: 'button', onclick: () => { meetStep = 2; renderMeet() } }, 'Sang câu hỏi (còn 1:00)')))
+  } else if (meetStep === 2) {
+    m.append(card, h('p', { class: 'qtext' }, MQ.q),
+      h('div', { class: 'opts' }, ...MQ.o.map((o, i) => h('button', { class: `btn${picked !== null && i === MQ.a ? ' right' : ''}`, type: 'button', onclick: () => { picked = i; renderMeet() } }, o))))
+    if (picked !== null) m.append(h('div', { class: `ping fade${picked === MQ.a ? ' ok' : ''}` },
+      h('b', {}, picked === MQ.a ? 'Đúng rồi! Team Rồng và Team Lân cùng +20.' : `Chưa đúng, hỏi lại ${partner.name} xem sao nhé.`), MQ.e))
+  } else {
+    m.append(h('div', { class: 'hint' }, h('small', {}, 'Ngồi nghỉ'), 'Không sao cả! Trận sẽ chơi tiếp sau khi hết giờ giao lưu.'))
+  }
+  if (meetStep) m.append(h('div', { class: 'btn-row center' }, h('button', { class: 'btn', type: 'button', onclick: () => { meetStep = 0; picked = null; renderMeet() } }, 'Xem lại')))
+}
+renderMeet()
+
+// ---------- 5 · Sảnh chờ ----------
+const NS = 'http://www.w3.org/2000/svg'
+const count = {}; PEOPLE.forEach(p => { count[p.home] = (count[p.home] ?? 0) + 1 })
+const svg = $('vn')
+let x0 = 1e9, y0 = 1e9, x1 = -1e9, y1 = -1e9
+for (const p of P) {
+  const n = p.d.match(/-?\d+(\.\d+)?/g).map(Number)
+  for (let i = 0; i < n.length; i += 2) { x0 = Math.min(x0, n[i]); x1 = Math.max(x1, n[i]); y0 = Math.min(y0, n[i + 1]); y1 = Math.max(y1, n[i + 1]) }
+  const c = count[p.id] ?? 0, path = document.createElementNS(NS, 'path')
+  path.setAttribute('d', p.d); path.id = `vn-${p.id}`
+  path.setAttribute('class', `prov${c >= 4 ? ' h3' : c >= 2 ? ' h2' : c ? ' h1' : ''}`)
+  svg.append(path)
+}
+svg.setAttribute('viewBox', `${x0 - 10} ${y0 - 10} ${x1 - x0 + 20} ${y1 - y0 + 20}`)
+$('nProv').textContent = Object.keys(count).length
+const quotes = PEOPLE.filter(p => p.line)
+quotes.forEach(() => $('dots').append(h('i')))
+let qi = 0
+function showQuote() {
+  const p = quotes[qi % quotes.length]
+  svg.querySelectorAll('.pulse').forEach(e => e.classList.remove('pulse'))
+  const el = $(`vn-${p.home}`); el.classList.add('pulse'); svg.append(el)
+  $('quote').replaceChildren(h('div', { class: 'fade' }, h('p', {}, `"${p.line}"`), h('footer', {}, mini(p.team), `${p.name} · ${NAME[p.home]}`)))
+  ;[...$('dots').children].forEach((d, i) => d.classList.toggle('on', i === qi % quotes.length))
+  qi++
+}
+showQuote(); setInterval(showQuote, 4000)
+</script>
+</body>
+</html>

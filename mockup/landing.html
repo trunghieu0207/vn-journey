@@ -1,0 +1,313 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mockup: Trang chủ dạng landing</title>
+<!-- Trang chủ "/" dạng landing: giới thiệu game ở đầu, cuộn xuống là vào phòng / danh sách phòng (mockup room-list.html, phương án A). Dùng CSS thật của app -->
+<link rel="stylesheet" href="../public/style.css">
+<script src="culture-data.js"></script>
+<script src="map-data.js"></script>
+<style>
+@font-face { font-family: "Nunito"; src: url("../public/fonts/nunito.ttf") format("truetype"); font-weight: 200 1000; }
+html, body { height: auto; scroll-behavior: smooth; }
+.mk-head { display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: center; padding: 10px 24px; background: var(--ink); color: #fff; font-size: 14px; font-weight: 800; }
+.mk-head a { color: #fff; }
+.ic { display: inline-grid; place-items: center; width: 1.25em; height: 1.25em; vertical-align: -.25em; }
+.ic svg, .big-ic svg { width: 100%; height: 100%; }
+.wrap { max-width: 1180px; margin: 0 auto; padding: 0 24px; }
+
+/* ---------- Thanh trên ---------- */
+.nav { position: sticky; top: 0; z-index: 20; background: rgba(255,255,255,.92); backdrop-filter: blur(8px); border-bottom: 2px solid var(--line); }
+.nav .wrap { display: flex; align-items: center; gap: 18px; min-height: 64px; }
+.logo { display: flex; align-items: center; gap: 8px; color: var(--green); font-size: 21px; font-weight: 900; text-decoration: none; }
+.logo .big-ic { display: inline-grid; width: 30px; height: 30px; }
+.nav nav { display: flex; gap: 4px; margin-left: auto; }
+.nav nav a { padding: 6px 12px; border-radius: 10px; color: var(--ink); font-weight: 800; text-decoration: none; }
+.nav nav a:hover { background: #F2F2F2; }
+.nav .btn { min-height: 40px; }
+
+/* ---------- Hero ---------- */
+.hero { padding: 48px 0 56px; background: linear-gradient(180deg, #F2FBFF 0%, var(--bg) 100%); }
+.hero .wrap { display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(0, .95fr); gap: 40px; align-items: center; }
+.kicker { display: inline-flex; align-items: center; gap: 6px; padding: 4px 12px; border-radius: 999px; background: #FFF6D1; color: #8A5A00; font-size: 14px; font-weight: 900; }
+.hero h1 { margin: 14px 0 12px; color: var(--ink); font-size: 54px; font-weight: 900; line-height: 1.05; }
+.hero h1 em { color: var(--green); font-style: normal; }
+.hero .lead { margin: 0 0 22px; max-width: 520px; color: #555; font-size: 19px; font-weight: 700; line-height: 1.5; }
+.cta { display: flex; flex-wrap: wrap; gap: 10px; }
+.cta .btn { min-height: 52px; padding: 0 26px; font-size: 18px; }
+.quick { display: flex; align-items: center; gap: 8px; margin-top: 18px; max-width: 420px; }
+.quick .input { flex: 1; min-height: 46px; }
+.quick .btn { min-height: 46px; }
+.quick-note { margin: 6px 0 0; color: var(--muted); font-size: 13px; font-weight: 700; }
+.stats { display: flex; flex-wrap: wrap; gap: 22px; margin-top: 26px; }
+.stats div { display: grid; }
+.stats b { font-size: 26px; font-weight: 900; color: var(--ink); line-height: 1; }
+.stats span { color: var(--muted); font-size: 13px; font-weight: 800; }
+.mascots { display: flex; gap: 6px; margin-top: 22px; }
+.mascots span { display: inline-grid; width: 36px; height: 36px; animation: bob 2.4s ease-in-out infinite; }
+.mascots span:nth-child(2n) { animation-delay: .4s; } .mascots span:nth-child(3n) { animation-delay: .8s; }
+@keyframes bob { 50% { transform: translateY(-5px); } }
+@media (prefers-reduced-motion: reduce) { .mascots span, .pin { animation: none !important; } }
+
+/* Bản đồ minh họa */
+.map-card { position: relative; padding: 14px; border-radius: 28px; background: var(--map-bg); box-shadow: 0 6px 0 var(--map-shadow); }
+.map-card svg.vn { display: block; width: 100%; height: 470px; }
+.vn path { stroke: #fff; stroke-width: 1.4; stroke-linejoin: round; }
+.vn .n { fill: var(--tile-n); } .vn .c { fill: var(--tile-c); } .vn .s { fill: var(--tile-s); }
+.vn .fog { fill: var(--fog); }
+.vn .own { stroke: #fff; stroke-width: 2; }
+.pin { animation: hop 1.6s ease-in-out infinite; transform-box: fill-box; transform-origin: bottom; }
+@keyframes hop { 0%, 60%, 100% { transform: none; } 30% { transform: translateY(-10px); } }
+.bubble { position: absolute; display: flex; align-items: center; gap: 8px; padding: 8px 12px; border-radius: 14px; background: #fff; box-shadow: 0 4px 0 rgba(0,0,0,.08); font-size: 14px; font-weight: 800; }
+.bubble .ic { width: 22px; height: 22px; }
+.bubble small { display: block; color: var(--muted); font-size: 12px; font-weight: 700; }
+
+/* ---------- Mục ---------- */
+.sec { padding: 56px 0; }
+.sec.alt { background: #fff; }
+.sec h2 { margin: 0 0 6px; font-size: 34px; font-weight: 900; text-align: center; }
+.sec .sub { margin: 0 auto 30px; max-width: 640px; color: var(--muted); font-size: 17px; font-weight: 700; text-align: center; }
+.steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; counter-reset: s; }
+.step { position: relative; padding: 24px 22px; border-radius: 22px; background: #fff; box-shadow: inset 0 0 0 2px var(--line); }
+.sec.alt .step { background: var(--bg); box-shadow: none; }
+.step::before { counter-increment: s; content: counter(s); position: absolute; top: 18px; right: 20px; color: var(--line); font-size: 44px; font-weight: 900; line-height: 1; }
+.step .big-ic { display: grid; place-items: center; width: 56px; height: 56px; margin-bottom: 12px; padding: 10px; border-radius: 18px; background: #F1FBE8; }
+.step b { display: block; margin-bottom: 4px; font-size: 19px; }
+.step p { margin: 0; color: #555; font-weight: 700; line-height: 1.45; }
+.sample { margin-top: 12px; padding: 10px 12px; border-radius: 12px; background: #F2FBFF; color: var(--ink); font-size: 14px; font-weight: 800; }
+.sample .opts { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-top: 8px; }
+.sample .opts span { padding: 5px 8px; border-radius: 9px; background: #fff; box-shadow: inset 0 0 0 2px var(--line); font-size: 13px; }
+.sample .opts .ok { box-shadow: inset 0 0 0 2px var(--green); background: #F1FBE8; }
+
+.modes { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+.mode { display: grid; gap: 10px; padding: 26px; border-radius: 24px; background: var(--bg); }
+.mode h3 { display: flex; align-items: center; gap: 10px; margin: 0; font-size: 24px; font-weight: 900; }
+.mode h3 .big-ic { display: inline-grid; width: 40px; height: 40px; }
+.mode p { margin: 0; color: #555; font-weight: 700; line-height: 1.5; }
+.mode ul { display: grid; gap: 6px; margin: 0; padding: 0; list-style: none; }
+.mode li { display: flex; gap: 8px; font-weight: 700; }
+.mode li::before { content: ""; flex: none; width: 8px; height: 8px; margin-top: 8px; border-radius: 50%; background: var(--green); }
+.mode .fit { padding: 8px 12px; border-radius: 12px; background: #fff; font-size: 14px; font-weight: 800; }
+.mode.team .fit { color: #B35A00; } .mode.solo .fit { color: var(--green-dark); }
+
+.feats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+.feat { padding: 20px; border-radius: 20px; background: #fff; box-shadow: inset 0 0 0 2px var(--line); }
+.feat .big-ic { display: inline-grid; width: 40px; height: 40px; margin-bottom: 8px; }
+.feat b { display: block; margin-bottom: 4px; font-size: 17px; }
+.feat p { margin: 0; color: #555; font-size: 14px; font-weight: 700; line-height: 1.45; }
+
+/* Vào chơi (cột trái mã phòng + cột phải danh sách — xem room-list.html) */
+.play { display: grid; grid-template-columns: minmax(0, .8fr) minmax(0, 1.2fr); gap: 24px; align-items: start; }
+.play .card { padding: 24px 26px; }
+.play h3 { margin: 0 0 4px; font-size: 22px; font-weight: 900; }
+.play .muted-s { margin: 0 0 14px; color: var(--muted); font-weight: 700; }
+.rlist { display: grid; gap: 10px; }
+.row { display: grid; grid-template-columns: 40px minmax(0, 1fr) auto; align-items: center; gap: 12px; padding: 10px 14px; border: 2px solid var(--line); border-radius: 16px; background: #fff; }
+.kind { display: grid; place-items: center; width: 40px; height: 40px; border-radius: 13px; }
+.kind svg { width: 24px; height: 24px; }
+.kind.team { background: #FFF1E6; } .kind.solo { background: #F1FBE8; }
+.row b { font-size: 16px; }
+.row small { display: block; color: var(--muted); font-size: 13px; font-weight: 700; }
+.badge { margin-left: 6px; padding: 1px 8px; border-radius: 999px; font-size: 12px; font-weight: 900; }
+.badge.wait { background: #F1FBE8; color: var(--green-dark); } .badge.run { background: #E9F7FF; color: var(--blue-dark); }
+.badge.preset { background: #FFF6D1; color: #8A5A00; }
+.row .btn { min-height: 36px; }
+.more { margin: 10px 0 0; text-align: center; }
+
+.foot { padding: 28px 0 40px; color: var(--muted); font-size: 14px; font-weight: 700; text-align: center; }
+.foot a { margin: 0 8px; }
+
+/* ---------- Hẹp ---------- */
+@media (max-width: 900px) {
+  .hero .wrap, .play, .modes { grid-template-columns: 1fr; }
+  .hero h1 { font-size: 40px; }
+  .map-card svg.vn { height: 360px; }
+  .steps { grid-template-columns: 1fr; }
+  .feats { grid-template-columns: 1fr 1fr; }
+  .nav nav { display: none; }
+  .nav .btn { margin-left: auto; }
+}
+@media (max-width: 520px) { .feats { grid-template-columns: 1fr; } .hero { padding-top: 28px; } .cta .btn { flex: 1; } .bubble { display: none; } }
+
+/* Ghi chú mockup */
+.note { max-width: 1180px; margin: 0 auto; padding: 16px 24px; }
+.note div { padding: 16px 20px; border: 2px dashed var(--accent-dark); border-radius: 16px; background: #FFFBEA; }
+.note ul { margin: 6px 0 0; padding-left: 20px; }
+</style>
+</head>
+<body>
+<div class="mk-head">MOCKUP · trang chủ "/" dạng landing · thu nhỏ cửa sổ dưới 900px để xem bản điện thoại · <a href="room-list.html">danh sách phòng (room-list.html)</a> · <a href="#note">ghi chú thiết kế ↓</a></div>
+
+<header class="nav">
+  <div class="wrap">
+    <a class="logo" href="#top"><span class="big-ic" data-icon="hat"></span>Hành trình 3 miền</a>
+    <nav><a href="#how">Cách chơi</a><a href="#modes">Kiểu phòng</a><a href="#play">Phòng đang mở</a><a href="#">Luật chơi</a></nav>
+    <a class="btn green" href="#play">Vào chơi</a>
+  </div>
+</header>
+
+<!-- ================= HERO ================= -->
+<section class="hero" id="top">
+  <div class="wrap">
+    <div>
+      <span class="kicker"><span class="ic" data-icon="festival"></span> Ngày Văn hóa Việt Nam · 24/11</span>
+      <h1>Đi khắp <em>34 tỉnh, thành</em> trong sương mù</h1>
+      <p class="lead">Game đố vui theo team: đi từ tỉnh này sang tỉnh bên cạnh, trả lời đúng câu hỏi về ẩm thực, lễ hội, phong tục của tỉnh đó để <b>cắm cờ</b>. Nhiều điểm nhất khi hết giờ thì thắng.</p>
+      <div class="cta">
+        <a class="btn green" href="#play">Vào chơi ngay</a>
+        <a class="btn" href="#how">Xem cách chơi</a>
+      </div>
+      <form class="quick" onsubmit="return false">
+        <input class="input pin-input" maxlength="6" placeholder="Có mã phòng? Nhập ở đây">
+        <button class="btn primary" type="button">Vào</button>
+      </form>
+      <p class="quick-note">Chủ phòng gửi mã · không cần tài khoản, chỉ cần tên</p>
+      <div class="stats">
+        <div><b>34</b><span>tỉnh, thành</span></div>
+        <div><b>500+</b><span>câu hỏi có nguồn</span></div>
+        <div><b>15–90</b><span>phút một trận</span></div>
+        <div><b>2–8</b><span>team / phòng</span></div>
+      </div>
+      <div class="mascots" data-mascots></div>
+    </div>
+    <div class="map-card">
+      <svg class="vn" data-map></svg>
+      <div class="bubble" style="top:20%;left:-18px"><span class="ic" data-icon="flag"></span><div>Team Rồng cắm cờ<small>Hà Nội · +120</small></div></div>
+      <div class="bubble" style="top:52%;right:-14px"><span class="ic" data-icon="siege"></span><div>Có đoàn khách thử tài!<small>Đà Nẵng · cược 3 hiệp</small></div></div>
+      <div class="bubble" style="bottom:12%;left:6%"><span class="ic" data-icon="question"></span><div>Bánh pía là đặc sản tỉnh nào?<small>Ẩm thực · 30 giây</small></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= CÁCH CHƠI ================= -->
+<section class="sec alt" id="how">
+  <div class="wrap">
+    <h2>Chơi trong 3 bước</h2>
+    <p class="sub">Mỗi team một laptop, cả team cùng bàn. Không cần cài đặt, mở trình duyệt là chơi.</p>
+    <div class="steps">
+      <div class="step"><span class="big-ic" data-icon="map"></span><b>Đi sang tỉnh bên cạnh</b>
+        <p>Bắt đầu ở một tỉnh, mỗi lượt đi sang một tỉnh giáp ranh. Sương mù che những nơi chưa ghé — không biết team khác đang ở đâu.</p></div>
+      <div class="step"><span class="big-ic" data-icon="question"></span><b>Trả lời câu hỏi của tỉnh đó</b>
+        <p>Ẩm thực, lễ hội, di sản, phong tục… 30 giây, trả lời nhanh được thêm điểm.</p>
+        <div class="sample">Cà Mau · Ẩm thực<div class="opts"><span>Bánh xèo</span><span class="ok">Ba khía muối</span><span>Bún bò</span><span>Bánh đa cua</span></div></div></div>
+      <div class="step"><span class="big-ic" data-icon="flag"></span><b>Cắm cờ, giữ tỉnh</b>
+        <p>Đúng thì cắm cờ, tỉnh thuộc về team. Tỉnh đã có chủ? Ghé <b>thử tài</b> — hai đội đấu cùng câu, ai đúng trước thắng.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= KIỂU PHÒNG ================= -->
+<section class="sec" id="modes">
+  <div class="wrap">
+    <h2>Hai kiểu phòng</h2>
+    <p class="sub">Chủ phòng chọn lúc tạo phòng. Phòng công khai hiện ở danh sách bên dưới, phòng riêng tư cần mã.</p>
+    <div class="modes">
+      <div class="mode team" style="background:#fff">
+        <h3><span class="big-ic" data-icon="flag"></span> Theo team</h3>
+        <p>Các team đi khắp bản đồ giành tỉnh, bị giành lại là mất điểm.</p>
+        <ul><li>2–8 team, mỗi team tối đa 12 người, bỏ phiếu chốt đáp án</li><li>Thử tài: hai đội cược 1–3 hiệp, thắng đa số</li><li>Màn chiếu: bảng điểm, bản tin, 10 phút cuối đóng băng</li></ul>
+        <span class="fit">Hợp với: sự kiện cả công ty, có MC và máy chiếu</span>
+      </div>
+      <div class="mode solo" style="background:#fff">
+        <h3><span class="big-ic" data-icon="hat"></span> Chơi đơn</h3>
+        <p>Mỗi người một hành trình, sưu tầm tem các tỉnh. Không ai bị lấy mất gì.</p>
+        <ul><li>Tối đa 50 người, mỗi người một máy</li><li>Tem Tiên phong +50 cho người đầu tiên tới một tỉnh</li><li>Sau trận: sổ tay hành trình, mở lại được</li></ul>
+        <span class="fit">Hợp với: nhóm nhỏ, giờ nghỉ trưa, chơi lại sau sự kiện</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= ĐIỀU THÚ VỊ ================= -->
+<section class="sec alt">
+  <div class="wrap">
+    <h2>Không chỉ là đố vui</h2>
+    <p class="sub">Vài thứ làm mỗi trận một khác.</p>
+    <div class="feats">
+      <div class="feat"><span class="big-ic" data-icon="map"></span><b>Sương mù</b><p>Chỉ thấy tỉnh mình đã ghé. Đối thủ ở đâu — tự đoán.</p></div>
+      <div class="feat"><span class="big-ic" data-icon="siege"></span><b>Thử tài</b><p>Ghé tỉnh có chủ: cược số hiệp, đấu cùng câu với chủ nhà.</p></div>
+      <div class="feat"><span class="big-ic" data-icon="home"></span><b>Về quê</b><p>Cắm cờ ở quê một thành viên được +50. Chỉ đồng đội biết.</p></div>
+      <div class="feat"><span class="big-ic" data-icon="festival"></span><b>Sự kiện bất ngờ</b><p>Lễ hội, Bão, câu hỏi chung cả phòng — MC tung giữa trận.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= VÀO CHƠI ================= -->
+<section class="sec" id="play">
+  <div class="wrap">
+    <h2>Vào chơi</h2>
+    <p class="sub">Chọn một phòng đang mở, nhập mã phòng được mời, hoặc tự tạo phòng.</p>
+    <div class="play">
+      <div class="card">
+        <div class="tabs"><button class="btn on" type="button">Tham gia phòng</button><button class="btn" type="button">Tạo phòng</button></div>
+        <form onsubmit="return false" style="display:grid;gap:12px;margin-top:16px">
+          <label class="field"><span>Mã phòng <span class="muted" style="font-weight:700">· phòng riêng tư</span></span><input class="input pin-input" maxlength="6" placeholder="6 ký tự"></label>
+          <button class="btn green" type="button">Tiếp tục</button>
+        </form>
+        <p class="muted" style="margin:14px 0 0;font-weight:700">Lần đầu? <a class="link" href="#how">Xem cách chơi</a> · <a class="link" href="#">Luật chơi đầy đủ</a></p>
+      </div>
+      <div class="card">
+        <h3><span class="ic" data-icon="map"></span> Phòng đang mở</h3>
+        <p class="muted-s">Bấm Vào rồi nhập tên · lọc Tất cả / Theo team / Chơi đơn như <a class="link" href="room-list.html">room-list.html</a></p>
+        <div class="rlist" data-rooms></div>
+        <p class="more"><a class="link" href="room-list.html">Xem tất cả 9 phòng →</a></p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer class="foot">Hành trình 3 miền · mini game Ngày Văn hóa Việt Nam 24/11/2026 <a class="link" href="#">Luật chơi</a><a class="link" href="#">Màn chiếu</a><a class="link" href="#">Trang chủ phòng</a></footer>
+
+<section class="note" id="note"><div>
+  <b>Ghi chú thiết kế</b>
+  <ul>
+    <li><b>Cùng một trang "/"</b>: landing ở trên, khu "Vào chơi" (ô mã + danh sách phòng) ở dưới — không thêm trang mới. Nút "Vào chơi" trên thanh trên / hero cuộn xuống khu này.</li>
+    <li><b>Người đã biết game không phải đọc</b>: ô "Có mã phòng?" ngay trong hero; link mời <code>/?room=MÃ</code> và người đang có phiên chơi thì bỏ qua landing, vào thẳng bước nhập tên / bản đồ như hiện tại.</li>
+    <li><b>Bản đồ hero</b> vẽ từ dữ liệu bản đồ thật: vài tỉnh có cờ team, phần còn lại sương mù, nón lá nhảy — hợp với "chiếm tỉnh trong sương mù". Ba bong bóng là ví dụ minh họa, không phải dữ liệu thật (không lộ phòng nào).</li>
+    <li><b>Số liệu</b> (34 tỉnh, 500+ câu…) lấy từ server lúc dựng trang, không gõ cứng.</li>
+    <li>Tạo phòng: tab "Tạo phòng" trong khu Vào chơi (form như hiện tại, có Công khai / Riêng tư).</li>
+    <li>Không emoji; icon sticker có sẵn; chuyển động tắt khi máy bật "giảm chuyển động".</li>
+  </ul>
+</div></section>
+
+<script>
+const D = window.CULTURE_DATA, M = window.MAP_DATA
+for (const el of document.querySelectorAll('[data-icon]')) el.innerHTML = D.icons[el.dataset.icon] ?? ''
+for (const el of document.querySelectorAll('[data-mascots]')) el.innerHTML = Object.values(D.mascots).map(s => `<span>${s}</span>`).join('')
+
+// Bản đồ hero: miền Bắc / Trung / Nam theo thứ tự tỉnh; vài tỉnh có cờ team, còn lại sương mù
+const ids = M.provinces.map(p => p.id)
+const region = id => { const i = ids.indexOf(id); return i <= ids.indexOf('ninh-binh') ? 'n' : i <= ids.indexOf('lam-dong') ? 'c' : 's' }
+const OWN = { 'ha-noi': '#C0392B', 'bac-ninh': '#C0392B', 'hung-yen': '#C0392B', 'da-nang': '#E67E22', 'quang-ngai': '#E67E22', 'hue': '#E67E22', 'can-tho': '#27AE60', 'vinh-long': '#27AE60' }
+const SEEN = ['ninh-binh', 'hai-phong', 'quang-ninh', 'thai-nguyen', 'phu-tho', 'quang-tri', 'gia-lai', 'khanh-hoa', 'dong-thap', 'an-giang', 'ho-chi-minh', 'ca-mau']
+const [x0, y0, x1, y1] = M.bounds
+const svg = document.querySelector('[data-map]')
+svg.setAttribute('viewBox', `${x0 - 10} ${y0 - 10} ${x1 - x0 + 20} ${y1 - y0 + 20}`)
+svg.setAttribute('preserveAspectRatio', 'xMidYMid meet')
+let html = ''
+for (const p of M.provinces) {
+  const own = OWN[p.id]
+  const cls = own ? 'own' : SEEN.includes(p.id) ? region(p.id) : 'fog'
+  html += `<path d="${p.d}" class="${cls}"${own ? ` style="fill:${own}"` : ''}/>`
+}
+// Nón lá (vị trí team mình) nhảy trên Hà Nội
+const hn = M.provinces.find(p => p.id === 'ha-noi')
+const [lx, ly] = hn.label ?? [230, 155]
+html += `<g class="pin" transform="translate(${lx - 22} ${ly - 52})"><svg width="44" height="44">${D.icons.hat}</svg></g>`
+svg.innerHTML = html
+
+// Danh sách phòng rút gọn (xem room-list.html)
+const ROOMS = [
+  ['team', 'Phòng Kế toán', 'wait', 'Theo team · 4 team · 18 người'],
+  ['solo', 'Ăn trưa cùng chơi', 'wait', 'Chơi đơn · 7/50 người'],
+  ['team', 'Team Dev giao lưu', 'wait', 'Theo team · 6 team · 9 người'],
+  ['solo', 'Phòng Sen', 'wait', 'Chơi đơn · 3/50 người · ai vào trước làm chủ phòng', true],
+]
+document.querySelector('[data-rooms]').innerHTML = ROOMS.map(([k, n, st, sub, pre]) => `
+  <div class="row"><span class="kind ${k}">${D.icons[k === 'team' ? 'flag' : 'hat']}</span>
+    <div><b>${n}</b><span class="badge ${st}">Đang chờ</span>${pre ? '<span class="badge preset">Có sẵn</span>' : ''}<small>${sub}</small></div>
+    <button class="btn green" type="button">Vào</button></div>`).join('')
+</script>
+</body>
+</html>

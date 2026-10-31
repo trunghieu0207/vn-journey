@@ -1,0 +1,13 @@
+# Bí mật & cấu hình máy
+.env
+
+# Database và bản sao lưu
+var/
+
+# Package (dự án hiện 0 dependency)
+node_modules/
+
+# Log, tạm
+*.log
+.DS_Store
+mockup/.v*.html

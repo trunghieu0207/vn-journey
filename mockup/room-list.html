@@ -1,0 +1,293 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mockup: Danh sách phòng</title>
+<!-- Màn ngoài khi có phòng công khai: danh sách phòng team + phòng đơn (cả phòng có sẵn). Dùng CSS thật của app -->
+<link rel="stylesheet" href="../public/style.css">
+<script src="culture-data.js"></script>
+<style>
+@font-face { font-family: "Nunito"; src: url("../public/fonts/nunito.ttf") format("truetype"); font-weight: 200 1000; }
+html, body { height: auto; }
+.head { position: sticky; top: 0; z-index: 30; display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: center; padding: 12px 24px; background: #fff; border-bottom: 2px solid var(--line); }
+.head h1 { color: var(--green); font-size: 20px; font-weight: 900; }
+.head nav { display: flex; flex-wrap: wrap; gap: 6px; }
+.head nav a { padding: 4px 12px; border-radius: 10px; border: 2px solid var(--line); color: var(--ink); font-weight: 800; font-size: 14px; text-decoration: none; }
+.intro { max-width: 1320px; margin: 16px auto 0; padding: 0 24px; color: var(--muted); }
+.intro b { color: var(--ink); }
+.frame-wrap { max-width: 1320px; margin: 0 auto; padding: 18px 24px 40px; }
+.frame-wrap h2 { display: flex; align-items: center; gap: 8px; margin-bottom: 4px; scroll-margin-top: 80px; }
+.frame-wrap .num { display: inline-grid; place-items: center; min-width: 28px; height: 28px; padding: 0 6px; border-radius: 14px; background: var(--green); color: #fff; font-size: 15px; }
+.frame-wrap .when { margin: 0 0 12px; color: var(--muted); }
+.frame-wrap .how { margin: 12px 0 0; padding-left: 20px; }
+.frame { position: relative; padding: 32px; border-radius: 22px; background: var(--bg); box-shadow: inset 0 0 0 2px var(--line); }
+.label-tag { position: absolute; top: -11px; left: 18px; z-index: 2; padding: 1px 10px; border-radius: 8px; background: var(--ink); color: #fff; font-size: 12px; font-weight: 800; }
+.ic { display: inline-grid; place-items: center; width: 1.25em; height: 1.25em; vertical-align: -.25em; }
+.ic svg { width: 100%; height: 100%; }
+
+.ex { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr); gap: 28px; max-width: 1180px; margin: 0 auto; align-items: start; }
+@media (max-width: 960px) { .ex { grid-template-columns: 1fr; } }
+.ex .card { padding: 26px 28px; }
+.ex h3 { margin: 0 0 4px; font-size: 22px; font-weight: 900; }
+.ex .sub { margin: 0 0 14px; color: var(--muted); font-weight: 700; }
+.ex form { display: grid; gap: 12px; }
+.brand b { color: var(--green); font-size: 30px; font-weight: 900; line-height: 1.1; }
+.brand small { display: block; color: var(--muted); font-size: 15px; font-weight: 700; }
+.mascots { display: flex; gap: 6px; margin-top: 14px; }
+.mascots span { display: inline-grid; width: 34px; height: 34px; }
+.mascots svg { width: 100%; height: 100%; }
+.rules-row { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-top: 16px; color: var(--muted); font-size: 14px; font-weight: 700; }
+
+/* ---------- Thanh lọc ---------- */
+.filter { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-bottom: 14px; }
+.fchip { display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border: 2px solid var(--line); border-radius: 999px; background: #fff; color: var(--ink); font: inherit; font-size: 14px; font-weight: 900; cursor: pointer; }
+.fchip i { font-style: normal; padding: 0 7px; border-radius: 999px; background: #F0F0F0; color: var(--muted); font-size: 12px; }
+.fchip.on { border-color: var(--blue); background: #F2FBFF; color: var(--blue-dark); }
+.fchip.on i { background: var(--blue); color: #fff; }
+.filter .search { flex: 1; min-width: 140px; min-height: 38px; padding: 6px 12px; font-size: 14px; }
+
+/* ---------- A: danh sách gọn ---------- */
+.rlist { display: grid; gap: 10px; max-height: 560px; overflow: auto; padding-right: 4px; }
+.group { margin: 6px 0 -2px; color: var(--muted); font-size: 12px; font-weight: 900; text-transform: uppercase; letter-spacing: .05em; }
+.row { display: grid; grid-template-columns: 44px minmax(0, 1fr) auto; align-items: center; gap: 12px; padding: 12px 14px; border: 2px solid var(--line); border-radius: 16px; background: #fff; }
+.row.picked { border-color: var(--blue); background: #F2FBFF; }
+.row.ended { opacity: .55; }
+.kind { display: grid; place-items: center; width: 44px; height: 44px; border-radius: 14px; }
+.kind svg { width: 28px; height: 28px; }
+.kind.team { background: #FFF1E6; }
+.kind.solo { background: #F1FBE8; }
+.row .t { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 8px; }
+.row .t b { font-size: 17px; }
+.badge { padding: 1px 8px; border-radius: 999px; font-size: 12px; font-weight: 900; white-space: nowrap; }
+.badge.wait { background: #F1FBE8; color: var(--green-dark); }
+.badge.run { background: #E9F7FF; color: var(--blue-dark); }
+.badge.end { background: #F2F2F2; color: var(--muted); }
+.badge.preset { background: #FFF6D1; color: #8A5A00; }
+.row small { display: block; margin-top: 2px; color: var(--muted); font-size: 13px; font-weight: 700; }
+.teams-mini { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 6px; }
+.tm { display: inline-flex; align-items: center; gap: 2px; padding: 1px 6px 1px 2px; border-radius: 999px; background: #F6F6F6; font-size: 12px; font-weight: 900; color: var(--muted); }
+.tm svg { width: 18px; height: 18px; }
+.tm.full { opacity: .45; }
+.mini-meter { height: 6px; margin-top: 6px; border-radius: 99px; background: #F0F0F0; overflow: hidden; }
+.mini-meter i { display: block; height: 100%; border-radius: 99px; background: var(--green); }
+.row .btn { min-height: 38px; }
+.empty { padding: 18px; border: 2px dashed var(--line); border-radius: 16px; color: var(--muted); font-weight: 700; text-align: center; }
+
+/* ---------- B: thẻ lưới theo tab ---------- */
+.rooms { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+.room { display: grid; gap: 8px; padding: 16px 18px; border: 2px solid var(--line); border-radius: 18px; background: #fff; }
+.room-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.room-top b { font-size: 19px; font-weight: 900; }
+.meter { height: 8px; border-radius: 99px; background: #F0F0F0; overflow: hidden; }
+.meter i { display: block; height: 100%; border-radius: 99px; background: var(--green); }
+.room .meta { display: flex; justify-content: space-between; color: var(--muted); font-size: 14px; font-weight: 800; }
+.host-badge { padding: 6px 10px; border-radius: 10px; background: #F4F4F4; color: var(--muted); font-size: 13px; font-weight: 800; }
+.host-badge.free { background: #FFF6D1; color: #8A5A00; }
+.room .btn { min-height: 40px; }
+.tabs2 { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-bottom: 14px; }
+
+/* ---------- Điện thoại ---------- */
+.phone { width: 390px; margin: 0 auto; padding: 16px; border-radius: 32px; background: var(--bg); box-shadow: 0 0 0 10px #222, 0 18px 40px rgba(0,0,0,.25); }
+.phone .card { padding: 18px 16px; }
+.phone .card + .card { margin-top: 14px; }
+.phone .row { grid-template-columns: 36px minmax(0, 1fr) auto; gap: 10px; padding: 10px 12px; }
+.phone .kind { width: 36px; height: 36px; border-radius: 12px; }
+.phone .kind svg { width: 22px; height: 22px; }
+.phone .rlist { max-height: none; }
+.phone .filter .search { flex-basis: 100%; }
+</style>
+</head>
+<body>
+<header class="head">
+  <h1>Mockup: danh sách phòng (team + đơn)</h1>
+  <nav><a href="#a1">A1 · Một danh sách + lọc</a><a href="#a2">A2 · Bấm Vào phòng team</a><a href="#a3">A3 · Lọc không có phòng</a><a href="#b">B · Hai tab, thẻ lớn</a><a href="#m">Điện thoại</a></nav>
+</header>
+<p class="intro">Giờ có thêm <b>phòng công khai</b> do người chơi tự tạo (team hoặc đơn), có thể tới vài chục phòng — lưới thẻ lớn hiện tại chỉ hợp với 4 phòng có sẵn. Cột trái giữ nguyên (nhập mã / tạo phòng), chỉ cột phải đổi. Đề xuất: <b>A</b>.</p>
+
+<!-- ================= A1 ================= -->
+<section class="frame-wrap">
+  <h2 id="a1"><span class="num">A1</span> Một danh sách gọn + lọc Tất cả / Theo team / Chơi đơn</h2>
+  <p class="when">Mỗi phòng một dòng: biểu tượng kiểu phòng, tên, trạng thái, số người. Phòng team có thêm hàng linh vật các team kèm số người (thấy team nào còn trống). Phòng có sẵn nằm cuối, có nhãn "Có sẵn".</p>
+  <div class="frame"><span class="label-tag">Máy tính 1280px</span>
+    <div class="ex">
+      <div class="card" data-left="code"></div>
+      <div class="card">
+        <h3><span class="ic" data-icon="map"></span> Phòng đang mở</h3>
+        <p class="sub">Bấm Vào rồi nhập tên · phòng riêng tư không hiện ở đây, cần mã phòng</p>
+        <div class="filter" data-filter="all"></div>
+        <div class="rlist" data-list="all"></div>
+      </div>
+    </div>
+  </div>
+  <ul class="how">
+    <li><b>Thứ tự:</b> phòng đang chờ trước (dễ vào nhất), rồi đang chơi; trong mỗi nhóm phòng mới tạo trước. Phòng có sẵn luôn ở nhóm cuối.</li>
+    <li><b>Lọc + tìm tên</b>: bấm chip để lọc (số trên chip = số phòng); ô tìm lọc theo tên phòng. Lựa chọn lọc được nhớ trên máy.</li>
+    <li><b>Phòng team</b>: hàng linh vật = các team, số bên cạnh = số người; team đủ 12 người thì mờ. <b>Phòng đơn</b>: thanh số người /50.</li>
+    <li>Danh sách dài thì cuộn trong khung (cột trái đứng yên). Phòng đầy: nút "Đầy" khóa.</li>
+  </ul>
+</section>
+
+<!-- ================= A2 ================= -->
+<section class="frame-wrap">
+  <h2 id="a2"><span class="num">A2</span> Bấm "Vào" một phòng team</h2>
+  <p class="when">Cột trái sang bước 2: tên, quê, chọn team (như vào bằng mã). Dòng đang chọn bên phải tô xanh.</p>
+  <div class="frame"><span class="label-tag">Máy tính 1280px</span>
+    <div class="ex">
+      <div class="card" data-left="team"></div>
+      <div class="card">
+        <h3><span class="ic" data-icon="map"></span> Phòng đang mở</h3>
+        <p class="sub">Bấm Vào rồi nhập tên · phòng riêng tư không hiện ở đây, cần mã phòng</p>
+        <div class="filter" data-filter="team"></div>
+        <div class="rlist" data-list="team" data-picked="Phòng Kế toán"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= A3 ================= -->
+<section class="frame-wrap">
+  <h2 id="a3"><span class="num">A3</span> Lọc ra không có phòng nào</h2>
+  <p class="when">Ví dụ chưa ai tạo phòng team công khai: gợi ý nhập mã hoặc tạo phòng.</p>
+  <div class="frame"><span class="label-tag">Máy tính 1280px</span>
+    <div class="ex">
+      <div class="card" data-left="code"></div>
+      <div class="card">
+        <h3><span class="ic" data-icon="map"></span> Phòng đang mở</h3>
+        <p class="sub">Bấm Vào rồi nhập tên · phòng riêng tư không hiện ở đây, cần mã phòng</p>
+        <div class="filter" data-filter="team" data-zero="team"></div>
+        <div class="empty">Chưa có phòng team công khai nào.<br>Được mời vào phòng riêng tư? Nhập mã phòng bên trái — hoặc <a class="link" href="#">tạo phòng</a>.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= B ================= -->
+<section class="frame-wrap">
+  <h2 id="b"><span class="num">B</span> Hai tab "Phòng team" / "Phòng chơi đơn", giữ thẻ lớn</h2>
+  <p class="when">Giữ kiểu thẻ hiện tại, tách bằng 2 tab. Dễ nhìn khi ít phòng; nhiều phòng thì phải cuộn dài, và không xem chung hai loại được.</p>
+  <div class="frame"><span class="label-tag">Máy tính 1280px</span>
+    <div class="ex">
+      <div class="card" data-left="code"></div>
+      <div class="card">
+        <div class="tabs2"><button class="btn on" type="button">Phòng team · 3</button><button class="btn" type="button">Phòng chơi đơn · 6</button></div>
+        <div class="rooms" data-cards="team"></div>
+      </div>
+    </div>
+  </div>
+  <ul class="how"><li>Tab "Phòng chơi đơn" = phòng đơn công khai + 4 phòng có sẵn (thẻ như hiện tại).</li></ul>
+</section>
+
+<!-- ================= Điện thoại ================= -->
+<section class="frame-wrap">
+  <h2 id="m"><span class="num">A</span> Điện thoại (390px)</h2>
+  <p class="when">Hai cột xếp chồng: ô mã phòng trên, danh sách dưới.</p>
+  <div class="frame">
+    <div class="phone">
+      <div class="card" data-left="code-mini"></div>
+      <div class="card">
+        <h3 style="font-size:19px"><span class="ic" data-icon="map"></span> Phòng đang mở</h3>
+        <div class="filter" data-filter="all"></div>
+        <div class="rlist" data-list="all" data-limit="4"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+const D = window.CULTURE_DATA
+const MASCOTS = Object.keys(D.mascots)
+const ROOMS = [
+  { name: 'Phòng Kế toán', kind: 'team', st: 'wait', teams: [5, 4, 6, 3], age: 1 },
+  { name: 'Team Dev giao lưu', kind: 'team', st: 'wait', teams: [2, 3, 1, 2, 0, 1], age: 3 },
+  { name: 'Ngày Văn hóa 24/11 — tập dượt', kind: 'team', st: 'run', teams: [12, 9, 11], age: 8 },
+  { name: 'Ăn trưa cùng chơi', kind: 'solo', st: 'wait', players: 7, age: 2 },
+  { name: 'Phòng của Hiếu', kind: 'solo', st: 'run', players: 15, age: 5 },
+  { name: 'Phòng Sen', kind: 'solo', st: 'wait', players: 3, preset: true },
+  { name: 'Phòng Mai', kind: 'solo', st: 'run', players: 18, preset: true },
+  { name: 'Phòng Đào', kind: 'solo', st: 'wait', players: 0, preset: true },
+  { name: 'Phòng Trúc', kind: 'solo', st: 'end', players: 12, preset: true },
+]
+const ST = { wait: 'Đang chờ', run: 'Đang chơi', end: 'Đã kết thúc' }
+const players = r => r.kind === 'team' ? r.teams.reduce((a, b) => a + b, 0) : r.players
+const cap = r => r.kind === 'team' ? r.teams.length * 12 : 50
+const icon = k => D.icons[k] ?? ''
+
+for (const el of document.querySelectorAll('[data-icon]')) el.innerHTML = icon(el.dataset.icon)
+
+// Cột trái
+const LEFT = {
+  code: `<div class="brand"><b>Hành trình 3 miền</b><small>Mini game Ngày Văn hóa Việt Nam 24/11</small></div>
+    <div class="mascots">${MASCOTS.map(m => `<span>${D.mascots[m]}</span>`).join('')}</div>
+    <div class="tabs" style="margin-top:18px"><button class="btn on" type="button">Tham gia phòng</button><button class="btn" type="button">Tạo phòng</button></div>
+    <form onsubmit="return false" style="margin-top:16px">
+      <label class="field"><span>Mã phòng <span class="muted" style="font-weight:700">· phòng riêng tư: chủ phòng gửi cho bạn</span></span><input class="input pin-input" maxlength="6" placeholder="6 ký tự"></label>
+      <button class="btn green" type="button">Tiếp tục</button>
+    </form>
+    <div class="rules-row"><span>Lần đầu chơi?</span><a class="link" href="#">Xem luật chơi</a></div>`,
+  'code-mini': `<div class="brand"><b style="font-size:24px">Hành trình 3 miền</b></div>
+    <div class="tabs" style="margin-top:12px"><button class="btn on" type="button">Tham gia</button><button class="btn" type="button">Tạo phòng</button></div>
+    <form onsubmit="return false" style="margin-top:12px;display:flex;gap:8px"><input class="input pin-input" maxlength="6" placeholder="Mã phòng" style="flex:1"><button class="btn green" type="button">Tiếp</button></form>`,
+  team: `<h3>Phòng Kế toán <span class="muted" style="font-size:16px">· mã K7P2QA</span></h3>
+    <p class="sub">Phòng team · công khai · 18 người</p>
+    <form onsubmit="return false">
+      <label class="field">Tên của bạn <input class="input" value="Phúc"></label>
+      <label class="field"><span>Quê bạn ở đâu? <span class="muted" style="font-weight:700">· không bắt buộc</span></span><select class="input"><option>Không chọn</option></select></label>
+      <span class="field">Chọn team</span>
+      <div class="team-pick">${[5, 4, 6, 3].map((n, i) => `<label class="team-option"><input type="radio" name="tp" ${i === 3 ? 'checked' : ''}>${`<span style="display:inline-grid;width:30px;height:30px">${D.mascots[MASCOTS[i]]}</span>`}<b>Team ${MASCOTS[i]}</b><span class="muted">${n} người</span></label>`).join('')}</div>
+      <div class="btn-row"><button class="btn" type="button">← Đổi phòng</button><button class="btn green" type="button" style="flex:1">Vào chơi</button></div>
+    </form>`,
+}
+for (const el of document.querySelectorAll('[data-left]')) el.innerHTML = LEFT[el.dataset.left]
+
+// Thanh lọc
+for (const el of document.querySelectorAll('[data-filter]')) {
+  const on = el.dataset.filter, zero = el.dataset.zero
+  const n = k => zero === k ? 0 : ROOMS.filter(r => k === 'all' || r.kind === k).length
+  el.innerHTML = [['all', 'Tất cả'], ['team', 'Theo team'], ['solo', 'Chơi đơn']]
+    .map(([k, t]) => `<button class="fchip${on === k ? ' on' : ''}" type="button">${t} <i>${k === 'all' && zero ? n('solo') : n(k)}</i></button>`).join('')
+    + (el.closest('.phone') ? '' : '<input class="input search" placeholder="Tìm tên phòng">')
+}
+
+// A: dòng gọn
+function row(r, picked) {
+  const full = players(r) >= cap(r), ended = r.st === 'end'
+  const extra = r.kind === 'team'
+    ? `<div class="teams-mini">${r.teams.map((n, i) => `<span class="tm${n >= 12 ? ' full' : ''}">${D.mascots[MASCOTS[i % MASCOTS.length]]}${n}</span>`).join('')}</div>`
+    : `<div class="mini-meter"><i style="width:${players(r) * 2}%"></i></div>`
+  const sub = r.kind === 'team' ? `Theo team · ${r.teams.length} team · ${players(r)} người` : `Chơi đơn · ${players(r)}/50 người${r.preset ? ' · ai vào trước làm chủ phòng' : ''}`
+  const btn = ended ? '<button class="btn" type="button" disabled>Làm mới</button>'
+    : picked ? '<button class="btn" type="button" disabled>Đang chọn</button>'
+    : full ? '<button class="btn" type="button" disabled>Đầy</button>'
+    : '<button class="btn green" type="button">Vào</button>'
+  return `<div class="row${picked ? ' picked' : ''}${ended ? ' ended' : ''}">
+    <span class="kind ${r.kind}">${r.kind === 'team' ? icon('flag') : icon('hat')}</span>
+    <div><div class="t"><b>${r.name}</b><span class="badge ${r.st}">${ST[r.st]}</span>${r.preset ? '<span class="badge preset">Có sẵn</span>' : ''}</div>
+      <small>${sub}</small>${extra}</div>${btn}</div>`
+}
+const order = { wait: 0, run: 1, end: 2 }
+for (const el of document.querySelectorAll('[data-list]')) {
+  const k = el.dataset.list, picked = el.dataset.picked
+  let list = ROOMS.filter(r => k === 'all' || r.kind === k)
+  const mine = list.filter(r => !r.preset).sort((a, b) => order[a.st] - order[b.st] || a.age - b.age)
+  let pre = list.filter(r => r.preset)
+  const lim = Number(el.dataset.limit) || Infinity
+  el.innerHTML = (mine.length ? `<p class="group">Mọi người tạo</p>${mine.slice(0, lim).map(r => row(r, r.name === picked)).join('')}` : '')
+    + (pre.length && lim === Infinity ? `<p class="group">Phòng có sẵn</p>${pre.map(r => row(r)).join('')}` : '')
+    + (lim !== Infinity ? '<p class="muted" style="margin:4px 0 0;text-align:center;font-weight:800">Cuộn xem thêm 4 phòng…</p>' : '')
+}
+
+// B: thẻ lớn
+for (const el of document.querySelectorAll('[data-cards]')) {
+  el.innerHTML = ROOMS.filter(r => r.kind === el.dataset.cards).map(r => `
+    <div class="room">
+      <div class="room-top"><b>${r.name}</b><span class="badge ${r.st}">${ST[r.st]}</span></div>
+      <div class="meter"><i style="width:${players(r) * 100 / cap(r)}%"></i></div>
+      <div class="meta"><span>${players(r)}/${cap(r)} người</span><span>45 phút</span></div>
+      <div class="teams-mini">${r.teams.map((n, i) => `<span class="tm${n >= 12 ? ' full' : ''}">${D.mascots[MASCOTS[i % MASCOTS.length]]}${n}</span>`).join('')}</div>
+      <button class="btn green" type="button">Vào</button>
+    </div>`).join('')
+}
+</script>
+</body>
+</html>
