@@ -471,3 +471,18 @@ test('tạo phòng: mỗi trình duyệt tối đa 3 phòng chưa kết thúc (c
   assert.equal(over.json.error, 'too-many-own')
   assert.equal((await s.post('/api/rooms', { name: 'Người khác', teamCount: 2 }, 'other')).status, 200)
 })
+
+test('POST bị chặn vì Origin sai: trả 403 bad-origin và ghi log (mỗi Origin lạ 1 lần / phút)', async t => {
+  const s = await startServer(); t.after(s.close)
+  const logs = []
+  const warn = console.warn
+  console.warn = (...a) => logs.push(a.join(' '))
+  t.after(() => { console.warn = warn })
+  for (let i = 0; i < 3; i++) {
+    const r = await s.call('/api/rooms', { method: 'POST', body: { name: 'P', teamCount: 2 }, headers: { origin: 'https://game.example.vn/' } })
+    assert.equal(r.status, 403)
+    assert.equal(r.json.error, 'bad-origin')
+  }
+  assert.equal(logs.length, 1)
+  assert.match(logs[0], /Origin "https:\/\/game\.example\.vn\/" khác ALLOWED_ORIGIN "http:\/\/127\.0\.0\.1"/)
+})

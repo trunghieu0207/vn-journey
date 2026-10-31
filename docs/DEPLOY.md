@@ -205,6 +205,7 @@ WantedBy=multi-user.target
 sudo systemctl daemon-reload
 sudo systemctl enable --now vn-journey
 systemctl status vn-journey          # active (running)
+journalctl -u vn-journey -n 20       # không được có dòng "CẢNH BÁO: … ALLOWED_ORIGIN …" — có thì sửa .env (mục 4)
 journalctl -u vn-journey -f          # xem log: "Hành trình 3 miền đang chạy: http://127.0.0.1:3000"
 ```
 
@@ -365,7 +366,7 @@ Chỉ dùng trình duyệt như người chơi bình thường — **không ch�
 |---|---|
 | Trang không vào được | `systemctl status vn-journey nginx`; `sudo systemctl restart vn-journey` |
 | Vào được nhưng không cập nhật realtime | Kiểm tra cấu hình `location = /api/stream` (buffering); người chơi tải lại trang |
-| Bấm gì cũng "Yêu cầu không hợp lệ" | `ALLOWED_ORIGIN` khác địa chỉ đang dùng → sửa `.env`, restart |
+| Bấm gì cũng "Yêu cầu không hợp lệ" / API trả **403** | Xem DevTools → Network → request lỗi → Response. **`"error":"bad-origin"`** = `ALLOWED_ORIGIN` khác địa chỉ đang dùng: lấy đúng giá trị dòng `Origin:` (tab Headers) điền vào `.env` — có `https://`, không `/` cuối, đúng `www` hay không — rồi `sudo systemctl restart vn-journey`. Log cũng ghi: `journalctl -u vn-journey -n 50` → dòng "Chặn POST vì Origin …". Trang HTML "403 Forbidden" (không phải JSON) = Nginx còn khối `allow/deny` cũ → xóa, `sudo nginx -t && sudo systemctl reload nginx`. `"create-off"` = /quan-tri → Cài đặt đang tắt tạo phòng |
 | Cả phòng bị "thử lại sau" (giới hạn tần suất) | `TRUST_PROXY` chưa bật hoặc Nginx thiếu `X-Real-IP` |
 | DB hỏng / lỡ xóa dữ liệu | Khôi phục bản sao lưu (dưới) |
 

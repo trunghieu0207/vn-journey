@@ -116,6 +116,17 @@ export function createApp({ db, config, now = Date.now, random = Math.random }) 
     void questions
     return meta
   }
+  // POST bị chặn vì Origin khác ALLOWED_ORIGIN: ghi log để dò lỗi cấu hình khi deploy (thường gặp nhất: thiếu https://, thừa "/", lệch www).
+  // Mỗi Origin lạ ghi tối đa 1 lần / phút — tránh bị spam log
+  const badOriginLogged = new Map()
+  function logBadOrigin(origin) {
+    const key = String(origin).slice(0, 200)
+    if ((badOriginLogged.get(key) ?? 0) > now() - 60_000) return
+    badOriginLogged.set(key, now())
+    if (badOriginLogged.size > 100) badOriginLogged.delete(badOriginLogged.keys().next().value)
+    console.warn(`Chặn POST vì Origin "${key}" khác ALLOWED_ORIGIN "${config.allowedOrigin}" — nếu đây là địa chỉ thật của game thì sửa ALLOWED_ORIGIN trong .env rồi restart`)
+  }
+
   // Trả file tải về (route raw)
   function sendFile(res, { type, name, body, path }) {
     const headers = { 'Content-Type': type, 'Content-Disposition': `attachment; filename="${name}"`, 'Cache-Control': 'no-store' }
@@ -537,6 +548,7 @@ export function createApp({ db, config, now = Date.now, random = Math.random }) 
     if (!route) return sendError(res, 404, 'not-found', 'Không tìm thấy')
 
     if (req.method === 'POST' && !originAllowed(req, config.allowedOrigin)) {
+      logBadOrigin(req.headers.origin)
       return sendError(res, 403, 'bad-origin', 'Yêu cầu không hợp lệ')
     }
     const page = req.headers['x-vnj-page']

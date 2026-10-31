@@ -49,6 +49,11 @@ server.listen(config.port, config.host, () => {
   console.log(`Hành trình 3 miền đang chạy: http://${config.host}:${config.port}`)
   console.log(`  Vào / để tạo phòng hoặc tham gia phòng · Màn chiếu: /screen.html · Chủ phòng (MC): /admin.html`)
   console.log(app.sys.adminCount() ? '  Quản trị: /quan-tri' : '  Quản trị: chưa có tài khoản — tạo bằng "pnpm run admin:create -- <tên-đăng-nhập> <Tên hiển thị>"')
+  // Cấu hình hay sai khi deploy: còn để giá trị máy dev → mọi nút bấm (POST) bị từ chối 403 "Yêu cầu không hợp lệ"
+  const origin = config.allowedOrigin
+  if (config.cookieSecure && !origin.startsWith('https://')) console.warn(`CẢNH BÁO: COOKIE_SECURE=true nhưng ALLOWED_ORIGIN="${origin}" không phải https:// — đặt ALLOWED_ORIGIN=https://<domain>`)
+  if (origin.endsWith('/')) console.warn(`CẢNH BÁO: ALLOWED_ORIGIN="${origin}" có dấu "/" ở cuối — bỏ đi, không thì mọi nút bấm bị từ chối`)
+  if (config.trustProxy && /127\.0\.0\.1|localhost/.test(origin)) console.warn(`CẢNH BÁO: TRUST_PROXY=true (chạy sau Nginx) nhưng ALLOWED_ORIGIN vẫn là "${origin}" — đặt ALLOWED_ORIGIN=https://<domain>`)
 })
 
 function shutdown() {
