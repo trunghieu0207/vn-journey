@@ -65,7 +65,7 @@ Thử trọn 1 trận: mở `http://127.0.0.1:3000/` (đúng `127.0.0.1`, không
 2. ~~**Phase 0 — báo IT/SOC**~~ — **quyết định 31/10: không gửi**, deploy lên VPS ngoài (xem `docs/DEPLOY.md`). Ghi chú cũ giữ lại nếu sau này cần gửi: Email mẫu mục 12.1 **đã cũ** (còn mô tả PIN team, 1 trận) → sửa theo mô hình phòng (ai cũng tạo phòng, nhiều phòng, mã phòng là vào được; phòng công khai hiện ở danh sách) trước khi gửi. **Phải nêu thêm:** bảng xếp hạng cá nhân lưu tên hiển thị + điểm người chơi phòng đơn 7 ngày, công khai ở `/leaderboard`.
 3. ~~Phase 5 — rà bảo mật~~ ✅ 30/10 (`docs/security-review-2026-10-30.md`). Còn: chạy `/gkit-review-security`; chủ dự án quyết có thêm **mã cá nhân khi vào lại** không (mục 2.1 báo cáo).
 4. **Script còn thiếu** mà PLAN nhắc: `scripts/simulate-teams.js` (bước 7.3), `scripts/recalibrate-levels.mjs` (bước 7.9 — chấm lại độ khó theo % đúng sau tổng duyệt).
-5. **Phase 6 — deploy**: ✅ tài liệu `docs/DEPLOY.md` (31/10 — Node 1 tiến trình + Nginx HTTPS/SSE + systemd + ufw, checklist ngày sự kiện, khôi phục backup, gỡ host). Còn: thuê VPS + domain, lấy IP public văn phòng; **quyết lại 6.7** (đề xuất: chặn IP văn phòng ở Nginx); thử sớm proxy công ty có chặn domain mới/SSE không.
+5. **Phase 6 — deploy**: ✅ tài liệu `docs/DEPLOY.md` (31/10 — Node 1 tiến trình + Nginx HTTPS/SSE + systemd + ufw, checklist ngày sự kiện, khôi phục backup, gỡ host). Còn: thuê VPS + domain; thử proxy công ty có chặn domain mới / SSE không. **31/10: mở công khai, không chặn IP văn phòng** (quyết định 6.7); sửa cấu hình Nginx cho bản cũ (`listen 443 ssl http2;` — `http2 on;` chỉ có từ Nginx 1.25.1, Ubuntu báo `unknown directive "http2"`) và lấy chứng chỉ Let's Encrypt trước khi tạo cấu hình.
 6. Phase 7 tổng duyệt **21/11** → sự kiện 24/11 → Phase 9 gỡ host.
 7. **Câu hỏi**: (a) chạy bù ~110 câu còn thiếu để đủ 22 thường + 8 công thành mỗi tỉnh (danh sách tỉnh thiếu: `docs/question-sourcing/README.md` mục Đợt 3) — cần WebSearch, thử một lượt trước xem hạn mức còn không; (b) **bổ sung nguồn cho 204 câu cũ + 139 câu đợt 2 chỉ 1 nguồn** (chủ dự án chọn làm sau 1000 câu), đồng thời **viết lại 14 câu cũ bị câu mới lộ đáp án** (dạng "vốn của tỉnh cũ nào?" / "dân tộc nào?" — danh sách ở README mục Đợt 3); (c) chủ dự án duyệt câu ở `docs/questions-review.html`.
 
@@ -144,7 +144,7 @@ Các giả định dưới đây đang được dùng để lập plan. **Sửa 
 | A3 | Có thẻ bài | Có | Thêm logic + UI (khoảng +2 ngày) |
 | A4 | Người soạn câu hỏi | Claude soạn, bạn duyệt | Thời gian Phase 1 |
 | A5 | Số người/team | 5–10 | Không ảnh hưởng kỹ thuật |
-| A6 | Người chơi ở đâu | Tất cả tại văn phòng | Có thể giới hạn truy cập theo IP văn phòng |
+| A6 | Người chơi ở đâu | Tất cả tại văn phòng | 31/10: **mở công khai**, không giới hạn IP (người chơi dùng 4G / wifi khác vẫn vào được) |
 | A7 | Host | **VPS thuê ngoài** (quyết định 31/10) | Phase 6 – Deploy |
 | A8 | Kiểu bản đồ | ✅ **Đã chốt: Bản đồ thật** (dữ liệu GeoJSON) | Mục 5 |
 | A9 | Số thành phố trực thuộc TW | ✅ **9** — theo dữ liệu repo, chủ dự án đã tra cứu xác nhận (27/10/2026) | Bảng điểm, số thẻ bài rơi ra |
@@ -1130,7 +1130,7 @@ COMMIT   (lỗi → ROLLBACK)
 | 6.4 | Cài đúng Node v22.23.4 (không cần cài database) |
 | 6.5 | Lấy code từ git (repo private → deploy key chỉ đọc; 0 dependency nên không có bước install), tạo `.env` trên host |
 | 6.6 | Reverse proxy + HTTPS; cấu hình SSE (`proxy_buffering off`, timeout dài) |
-| 6.7 | Giới hạn IP văn phòng (hoặc mã sự kiện) |
+| 6.7 | ~~Giới hạn IP văn phòng~~ — **chốt 31/10: mở công khai**, chỉ dựa vào mã phòng / mã chủ phòng / tài khoản quản trị + giới hạn tần suất |
 | 6.8 | Chạy server bằng user thường (systemd tạm thời hoặc chạy tay trong `tmux`) |
 | 6.9 | Kiểm tra từ mạng công ty và từ 4G (xác nhận chặn IP hoạt động) |
 

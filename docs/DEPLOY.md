@@ -28,10 +28,9 @@ Laptop người chơi ──HTTPS 443──▶ Nginx ──HTTP 127.0.0.1:3000�
 | VPS | Ubuntu 22.04/24.04, 1 vCPU, 1 GB RAM, 10 GB đĩa là dư cho ~100–200 người. Chọn vùng gần Việt Nam (Singapore / Việt Nam) cho độ trễ thấp |
 | Domain | Bắt buộc để có HTTPS hợp lệ. Trỏ bản ghi `A` về IP của VPS. Ghi lại chính xác — dùng cho `ALLOWED_ORIGIN` |
 | Chứng chỉ HTTPS | Let's Encrypt qua certbot, miễn phí, tự gia hạn (mục 6) |
-| IP public văn phòng | Từ một máy trong mạng văn phòng, mở trang xem IP (vd `https://ifconfig.me`) vài lần, vài ngày khác nhau. Nếu IP đổi hoặc ra nhiều IP → văn phòng dùng nhiều đường mạng, phải liệt kê hết |
 | Khóa SSH | Tạo cặp key riêng cho VPS này (`ssh-keygen -t ed25519`) |
 
-**Quyết định 6.7 (đề xuất):** VPS nhìn thấy được từ Internet → **chặn theo IP văn phòng** ở Nginx (mục 6), người ngoài không vào được dù đoán ra mã phòng. Đánh đổi: người chơi dùng 4G hoặc wifi khác sẽ bị chặn. Nếu không lấy được IP văn phòng ổn định thì bỏ chặn IP, chỉ dựa vào mã phòng (khi đó ai có link cũng xem được trang chủ, danh sách phòng công khai và `/leaderboard`).
+**Quyết định 6.7 (chốt 31/10): mở công khai, không chặn IP văn phòng.** Ai có link cũng vào được trang chủ, danh sách phòng công khai, `/leaderboard`, `/quan-tri` (trang đăng nhập). Bảo vệ dựa vào: mã phòng (phòng riêng tư), mã chủ phòng / mã màn chiếu, tài khoản quản trị (sai 5 lần khóa 15 phút), giới hạn tần suất theo IP, cookie HttpOnly + HTTPS. Người chơi dùng 4G / wifi nhà vẫn vào được.
 
 ---
 
@@ -226,17 +225,14 @@ server {
 }
 
 server {
-    listen 443 ssl;
-    http2 on;
+    # Nginx < 1.25 (Ubuntu 22.04: 1.18, 24.04: 1.24) chỉ hiểu cách viết này;
+    # "http2 on;" là cú pháp mới từ 1.25.1 → bản cũ báo: unknown directive "http2"
+    listen 443 ssl http2;
     server_name <domain>;
 
-    ssl_certificate     /etc/nginx/certs/vn-journey.crt;
-    ssl_certificate_key /etc/nginx/certs/vn-journey.key;
+    ssl_certificate     /etc/letsencrypt/live/<domain>/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/<domain>/privkey.pem;
     ssl_protocols TLSv1.2 TLSv1.3;
-
-    # Quyết định 6.7 — chỉ cho IP văn phòng (bỏ khối này nếu chọn chỉ dựa vào mã phòng)
-    allow <dải IP văn phòng, vd 203.0.113.0/24>;
-    deny  all;
 
     client_max_body_size 16k;     # server chỉ nhận body ≤ 10 KB
     server_tokens off;
@@ -272,13 +268,16 @@ sudo nginx -t && sudo systemctl reload nginx
 Ghi chú:
 - Header bảo mật (CSP, HSTS, X-Frame-Options…) **do Node đặt**, không cần thêm ở Nginx.
 - Mỗi người chơi giữ 1 kết nối SSE, màn chiếu và chủ phòng thêm vài kết nối. Mặc định `worker_connections 768` của Nginx đủ cho ~300 người; đông hơn thì tăng trong `/etc/nginx/nginx.conf`.
-- **Chứng chỉ Let's Encrypt** — làm trước khi bật khối `allow/deny` (certbot cần port 80 truy cập được từ Internet):
+- **Chứng chỉ Let's Encrypt — lấy TRƯỚC khi tạo file cấu hình trên** (file cấu hình trỏ tới chứng chỉ; chưa có chứng chỉ thì `nginx -t` báo lỗi không tìm thấy file). Domain phải trỏ về IP VPS và port 80 mở (mục 7):
   ```bash
-  sudo apt install -y certbot python3-certbot-nginx
-  sudo certbot --nginx -d <domain>      # tự sửa đường dẫn ssl_certificate trong file cấu hình
-  sudo certbot renew --dry-run          # kiểm tra tự gia hạn
+  sudo apt install -y certbot
+  sudo systemctl stop nginx                         # certbot tự mở port 80 để xác minh domain
+  sudo certbot certonly --standalone -d <domain> \
+       --pre-hook "systemctl stop nginx" --post-hook "systemctl start nginx"   # lưu lại để tự gia hạn
+  sudo systemctl start nginx
+  sudo certbot renew --dry-run                      # kiểm tra tự gia hạn (dừng nginx vài giây)
   ```
-  Khối `allow/deny` đặt trong `server` 443 nên không ảnh hưởng gia hạn qua port 80.
+- Kiểm tra phiên bản: `nginx -v`. Từ 1.25.1 trở lên có thể đổi sang `listen 443 ssl;` + `http2 on;` (cách cũ vẫn chạy, chỉ báo cảnh báo).
 
 ---
 
@@ -343,7 +342,7 @@ Chỉ dùng trình duyệt như người chơi bình thường — **không ch�
 | 4 | Realtime | Một bên trả lời, bên kia thấy ngay (< 1–2 giây). Để yên 5 phút vẫn còn cập nhật |
 | 5 | Màn chiếu `/screen.html`, chủ phòng `/admin.html` | Hiện đúng |
 | 6 | `sudo systemctl restart vn-journey` giữa trận | Trang tự kết nối lại sau vài giây, trận tiếp tục đúng |
-| 7 | Điện thoại dùng 4G (ngoài mạng công ty) | Bị chặn (403 hoặc không kết nối được) — nếu đã chặn IP |
+| 7 | Điện thoại dùng 4G (ngoài mạng công ty) | Vào được bình thường (mở công khai — quyết định 6.7) |
 | 8 | Từ laptop công ty qua proxy công ty | Vào được và realtime vẫn chạy. Nếu proxy công ty chặn domain mới hoặc cắt kết nối SSE → phải nhờ IT whitelist (xem PLAN rủi ro "proxy chặn SSE") — **thử sớm**, càng sớm càng có thời gian xử lý |
 | 9 | `ls -l /opt/vn-journey/var /opt/vn-journey/var/backups` | Chủ sở hữu `vnj`, quyền `700`/`600`; sau 5 phút có file `backup-*.db` |
 | 10 | `https://<domain>/quan-tri` | Đăng nhập được, đổi mật khẩu tạm; mục Phòng thấy 4 phòng có sẵn; bấm **Điều khiển** một phòng → mở trang chủ phòng, có nút "← Quản trị" |
