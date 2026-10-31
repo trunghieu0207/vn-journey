@@ -15,7 +15,7 @@ export function createHousekeeping({ db, game, hub, now = Date.now, keepRoom = (
   const readySince = new Map() // roomId → lúc phòng có sẵn bắt đầu có ≥ 2 người đang mở trang
   const creators = new Map()   // khóa trình duyệt → Set(roomId) đã tạo
 
-  const rooms = () => db.prepare(`SELECT r.id, r.status, r.preset, r.host_player_id, (SELECT COUNT(*) FROM players p WHERE p.room_id = r.id) AS players
+  const rooms = () => db.prepare(`SELECT r.id, r.status, r.preset, r.host_player_id, r.created_at, (SELECT COUNT(*) FROM players p WHERE p.room_id = r.id) AS players
                                   FROM rooms r WHERE r.status != 'ended'`).all()
   const onlinePlayers = roomId => db.prepare('SELECT id FROM players WHERE room_id = ? ORDER BY id').all(roomId).filter(p => hub.isOnline(p.id))
 
@@ -30,7 +30,9 @@ export function createHousekeeping({ db, game, hub, now = Date.now, keepRoom = (
 
       // 1. Phòng chờ bị bỏ
       if (r.status === 'waiting') {
-        const seen = Math.max(lastSeen.get(r.id) ?? 0, startedAt)
+        // Mốc "còn người" gần nhất: lần cuối có người mở trang, lúc server khởi động, hoặc lúc tạo phòng
+        // (thiếu created_at thì phòng vừa tạo trên server đã chạy > 30 phút bị xóa ngay — lỗi 31/10)
+        const seen = Math.max(lastSeen.get(r.id) ?? 0, startedAt, r.created_at)
         const idle = t - seen >= RULES.idleRoomMs
         if (idle && !keepRoom(r.id) && (!r.preset || r.players > 0)) {
           db.prepare('DELETE FROM rooms WHERE id = ?').run(r.id)

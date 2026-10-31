@@ -51,6 +51,21 @@ test('phòng chờ không ai mở trang 30 phút thì bị xóa; có người m�
   assert.equal(roomExists(db, busy), false)
 })
 
+test('phòng vừa tạo trên server đã chạy lâu không bị xóa ngay (tính từ lúc tạo phòng)', () => {
+  const { db, now, core, hk } = setup()
+  hk.tick()
+  now.advance(RULES.idleRoomMs * 3) // server đã chạy 90 phút
+  const id = core.createRoom({ name: 'Mới tạo', teamCount: 2 }).roomId
+  hk.tick()
+  assert.equal(roomExists(db, id), true)
+  now.advance(RULES.idleRoomMs - 1000)
+  hk.tick()
+  assert.equal(roomExists(db, id), true)
+  now.advance(1000) // đủ 30 phút từ lúc tạo mà không ai mở trang
+  hk.tick()
+  assert.equal(roomExists(db, id), false)
+})
+
 test('phòng đang chơi không bị dọn dù không ai mở trang (tự kết thúc khi hết giờ)', () => {
   const { db, now, core, hk } = setup()
   const id = core.createRoom({ name: 'Đang chơi', teamCount: 2 }).roomId
