@@ -20,11 +20,12 @@ export function createGame(db, options = {}) {
     questionLeadMs = RULES.questionLeadMs, // đồng hồ câu hỏi bắt đầu sau khi phát câu (test đặt 0 để tính giờ chính xác)
     newCode,        // sinh mã ngẫu nhiên (độ dài) — mã phòng, mã chủ phòng, mã màn chiếu
     hashSecret,     // băm mã chủ phòng
+    sealSecret = null, // mã hóa mã chủ phòng để trang quản trị xem lại được (null: không lưu bản mã hóa)
   } = options
 
   const data = loadData(db, now)
   const { provinces, adjacency, collections } = data
-  const rooms = createRooms({ db, now, defaultDurationMin, newCode, hashSecret, room, ...data })
+  const rooms = createRooms({ db, now, defaultDurationMin, newCode, hashSecret, sealSecret, room, ...data })
   const { ensurePresetRooms, presetRooms, publicRooms, leaderboard, createRoom, findRoom, lobby, joinRoom, expireQuestions, cleanupRooms, activeRoomIds, questionStats, provinceList } = rooms
 
   // ---------- Một phòng ----------

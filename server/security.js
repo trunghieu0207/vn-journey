@@ -83,7 +83,7 @@ export function parseCookies(header = '') {
 }
 
 // Mỗi vai một cookie: cùng một cửa sổ trình duyệt vừa làm chủ phòng, vừa chơi, vừa mở màn chiếu mà không đè phiên nhau
-export const SESSION_COOKIES = { player: 'vnj_player', owner: 'vnj_owner', screen: 'vnj_screen' }
+export const SESSION_COOKIES = { player: 'vnj_player', owner: 'vnj_owner', screen: 'vnj_screen', sysadmin: 'vnj_sysadmin' }
 
 export function sessionCookie(role, token, maxAgeSec, { secure }) {
   return [

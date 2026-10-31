@@ -1,0 +1,893 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mockup: Trang quản trị</title>
+<!-- Trang quản trị toàn hệ thống (khác "Trang chủ phòng" /admin.html chỉ quản một phòng). Dùng CSS thật của app; dữ liệu câu hỏi là câu thật trong kho -->
+<link rel="stylesheet" href="../public/style.css">
+<script src="culture-data.js"></script>
+<script src="admin-data.js"></script>
+<script src="map-data.js"></script>
+<style>
+@font-face { font-family: "Nunito"; src: url("../public/fonts/nunito.ttf") format("truetype"); font-weight: 200 1000; }
+html, body { height: auto; }
+.head { position: sticky; top: 0; z-index: 30; display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: center; padding: 12px 24px; background: #fff; border-bottom: 2px solid var(--line); }
+.head h1 { color: var(--green); font-size: 20px; font-weight: 900; }
+.head nav { display: flex; flex-wrap: wrap; gap: 6px; }
+.head nav a { padding: 4px 12px; border-radius: 10px; border: 2px solid var(--line); color: var(--ink); font-weight: 800; font-size: 14px; text-decoration: none; }
+.intro { max-width: 1400px; margin: 16px auto 0; padding: 0 24px; color: var(--muted); }
+.intro b { color: var(--ink); }
+.frame-wrap { max-width: 1400px; margin: 0 auto; padding: 18px 24px 40px; }
+.frame-wrap h2 { display: flex; align-items: center; gap: 8px; margin-bottom: 4px; scroll-margin-top: 80px; }
+.frame-wrap h2 .num { display: inline-grid; place-items: center; min-width: 28px; height: 28px; padding: 0 6px; border-radius: 14px; background: var(--green); color: #fff; font-size: 15px; }
+.frame-wrap .when { margin: 0 0 12px; color: var(--muted); }
+.frame-wrap .how { margin: 12px 0 0; padding-left: 20px; }
+.frame-wrap .how li { margin: 4px 0; }
+.frame { position: relative; padding: 28px; border-radius: 22px; background: var(--bg); box-shadow: inset 0 0 0 2px var(--line); }
+.label-tag { position: absolute; top: -11px; left: 18px; z-index: 2; padding: 1px 10px; border-radius: 8px; background: var(--ink); color: #fff; font-size: 12px; font-weight: 800; }
+.ic { display: inline-grid; place-items: center; width: 1.25em; height: 1.25em; vertical-align: -.25em; flex: none; }
+.ic svg { width: 100%; height: 100%; }
+
+/* ---------- Đăng nhập ---------- */
+.ad-login { display: grid; place-items: center; min-height: 360px; }
+.ad-login .card { width: min(420px, 100%); padding: 28px; text-align: center; }
+.ad-login h3 { margin: 6px 0 2px; font-size: 24px; font-weight: 900; }
+.ad-login form { display: grid; gap: 12px; margin-top: 16px; text-align: left; }
+.ad-login .note { margin-top: 12px; font-size: 13px; }
+.lock-badge { display: inline-grid; place-items: center; width: 56px; height: 56px; border-radius: 18px; background: #FFF1C2; }
+.lock-badge .ic { width: 34px; height: 34px; }
+
+/* ---------- Khung ứng dụng ---------- */
+.ad { display: grid; grid-template-columns: 220px minmax(0, 1fr); min-height: 720px; overflow: hidden; border-radius: 18px; background: #fff; box-shadow: 0 0 0 2px var(--line); }
+.ad-side { display: flex; flex-direction: column; gap: 4px; padding: 16px 12px; background: #FBFBFB; border-right: 2px solid var(--line); }
+.ad-brand { display: flex; align-items: center; gap: 8px; padding: 4px 8px 14px; }
+.ad-brand b { color: var(--green); font-size: 17px; font-weight: 900; line-height: 1.1; }
+.ad-brand small { display: block; color: var(--muted); font-size: 12px; font-weight: 800; }
+.ad-nav { display: flex; align-items: center; gap: 10px; width: 100%; padding: 9px 10px; border: 0; border-radius: 12px; background: none; color: var(--ink); font: 800 15px var(--font); text-align: left; cursor: pointer; }
+.ad-nav:hover { background: #F0F0F0; }
+.ad-nav.on { background: #DDF4FF; color: var(--blue-dark); }
+.ad-nav i { margin-left: auto; padding: 0 7px; border-radius: 999px; background: var(--red); color: #fff; font-size: 12px; font-style: normal; font-weight: 900; }
+.ad-nav i.soft { background: #E5E5E5; color: var(--muted); }
+.ad-side .grow { flex: 1; }
+.ad-me { padding: 10px; border-radius: 12px; background: #fff; box-shadow: inset 0 0 0 2px var(--line); font-size: 13px; }
+.ad-me b { display: block; font-size: 14px; }
+.ad-main { display: flex; flex-direction: column; min-width: 0; }
+.ad-top { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 14px; padding: 14px 22px; border-bottom: 2px solid var(--line); }
+.ad-top h3 { margin: 0; font-size: 22px; font-weight: 900; }
+.ad-top .sub { color: var(--muted); font-weight: 700; }
+.ad-top .right { display: flex; gap: 8px; margin-left: auto; }
+.ad-body { padding: 18px 22px 26px; }
+.ad-sec { display: none; }
+.ad-sec.on { display: block; }
+
+/* KPI */
+.kpis { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 12px; }
+.kpi { padding: 14px 16px; border-radius: 16px; background: #fff; box-shadow: inset 0 0 0 2px var(--line); }
+.kpi .t { display: flex; align-items: center; gap: 6px; color: var(--muted); font-size: 13px; font-weight: 800; }
+.kpi b { display: block; margin-top: 4px; font-size: 28px; font-weight: 900; font-variant-numeric: tabular-nums; }
+.kpi small { color: var(--muted); font-weight: 700; }
+.kpi.warn b { color: var(--red); }
+.kpi.good b { color: var(--green-dark); }
+.grid2 { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 16px; margin-top: 16px; }
+.panel { padding: 16px 18px; border-radius: 16px; background: #fff; box-shadow: inset 0 0 0 2px var(--line); }
+.panel h4 { display: flex; align-items: center; gap: 8px; margin: 0 0 10px; font-size: 16px; font-weight: 900; }
+.panel h4 .more { margin-left: auto; color: var(--blue-dark); font-size: 13px; font-weight: 800; cursor: pointer; }
+.todo { display: flex; align-items: flex-start; gap: 10px; padding: 10px 0; border-top: 2px solid #F2F2F2; }
+.todo:first-of-type { border-top: 0; }
+.todo .dot { flex: none; width: 10px; height: 10px; margin-top: 6px; border-radius: 50%; background: var(--red); }
+.todo .dot.y { background: var(--accent); }
+.todo .dot.g { background: var(--green); }
+.todo p { margin: 0; font-weight: 700; }
+.todo small { color: var(--muted); font-weight: 700; }
+.todo .btn { margin-left: auto; min-height: 32px; padding: 2px 10px; font-size: 14px; }
+.bars { display: grid; gap: 8px; }
+.bar { display: grid; grid-template-columns: 110px minmax(0, 1fr) 44px; align-items: center; gap: 8px; font-size: 13px; font-weight: 800; }
+.bar .track { display: block; height: 12px; border-radius: 6px; background: #F0F0F0; overflow: hidden; }
+.bar .fill { display: block; height: 100%; border-radius: 6px; background: var(--green); }
+.bar .fill.y { background: var(--accent); }
+.bar .fill.r { background: var(--red); }
+.bar span:last-child { text-align: right; font-variant-numeric: tabular-nums; }
+
+/* Thanh lọc + bảng */
+.toolbar { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-bottom: 12px; }
+.seg { display: inline-flex; padding: 3px; border-radius: 12px; background: #F0F0F0; }
+.seg button { padding: 5px 12px; border: 0; border-radius: 9px; background: none; color: var(--muted); font: 800 14px var(--font); cursor: pointer; }
+.seg button.on { background: #fff; color: var(--ink); box-shadow: 0 1px 0 2px var(--line); }
+.ad-input { min-width: 0; padding: 8px 12px; border: 2px solid var(--line); border-radius: 12px; background: #F7F7F7; color: var(--ink); font: 700 15px var(--font); }
+.ad-input:focus { outline: none; border-color: var(--blue); background: #fff; }
+.ad-input.search { flex: 1 1 220px; }
+select.ad-input { padding-right: 28px; }
+textarea.ad-input { width: 100%; resize: vertical; line-height: 1.45; }
+.tbl { width: 100%; border-collapse: separate; border-spacing: 0; font-size: 14px; }
+.tbl th { position: sticky; top: 0; padding: 8px 10px; background: #FBFBFB; color: var(--muted); font-size: 12px; font-weight: 900; text-align: left; text-transform: uppercase; letter-spacing: .3px; border-bottom: 2px solid var(--line); }
+.tbl td { padding: 9px 10px; border-bottom: 2px solid #F2F2F2; font-weight: 700; vertical-align: middle; }
+.tbl tr.sel td { background: #F2FBFF; }
+.tbl tr.click { cursor: pointer; }
+.tbl tr.click:hover td { background: #FAFAFA; }
+.tbl .num { text-align: right; font-variant-numeric: tabular-nums; }
+.tbl .mono { white-space: nowrap; font-family: ui-monospace, Menlo, monospace; font-size: 13px; letter-spacing: .5px; }
+.tbl .acts { display: flex; gap: 6px; justify-content: flex-end; }
+.tbl .acts .btn { min-height: 30px; padding: 2px 10px; font-size: 13px; }
+.tbl-wrap { max-height: 520px; overflow: auto; border-radius: 14px; box-shadow: inset 0 0 0 2px var(--line); }
+.tag { display: inline-flex; align-items: center; gap: 4px; padding: 1px 8px; border-radius: 999px; background: #F0F0F0; color: var(--muted); font-size: 12px; font-weight: 900; white-space: nowrap; }
+.tag.run { background: #D7FFB8; color: var(--green-dark); }
+.tag.wait { background: #FFF1C2; color: #9A5B00; }
+.tag.end { background: #EEE; color: #999; }
+.tag.solo { background: #F3E5FF; color: #8A3FC4; }
+.tag.team { background: #DDF4FF; color: var(--blue-dark); }
+.tag.priv { background: #FFE3E3; color: var(--red-dark); }
+.tag.ok { background: #D7FFB8; color: var(--green-dark); }
+.tag.fix { background: #FFE8CC; color: #B35C00; }
+.tag.new { background: #FFF1C2; color: #9A5B00; }
+.tag.hide { background: #EEE; color: #888; }
+.src { display: inline-flex; gap: 2px; }
+.src i { width: 8px; height: 14px; border-radius: 3px; background: #E5E5E5; }
+.src i.on { background: var(--green); }
+.src.weak i.on { background: var(--accent); }
+.src.none i { background: #FFD4D4; }
+.who { display: flex; align-items: center; gap: 8px; }
+.who .av { display: inline-grid; place-items: center; width: 26px; height: 26px; border-radius: 50%; color: #fff; font-size: 13px; font-weight: 900; flex: none; }
+.who .ms { display: inline-grid; width: 26px; height: 26px; flex: none; }
+.who .ms svg { width: 100%; height: 100%; }
+.online { display: inline-block; width: 8px; height: 8px; margin-right: 4px; border-radius: 50%; background: var(--green); }
+.online.off { background: #CCC; }
+.armed { --fill: var(--red) !important; --bd: var(--red-dark) !important; color: #fff !important; }
+
+/* Câu hỏi: danh sách + trình sửa */
+.qs { display: grid; grid-template-columns: minmax(0, 1fr) minmax(380px, 440px); gap: 16px; align-items: start; }
+.cov { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 6px; margin-bottom: 14px; }
+.cov button { display: grid; gap: 3px; padding: 7px 9px; border: 0; border-radius: 10px; background: #fff; box-shadow: inset 0 0 0 2px var(--line); font: 800 12px var(--font); text-align: left; color: var(--ink); cursor: pointer; }
+.cov button.on { box-shadow: inset 0 0 0 2px var(--blue); background: #F2FBFF; }
+.cov .m { height: 6px; border-radius: 3px; background: #F0F0F0; overflow: hidden; }
+.cov .m i { display: block; height: 100%; background: var(--green); }
+.cov .m i.y { background: var(--accent); }
+.cov small { color: var(--muted); font-weight: 800; }
+.qtext { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; max-width: 460px; }
+.pct { font-variant-numeric: tabular-nums; }
+.pct.lo { color: var(--red-dark); }
+.pct.hi { color: var(--green-dark); }
+.editor { position: sticky; top: 80px; display: grid; gap: 12px; padding: 16px 18px; border-radius: 16px; background: #fff; box-shadow: inset 0 0 0 2px var(--line); }
+.editor .row { display: grid; grid-template-columns: minmax(0, .9fr) minmax(0, 1.4fr) minmax(0, 1fr); gap: 8px; }
+.editor select.ad-input { padding: 7px 8px; font-size: 14px; }
+.editor label { display: grid; gap: 4px; font-size: 13px; font-weight: 900; color: var(--muted); }
+.editor .hd { display: flex; align-items: center; gap: 8px; }
+.editor .hd b { font-size: 16px; }
+.editor .hd .mono { color: var(--muted); font-size: 13px; }
+.opts { display: grid; gap: 6px; }
+.opt { display: grid; grid-template-columns: 28px minmax(0, 1fr); align-items: center; gap: 6px; }
+.opt input[type=radio] { width: 20px; height: 20px; accent-color: var(--green); }
+.opt .ad-input { width: 100%; }
+.opt.right .ad-input { border-color: #A5E075; background: #F3FFE9; }
+.srcs { display: grid; gap: 6px; }
+.srcl { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 8px; padding: 6px 10px; border-radius: 10px; background: #F7F7F7; font-size: 13px; font-weight: 700; }
+.srcl a { overflow: hidden; color: var(--blue-dark); text-overflow: ellipsis; white-space: nowrap; }
+.srcl .k { padding: 0 6px; border-radius: 6px; font-size: 11px; font-weight: 900; }
+.srcl .k.off { background: #D7FFB8; color: var(--green-dark); }
+.srcl .k.oth { background: #FFF1C2; color: #9A5B00; }
+.checks { display: grid; gap: 4px; padding: 10px 12px; border-radius: 12px; background: #FBFBFB; font-size: 13px; font-weight: 800; }
+.checks .ok { color: var(--green-dark); }
+.checks .bad { color: var(--red-dark); }
+.checks .mid { color: #9A5B00; }
+.qstat { display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: 13px; font-weight: 800; color: var(--muted); }
+.qstat b { color: var(--ink); }
+.suggest { padding: 8px 12px; border-radius: 12px; background: #FFF1C2; font-size: 13px; font-weight: 800; color: #7A4A00; }
+.editor .btn-row .btn { min-height: 36px; font-size: 14px; }
+
+/* Bảng xếp hạng + cài đặt + nhật ký */
+.lb-note { margin: 0 0 12px; color: var(--muted); font-weight: 700; }
+.set-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+.set-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 10px 0; border-top: 2px solid #F2F2F2; font-weight: 700; }
+.set-row:first-of-type { border-top: 0; }
+.set-row small { display: block; color: var(--muted); font-weight: 700; }
+.sw { position: relative; flex: none; width: 46px; height: 26px; border-radius: 13px; background: #DDD; cursor: pointer; }
+.sw::after { content: ""; position: absolute; top: 3px; left: 3px; width: 20px; height: 20px; border-radius: 50%; background: #fff; transition: left .15s; }
+.sw.on { background: var(--green); }
+.sw.on::after { left: 23px; }
+.words { display: flex; flex-wrap: wrap; gap: 6px; }
+.log { display: grid; gap: 0; }
+.log div { display: grid; grid-template-columns: 90px 120px minmax(0, 1fr); gap: 10px; padding: 9px 4px; border-top: 2px solid #F2F2F2; font-size: 14px; font-weight: 700; }
+.log div:first-child { border-top: 0; }
+.log time { color: var(--muted); font-variant-numeric: tabular-nums; }
+.banner-prev { padding: 8px 14px; border-radius: 12px; background: #FFF1C2; color: #7A4A00; font-weight: 800; }
+
+/* Điều khiển phòng */
+.rd-head { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 14px; }
+.rd-back { padding: 4px 10px; border: 0; border-radius: 10px; background: #F0F0F0; color: var(--ink); font: 800 14px var(--font); cursor: pointer; }
+.rd-clock { margin-left: auto; padding: 4px 14px; border-radius: 12px; background: var(--ink); color: #fff; font-size: 26px; font-weight: 900; font-variant-numeric: tabular-nums; }
+.rd-ctl { display: flex; flex-wrap: wrap; gap: 8px; margin: 14px 0; }
+.rd-grid { display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr); gap: 16px; }
+.rd-map { position: relative; padding: 8px; border-radius: 16px; background: var(--map-bg); }
+.rd-map svg { display: block; width: 100%; height: 470px; }
+.rd-map path { stroke: #fff; stroke-width: 1.2; }
+.rd-map .pin { font: 900 16px var(--font); fill: #fff; stroke: rgba(0,0,0,.45); stroke-width: 3px; paint-order: stroke; }
+.rd-legend { display: flex; flex-wrap: wrap; gap: 6px 12px; margin-top: 8px; font-size: 13px; font-weight: 800; }
+.rd-legend span { display: inline-flex; align-items: center; gap: 5px; }
+.rd-legend i { width: 12px; height: 12px; border-radius: 4px; }
+.codes { display: grid; gap: 8px; }
+.code { display: flex; align-items: center; gap: 10px; padding: 8px 12px; border-radius: 12px; background: #F7F7F7; font-weight: 800; }
+.code span:first-child { min-width: 110px; color: var(--muted); font-size: 13px; }
+.code b { font-family: ui-monospace, Menlo, monospace; font-size: 18px; letter-spacing: 2px; }
+.code .btn { margin-left: auto; min-height: 30px; padding: 2px 10px; font-size: 13px; }
+.ev-row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.ad-feed { display: grid; gap: 0; max-height: 220px; overflow: auto; }
+.ad-feed div { display: flex; gap: 8px; align-items: center; padding: 7px 0; border-top: 2px solid #F2F2F2; font-size: 14px; font-weight: 700; }
+.ad-feed div:first-child { border-top: 0; }
+.ad-feed time { margin-left: auto; color: var(--muted); font-size: 12px; }
+.score-adj { display: inline-flex; gap: 4px; }
+.score-adj .ad-input { width: 70px; padding: 4px 8px; font-size: 13px; }
+.score-adj .btn { min-height: 28px; padding: 2px 8px; font-size: 13px; }
+/* Form phòng */
+.rf { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 14px 18px; max-width: 900px; }
+.rf label { display: grid; gap: 5px; font-size: 13px; font-weight: 900; color: var(--muted); }
+.rf .full { grid-column: 1 / -1; }
+.rf .lockn { color: #9A5B00; font-size: 12px; font-weight: 800; }
+.opt-card { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
+.opt-card button { display: grid; gap: 2px; padding: 10px 12px; border: 0; border-radius: 12px; background: #fff; box-shadow: inset 0 0 0 2px var(--line); font: 800 14px var(--font); text-align: left; color: var(--ink); cursor: pointer; }
+.opt-card button.on { box-shadow: inset 0 0 0 2px var(--blue); background: #F2FBFF; }
+.opt-card small { color: var(--muted); font-weight: 700; }
+/* Hệ thống */
+.spark { display: flex; align-items: flex-end; gap: 3px; height: 48px; margin-top: 8px; }
+.spark i { flex: 1; border-radius: 3px 3px 0 0; background: #BDE6FA; }
+.spark i.hot { background: var(--orange); }
+.err { display: grid; grid-template-columns: 70px 60px minmax(0, 1fr) 50px; gap: 10px; padding: 8px 0; border-top: 2px solid #F2F2F2; font-size: 13px; font-weight: 700; }
+.err:first-of-type { border-top: 0; }
+.err code { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+/* Tài khoản */
+.perm { width: 100%; border-collapse: collapse; font-size: 14px; }
+.perm th, .perm td { padding: 8px 10px; border-bottom: 2px solid #F2F2F2; text-align: center; font-weight: 800; }
+.perm th:first-child, .perm td:first-child { text-align: left; }
+.perm .y { color: var(--green-dark); }
+.perm .n { color: #CCC; }
+.role { display: inline-block; padding: 1px 8px; border-radius: 999px; font-size: 12px; font-weight: 900; }
+.role.r1 { background: #FFE3E3; color: var(--red-dark); }
+.role.r2 { background: #DDF4FF; color: var(--blue-dark); }
+.role.r3 { background: #F3E5FF; color: #8A3FC4; }
+
+/* Điện thoại */
+.phones { display: flex; flex-wrap: wrap; gap: 28px; justify-content: center; }
+.phone { width: 380px; height: 740px; overflow: hidden; border-radius: 36px; background: #fff; box-shadow: 0 0 0 10px #222, 0 18px 40px rgba(0,0,0,.18); display: flex; flex-direction: column; }
+.phone .p-top { display: flex; align-items: center; gap: 8px; padding: 18px 16px 10px; border-bottom: 2px solid var(--line); }
+.phone .p-top b { font-size: 18px; font-weight: 900; }
+.phone .p-body { flex: 1; overflow: auto; padding: 12px 14px; display: grid; gap: 10px; align-content: start; }
+.phone .p-tabs { display: grid; grid-template-columns: repeat(5, 1fr); border-top: 2px solid var(--line); }
+.phone .p-tabs span { display: grid; justify-items: center; gap: 2px; padding: 8px 0 14px; color: var(--muted); font-size: 11px; font-weight: 900; }
+.phone .p-tabs span.on { color: var(--blue-dark); }
+.pcard { padding: 10px 12px; border-radius: 14px; box-shadow: inset 0 0 0 2px var(--line); }
+.pcard p { margin: 4px 0 6px; font-weight: 700; font-size: 14px; }
+.pcard .meta { display: flex; flex-wrap: wrap; gap: 4px; }
+
+.open-q { display: grid; gap: 10px; }
+.open-q li { margin: 0; }
+
+@media (max-width: 1150px) { .qs, .rd-grid { grid-template-columns: 1fr; } .editor { position: static; } .grid2, .set-grid { grid-template-columns: 1fr; } }
+@media (max-width: 760px) { .ad { grid-template-columns: 1fr; } .ad-side { flex-direction: row; flex-wrap: wrap; } .ad-brand, .ad-side .grow, .ad-me { display: none; } .ad-nav { width: auto; } }
+</style>
+</head>
+<body>
+<svg class="hand-defs" width="0" height="0" aria-hidden="true" focusable="false">
+  <filter id="hand-ic-wob" x="-15%" y="-15%" width="130%" height="130%"><feTurbulence type="fractalNoise" baseFrequency="0.16" numOctaves="1" seed="3" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="1.3" xChannelSelector="R" yChannelSelector="G"/></filter>
+</svg>
+
+<header class="head">
+  <h1>Mockup · Trang quản trị</h1>
+  <nav>
+    <a href="#f-login">1 · Đăng nhập</a>
+    <a href="#f-app">2 · Bảng quản trị (bấm thử)</a>
+    <a href="#f-phone">3 · Điện thoại</a>
+    <a href="#f-open">Cần chốt</a>
+  </nav>
+</header>
+
+<p class="intro">
+  <b>Trang quản trị toàn hệ thống</b> — tài khoản admin riêng, quản lý và <b>điều khiển trực tiếp mọi phòng</b> (không cần mã chủ phòng), theo dõi server.
+  Khác <b>Trang chủ phòng</b> (<code>/admin.html</code>, chỉ quản một phòng bằng mã chủ phòng): trang này thấy <b>mọi phòng</b>, người chơi, kho câu hỏi, bảng xếp hạng và cài đặt.
+  Đường dẫn đề xuất <code>/quan-tri</code>, đăng nhập bằng <b>tài khoản admin</b> (tên + mật khẩu), có 3 vai trò.
+  Game <b>không có tài khoản</b>: "người chơi" là tên mỗi người nhập khi vào phòng, tự xóa cùng phòng sau 24 giờ.
+  Câu hỏi bên dưới là <b>câu thật trong kho</b>; số liệu phòng / người chơi / % đúng là ví dụ.
+</p>
+
+<!-- 1. Đăng nhập -->
+<section class="frame-wrap">
+  <h2 id="f-login"><span class="num">1</span> Đăng nhập</h2>
+  <p class="when">Mở <code>/quan-tri</code> khi chưa có phiên quản trị.</p>
+  <div class="frame"><span class="label-tag">/quan-tri</span>
+    <div class="ad-login">
+      <div class="card">
+        <span class="lock-badge"><span class="ic" data-ic="lock"></span></span>
+        <h3>Quản trị Hành trình 3 miền</h3>
+        <p class="muted">Tài khoản quản trị riêng của từng người. Người chơi và chủ phòng không cần trang này.</p>
+        <form onsubmit="return false">
+          <label class="field"><span class="field-label">Tên đăng nhập</span><input class="input" value="hieu.dang" autocomplete="username"></label>
+          <label class="field"><span class="field-label">Mật khẩu</span><input class="input" type="password" value="••••••••••••" autocomplete="current-password"></label>
+          <button class="btn primary">Đăng nhập</button>
+        </form>
+        <p class="muted note">Sai 5 lần → khóa tài khoản 15 phút. Phiên hết hạn sau 8 giờ không thao tác hoặc khi Đăng xuất.</p>
+      </div>
+    </div>
+  </div>
+  <ul class="how">
+    <li>Mỗi người một tài khoản (tên đăng nhập + mật khẩu ≥ 12 ký tự, băm scrypt như mã chủ phòng). <b>Tài khoản đầu tiên</b> tạo bằng lệnh trên VPS: <code>pnpm run admin:create</code> — không có trang đăng ký công khai. Chưa có tài khoản nào thì <code>/quan-tri</code> trả 404.</li>
+    <li>Tài khoản mới do quản trị tạo nhận <b>mật khẩu tạm</b>, lần đầu đăng nhập bắt đổi. Cookie riêng <code>vnj_sysadmin</code> (HttpOnly, Secure, SameSite=Strict).</li>
+    <li>Thông báo lỗi chung "Sai tên đăng nhập hoặc mật khẩu" — không nói tên nào tồn tại.</li>
+  </ul>
+</section>
+
+<!-- 2. Ứng dụng -->
+<section class="frame-wrap">
+  <h2 id="f-app"><span class="num">2</span> Bảng quản trị</h2>
+  <p class="when">Bấm các mục bên trái. Ở mục <b>Phòng</b>, bấm một phòng (hoặc nút Điều khiển) để vào màn điều khiển phòng; nút Tạo phòng mở form. Ở mục Câu hỏi, bấm một dòng để mở trình sửa. Nút Xóa / Kết thúc / Mời ra phải bấm 2 lần.</p>
+  <div class="frame"><span class="label-tag">/quan-tri · máy tính</span>
+    <div class="ad">
+      <aside class="ad-side">
+        <div class="ad-brand"><span class="ic" data-ic="hat" style="width:30px;height:30px"></span><div><b>Hành trình 3 miền</b><small>Quản trị</small></div></div>
+        <button class="ad-nav on" data-sec="dash"><span class="ic" data-ic="stats"></span>Tổng quan</button>
+        <button class="ad-nav" data-sec="rooms"><span class="ic" data-ic="map"></span>Phòng <i class="soft">23</i></button>
+        <button class="ad-nav" data-sec="players"><span class="ic" data-ic="flag"></span>Người chơi <i class="soft">187</i></button>
+        <button class="ad-nav" data-sec="questions"><span class="ic" data-ic="question"></span>Câu hỏi <i>14</i></button>
+        <button class="ad-nav" data-sec="board"><span class="ic" data-ic="trophy"></span>Bảng xếp hạng</button>
+        <button class="ad-nav" data-sec="log"><span class="ic" data-ic="timer"></span>Nhật ký</button>
+        <button class="ad-nav" data-sec="system"><span class="ic" data-ic="screen"></span>Hệ thống <i>2</i></button>
+        <button class="ad-nav" data-sec="accounts"><span class="ic" data-ic="lock"></span>Tài khoản admin</button>
+        <button class="ad-nav" data-sec="settings"><span class="ic" data-ic="card"></span>Cài đặt</button>
+        <div class="grow"></div>
+        <div class="ad-me"><b>Đặng Hiếu</b><span class="role r1">Quản trị</span><span class="muted" style="display:block;margin-top:4px">hieu.dang · phiên còn 7 giờ</span><div class="btn-row" style="margin-top:8px"><button class="btn" style="min-height:30px;font-size:13px">Đăng xuất</button></div></div>
+      </aside>
+
+      <div class="ad-main">
+        <!-- Tổng quan -->
+        <div class="ad-sec on" id="sec-dash">
+          <div class="ad-top"><h3>Tổng quan</h3><span class="sub">Thứ ba 24/11 · 14:32 · cập nhật 10 giây/lần</span>
+            <div class="right"><button class="btn">Tải bản sao lưu</button></div></div>
+          <div class="ad-body">
+            <div class="kpis">
+              <div class="kpi good"><span class="t"><span class="ic" data-ic="play"></span>Phòng đang chơi</span><b>6</b><small>4 team · 2 đơn</small></div>
+              <div class="kpi"><span class="t"><span class="ic" data-ic="timer"></span>Phòng đang chờ</span><b>5</b><small>tối đa 50 phòng mở</small></div>
+              <div class="kpi good"><span class="t"><span class="ic" data-ic="flag"></span>Đang trực tuyến</span><b>142</b><small>kết nối realtime</small></div>
+              <div class="kpi"><span class="t"><span class="ic" data-ic="finish"></span>Lượt chơi hôm nay</span><b>38</b><small>12 trận đã xong</small></div>
+              <div class="kpi"><span class="t"><span class="ic" data-ic="question"></span>Câu hỏi</span><b>910</b><small>412 đã duyệt</small></div>
+              <div class="kpi warn"><span class="t"><span class="ic" data-ic="lock"></span>Cần xử lý</span><b>4</b><small>xem bên dưới</small></div>
+            </div>
+            <div class="grid2">
+              <div class="panel">
+                <h4>Cần xử lý</h4>
+                <div class="todo"><span class="dot"></span><div><p>14 câu cũ bị lộ đáp án qua tên tỉnh cũ</p><small>Ví dụ hai-phong-03, an-giang-02 — cần viết lại</small></div><button class="btn" data-go="questions">Mở</button></div>
+                <div class="todo"><span class="dot"></span><div><p>Tên "xxx" trên bảng xếp hạng</p><small>Khớp danh sách từ cấm · phòng Sen · 14:20</small></div><button class="btn" data-go="board">Xem</button></div>
+                <div class="todo"><span class="dot y"></span><div><p>204 câu chưa có nguồn, 139 câu mới 1 nguồn</p><small>Luật mới: ≥ 2 nguồn, ít nhất 1 nguồn chính thống</small></div><button class="btn" data-go="questions">Lọc</button></div>
+                <div class="todo"><span class="dot y"></span><div><p>8 câu tỉ lệ đúng &lt; 15% (≥ 10 lượt)</p><small>Đề xuất chuyển mức Khó hoặc xem lại đáp án</small></div><button class="btn" data-go="questions">Xem</button></div>
+                <div class="todo"><span class="dot g"></span><div><p>Sao lưu gần nhất 3 phút trước</p><small>12 bản · var/backups · 4,1 MB</small></div></div>
+              </div>
+              <div class="panel">
+                <h4>Kho câu hỏi theo số nguồn <span class="more" data-go="questions">Mở kho câu</span></h4>
+                <div class="bars" id="srcBars"></div>
+                <h4 style="margin-top:18px">Phòng đang chơi <span class="more" data-go="rooms">Tất cả phòng</span></h4>
+                <table class="tbl"><tbody id="dashRooms"></tbody></table>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Phòng -->
+        <div class="ad-sec" id="sec-rooms">
+          <div class="ad-top"><h3>Phòng</h3><span class="sub">23 phòng · gồm cả phòng riêng tư · phòng tự xóa 24 giờ sau khi tạo</span>
+            <div class="right"><button class="btn green" data-go="roomform">Tạo phòng</button></div></div>
+          <div class="ad-body">
+            <div class="toolbar">
+              <div class="seg"><button class="on">Tất cả</button><button>Đang chơi</button><button>Đang chờ</button><button>Đã xong</button></div>
+              <div class="seg"><button class="on">Mọi kiểu</button><button>Theo team</button><button>Chơi đơn</button></div>
+              <input class="ad-input search" placeholder="Tìm tên phòng hoặc mã phòng">
+            </div>
+            <div class="tbl-wrap"><table class="tbl">
+              <thead><tr><th>Mã</th><th>Tên phòng</th><th>Kiểu</th><th>Trạng thái</th><th class="num">Người</th><th>Thời gian</th><th>Hiển thị</th><th></th></tr></thead>
+              <tbody id="roomRows"></tbody>
+            </table></div>
+            <ul class="how">
+              <li><b>Điều khiển</b> (hoặc bấm vào dòng): mở màn điều khiển phòng ngay trong trang quản trị — bắt đầu / tạm dừng / kết thúc, tung sự kiện, bản đồ đầy đủ, sửa điểm, sửa tên, đổi team, mời ra. Không cần mã chủ phòng.</li>
+              <li><b>Kết thúc</b> phòng đang chơi: ghi bảng xếp hạng như chủ phòng bấm Kết thúc. <b>Xóa</b>: xóa hẳn phòng + người chơi (bấm 2 lần).</li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- Người chơi -->
+        <div class="ad-sec" id="sec-players">
+          <div class="ad-top"><h3>Người chơi</h3><span class="sub">187 người trong 23 phòng · không có tài khoản, xóa cùng phòng</span></div>
+          <div class="ad-body">
+            <div class="toolbar">
+              <div class="seg"><button class="on">Tất cả</button><button>Đang trực tuyến</button><button>Tên bị gắn cờ</button></div>
+              <select class="ad-input"><option>Mọi phòng</option><option>Phòng Sen</option><option>Phòng HR tầng 5</option></select>
+              <input class="ad-input search" placeholder="Tìm tên người chơi">
+            </div>
+            <div class="tbl-wrap"><table class="tbl">
+              <thead><tr><th>Người chơi</th><th>Phòng</th><th>Team</th><th class="num">Điểm</th><th>Trạng thái</th><th>Vào lúc</th><th></th></tr></thead>
+              <tbody id="playerRows"></tbody>
+            </table></div>
+            <ul class="how">
+              <li><b>Sửa tên</b> dùng chung luật với chủ phòng (chuẩn hóa, không trùng trong phòng); máy người đó và màn chiếu đổi theo. Ghi vào Nhật ký.</li>
+              <li>Tên khớp <b>danh sách từ cấm</b> (Cài đặt) được gắn cờ đỏ — quản trị quyết định sửa hay để.</li>
+              <li>Không lưu IP / thiết bị của người chơi ở trang này — chỉ những gì game đã có.</li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- Câu hỏi -->
+        <div class="ad-sec" id="sec-questions">
+          <div class="ad-top"><h3>Câu hỏi</h3><span class="sub">910 câu · 34 tỉnh · mục tiêu 22 thường + 8 thử tài mỗi tỉnh</span>
+            <div class="right"><button class="btn">Xuất questions.json</button><button class="btn green">Thêm câu</button></div></div>
+          <div class="ad-body">
+            <div class="cov" id="cov"></div>
+            <div class="toolbar">
+              <div class="seg" id="qState"><button class="on" data-s="">Tất cả</button><button data-s="new">Chờ duyệt</button><button data-s="fix">Cần sửa</button><button data-s="ok">Đã duyệt</button><button data-s="hide">Đang ẩn</button></div>
+              <select class="ad-input" id="qTopic"><option value="">Mọi chủ đề</option></select>
+              <select class="ad-input" id="qDiff"><option value="">Thường + thử tài</option><option value="normal">Câu thường</option><option value="siege">Câu thử tài</option></select>
+              <select class="ad-input" id="qSrc"><option value="">Mọi mức nguồn</option><option value="0">Chưa có nguồn</option><option value="1">1 nguồn</option><option value="2">≥ 2 nguồn</option></select>
+              <input class="ad-input search" id="qSearch" placeholder="Tìm nội dung, đáp án, mã câu">
+            </div>
+            <div class="qs">
+              <div class="tbl-wrap"><table class="tbl">
+                <thead><tr><th>Mã</th><th>Câu hỏi</th><th>Chủ đề</th><th>Mức</th><th>Nguồn</th><th class="num">% đúng</th><th>Trạng thái</th></tr></thead>
+                <tbody id="qRows"></tbody>
+              </table></div>
+              <div class="editor" id="editor"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Bảng xếp hạng -->
+        <div class="ad-sec" id="sec-board">
+          <div class="ad-top"><h3>Bảng xếp hạng cá nhân</h3><span class="sub">Phòng chơi đơn · cộng dồn mọi trận · giữ 7 ngày</span>
+            <div class="right"><button class="btn">Mở /leaderboard</button></div></div>
+          <div class="ad-body">
+            <p class="lb-note">Đổi tên áp dụng cho mọi trận của người đó trên bảng. <b>Ẩn</b> = không hiện công khai nhưng còn trong dữ liệu; <b>Xóa</b> = xóa hẳn các trận của tên đó.</p>
+            <div class="toolbar"><div class="seg"><button class="on">Tất cả</button><button>Bị gắn cờ</button><button>Đang ẩn</button></div><input class="ad-input search" placeholder="Tìm tên"></div>
+            <div class="tbl-wrap"><table class="tbl">
+              <thead><tr><th class="num">#</th><th>Lữ khách</th><th class="num">Điểm</th><th class="num">Tem</th><th class="num">Số trận</th><th>Trận gần nhất</th><th></th></tr></thead>
+              <tbody id="boardRows"></tbody>
+            </table></div>
+          </div>
+        </div>
+
+        <!-- Nhật ký -->
+        <div class="ad-sec" id="sec-log">
+          <div class="ad-top"><h3>Nhật ký quản trị</h3><span class="sub">Mọi thao tác của quản trị + đăng nhập sai · giữ 30 ngày</span></div>
+          <div class="ad-body"><div class="panel"><div class="log" id="logRows"></div></div></div>
+        </div>
+
+        <!-- Điều khiển một phòng -->
+        <div class="ad-sec" id="sec-room">
+          <div class="ad-top">
+            <div class="rd-head" style="flex:1">
+              <button class="rd-back" data-go="rooms">← Danh sách phòng</button>
+              <h3>Phòng HR tầng 5</h3><span class="tag team">Theo team</span><span class="tag run">Đang chơi</span><span class="tag priv">Riêng tư</span>
+              <span class="rd-clock">18:42</span>
+            </div>
+          </div>
+          <div class="ad-body">
+            <div class="rd-ctl">
+              <button class="btn"><span class="ic" data-ic="pause"></span>Tạm dừng</button>
+              <button class="btn danger" data-arm><span class="ic" data-ic="stop"></span>Kết thúc</button>
+              <button class="btn" data-arm>Chơi lại</button>
+              <button class="btn" data-go="roomform">Sửa cấu hình</button>
+              <button class="btn"><span class="ic" data-ic="screen"></span>Mở màn chiếu</button>
+              <button class="btn" style="margin-left:auto" data-arm>Xóa phòng</button>
+            </div>
+            <div class="rd-grid">
+              <div>
+                <div class="rd-map"><svg id="rdMap" role="img" aria-label="Bản đồ phòng — quản trị thấy toàn bộ, không sương mù"></svg></div>
+                <div class="rd-legend" id="rdLegend"></div>
+                <p class="muted" style="margin:6px 0 0;font-size:13px">Quản trị thấy đủ: chủ từng tỉnh, vị trí từng team (chữ cái). Không chiếu màn này lên máy chiếu.</p>
+              </div>
+              <div style="display:grid;gap:14px;align-content:start">
+                <div class="panel">
+                  <h4>Mã của phòng</h4>
+                  <div class="codes">
+                    <div class="code"><span>Mã phòng</span><b>K7Q2PX</b><button class="btn">Sao chép link mời</button></div>
+                    <div class="code"><span>Mã màn chiếu</span><b>8HRT4M</b><button class="btn">Sao chép</button></div>
+                    <div class="code"><span>Mã chủ phòng</span><span class="muted" style="min-width:0">đã mã hóa — không xem lại được</span><button class="btn" data-arm>Tạo mã mới</button></div>
+                  </div>
+                </div>
+                <div class="panel">
+                  <h4>Sự kiện</h4>
+                  <div class="ev-row">
+                    <select class="ad-input"><option>Lễ hội (+100, 5 phút)</option><option>Bão (3 phút)</option><option>Câu hỏi vàng (×2, 2 phút)</option><option>Tin đồn</option></select>
+                    <select class="ad-input"><option>Miền Bắc</option><option>Miền Trung</option><option>Miền Nam</option></select>
+                    <button class="btn primary">Tung sự kiện</button>
+                  </div>
+                  <div class="ev-row" style="margin-top:8px"><span class="pill golden"><span class="ic" data-ic="golden"></span>Câu hỏi vàng · còn 1:12</span><button class="btn">Câu hỏi chung cả phòng</button></div>
+                </div>
+                <div class="panel">
+                  <h4>Diễn biến <span class="more">Xem tất cả</span></h4>
+                  <div class="ad-feed" id="rdFeed"></div>
+                </div>
+              </div>
+            </div>
+            <div class="panel" style="margin-top:16px">
+              <h4>Team &amp; điểm</h4>
+              <table class="tbl"><thead><tr><th>Team</th><th class="num">Tỉnh</th><th class="num">Điểm</th><th>Đang ở</th><th>Thành viên</th><th>Sửa điểm</th></tr></thead><tbody id="rdTeams"></tbody></table>
+            </div>
+            <div class="panel" style="margin-top:16px">
+              <h4>Người chơi trong phòng</h4>
+              <table class="tbl"><thead><tr><th>Người chơi</th><th>Team</th><th>Quê</th><th>Trạng thái</th><th></th></tr></thead><tbody id="rdPlayers"></tbody></table>
+              <p class="muted" style="margin:8px 0 0;font-size:13px">Quê chỉ quản trị và đồng đội thấy — không đưa ra màn chiếu, không xuất CSV.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tạo / sửa phòng -->
+        <div class="ad-sec" id="sec-roomform">
+          <div class="ad-top"><div class="rd-head" style="flex:1"><button class="rd-back" data-go="rooms">← Danh sách phòng</button><h3>Tạo phòng</h3><span class="sub">Quản trị tạo hộ — chọn ai làm chủ phòng ở cuối</span></div></div>
+          <div class="ad-body">
+            <div class="rf">
+              <label class="full">Tên phòng<input class="ad-input" value="Phòng HR tầng 5"></label>
+              <div class="full"><div style="font-size:13px;font-weight:900;color:var(--muted);margin-bottom:5px">Kiểu phòng <span class="lockn">· không đổi được sau khi tạo</span></div>
+                <div class="opt-card"><button class="on">Theo team<small>2–8 team, tối đa 12 người/team</small></button><button>Chơi đơn<small>Tối đa 50 người, tem + Tiên phong</small></button></div></div>
+              <label>Số team<select class="ad-input"><option>2</option><option>4</option><option selected>6</option><option>8</option></select><span class="lockn">Khóa khi đã bắt đầu</span></label>
+              <label>Thời lượng (phút)<input class="ad-input" type="number" value="45" min="10" max="90"><span class="lockn">Khóa khi đã bắt đầu</span></label>
+              <label>Số câu mỗi tỉnh<select class="ad-input"><option selected>1 câu</option><option>2 câu</option><option>3 câu</option></select><span class="lockn">Khóa khi đã bắt đầu</span></label>
+              <label>Hiển thị<select class="ad-input"><option>Công khai — hiện ở danh sách phòng</option><option selected>Riêng tư — cần mã phòng</option></select><span class="muted" style="font-size:12px">Đổi được bất cứ lúc nào</span></label>
+              <div class="full" style="display:flex;flex-wrap:wrap;gap:18px">
+                <div class="set-row" style="border:0;gap:10px"><span class="sw on"></span>Đặt cược (Mạo hiểm)</div>
+                <div class="set-row" style="border:0;gap:10px"><span class="sw"></span>Cho chọn chủ đề</div>
+                <div class="set-row" style="border:0;gap:10px"><span class="sw"></span>Phòng có sẵn (luôn mở lại)</div>
+              </div>
+              <label class="full">Chủ phòng<select class="ad-input"><option>Tạo mã chủ phòng mới — gửi cho người dẫn chương trình</option><option>Không có chủ phòng — chỉ quản trị điều khiển</option></select></label>
+              <div class="full btn-row"><button class="btn green">Tạo phòng</button><button class="btn" data-go="rooms">Hủy</button></div>
+            </div>
+            <ul class="how">
+              <li><b>Sửa cấu hình</b> phòng đang có mở cùng form này: trước khi bắt đầu sửa được mọi mục (trừ kiểu phòng); đang chơi chỉ sửa tên, hiển thị, đặt cược, chọn chủ đề — giống quyền chủ phòng hiện nay.</li>
+              <li>Tạo xong hiện mã phòng, mã màn chiếu, mã chủ phòng (mã chủ phòng chỉ hiện một lần như hiện tại).</li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- Hệ thống -->
+        <div class="ad-sec" id="sec-system">
+          <div class="ad-top"><h3>Hệ thống</h3><span class="sub">Server chạy 5 giờ 41 phút · Node v22.23.4 · cập nhật 5 giây/lần</span>
+            <div class="right"><button class="btn">Tải bản sao lưu</button></div></div>
+          <div class="ad-body">
+            <div class="kpis">
+              <div class="kpi good"><span class="t">Kết nối realtime</span><b>148</b><small>tối đa đo được 162</small></div>
+              <div class="kpi"><span class="t">Yêu cầu / phút</span><b>1.240</b><div class="spark" id="spReq"></div></div>
+              <div class="kpi"><span class="t">Bộ nhớ Node</span><b>86 MB</b><small>/ 1 GB máy · đĩa trống 7,2 GB</small></div>
+              <div class="kpi"><span class="t">Thời gian phản hồi</span><b>14 ms</b><small>trung vị · chậm nhất 120 ms</small></div>
+              <div class="kpi warn"><span class="t">Bị chặn vì quá nhiều yêu cầu</span><b>37</b><small>15 phút qua · 2 IP</small></div>
+              <div class="kpi warn"><span class="t">Lỗi server</span><b>2</b><small>1 giờ qua</small></div>
+            </div>
+            <div class="grid2">
+              <div class="panel">
+                <h4>Lỗi gần đây</h4>
+                <div id="errRows"></div>
+                <p class="muted" style="margin:8px 0 0;font-size:13px">Chỉ hiện loại lỗi + đường dẫn, không hiện nội dung yêu cầu của người chơi.</p>
+              </div>
+              <div class="panel">
+                <h4>Bị chặn vì gửi quá nhiều</h4>
+                <table class="tbl"><thead><tr><th>IP</th><th>Giới hạn</th><th class="num">Lượt</th><th>Gần nhất</th><th></th></tr></thead><tbody>
+                  <tr><td class="mono">203.0.113.24</td><td>Vào phòng (150/phút)</td><td class="num">31</td><td class="muted">14:29</td><td><div class="acts"><button class="btn">Bỏ chặn</button></div></td></tr>
+                  <tr><td class="mono">198.51.100.7</td><td>Đăng nhập quản trị (5)</td><td class="num">6</td><td class="muted">13:40</td><td><div class="acts"><button class="btn">Bỏ chặn</button></div></td></tr>
+                </tbody></table>
+                <p class="muted" style="margin:8px 0 0;font-size:13px">IP văn phòng ra Internet chung một địa chỉ → nếu IP văn phòng bị chặn thì cả văn phòng không vào được: bấm Bỏ chặn.</p>
+                <h4 style="margin-top:16px">Dữ liệu</h4>
+                <div class="set-row"><div>Database<small>var/game.db · 3,8 MB · WAL 0,4 MB</small></div></div>
+                <div class="set-row"><div>Sao lưu<small>12 bản · gần nhất 14:30 · 5 phút/lần</small></div><button class="btn">Tải</button></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tài khoản admin -->
+        <div class="ad-sec" id="sec-accounts">
+          <div class="ad-top"><h3>Tài khoản admin</h3><span class="sub">4 tài khoản · chỉ vai Quản trị thấy mục này</span>
+            <div class="right"><button class="btn green">Thêm tài khoản</button></div></div>
+          <div class="ad-body">
+            <div class="tbl-wrap"><table class="tbl">
+              <thead><tr><th>Người</th><th>Tên đăng nhập</th><th>Vai trò</th><th>Đăng nhập gần nhất</th><th>Trạng thái</th><th></th></tr></thead>
+              <tbody id="accRows"></tbody>
+            </table></div>
+            <div class="grid2">
+              <div class="panel">
+                <h4>Thêm tài khoản</h4>
+                <div class="rf" style="grid-template-columns:1fr 1fr">
+                  <label>Tên hiển thị<input class="ad-input" value="Ngọc Anh"></label>
+                  <label>Tên đăng nhập<input class="ad-input" value="ngocanh"></label>
+                  <label class="full">Vai trò<select class="ad-input"><option>Điều phối — phòng, người chơi, bảng xếp hạng</option><option>Biên tập — câu hỏi</option><option>Quản trị — toàn quyền</option></select></label>
+                  <div class="full"><div class="code"><span>Mật khẩu tạm</span><b>r7Kq-2mXp-9Tz4</b><button class="btn">Sao chép</button></div><p class="muted" style="margin:6px 0 0;font-size:13px">Chỉ hiện một lần. Lần đầu đăng nhập phải đổi mật khẩu.</p></div>
+                  <div class="full btn-row"><button class="btn green">Tạo tài khoản</button></div>
+                </div>
+              </div>
+              <div class="panel">
+                <h4>Quyền theo vai trò</h4>
+                <table class="perm"><thead><tr><th></th><th><span class="role r1">Quản trị</span></th><th><span class="role r2">Điều phối</span></th><th><span class="role r3">Biên tập</span></th></tr></thead>
+                <tbody id="permRows"></tbody></table>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Cài đặt -->
+        <div class="ad-sec" id="sec-settings">
+          <div class="ad-top"><h3>Cài đặt</h3><span class="sub">Có hiệu lực ngay, không cần khởi động lại server</span></div>
+          <div class="ad-body">
+            <div class="set-grid">
+              <div class="panel">
+                <h4>Phòng</h4>
+                <div class="set-row"><div>Cho mọi người tạo phòng<small>Tắt khi muốn chỉ dùng phòng có sẵn / phòng ban tổ chức tạo</small></div><span class="sw on"></span></div>
+                <div class="set-row"><div>Phòng chơi đơn có sẵn<small>Phòng Sen, Mai, Đào, Trúc · 30 phút</small></div><span class="sw on"></span></div>
+                <div class="set-row"><div>Số phòng mở tối đa<small>Hiện 11 / 50</small></div><input class="ad-input" style="width:80px" value="50"></div>
+                <div class="set-row"><div>Người tối đa mỗi phòng đơn</div><input class="ad-input" style="width:80px" value="50"></div>
+              </div>
+              <div class="panel">
+                <h4>Thông báo chung</h4>
+                <p class="muted" style="margin:0 0 8px">Hiện ở đầu mọi trang (trang chủ, màn chơi, màn chiếu) tới khi tắt.</p>
+                <textarea class="ad-input" rows="2">14:45 trao giải ở sảnh tầng 3 — các phòng kết thúc trận trước 14:40 nhé!</textarea>
+                <div class="set-row"><div class="banner-prev">14:45 trao giải ở sảnh tầng 3 — các phòng kết thúc trận trước 14:40 nhé!</div><span class="sw on"></span></div>
+              </div>
+              <div class="panel">
+                <h4>Tên người chơi — từ cấm</h4>
+                <p class="muted" style="margin:0 0 8px">Tên chứa từ này bị gắn cờ (không tự chặn). So khớp bỏ dấu.</p>
+                <div class="words" id="words"></div>
+                <div class="btn-row" style="margin-top:10px"><input class="ad-input" placeholder="Thêm từ"><button class="btn">Thêm</button></div>
+              </div>
+              <div class="panel">
+                <h4>Dữ liệu</h4>
+                <div class="set-row"><div>Tải bản sao lưu mới nhất<small>backup-2026-11-24T14-30.db · 4,1 MB</small></div><button class="btn">Tải</button></div>
+                <div class="set-row"><div>Xuất kết quả sự kiện<small>CSV: bảng xếp hạng + tổng kết từng phòng (không có quê)</small></div><button class="btn">Xuất CSV</button></div>
+                <div class="set-row"><div>Xóa toàn bộ phòng đã xong<small>Không xóa bảng xếp hạng · bấm 2 lần</small></div><button class="btn danger" data-arm>Xóa</button></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 3. Điện thoại -->
+<section class="frame-wrap">
+  <h2 id="f-phone"><span class="num">3</span> Trên điện thoại</h2>
+  <p class="when">Ban tổ chức đi lại trong buổi sự kiện, cần xem nhanh / sửa tên / kết thúc phòng. Sửa câu hỏi để trên máy tính.</p>
+  <div class="frame"><span class="label-tag">/quan-tri · &lt; 700px</span>
+    <div class="phones">
+      <div class="phone">
+        <div class="p-top"><span class="ic" data-ic="stats"></span><b>Tổng quan</b><span class="muted" style="margin-left:auto;font-size:13px;font-weight:800">14:32</span></div>
+        <div class="p-body">
+          <div class="kpis" style="grid-template-columns:1fr 1fr">
+            <div class="kpi good"><span class="t">Đang chơi</span><b>6</b></div>
+            <div class="kpi good"><span class="t">Trực tuyến</span><b>142</b></div>
+            <div class="kpi"><span class="t">Đang chờ</span><b>5</b></div>
+            <div class="kpi warn"><span class="t">Cần xử lý</span><b>4</b></div>
+          </div>
+          <div class="pcard"><b>Tên "xxx" trên bảng xếp hạng</b><p class="muted">Phòng Sen · 14:20</p><div class="btn-row"><button class="btn" style="min-height:32px;font-size:14px">Đổi tên</button><button class="btn" style="min-height:32px;font-size:14px">Ẩn</button></div></div>
+          <div id="phoneRooms" style="display:grid;gap:10px"></div>
+        </div>
+        <div class="p-tabs"><span class="on"><span class="ic" data-ic="stats"></span>Tổng quan</span><span><span class="ic" data-ic="map"></span>Phòng</span><span><span class="ic" data-ic="flag"></span>Người</span><span><span class="ic" data-ic="trophy"></span>Xếp hạng</span><span><span class="ic" data-ic="card"></span>Khác</span></div>
+      </div>
+      <div class="phone">
+        <div class="p-top"><span class="ic" data-ic="map"></span><b>Phòng HR tầng 5</b><span class="tag run" style="margin-left:auto">Đang chơi</span></div>
+        <div class="p-body">
+          <div class="pcard"><div class="meta"><span class="tag team">Theo team</span><span class="tag">Mã K7Q2PX</span><span class="tag priv">Riêng tư</span></div><p>Còn 18:42 · 6 team · 41 người</p></div>
+          <div class="btn-row"><button class="btn primary" style="flex:1">Tung sự kiện</button></div>
+          <div class="btn-row"><button class="btn" style="flex:1">Tạm dừng</button><button class="btn danger" style="flex:1" data-arm>Kết thúc</button></div>
+          <div class="pcard"><b>Người chơi</b><div id="phonePlayers" style="display:grid;gap:8px;margin-top:8px"></div></div>
+        </div>
+        <div class="p-tabs"><span><span class="ic" data-ic="stats"></span>Tổng quan</span><span class="on"><span class="ic" data-ic="map"></span>Phòng</span><span><span class="ic" data-ic="flag"></span>Người</span><span><span class="ic" data-ic="trophy"></span>Xếp hạng</span><span><span class="ic" data-ic="card"></span>Khác</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Cần chốt -->
+<section class="frame-wrap">
+  <h2 id="f-open"><span class="num">?</span> Cần chốt trước khi làm</h2>
+  <div class="panel">
+    <ol class="open-q">
+      <li><b>Câu hỏi sửa ở đâu là chuẩn?</b> Hiện câu hỏi nằm trong <code>data/questions.json</code> (có trong git) và nạp vào DB lúc <code>db:init</code> — <code>db:reset</code> sẽ xóa mọi sửa trong trang quản trị. Đề xuất: trang quản trị sửa trong DB, nút <b>"Xuất questions.json"</b> để bạn tải về và commit; deploy sau đó dùng file mới.</li>
+      <li><b>3 vai trò</b> (Quản trị / Điều phối / Biên tập) có đủ không, hay chỉ cần một vai Quản trị cho gọn?</li>
+      <li><b>Mã chủ phòng</b> đang lưu dạng băm nên quản trị không xem lại được — chỉ "Tạo mã mới" (mã cũ hết hiệu lực). Có chấp nhận không?</li>
+      <li><b>Theo dõi hệ thống</b> cần thêm việc ghi lại số lượt bị chặn và lỗi server (hiện chỉ in ra log). Lưu trong bộ nhớ (mất khi khởi động lại) là đủ?</li>
+      <li><b>Duyệt câu hỏi</b> chuyển từ <code>docs/questions-review.html</code> vào đây (trạng thái Chờ duyệt / Cần sửa / Đã duyệt / Ẩn)? Câu bị Ẩn không phát cho phòng mới.</li>
+      <li><b>Thông báo chung, từ cấm, xuất CSV</b> là tính năng mới — có cần cho 24/11 không, hay chỉ làm Phòng / Người chơi / Câu hỏi / Bảng xếp hạng trước?</li>
+    </ol>
+  </div>
+</section>
+
+<script>
+const D = window.ADMIN_DATA, C = window.CULTURE_DATA
+const ic = n => D.icons[n] ?? ''
+document.querySelectorAll('[data-ic]').forEach(e => { e.innerHTML = ic(e.dataset.ic) })
+const MASC = Object.keys(C.mascots)
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c])
+const prov = Object.fromEntries(D.provinces.map(p => [p.id, p]))
+const topics = D.stats.topics
+
+// Điều hướng
+const show = sec => {
+  const nav = { room: 'rooms', roomform: 'rooms' }[sec] ?? sec
+  document.querySelectorAll('.ad-nav').forEach(b => b.classList.toggle('on', b.dataset.sec === nav))
+  document.querySelectorAll('.ad-sec').forEach(s => s.classList.toggle('on', s.id === 'sec-' + sec))
+}
+document.querySelectorAll('.ad-nav').forEach(b => b.addEventListener('click', () => show(b.dataset.sec)))
+document.addEventListener('click', e => {
+  // Bấm nút không có data-go nằm trong dòng có data-go (vd. Kết thúc / Xóa trong bảng phòng) thì không chuyển màn
+  const go = e.target.closest('[data-go]'), btn = e.target.closest('button')
+  if (go && (!btn || btn.hasAttribute('data-go'))) { show(go.dataset.go); document.getElementById('f-app').scrollIntoView({ block: 'start' }) }
+  const arm = e.target.closest('[data-arm]')
+  if (arm) {
+    if (arm.classList.contains('armed')) { arm.textContent = 'Đã xong'; arm.disabled = true; return }
+    arm.dataset.label ??= arm.textContent
+    arm.classList.add('armed'); arm.textContent = 'Bấm lần nữa'
+    setTimeout(() => { if (!arm.disabled) { arm.classList.remove('armed'); arm.textContent = arm.dataset.label } }, 4000)
+  }
+  const seg = e.target.closest('.seg button')
+  if (seg) { seg.parentElement.querySelectorAll('button').forEach(b => b.classList.toggle('on', b === seg)) }
+  const sw = e.target.closest('.sw'); if (sw) sw.classList.toggle('on')
+})
+
+// Tổng quan
+const srcRows = [['Chưa có nguồn', D.stats.src[0], 'r'], ['1 nguồn', D.stats.src[1], 'y'], ['2 nguồn', D.stats.src[2], ''], ['3+ nguồn', D.stats.src[3], '']]
+document.getElementById('srcBars').innerHTML = srcRows.map(([t, n, c]) =>
+  `<div class="bar"><span>${t}</span><span class="track"><span class="fill ${c}" style="width:${(n / D.stats.total * 100).toFixed(1)}%"></span></span><span>${n}</span></div>`).join('')
+
+const ROOMS = [
+  { code: 'K7Q2PX', name: 'Phòng HR tầng 5', mode: 'team', st: 'run', n: 41, time: 'còn 18:42', listed: false },
+  { code: 'M3R8TT', name: 'Kỹ thuật A', mode: 'team', st: 'run', n: 36, time: 'còn 22:10', listed: true },
+  { code: 'H2W9LB', name: 'Phòng Sen', mode: 'solo', st: 'run', n: 27, time: 'còn 09:05', listed: true, preset: true },
+  { code: 'P6N4ZE', name: 'Phòng Mai', mode: 'solo', st: 'run', n: 14, time: 'còn 25:30', listed: true, preset: true },
+  { code: 'Q8D3VK', name: 'Sales & Marketing', mode: 'team', st: 'run', n: 30, time: 'còn 31:12', listed: true },
+  { code: 'T5A7GH', name: 'Kế toán vui vẻ', mode: 'team', st: 'run', n: 18, time: 'còn 40:00', listed: false },
+  { code: 'B9C2MX', name: 'Phòng Đào', mode: 'solo', st: 'wait', n: 3, time: '30 phút', listed: true, preset: true },
+  { code: 'R4E6YU', name: 'Team QA chơi thử', mode: 'team', st: 'wait', n: 6, time: '45 phút', listed: true },
+  { code: 'W2J8KS', name: 'Phòng Trúc', mode: 'solo', st: 'wait', n: 0, time: '30 phút', listed: true, preset: true },
+  { code: 'L7F3NQ', name: 'Giờ nghỉ trưa', mode: 'solo', st: 'end', n: 12, time: 'xong 13:10', listed: true },
+  { code: 'Z5H9PD', name: 'Ban giám đốc', mode: 'team', st: 'end', n: 9, time: 'xong 11:45', listed: false },
+]
+const stTag = { run: '<span class="tag run">Đang chơi</span>', wait: '<span class="tag wait">Đang chờ</span>', end: '<span class="tag end">Đã xong</span>' }
+const modeTag = r => r.mode === 'solo' ? '<span class="tag solo">Chơi đơn</span>' : '<span class="tag team">Theo team</span>'
+document.getElementById('dashRooms').innerHTML = ROOMS.filter(r => r.st === 'run').slice(0, 5).map(r =>
+  `<tr><td>${esc(r.name)}</td><td>${modeTag(r)}</td><td class="num">${r.n} người</td><td class="muted">${r.time}</td></tr>`).join('')
+document.getElementById('roomRows').innerHTML = ROOMS.map(r => `<tr class="click" data-go="room">
+  <td class="mono">${r.code}</td><td>${esc(r.name)}${r.preset ? ' <span class="tag">có sẵn</span>' : ''}</td><td>${modeTag(r)}</td><td>${stTag[r.st]}</td>
+  <td class="num">${r.n}</td><td class="muted">${r.time}</td><td>${r.listed ? '<span class="tag">Công khai</span>' : '<span class="tag priv">Riêng tư</span>'}</td>
+  <td><div class="acts"><button class="btn primary" data-go="room">Điều khiển</button>${r.st === 'run' ? '<button class="btn" data-arm>Kết thúc</button>' : ''}<button class="btn" data-arm>Xóa</button></div></td></tr>`).join('')
+document.getElementById('phoneRooms').innerHTML = ROOMS.filter(r => r.st === 'run').slice(0, 4).map(r =>
+  `<div class="pcard"><div class="meta">${modeTag(r)}${stTag[r.st]}</div><p><b>${esc(r.name)}</b> · ${r.n} người · ${r.time}</p></div>`).join('')
+
+// Người chơi
+const PLAYERS = [
+  { name: 'Lan Anh', room: 'Phòng HR tầng 5', team: 0, score: 1240, on: true, at: '14:02' },
+  { name: 'Minh Quân', room: 'Phòng HR tầng 5', team: 2, score: 980, on: true, at: '14:02' },
+  { name: 'xxx', room: 'Phòng Sen', solo: '#8E44AD', score: 610, on: true, at: '14:10', flag: true },
+  { name: 'Hoàng Nam', room: 'Kỹ thuật A', team: 1, score: 1515, on: true, at: '13:58' },
+  { name: 'Thu Trang', room: 'Phòng Sen', solo: '#27AE60', score: 870, on: false, at: '14:11' },
+  { name: 'Đức Huy', room: 'Kỹ thuật A', team: 3, score: 720, on: true, at: '13:59' },
+  { name: 'Bảo Ngọc', room: 'Phòng Mai', solo: '#E67E22', score: 450, on: true, at: '14:21' },
+  { name: 'Tuấn Kiệt', room: 'Sales & Marketing', team: 4, score: 1100, on: true, at: '14:05' },
+]
+const who = p => p.solo
+  ? `<span class="who"><span class="av" style="background:${p.solo}">${esc(p.name[0].toUpperCase())}</span>${esc(p.name)}</span>`
+  : `<span class="who"><span class="ms">${C.mascots[MASC[p.team % MASC.length]]}</span>${esc(p.name)}</span>`
+document.getElementById('playerRows').innerHTML = PLAYERS.map(p => `<tr${p.flag ? ' style="--x:1"' : ''}>
+  <td>${who(p)} ${p.flag ? '<span class="tag priv">từ cấm</span>' : ''}</td><td>${esc(p.room)}</td><td>${p.solo ? '<span class="muted">—</span>' : 'Team ' + MASC[p.team % MASC.length]}</td>
+  <td class="num">${p.score.toLocaleString('vi-VN')}</td><td><span class="online${p.on ? '' : ' off'}"></span>${p.on ? 'Trực tuyến' : 'Mất kết nối'}</td><td class="muted">${p.at}</td>
+  <td><div class="acts"><button class="btn">Sửa tên</button><button class="btn" data-arm>Mời ra</button></div></td></tr>`).join('')
+document.getElementById('phonePlayers').innerHTML = PLAYERS.filter(p => !p.solo).slice(0, 4).map(p =>
+  `<div style="display:flex;align-items:center;gap:8px">${who(p)}<button class="btn" style="margin-left:auto;min-height:30px;font-size:13px">Sửa tên</button></div>`).join('')
+
+// Điều khiển phòng: bản đồ thật, chủ tỉnh là ví dụ
+const MD = window.MAP_DATA
+const TEAMC = ['#C0392B', '#E67E22', '#27AE60', '#8E44AD', '#2E86C1', '#8D6E63']
+const OWN = { 'ha-noi': 0, 'bac-ninh': 0, 'hung-yen': 0, 'thai-nguyen': 0, 'lang-son': 1, 'cao-bang': 1, 'quang-ninh': 1, 'hue': 2, 'quang-tri': 2, 'da-nang': 2, 'quang-ngai': 2,
+  'can-tho': 3, 'vinh-long': 3, 'an-giang': 3, 'ca-mau': 3, 'dak-lak': 4, 'gia-lai': 4, 'khanh-hoa': 4, 'lam-dong': 4, 'ho-chi-minh': 5, 'dong-nai': 5, 'tay-ninh': 5, 'son-la': 0, 'nghe-an': 2 }
+const AT = { 'thai-nguyen': 0, 'lang-son': 1, 'quang-tri': 2, 'ca-mau': 3, 'lam-dong': 4, 'dong-thap': 5 }
+{
+  const [x0, y0, x1, y1] = MD.bounds, svg = document.getElementById('rdMap')
+  svg.setAttribute('viewBox', [x0 - 10, y0 - 10, x1 - x0 + 20, y1 - y0 + 20].join(' '))
+  svg.innerHTML = MD.provinces.map(p => `<path d="${p.d}" fill="${OWN[p.id] != null ? TEAMC[OWN[p.id]] : '#F4F1E8'}"><title>${esc(p.name)}${OWN[p.id] != null ? ' · Team ' + MASC[OWN[p.id]] : ' · trống'}</title></path>`).join('')
+    + MD.provinces.filter(p => AT[p.id] != null).map(p => `<text class="pin" x="${p.label[0]}" y="${p.label[1]}" text-anchor="middle">${MASC[AT[p.id]][0]}</text>`).join('')
+  document.getElementById('rdLegend').innerHTML = MASC.map((m, i) => `<span><i style="background:${TEAMC[i]}"></i>${m}</span>`).join('') + '<span><i style="background:#F4F1E8;box-shadow:inset 0 0 0 1px #ccc"></i>Trống</span>'
+}
+const RDT = [['Rồng', 5, 1640, 'Thái Nguyên', 7], ['Lân', 3, 1210, 'Lạng Sơn', 7], ['Rùa', 5, 1580, 'Quảng Trị', 7], ['Phượng', 4, 1090, 'Cà Mau', 6], ['Hạc', 4, 1325, 'Lâm Đồng', 7], ['Trâu', 3, 980, 'Đồng Tháp', 7]]
+document.getElementById('rdTeams').innerHTML = RDT.map(([m, n, sc, at, mem], i) => `<tr><td><span class="who"><span class="ms">${C.mascots[m]}</span>Team ${m}</span></td><td class="num">${n}</td><td class="num">${sc.toLocaleString('vi-VN')}</td><td>${at}</td><td>${mem} người</td>
+  <td><span class="score-adj"><input class="ad-input" value="+50"><button class="btn">Áp dụng</button></span></td></tr>`).join('')
+document.getElementById('rdPlayers').innerHTML = [['Lan Anh', 0, 'Nghệ An', 1], ['Minh Quân', 2, '—', 1], ['Phương Thảo', 0, 'Hà Nội', 1], ['Quốc Bảo', 4, 'Đắk Lắk', 0], ['Hải Yến', 1, '—', 1]].map(([n, t, home, on]) =>
+  `<tr><td>${who({ name: n, team: t })}</td><td>Team ${MASC[t]}</td><td>${home}</td><td><span class="online${on ? '' : ' off'}"></span>${on ? 'Trực tuyến' : 'Mất kết nối'}</td><td><div class="acts"><button class="btn">Sửa tên</button><button class="btn">Đổi team</button><button class="btn" data-arm>Mời ra</button></div></td></tr>`).join('')
+document.getElementById('rdFeed').innerHTML = [['siege', 'Team Rùa thử tài Huế — chủ nhà giữ được (2 hiệp)', '14:31'], ['flag', 'Team Hạc cắm cờ Lâm Đồng', '14:30'], ['golden', 'Quản trị tung Câu hỏi vàng', '14:29'], ['flag', 'Team Rồng cắm cờ Thái Nguyên', '14:28'], ['home', 'Team Phượng về quê Cà Mau +50', '14:27']]
+  .map(([i, t, at]) => `<div><span class="ic">${ic(i)}</span>${esc(t)}<time>${at}</time></div>`).join('')
+
+// Hệ thống
+document.getElementById('spReq').innerHTML = [8, 9, 12, 10, 14, 18, 22, 20, 26, 30, 24, 21, 19, 28, 34, 31].map(v => `<i class="${v > 30 ? 'hot' : ''}" style="height:${v / 34 * 100}%"></i>`).join('')
+document.getElementById('errRows').innerHTML = [['14:12', '500', 'POST /api/answer — SQLITE_BUSY: database is locked', '1 lần'], ['13:55', '500', 'GET /api/stream — write after end', '1 lần']]
+  .map(([t, c, x, n]) => `<div class="err"><time class="muted">${t}</time><span class="tag priv">${c}</span><code>${esc(x)}</code><span class="muted">${n}</span></div>`).join('')
+
+// Tài khoản admin
+document.getElementById('accRows').innerHTML = [['Đặng Hiếu', 'hieu.dang', 1, 'Đang dùng', true], ['Thu Hà', 'thuha', 2, 'hôm nay 13:05', true], ['Văn Long', 'vanlong', 3, 'hôm qua 17:40', true], ['Tài khoản thử', 'test01', 2, '20/11', false]]
+  .map(([n, u, r, last, active]) => `<tr><td><b>${esc(n)}</b></td><td class="mono">${u}</td><td><span class="role r${r}">${['', 'Quản trị', 'Điều phối', 'Biên tập'][r]}</span></td><td class="muted">${last}</td>
+  <td>${active ? '<span class="tag ok">Hoạt động</span>' : '<span class="tag hide">Đã khóa</span>'}</td>
+  <td><div class="acts">${u === 'hieu.dang' ? '<button class="btn">Đổi mật khẩu</button>' : `<button class="btn">Đặt lại mật khẩu</button><button class="btn">Đổi vai</button><button class="btn" data-arm>${active ? 'Khóa' : 'Mở khóa'}</button>`}</div></td></tr>`).join('')
+document.getElementById('permRows').innerHTML = [['Xem tổng quan', 1, 1, 1], ['Tạo / sửa / điều khiển phòng', 1, 1, 0], ['Xóa phòng', 1, 0, 0], ['Người chơi + bảng xếp hạng', 1, 1, 0], ['Câu hỏi (sửa, duyệt)', 1, 0, 1], ['Hệ thống, sao lưu', 1, 1, 0], ['Cài đặt', 1, 0, 0], ['Tài khoản admin', 1, 0, 0]]
+  .map(([t, ...v]) => `<tr><td>${t}</td>${v.map(x => `<td class="${x ? 'y' : 'n'}">${x ? '✓' : '—'}</td>`).join('')}</tr>`).join('')
+
+// Bảng xếp hạng
+const BOARD = [['Hoàng Nam', 4210, 31, 5], ['Thu Trang', 3980, 29, 4], ['Bảo Ngọc', 3120, 24, 4], ['xxx', 2550, 18, 3, true], ['Lan Anh', 2400, 17, 2], ['Minh Quân', 1890, 14, 2], ['Đức Huy', 1205, 9, 1]]
+document.getElementById('boardRows').innerHTML = BOARD.map(([n, s, t, g, flag], i) => `<tr>
+  <td class="num">${i + 1}</td><td>${who({ name: n, solo: ['#C0392B', '#27AE60', '#E67E22', '#8E44AD', '#2E86C1', '#16A085', '#D35400'][i] })} ${flag ? '<span class="tag priv">từ cấm</span>' : ''}</td>
+  <td class="num">${s.toLocaleString('vi-VN')}</td><td class="num">${t}</td><td class="num">${g}</td><td class="muted">Phòng ${['Sen', 'Mai', 'Sen', 'Sen', 'Đào', 'Trúc', 'Mai'][i]} · hôm nay</td>
+  <td><div class="acts"><button class="btn">Đổi tên</button><button class="btn">Ẩn</button><button class="btn" data-arm>Xóa</button></div></td></tr>`).join('')
+
+// Nhật ký
+const LOG = [['14:31', 'hieu.dang', 'Đổi tên "Minh  Quan" → "Minh Quân" · Phòng HR tầng 5'], ['14:29', 'thuha', 'Tung Câu hỏi vàng · Phòng HR tầng 5'], ['14:25', 'vanlong', 'Ẩn câu da-nang-17 (đang sửa đáp án)'], ['14:20', 'Hệ thống', 'Gắn cờ tên "xxx" · Phòng Sen'], ['14:02', 'hieu.dang', 'Bật thông báo chung "14:45 trao giải…"'], ['13:40', 'Hệ thống', 'Đăng nhập sai tài khoản "admin" · 6 lần · 1 IP → chặn 15 phút'], ['13:12', 'thuha', 'Kết thúc phòng "Giờ nghỉ trưa"'], ['11:02', 'hieu.dang', 'Tạo tài khoản vanlong (Biên tập)']]
+document.getElementById('logRows').innerHTML = LOG.map(([t, w, x]) => `<div><time>${t}</time><b>${w}</b><span>${esc(x)}</span></div>`).join('')
+document.getElementById('words').innerHTML = ['xxx', 'đ*', 'admin', 'ban tổ chức', 'MC'].map(w => `<span class="tag">${esc(w)} ✕</span>`).join('')
+
+// Câu hỏi: trạng thái + % đúng là ví dụ; nội dung, nguồn, mức là thật
+const STATE = { 'hue-12': 'ok', 'ha-noi-s3': 'ok', 'ha-noi-04': 'new', 'can-tho-01': 'new', 'ha-noi-01': 'ok', 'da-nang-17': 'hide', 'an-giang-02': 'fix', 'quang-ninh-12': 'ok', 'dak-lak-02': 'fix', 'son-la-14': 'new', 'lao-cai-s5': 'ok', 'vinh-long-02': 'fix', 'cao-bang-19': 'new', 'hai-phong-03': 'fix' }
+const PCT = { 'hue-12': [31, 42], 'ha-noi-s3': [12, 17], 'ha-noi-04': [88, 25], 'can-tho-01': [91, 33], 'ha-noi-01': [54, 28], 'da-nang-17': [47, 15], 'an-giang-02': [73, 22], 'quang-ninh-12': [62, 19], 'dak-lak-02': [80, 20], 'son-la-14': [null, 0], 'lao-cai-s5': [22, 9], 'vinh-long-02': [76, 21], 'cao-bang-19': [44, 11], 'hai-phong-03': [85, 26] }
+const stName = { ok: ['ok', 'Đã duyệt'], new: ['new', 'Chờ duyệt'], fix: ['fix', 'Cần sửa'], hide: ['hide', 'Đang ẩn'] }
+const OFFICIAL = /\.gov\.vn|nhandan\.vn|vov\.vn|baovanhoa\.vn|unesco\.org|vietnamplus\.vn|baochinhphu\.vn|dangcongsan\.vn|qdnd\.vn|tuoitre\.vn|thanhnien\.vn|vnexpress\.net/
+const srcBox = q => { const n = q.sources?.length ?? 0; return `<span class="src${n === 0 ? ' none' : n === 1 ? ' weak' : ''}">${[0, 1, 2].map(i => `<i class="${i < n ? 'on' : ''}"></i>`).join('')}</span>` }
+const levelName = l => ['', 'Dễ', 'Vừa', 'Khó'][l] ?? '—'
+document.getElementById('qTopic').innerHTML += Object.entries(topics).map(([k, v]) => `<option value="${k}">${esc(v)}</option>`).join('')
+
+// Độ phủ theo tỉnh (số thật)
+const cov = document.getElementById('cov')
+cov.innerHTML = D.provinces.map(p => { const c = D.counts[p.id] ?? { normal: 0, siege: 0 }; const n = c.normal + c.siege, pct = Math.min(100, n / 30 * 100)
+  return `<button data-p="${p.id}" title="${c.normal} thường · ${c.siege} thử tài · ${c.src0} chưa nguồn"><span>${esc(p.name)}</span><span class="m"><i class="${n < 30 ? 'y' : ''}" style="width:${pct}%"></i></span><small>${n}/30${c.src0 ? ` · ${c.src0} chưa nguồn` : ''}</small></button>` }).join('')
+let pFilter = ''
+cov.addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return; pFilter = pFilter === b.dataset.p ? '' : b.dataset.p; cov.querySelectorAll('button').forEach(x => x.classList.toggle('on', x.dataset.p === pFilter)); renderQ() })
+
+let sel = 'hue-12', sFilter = ''
+document.getElementById('qState').addEventListener('click', e => { const b = e.target.closest('button'); if (b) { sFilter = b.dataset.s; renderQ() } })
+for (const id of ['qTopic', 'qDiff', 'qSrc', 'qSearch']) document.getElementById(id).addEventListener('input', renderQ)
+function renderQ() {
+  const t = document.getElementById('qTopic').value, d = document.getElementById('qDiff').value, s = document.getElementById('qSrc').value
+  const k = document.getElementById('qSearch').value.trim().toLowerCase()
+  const rows = D.questions.filter(q => (!pFilter || q.province === pFilter) && (!sFilter || STATE[q.id] === sFilter) && (!t || q.topic === t) && (!d || q.difficulty === d)
+    && (s === '' || Math.min(2, q.sources?.length ?? 0) === Number(s)) && (!k || (q.id + q.content + JSON.stringify(q.options ?? q.answer)).toLowerCase().includes(k)))
+  document.getElementById('qRows').innerHTML = rows.map(q => { const [p] = PCT[q.id] ?? []; const st = stName[STATE[q.id]]
+    return `<tr class="click${q.id === sel ? ' sel' : ''}" data-id="${q.id}"><td class="mono">${q.id}</td>
+      <td><span class="qtext">${esc(q.content)}</span><span class="muted" style="font-size:12px">${esc(prov[q.province].name)}${q.difficulty === 'siege' ? ' · thử tài' : ''}</span></td>
+      <td><span class="ic">${ic('topic-' + q.topic) || ''}</span></td><td>${levelName(q.level)}</td><td>${srcBox(q)}</td>
+      <td class="num pct${p == null ? '' : p < 20 ? ' lo' : p > 85 ? ' hi' : ''}">${p == null ? '—' : p + '%'}</td><td><span class="tag ${st[0]}">${st[1]}</span></td></tr>` }).join('')
+    || '<tr><td colspan="7" class="muted" style="padding:20px">Không có câu nào khớp bộ lọc (mockup chỉ có 14 câu mẫu).</td></tr>'
+}
+document.getElementById('qRows').addEventListener('click', e => { const r = e.target.closest('tr[data-id]'); if (r) { sel = r.dataset.id; renderQ(); renderEditor() } })
+
+function renderEditor() {
+  const q = D.questions.find(x => x.id === sel), [pct, n] = PCT[q.id] ?? [null, 0], st = stName[STATE[q.id]]
+  const srcs = q.sources ?? [], official = srcs.filter(u => OFFICIAL.test(u)).length
+  // Kiểm tra lộ đáp án: đáp án đúng xuất hiện trong nội dung, hoặc tên tỉnh cũ (mergedFrom) trong ngoặc
+  const right = q.kind === 'choice' ? q.options[q.answer] : Array.isArray(q.answer) ? q.answer[0] : String(q.answer)
+  const leak = q.content.toLowerCase().includes(String(right).toLowerCase()) || /\(.+ cũ\)/.test(q.content)
+  const lvSuggest = pct == null || n < 10 ? null : pct > 70 ? 1 : pct < 40 ? 3 : 2
+  const opts = q.kind === 'choice'
+    ? `<div class="opts">${q.options.map((o, i) => `<div class="opt${i === q.answer ? ' right' : ''}"><input type="radio" name="ans" ${i === q.answer ? 'checked' : ''}><input class="ad-input" value="${esc(o)}"></div>`).join('')}</div>`
+    : q.kind === 'text' ? `<label>Đáp án chấp nhận (mỗi dòng một cách viết)<textarea class="ad-input" rows="3">${esc(q.answer.join('\n'))}</textarea></label>`
+    : `<div class="seg"><button class="${q.answer ? 'on' : ''}">Đúng</button><button class="${q.answer ? '' : 'on'}">Sai</button></div>`
+  document.getElementById('editor').innerHTML = `
+    <div class="hd"><b>Sửa câu</b><span class="mono">${q.id}</span><span class="tag ${st[0]}" style="margin-left:auto">${st[1]}</span></div>
+    <div class="row">
+      <label>Tỉnh<select class="ad-input">${D.provinces.map(p => `<option ${p.id === q.province ? 'selected' : ''}>${esc(p.name)}</option>`).join('')}</select></label>
+      <label>Chủ đề<select class="ad-input">${Object.entries(topics).map(([k, v]) => `<option ${k === q.topic ? 'selected' : ''}>${esc(v)}</option>`).join('')}</select></label>
+      <label>Loại<select class="ad-input"><option ${q.difficulty === 'normal' ? 'selected' : ''}>Câu thường</option><option ${q.difficulty === 'siege' ? 'selected' : ''}>Câu thử tài</option></select></label>
+    </div>
+    <label>Nội dung<textarea class="ad-input" rows="3">${esc(q.content)}</textarea></label>
+    ${opts}
+    <label>Lời giải (người chơi thấy sau khi trả lời đúng)<textarea class="ad-input" rows="3">${esc(q.explanation ?? '')}</textarea></label>
+    <div><div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;font-size:13px;font-weight:900;color:var(--muted)">Nguồn kiểm chứng <span class="tag ${srcs.length >= 2 && official ? 'ok' : srcs.length ? 'fix' : 'priv'}">${srcs.length} nguồn · ${official} chính thống</span></div>
+      <div class="srcs">${srcs.map(u => `<div class="srcl"><span class="k ${OFFICIAL.test(u) ? 'off' : 'oth'}">${OFFICIAL.test(u) ? 'chính thống' : 'khác'}</span><a href="${esc(u)}" target="_blank" rel="noopener noreferrer">${esc(u.replace(/^https:\/\//, ''))}</a><span class="muted">✕</span></div>`).join('') || '<div class="srcl"><span class="k oth">thiếu</span><span class="muted">Chưa có nguồn — câu cũ trước luật 2 nguồn</span><span></span></div>'}
+      <div class="btn-row" style="margin-top:6px"><input class="ad-input" style="flex:1" placeholder="Dán link https://…"><button class="btn">Thêm nguồn</button></div></div>
+    </div>
+    <div class="checks">
+      <span class="${srcs.length >= 2 && official ? 'ok' : 'bad'}">${srcs.length >= 2 && official ? '✓ Đủ ≥ 2 nguồn, có nguồn chính thống' : '✕ Chưa đủ ≥ 2 nguồn, ít nhất 1 chính thống'}</span>
+      <span class="${leak ? 'bad' : 'ok'}">${leak ? '✕ Có thể lộ đáp án (nội dung chứa đáp án hoặc tên tỉnh cũ)' : '✓ Không thấy lộ đáp án trong nội dung'}</span>
+      <span class="${srcs.every(u => u.startsWith('https://')) ? 'ok' : 'bad'}">${srcs.every(u => u.startsWith('https://')) ? '✓ Link đều https' : '✕ Có link không phải https'}</span>
+    </div>
+    <div class="qstat"><span>Mức hiện tại <b>${levelName(q.level)}</b></span><span>Đã hỏi <b>${n}</b> lượt</span><span>Đúng <b>${pct == null ? '—' : pct + '%'}</b></span></div>
+    ${lvSuggest && lvSuggest !== q.level ? `<div class="suggest">Theo số liệu thật (${pct}% đúng / ${n} lượt): đề xuất đổi mức <b>${levelName(q.level)} → ${levelName(lvSuggest)}</b>. <button class="btn" style="min-height:28px;font-size:13px;margin-left:6px">Áp dụng</button></div>` : ''}
+    <div class="btn-row"><button class="btn green">Lưu &amp; duyệt</button><button class="btn">Lưu, cần sửa</button><button class="btn">${STATE[q.id] === 'hide' ? 'Hiện lại' : 'Ẩn câu'}</button></div>
+    <p class="muted" style="margin:0;font-size:12px">Sửa câu đang có trong trận: trận đó vẫn dùng bản cũ tới khi câu được trả lời; câu bị ẩn không phát thêm.</p>`
+}
+renderQ(); renderEditor()
+// Mở thẳng một mục: admin.html#sec=questions (tiện chụp màn hình)
+const m = location.hash.match(/^#sec=(\w+)/); if (m) show(m[1])
+</script>
+</body>
+</html>

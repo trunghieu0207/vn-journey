@@ -54,6 +54,12 @@ export function createHub(viewFor, isValid = () => true) {
       for (const c of clients) if (roomId == null || c.session.room_id === roomId) send(c)
     },
     size: () => clients.size,
+    // Số kết nối realtime đang mở của một phòng (trang quản trị)
+    roomOnline(roomId) {
+      let n = 0
+      for (const c of clients) if (c.session.room_id === roomId) n++
+      return n
+    },
     // Người chơi của team đang mở trang (có kết nối realtime) — để bỏ phiếu đáp án biết khi nào cả team đã đồng ý
     onlinePlayers(teamId) {
       const ids = new Set()

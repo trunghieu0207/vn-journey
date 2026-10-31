@@ -15,6 +15,7 @@
     "review:build": "node scripts/build-review.mjs",
     "db:init": "node --disable-warning=ExperimentalWarning scripts/init-db.mjs",
     "db:reset": "node --disable-warning=ExperimentalWarning scripts/init-db.mjs --reset",
+    "admin:create": "node --env-file-if-exists=.env --disable-warning=ExperimentalWarning scripts/admin-create.mjs",
     "test": "node --disable-warning=ExperimentalWarning --test tests/*.test.js"
   }
 }

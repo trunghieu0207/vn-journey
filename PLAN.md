@@ -23,7 +23,7 @@
 
 ## 0. Trạng thái & bàn giao — ĐỌC TRƯỚC KHI MỞ SESSION MỚI
 
-> Cập nhật: **30/10/2026 tối** (Phase 5 rà bảo mật; tách cookie theo vai; khung diễn biến màn chiếu; đồng hồ câu hỏi +1 giây; số câu mỗi tỉnh; cược số hiệp thử tài; phòng công khai / riêng tư; trang chủ dạng landing; bảng xếp hạng cá nhân; câu hỏi đợt 3 → 910 câu; **129 test**; các dòng bên dưới ghi ngày làm riêng). Sự kiện: **24/11/2026**. Thư mục project: thư mục gốc của repo.
+> Cập nhật: **31/10/2026** (trang quản trị `/quan-tri` — tài khoản admin, mọi phòng, người chơi, bảng xếp hạng; luật: xếp hạng cộng dồn, bão, đóng băng 1/3; deploy VPS + git; **143 test**) · trước đó **30/10/2026 tối** (Phase 5 rà bảo mật; tách cookie theo vai; khung diễn biến màn chiếu; đồng hồ câu hỏi +1 giây; số câu mỗi tỉnh; cược số hiệp thử tài; phòng công khai / riêng tư; trang chủ dạng landing; bảng xếp hạng cá nhân; câu hỏi đợt 3 → 910 câu; **129 test**; các dòng bên dưới ghi ngày làm riêng). Sự kiện: **24/11/2026**. Thư mục project: thư mục gốc của repo.
 > **Code Phase 1–4 đã xong nhưng CHƯA được thử trên trình duyệt thật** (Claude không có công cụ điều khiển trình duyệt trong session 27/10 — tiện ích Claude cho Chrome/Edge chưa kết nối; thử `/chrome` ở session mới). Mọi thứ dưới đây đã qua test tự động + chạy thử qua HTTP/SSE, phần giao diện chỉ được kiểm tra cú pháp.
 
 ### 0.1. Đã xong
@@ -173,6 +173,7 @@ Các giả định dưới đây đang được dùng để lập plan. **Sửa 
 | **Phòng chơi đơn có sẵn** (làm 29/10) | 4 phòng chơi đơn luôn có sẵn (`RULES.presetRooms`: Phòng Sen, Mai, Đào, Trúc; 30 phút, bật Đặt cược + Tiên phong), hiện ở màn "Tham gia phòng" (tên, trạng thái, số người, đã có chủ phòng chưa — không có tên người chơi; tự cập nhật 10 giây). **Ai vào trước làm chủ phòng**: phiên người chơi đó có thêm quyền chủ phòng của phòng mình (nút **"Trang chủ phòng"** trên thanh trên mở `/admin.html` cùng phiên — vừa chơi vừa điều khiển). Chủ phòng rời / bị mời ra → người vào sớm nhất còn lại nhận quyền. Phòng kết thúc quá 30 phút (hoặc quá 24 giờ) thì làm mới (mã mới, sạch người). Tắt bằng `PRESET_ROOMS=0`. Cột `rooms.preset`, `rooms.host_player_id`; `GET /api/rooms/preset` |
 | **Danh sách phòng đang mở** (làm 30/10) | Lúc tạo phòng chọn **Công khai** (mặc định) / **Riêng tư** (chốt 30/10). Riêng tư: không hiện ở đâu, phải có mã phòng mới vào. Phòng công khai hiện ở mục **"Phòng đang mở"** trên cột phải màn Tham gia, phía trên phòng có sẵn: tên, kiểu (team / chơi đơn), trạng thái, số người / sức chứa, thời lượng, nút Vào — không có tên người chơi; phòng kết thúc thì rời danh sách; mới tạo đứng trước. Màn Tham gia lấy cả hai danh sách bằng **một** lời gọi `GET /api/rooms/list` → `{ preset, open }` (tự làm mới 10 giây, hạn mức riêng 300 lượt/phút/IP để không ăn vào lượt vào phòng). Cột `rooms.listed` |
 | **Bảng xếp hạng cá nhân cả sự kiện** (làm 30/10) | **Chỉ phòng chơi đơn** (chốt 30/10: phòng team giữ nguyên chỉ xếp hạng team — không gọi tên cá nhân). Phòng đơn kết thúc (hết giờ hoặc chủ phòng bấm Kết thúc) → ghi mỗi người một dòng (tên, màu, điểm, số tem) vào bảng `leaderboard`; bỏ người 0 tem 0 điểm; Chơi lại rồi kết thúc lần nữa = thêm một trận. **Cùng tên (bỏ dấu, hoa thường) ở nhiều phòng = một người**, **cộng dồn điểm + tem mọi trận** (chốt 31/10 — luật mỗi phòng do phòng đó quyết, không chuẩn hóa), tên + màu theo trận gần nhất, kèm số trận; bằng điểm: nhiều tem hơn, rồi ai đạt tổng đó trước; bằng điểm + bằng tem thì cùng hạng. **Giữ 7 ngày** (`RULES.leaderboardKeepMs`, không xóa theo phòng — phòng tự xóa sau 24 giờ), top 100 (`leaderboardSize`). Trang công khai **`/leaderboard`** (bục top 3, bảng, ô tìm tên, tự làm mới 30 giây; link ở màn vào phòng); **màn chiếu** phòng đơn sau trận có nút **"Xếp hạng sự kiện"** (top 10). `GET /api/leaderboard`. Muốn đổi tên xấu thì chủ phòng sửa tên **trước khi kết thúc** — đã ghi thì không sửa được |
+| **Trang quản trị `/quan-tri`** (làm 31/10, mockup `mockup/admin.html`) | Chốt 31/10: **một vai Quản trị** (mọi tài khoản cùng quyền), mỗi người **một tài khoản** (tên đăng nhập + mật khẩu ≥ 12 ký tự, scrypt). Tài khoản đầu tiên tạo bằng **`pnpm run admin:create -- <tên> "<Tên hiển thị>"`** trên máy chủ (in mật khẩu tạm, không có trang đăng ký); chưa có tài khoản nào thì `/quan-tri` trả 404. Mật khẩu tạm phải đổi trước khi dùng (API trả `must-change`). Sai 5 lần liên tiếp → khóa tài khoản 15 phút; tên không tồn tại / sai mật khẩu cùng một thông báo. Phiên 8 giờ, cookie riêng `vnj_sysadmin`. **Làm đợt 1:** Tổng quan (số phòng, người chơi, kết nối realtime, lượt chơi đơn hôm nay, thao tác gần đây) · **Phòng** (mọi phòng kể cả riêng tư; tạo phòng; sửa tên / hiển thị / đặt cược / chọn chủ đề lúc nào cũng được, thời lượng + số câu mỗi tỉnh chỉ trước khi bắt đầu, kiểu phòng + số team không đổi; **xem mã phòng, mã màn chiếu, mã chủ phòng** — chốt 31/10: admin xem được mọi phòng cho tới khi phòng bị xóa; mã chủ phòng lưu thêm bản **mã hóa AES-256-GCM** `rooms.owner_key_sealed`, khóa ở `var/secret.key` hoặc `SECRET_KEY`; "Tạo mã chủ phòng mới" làm mã cũ + phiên chủ phòng cũ hết hiệu lực; **Điều khiển** = cấp phiên chủ phòng của phòng đó rồi mở `/admin.html?from=quan-tri` (đủ chức năng điều khiển trận, có nút "← Quản trị"); xóa phòng) · **Người chơi** (mọi phòng, đang trực tuyến, sửa tên, mời ra) · **Bảng xếp hạng** (đổi tên — trùng thì gộp, ẩn khỏi bảng công khai `leaderboard.hidden`, xóa) · **Tài khoản admin** (thêm → mật khẩu tạm, đặt lại mật khẩu, khóa / mở khóa — phiên người bị khóa hết hiệu lực ngay, không tự khóa mình) · **Nhật ký** (`admin_log`, giữ 30 ngày; xem mã phòng cũng ghi). **Để sau:** sửa câu hỏi trong trang (chốt 31/10: sửa trực tiếp trong DB — lưu ý `db:reset` nạp lại `data/questions.json`), mục Hệ thống (lượt bị chặn, lỗi server — lưu trong bộ nhớ là đủ), Cài đặt. Code `server/sysadmin.js`, `public/quan-tri.html` + `sysadmin.js` + `css/sysadmin.css`, test `tests/sysadmin.test.js` |
 | **Trang chủ dạng landing** (làm 30/10) | `/` (team.html `#entry`) theo `mockup/landing.html`: thanh trên cố định (Cách chơi / Kiểu phòng / Phòng đang mở / Bảng xếp hạng / Luật chơi + nút Vào chơi) → **hero** (tiêu đề, 2 câu giới thiệu, ô **"Có mã phòng?"** vào thẳng, số liệu, linh vật, **bản đồ minh họa** vẽ từ `/data/map-geo.json` — vài tỉnh có cờ, còn lại sương mù, nón lá nhảy; 3 bong bóng ví dụ, không phải dữ liệu thật) → Chơi trong 3 bước → Hai kiểu phòng → Không chỉ là đố vui → **khu Vào chơi `#play`** (màn vào phòng 2 cột cũ, giữ nguyên form) → chân trang. **Danh sách phòng** (cột phải, `mockup/room-list.html` kiểu A): một danh sách gọn, lọc **Tất cả / Theo team / Chơi đơn** (nhớ trên máy) + tìm tên; nhóm "Mọi người tạo" (đang chờ trước) rồi "Phòng có sẵn"; phòng team có hàng linh vật + số người từng team (team đủ 12 người mờ), phòng đơn có thanh số người; nút Vào / Đang chọn / Đầy / Đang làm mới. Link mời `/?room=MÃ`, lỗi phiên, vừa thoát phòng → cuộn xuống khu Vào chơi. `public/css/landing.css`; CSS thẻ phòng cũ (`.room*`) đã bỏ. Chụp Edge headless 1280px / 600px ổn (headless không thu hẹp được tới 390px) |
 | **Chủ phòng chơi luôn** (làm 29/10) | Tạo phòng xong (cả phòng team lẫn phòng đơn) có nút **"Vào chơi luôn"**: người tạo phòng vào phòng như mọi người (nhập tên, chọn team) và **giữ quyền chủ phòng** — server thấy phiên chủ phòng của chính phòng đó lúc `/api/join` → ghi `rooms.host_player_id`; nút **"Chủ phòng ▾"** chỉ hiện trên máy người đó (đồng đội cùng team không có quyền) — mở **bảng điều khiển ngay trong màn chơi** (ngăn kéo bên phải, bản đồ vẫn chạy; `public/team/host.js`): Bắt đầu / Tạm dừng / Tiếp tục, Kết thúc và Chơi lại (bấm 2 lần trong 4 giây, không dùng `confirm()`), tung sự kiện, câu hỏi chung, mã phòng + mã màn chiếu + mở màn chiếu, link trang chủ phòng đầy đủ (sửa tên, mời ra, sửa điểm, thống kê). Khung câu hỏi chung trên máy chủ phòng có thêm "Công bố ngay" / "Tiếp tục trận". **Chuyển qua lại**: trang chủ phòng có nút xanh trên thanh trên — đang chơi thì **"← Quay lại chơi"**, chưa chơi thì **"Vào chơi"** (mở màn vào phòng với mã điền sẵn; vào xong vẫn giữ quyền chủ phòng); link "Trang chủ phòng đầy đủ" trong bảng chủ phòng mở cùng tab. Đổi team trước khi bắt đầu: phiên chủ phòng được trả lại, vào team khác vẫn giữ quyền. Mã chủ phòng vẫn dùng được để đăng nhập trang chủ phòng ở máy khác. Nút phụ "Chỉ mở trang chủ phòng" cho MC không chơi |
 | **Màn ngoài 2 cột** (làm 29/10; 30/10 thành khu "Vào chơi" của trang landing) | Theo `mockup/entry.html` phương án A. Trái: tên game + linh vật, tab Tham gia (mã phòng → bước 2 tên / quê / chọn team) / Tạo phòng. Phải: tab Tham gia → **lưới thẻ phòng chơi đơn có sẵn** (trạng thái, thanh số người /50, thời lượng, có chủ phòng chưa, nút Vào; phòng đang chọn tô xanh; phòng đã kết thúc mờ "Đang làm mới"); tab Tạo phòng → **giải thích kiểu phòng đang chọn** bên trái (không bấm chọn ở cột phải), tạo xong → mã phòng / mã chủ phòng / mã màn chiếu. Màn hẹp (≤ 960px) 2 cột xếp chồng |
@@ -788,10 +789,12 @@ const getOwner = db.prepare('SELECT team_id, shield_until FROM ownership WHERE p
 | Bảng | Vai trò |
 |---|---|
 | `provinces`, `adjacency`, `collections`, `collection_members`, `questions` | Dữ liệu tĩnh, nạp từ `data/*.json` (câu hỏi có `level` 1–3, `answer` dạng JSON — không bao giờ gửi cho client) |
-| `rooms` | Phòng: mã phòng, tên, `owner_key_hash` (scrypt), mã màn chiếu, thời lượng, kiểu phòng, `quiz_count` (số câu mỗi tỉnh), `listed` (công khai), `preset` / `host_player_id` (phòng có sẵn), trạng thái trận, đồng hồ, sự kiện đang diễn ra (thay bảng `game_state` cũ) |
+| `rooms` | Phòng: mã phòng, tên, `owner_key_hash` (scrypt), `owner_key_sealed` (mã chủ phòng mã hóa AES-GCM — trang quản trị xem lại được), mã màn chiếu, thời lượng, kiểu phòng, `quiz_count` (số câu mỗi tỉnh), `listed` (công khai), `preset` / `host_player_id` (phòng có sẵn), trạng thái trận, đồng hồ, sự kiện đang diễn ra (thay bảng `game_state` cũ) |
 | `teams` | Team thuộc phòng: màu, linh vật, vị trí hiện tại/trước, câu đang chờ + `pending_order` + `pending_at`, khóa, điểm thưởng, `march_ready`, `last_result` (để đồng đội cùng thấy kết quả) |
 | `players` | Người chơi: phòng, team, tên (không trùng trong phòng) |
-| `sessions` | Phiên đăng nhập (chỉ lưu SHA-256 của token), role player/screen/owner, gắn phòng (+ team, người chơi). Xóa phòng / kick → phiên xóa theo (`ON DELETE CASCADE`) |
+| `sessions` | Phiên đăng nhập (chỉ lưu SHA-256 của token), role player/screen/owner/**sysadmin**, gắn phòng (+ team, người chơi) hoặc gắn tài khoản quản trị (`admin_id`, `room_id` NULL). Xóa phòng / kick / khóa tài khoản → phiên xóa theo (`ON DELETE CASCADE`) |
+| `admins` | Tài khoản quản trị (31/10): `username`, `display_name`, `password_hash` (scrypt), `must_change` (mật khẩu tạm), `disabled`, `failed_count` + `locked_until` (sai 5 lần → khóa 15 phút), `last_login_at` |
+| `admin_log` | Nhật ký thao tác quản trị + đăng nhập, giữ 30 ngày |
 | `ownership` | Tỉnh nào của team nào, khiên phòng thủ |
 | `visits` | Tỉnh team đã đặt chân tới (để biết "có chủ"/"trống" mà không lộ team nào) |
 | `cards` | Thẻ bài (scout/shield/march) |
@@ -800,7 +803,7 @@ const getOwner = db.prepare('SELECT team_id, shield_until FROM ownership WHERE p
 | `duels` | Thử tài (đấu tay đôi): câu chung, giai đoạn `bet` / `play`, hạn cược, cược hai bên, số hiệp, hiệp hiện tại, số hiệp thắng mỗi bên |
 | `stamps` | Phòng đơn: tem từng người (tỉnh không thuộc riêng ai) |
 | `reactions` | "Đã từng / Muốn thử" (chỉ dùng số đếm gộp) |
-| `leaderboard` | Bảng xếp hạng cá nhân cả sự kiện: phòng đơn kết thúc → mỗi người một dòng (tên, màu, điểm, số tem). **Không khóa ngoại tới `rooms`** (phòng tự xóa sau 24 giờ), tự xóa sau 7 ngày |
+| `leaderboard` | Bảng xếp hạng cá nhân cả sự kiện: phòng đơn kết thúc → mỗi người một dòng (tên, màu, điểm, số tem; `hidden` = quản trị ẩn khỏi bảng công khai). **Không khóa ngoại tới `rooms`** (phòng tự xóa sau 24 giờ), tự xóa sau 7 ngày |
 | `game_state` | Trạng thái trận (1 dòng): status, giờ bắt đầu/kết thúc/đóng băng, sự kiện đang diễn ra |
 
 ### 6.3. Khởi tạo & nạp dữ liệu
@@ -862,6 +865,15 @@ const getOwner = db.prepare('SELECT team_id, shield_until FROM ownership WHERE p
 | POST | `/api/owner/score` | Chủ phòng | `{ teamId, delta, reason }` (bắt buộc lý do, ghi log) | – |
 | POST | `/api/owner/settings` | Chủ phòng | `{ topicChoice?, betChoice? }` | Bật/tắt cho chọn chủ đề / đặt cược |
 | POST | `/api/owner/kick` | Chủ phòng | `{ playerId }` | Xóa người chơi + phiên, đóng kết nối realtime |
+| GET | `/api/sys/session` | Công khai (luôn 200) | – | `{ admin: { username, displayName, mustChange } \| null }` |
+| POST | `/api/sys/login` | Công khai (≤ 10 lần/phút/IP; sai 5 lần → khóa tài khoản 15 phút) | `{ username, password }` | Cookie `vnj_sysadmin`, `{ mustChange }` |
+| POST | `/api/sys/logout`, `/api/sys/password` | Quản trị (dùng được cả khi chưa đổi mật khẩu tạm) | password: `{ current, next }` | – |
+| GET | `/api/sys/overview`, `/api/sys/rooms`, `/api/sys/players`, `/api/sys/leaderboard`, `/api/sys/admins`, `/api/sys/log` | Quản trị | – | Tổng quan / mọi phòng / mọi người chơi / bảng xếp hạng (cả người bị ẩn) / tài khoản (không có mật khẩu băm) / nhật ký |
+| POST | `/api/sys/rooms` | Quản trị | như `POST /api/rooms` | `{ roomId, code, ownerKey, screenCode }` |
+| POST | `/api/sys/room/codes` · `/owner-key` · `/update` · `/delete` · `/control` | Quản trị | `{ roomId, … }` | Xem mã (ghi nhật ký) · tạo mã chủ phòng mới · sửa cấu hình · xóa · nhận phiên chủ phòng để mở `/admin.html` |
+| POST | `/api/sys/player/rename` · `/kick` | Quản trị | `{ playerId, name? }` | Như chủ phòng, cho mọi phòng |
+| POST | `/api/sys/leaderboard/rename` · `/hide` · `/delete` | Quản trị | `{ nameKey, name? \| hidden? }` | Đổi tên (trùng thì gộp) / ẩn / xóa mọi trận của tên đó |
+| POST | `/api/sys/admins` · `/admins/reset` · `/admins/disable` | Quản trị | `{ username, displayName }` · `{ id }` · `{ id, disabled }` | Mật khẩu tạm (chỉ hiện một lần); không tự khóa mình |
 
 ### 7.2. Kênh SSE (lọc theo quyền ở server)
 
@@ -1242,6 +1254,7 @@ ALLOWED_ORIGIN=http://127.0.0.1:3000
 TRUST_PROXY=false            # true trên host sau Nginx (lấy IP từ X-Real-IP)
 GAME_DURATION_MIN=45         # thời lượng mặc định khi chủ phòng không chọn
 FREEZE_BEFORE_END_MIN=10
+# SECRET_KEY=                # (không bắt buộc) 64 ký tự hex — khóa mã hóa mã chủ phòng; bỏ trống thì tự tạo var/secret.key
 ```
 
 ### 12.3. Lệnh chạy dev (dự kiến)
@@ -1250,7 +1263,8 @@ FREEZE_BEFORE_END_MIN=10
 cp .env.example .env
 pnpm run data:check                   # kiểm tra dữ liệu tỉnh + câu hỏi
 pnpm run db:init                      # tạo var/game.db từ schema + data/*.json
-pnpm run db:reset                     # xóa và tạo lại DB (trước mỗi lần chơi thử)
+pnpm run db:reset                     # xóa và tạo lại DB (trước mỗi lần chơi thử) — XÓA CẢ TÀI KHOẢN QUẢN TRỊ
+pnpm run admin:create -- <tên> "<Tên hiển thị>"   # tạo tài khoản quản trị, in mật khẩu tạm
 pnpm run dev                          # http://127.0.0.1:3000
 pnpm run test                         # chạy unit test (node:test)
 sqlite3 var/game.db                   # xem dữ liệu
@@ -1265,6 +1279,8 @@ sqlite3 var/game.db                   # xem dữ liệu
 | Tạo phòng / vào phòng / chơi | `/` (hoặc `/team.html`); link mời `/?room=MÃ` |
 | Máy chiếu | `/screen.html` (mã phòng + mã màn chiếu) |
 | Chủ phòng (MC) | `/admin.html` (mã phòng + mã chủ phòng) — Phase 4 |
+| Quản trị (ban tổ chức) | `/quan-tri` (tài khoản admin; 404 khi chưa có tài khoản nào) |
+| Bảng xếp hạng cá nhân | `/leaderboard` |
 
 ### 12.5. Nhật ký dependency
 

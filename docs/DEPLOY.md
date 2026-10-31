@@ -155,6 +155,19 @@ sudo -u vnj -H bash -c 'cd /opt/vn-journey && node --disable-warning=Experimenta
 # → Đã tạo var/game.db: ... tỉnh, ... câu hỏi.
 ```
 
+### Tạo tài khoản quản trị (`/quan-tri`)
+
+```bash
+sudo -u vnj -H bash -c 'cd /opt/vn-journey && node --disable-warning=ExperimentalWarning scripts/admin-create.mjs <tên-đăng-nhập> "<Tên hiển thị>"'
+# → in mật khẩu tạm (chỉ hiện một lần). Mở https://<domain>/quan-tri, đăng nhập, đặt mật khẩu mới ≥ 12 ký tự.
+```
+
+- **Chỉ làm một lần trên VPS.** Mật khẩu tạm sinh ngẫu nhiên mỗi lần chạy lệnh, không nằm trong code / git; DB chỉ lưu bản băm. Mật khẩu tạm ở máy dev không dùng được trên VPS (DB khác).
+- Tài khoản nằm trong `var/game.db` → `git pull` + restart (mục 8) **không** làm mất tài khoản. Chỉ phải tạo lại khi DB bị xóa (`--reset`, VPS mới).
+- Chưa có tài khoản nào thì `/quan-tri` trả 404. Các thành viên ban tổ chức khác: thêm trong trang (mục Tài khoản admin) — mỗi người nhận mật khẩu tạm riêng.
+- Quên mật khẩu: admin khác bấm "Đặt lại mật khẩu". Không còn ai đăng nhập được → chạy lại lệnh trên với **tên đăng nhập khác** (tên cũ báo trùng), rồi vào trang đặt lại cho tài khoản cũ.
+- Lần chạy server đầu tiên tự tạo **`var/secret.key`** (quyền 600) — khóa mã hóa mã chủ phòng để quản trị xem lại được. Mất file này thì mã chủ phòng của các phòng đang có không xem lại được (vẫn "Tạo mã mới" được). Muốn cố định thì đặt `SECRET_KEY` (64 ký tự hex: `openssl rand -hex 32`) trong `.env`. `secret.key` không nằm trong `var/backups/` — khôi phục bản sao lưu (mục 10) vẫn dùng khóa đang có, không cần làm gì thêm.
+
 ---
 
 ## 5. systemd
@@ -305,7 +318,7 @@ journalctl -u vn-journey -n 20
   sudo -u vnj -H bash -c 'cd /opt/vn-journey && node --disable-warning=ExperimentalWarning scripts/init-db.mjs --reset'
   sudo systemctl start vn-journey
   ```
-  **Mất toàn bộ phòng và bảng xếp hạng.** Không làm việc này từ 23/11 trở đi.
+  **Mất toàn bộ phòng, bảng xếp hạng và tài khoản quản trị** (tạo lại bằng `admin-create.mjs`). Không làm việc này từ 23/11 trở đi.
 - **Quay lại bản trước** khi bản mới lỗi:
   ```bash
   $G tag --list 'deploy-*'                 # chọn mốc trước đó
@@ -332,6 +345,7 @@ Chỉ dùng trình duyệt như người chơi bình thường — **không ch�
 | 7 | Điện thoại dùng 4G (ngoài mạng công ty) | Bị chặn (403 hoặc không kết nối được) — nếu đã chặn IP |
 | 8 | Từ laptop công ty qua proxy công ty | Vào được và realtime vẫn chạy. Nếu proxy công ty chặn domain mới hoặc cắt kết nối SSE → phải nhờ IT whitelist (xem PLAN rủi ro "proxy chặn SSE") — **thử sớm**, càng sớm càng có thời gian xử lý |
 | 9 | `ls -l /opt/vn-journey/var /opt/vn-journey/var/backups` | Chủ sở hữu `vnj`, quyền `700`/`600`; sau 5 phút có file `backup-*.db` |
+| 10 | `https://<domain>/quan-tri` | Đăng nhập được, đổi mật khẩu tạm; mục Phòng thấy 4 phòng có sẵn; bấm **Điều khiển** một phòng → mở trang chủ phòng, có nút "← Quản trị" |
 
 ---
 
@@ -340,6 +354,7 @@ Chỉ dùng trình duyệt như người chơi bình thường — **không ch�
 **Sáng sớm**
 - [ ] `systemctl status vn-journey` → running; `journalctl -u vn-journey --since today` không có lỗi
 - [ ] Mở trang chủ từ laptop công ty, tạo 1 phòng thử, chơi 1 câu
+- [ ] Đăng nhập `/quan-tri` trên máy ban tổ chức (máy tính + điện thoại) — để sẵn tab, mục Phòng
 - [ ] Màn chiếu đã mở trên máy chiếu, đúng phòng
 - [ ] Còn chỗ trống đĩa: `df -h /opt`
 - [ ] **Không** chạy `db:reset` sau khi mọi người bắt đầu tạo phòng
@@ -374,9 +389,10 @@ sudo systemctl start vn-journey
 | Phòng, team, người chơi, câu trả lời | Tự xóa 24 giờ sau khi tạo phòng (phòng đơn có sẵn: 30 phút sau khi kết thúc) |
 | Bảng xếp hạng cá nhân (tên tự nhập + điểm, phòng đơn) | Tự xóa sau 7 ngày, công khai ở `/leaderboard` |
 | Bản sao lưu | 12 bản gần nhất (1 giờ) |
+| Tài khoản quản trị + nhật ký quản trị | Tài khoản tới khi xóa DB; nhật ký 30 ngày. Mật khẩu chỉ lưu dạng băm scrypt |
 | Log Nginx | IP + URL truy cập, theo cấu hình logrotate của máy |
 
-Không có email, mật khẩu hay tài khoản người dùng. Dữ liệu nằm trên VPS của nhà cung cấp bên ngoài — nên chọn nhà cung cấp có cam kết xóa đĩa khi hủy máy.
+Người chơi không có email, mật khẩu hay tài khoản (chỉ ban tổ chức có tài khoản quản trị). Dữ liệu nằm trên VPS của nhà cung cấp bên ngoài — nên chọn nhà cung cấp có cam kết xóa đĩa khi hủy máy.
 
 ## 12. Gỡ bỏ (25/11)
 

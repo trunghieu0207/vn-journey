@@ -2,7 +2,9 @@
 // Mọi phiên gắn với một phòng: người chơi / chủ phòng / màn chiếu chỉ thấy dữ liệu phòng của mình.
 
 import { createGame, GameError } from './game.js'
-import { createAuth, hashSecret, verifySecret, safeEqual } from './auth.js'
+import { randomBytes } from 'node:crypto'
+import { createAuth, createSealer, hashSecret, verifySecret, safeEqual } from './auth.js'
+import { createSysadmin } from './sysadmin.js'
 import { randomCode } from './config.js'
 import { createHub } from './sse.js'
 import { serveStatic } from './static.js'
@@ -15,10 +17,13 @@ import {
 const DUMMY_HASH = hashSecret('dummy-owner-key')
 
 export function createApp({ db, config, now = Date.now, random = Math.random }) {
+  // Khóa mã hóa mã chủ phòng (index.js đọc var/secret.key; test không truyền → khóa ngẫu nhiên theo tiến trình)
+  const sealer = createSealer(config.secretKey ?? randomBytes(32))
   const game = createGame(db, {
     now, random,
     newCode: randomCode,
     hashSecret,
+    sealSecret: sealer.seal,
     defaultDurationMin: config.gameDurationMin,
     freezeBeforeEndMin: config.freezeBeforeEndMin,
   })
@@ -37,6 +42,7 @@ export function createApp({ db, config, now = Date.now, random = Math.random }) 
       : view === 'owner' ? room.ownerView()
       : room.screenView()
   }, session => auth.isValid(session))
+  const sys = createSysadmin({ db, now, game, hub, sealer })
 
   // Cả văn phòng thường ra Internet chung 1 IP → giới hạn theo IP phải đủ rộng cho ~100 người vào phòng cùng lúc
   const createLimiter = createRateLimiter({ windowMs: 60_000, max: 5, now })
@@ -60,6 +66,13 @@ export function createApp({ db, config, now = Date.now, random = Math.random }) 
       if (s?.role === role) out[role] = { ...s, token: cookies[SESSION_COOKIES[role]] }
     }
     return out
+  }
+
+  // Phiên quản trị (cookie riêng, không gắn phòng)
+  function sysOf(req) {
+    const token = parseCookies(req.headers.cookie)[SESSION_COOKIES.sysadmin]
+    const s = auth.getSession(token)
+    return s?.role === 'sysadmin' ? { ...s, token } : null
   }
 
   // Các phiên trang `page` được dùng, theo thứ tự ưu tiên
@@ -140,6 +153,70 @@ export function createApp({ db, config, now = Date.now, random = Math.random }) 
     // rồi nhận 401 (trình duyệt in lỗi đỏ trong console dù đó là đường đi bình thường)
     'GET /api/session': { auth: null, run: ({ pageSessions }) => ({ roles: [...new Set(pageSessions.flatMap(rolesOf))] }) },
     'GET /api/provinces': { auth: ['player', 'screen', 'owner'], run: () => game.provinceList() },
+
+    // ----- Quản trị (/quan-tri) — sys: cần phiên quản trị; mustChange: dùng được cả khi chưa đổi mật khẩu tạm.
+    // broadcast(result): phòng cần đẩy cập nhật realtime sau thao tác -----
+    'GET /api/sys/session': {
+      auth: null,
+      run: ({ admin }) => ({ admin: admin ? { username: admin.username, displayName: admin.display_name, mustChange: !!admin.must_change } : null }),
+    },
+    'POST /api/sys/login': {
+      auth: null, limit: loginLimiter,
+      run: ({ body, res }) => {
+        const a = sys.login(body.username, body.password)
+        setSession(res, 'sysadmin', auth.createSession('sysadmin', { adminId: a.id }))
+        return { mustChange: !!a.must_change }
+      },
+    },
+    'POST /api/sys/logout': {
+      sys: true, mustChange: true,
+      run: ({ res, sysSession }) => {
+        auth.destroySession(sysSession.token)
+        dropSession(res, 'sysadmin')
+        return { ok: true }
+      },
+    },
+    'POST /api/sys/password': { sys: true, mustChange: true, run: ({ body, admin }) => sys.changePassword(admin.id, body.current, body.next) },
+    'GET /api/sys/overview': { sys: true, run: () => sys.overview() },
+    'GET /api/sys/log': { sys: true, run: () => sys.listLog() },
+    'GET /api/sys/rooms': { sys: true, run: () => sys.rooms() },
+    'POST /api/sys/rooms': {
+      sys: true,
+      run: ({ body, admin }) => sys.createRoom({ name: body.name, teamCount: body.teamCount, durationMin: body.durationMin, topicChoice: body.topicChoice === true,
+        betChoice: body.betChoice !== false, mode: body.mode === 'solo' ? 'solo' : 'team', pioneer: body.pioneer !== false, quizCount: body.quizCount,
+        listed: body.listed === true }, admin),
+    },
+    'POST /api/sys/room/codes': { sys: true, run: ({ body, admin }) => sys.roomCodes(body.roomId, admin) },
+    'POST /api/sys/room/owner-key': { sys: true, run: ({ body, admin }) => sys.rotateOwnerKey(body.roomId, admin) },
+    'POST /api/sys/room/update': {
+      sys: true, broadcast: (r, body) => Number(body.roomId),
+      run: ({ body, admin }) => sys.updateRoom(body.roomId, body, admin),
+    },
+    'POST /api/sys/room/delete': {
+      sys: true, broadcast: (r, body) => Number(body.roomId), // phiên trong phòng đã xóa theo → kết nối realtime tự đóng
+      run: ({ body, admin }) => sys.deleteRoom(body.roomId, admin),
+    },
+    // Điều khiển trận: cấp phiên chủ phòng của phòng đó cho trình duyệt quản trị rồi mở trang chủ phòng (đủ chức năng, không cần mã chủ phòng)
+    'POST /api/sys/room/control': {
+      sys: true,
+      run: ({ body, res, admin }) => {
+        const r = sys.requireRoom(body.roomId)
+        setSession(res, 'owner', auth.createSession('owner', { roomId: r.id }))
+        sys.log(admin, 'room-control', `Điều khiển phòng "${r.name}" (${r.code})`)
+        return { ok: true }
+      },
+    },
+    'GET /api/sys/players': { sys: true, run: () => sys.players() },
+    'POST /api/sys/player/rename': { sys: true, broadcast: r => r.roomId, run: ({ body, admin }) => sys.renamePlayer(body.playerId, body.name, admin) },
+    'POST /api/sys/player/kick': { sys: true, broadcast: r => r.roomId, run: ({ body, admin }) => sys.kickPlayer(body.playerId, admin) },
+    'GET /api/sys/leaderboard': { sys: true, run: () => sys.leaderboard() },
+    'POST /api/sys/leaderboard/rename': { sys: true, run: ({ body, admin }) => sys.renameBoard(body.nameKey, body.name, admin) },
+    'POST /api/sys/leaderboard/hide': { sys: true, run: ({ body, admin }) => sys.hideBoard(body.nameKey, body.hidden === true, admin) },
+    'POST /api/sys/leaderboard/delete': { sys: true, run: ({ body, admin }) => sys.deleteBoard(body.nameKey, admin) },
+    'GET /api/sys/admins': { sys: true, run: () => sys.listAdmins() },
+    'POST /api/sys/admins': { sys: true, run: ({ body, admin }) => sys.createAdmin({ username: body.username, displayName: body.displayName }, admin) },
+    'POST /api/sys/admins/reset': { sys: true, run: ({ body, admin }) => sys.resetPassword(body.id, admin) },
+    'POST /api/sys/admins/disable': { sys: true, run: ({ body, admin }) => sys.setDisabled(body.id, body.disabled === true, admin) },
 
     // ----- Người chơi -----
     'GET /api/me': {
@@ -285,13 +362,16 @@ export function createApp({ db, config, now = Date.now, random = Math.random }) 
     const pathname = url.pathname
 
     if (!pathname.startsWith('/api/')) {
+      // Chưa có tài khoản quản trị nào (chưa chạy pnpm run admin:create) → không lộ trang quản trị
+      if (pathname.startsWith('/quan-tri') && sys.adminCount() === 0) return sendError(res, 404, 'not-found', 'Không tìm thấy')
       if (await serveStatic(req, res, pathname)) return
       return sendError(res, 404, 'not-found', 'Không tìm thấy')
     }
 
     const sessions = sessionsOf(req)
+    const sysSession = pathname.startsWith('/api/sys/') ? sysOf(req) : null
     // Đã đăng nhập: giới hạn theo phiên (nhiều người chung IP văn phòng); chưa đăng nhập: theo IP
-    const any = Object.values(sessions)[0]
+    const any = sysSession ?? Object.values(sessions)[0]
     if (!apiLimiter.allow(any ? `t:${any.token_hash}` : `ip:${ipOf(req)}`)) {
       return sendError(res, 429, 'too-many', 'Thao tác quá nhanh, thử lại sau giây lát')
     }
@@ -316,20 +396,26 @@ export function createApp({ db, config, now = Date.now, random = Math.random }) 
       return sendError(res, 403, 'bad-origin', 'Yêu cầu không hợp lệ')
     }
     const page = req.headers['x-vnj-page']
-    const session = pickSession(sessions, page, route.auth)
+    const session = route.sys ? null : pickSession(sessions, page, route.auth)
     const pageSessions = pageList(sessions, page)
+    const admin = sysSession?.admin ?? null
     if (route.limit && !route.limit.allow(ipOf(req))) {
       return sendError(res, 429, 'too-many', 'Thử quá nhiều lần, thử lại sau 1 phút')
     }
-    if (route.auth && (!session || !rolesOf(session).some(r => route.auth.includes(r)))) {
+    if (route.sys) {
+      if (!admin) return sendError(res, 401, 'unauthorized', 'Chưa đăng nhập')
+      if (admin.must_change && !route.mustChange) return sendError(res, 403, 'must-change', 'Cần đổi mật khẩu tạm trước')
+    } else if (route.auth && (!session || !rolesOf(session).some(r => route.auth.includes(r)))) {
       return sendError(res, session ? 403 : 401, 'unauthorized', 'Không có quyền')
     }
 
     try {
       const body = req.method === 'POST' ? await readJson(req) : {}
-      const result = route.run({ req, res, body, session, sessions, pageSessions })
+      const result = route.run({ req, res, body, session, sessions, pageSessions, sysSession, admin })
       sendJson(res, 200, result ?? { ok: true })
       if (route.change) hub.broadcast(session.room_id)
+      const changedRoom = route.broadcast?.(result, body)
+      if (Number.isInteger(changedRoom)) hub.broadcast(changedRoom)
     } catch (e) {
       if (e instanceof GameError) return sendError(res, e.status, e.code, e.message)
       if (e.status === 413) res.setHeader('Connection', 'close')
@@ -359,6 +445,7 @@ export function createApp({ db, config, now = Date.now, random = Math.random }) 
     for (const roomId of changed) hub.broadcast(roomId)
     if (++ticks % 60 === 0) {
       game.cleanupRooms()
+      sys.cleanup()
       if (config.presetRooms) game.ensurePresetRooms()
       for (const id of lastSignature.keys()) if (!game.activeRoomIds().includes(id)) lastSignature.delete(id)
     }
@@ -366,5 +453,5 @@ export function createApp({ db, config, now = Date.now, random = Math.random }) 
     auth.cleanup()
   }
 
-  return { handle, tick, hub, game, auth }
+  return { handle, tick, hub, game, auth, sys }
 }

@@ -70,6 +70,7 @@ CREATE TABLE rooms (
   code             TEXT NOT NULL UNIQUE,            -- mã phòng 6 ký tự, người chơi nhập để vào
   name             TEXT NOT NULL CHECK (length(name) <= 40),
   owner_key_hash   TEXT NOT NULL,                   -- mã chủ phòng (scrypt), chỉ hiện 1 lần lúc tạo
+  owner_key_sealed TEXT,                            -- mã chủ phòng mã hóa AES-GCM (khóa var/secret.key) — chỉ trang quản trị mở ra xem được
   screen_code      TEXT NOT NULL,                   -- mã màn chiếu của phòng (chủ phòng xem được)
   duration_min     INTEGER NOT NULL,
   topic_choice     INTEGER NOT NULL DEFAULT 0,      -- 1: người chơi chọn chủ đề trước khi nhận câu hỏi (câu thường)
@@ -134,10 +135,36 @@ CREATE TABLE visits (                              -- tỉnh team đã đặt ch
   PRIMARY KEY (team_id, province_id)
 ) STRICT;
 
+-- ---------- Trang quản trị (/quan-tri) ----------
+
+CREATE TABLE admins (                              -- tài khoản quản trị (một vai trò). Tài khoản đầu tiên: pnpm run admin:create
+  id            INTEGER PRIMARY KEY,
+  username      TEXT NOT NULL UNIQUE CHECK (length(username) BETWEEN 3 AND 32),
+  display_name  TEXT NOT NULL CHECK (length(display_name) <= 40),
+  password_hash TEXT NOT NULL,                     -- scrypt
+  must_change   INTEGER NOT NULL DEFAULT 1,        -- 1: mật khẩu tạm — phải đổi trước khi dùng
+  disabled      INTEGER NOT NULL DEFAULT 0,
+  failed_count  INTEGER NOT NULL DEFAULT 0,        -- đăng nhập sai liên tiếp; đủ 5 lần → khóa 15 phút
+  locked_until  INTEGER,
+  created_at    INTEGER NOT NULL,
+  last_login_at INTEGER
+) STRICT;
+
+CREATE TABLE admin_log (                           -- nhật ký thao tác quản trị (giữ 30 ngày)
+  id         INTEGER PRIMARY KEY,
+  admin_id   INTEGER REFERENCES admins(id) ON DELETE SET NULL,
+  admin_name TEXT NOT NULL,                        -- tên đăng nhập lúc thao tác ('' = hệ thống)
+  action     TEXT NOT NULL,
+  detail     TEXT NOT NULL,
+  created_at INTEGER NOT NULL
+) STRICT;
+CREATE INDEX idx_admin_log_time ON admin_log(created_at);
+
 CREATE TABLE sessions (
   token_hash TEXT PRIMARY KEY,                     -- SHA-256 của token, không lưu token gốc
-  role       TEXT NOT NULL CHECK (role IN ('player', 'screen', 'owner')),
-  room_id    INTEGER NOT NULL REFERENCES rooms(id) ON DELETE CASCADE,
+  role       TEXT NOT NULL CHECK (role IN ('player', 'screen', 'owner', 'sysadmin')),
+  room_id    INTEGER REFERENCES rooms(id) ON DELETE CASCADE, -- NULL với phiên quản trị
+  admin_id   INTEGER REFERENCES admins(id) ON DELETE CASCADE,
   team_id    INTEGER REFERENCES teams(id) ON DELETE CASCADE,
   player_id  INTEGER REFERENCES players(id) ON DELETE CASCADE,
   no_host    INTEGER NOT NULL DEFAULT 0,           -- 1: phiên có được nhờ vào lại bằng tên của người đang giữ quyền chủ phòng → không có quyền chủ phòng
@@ -220,7 +247,8 @@ CREATE TABLE leaderboard (                         -- bảng xếp hạng cá nh
   id          INTEGER PRIMARY KEY,                 -- Không khóa ngoại tới rooms: phòng tự xóa sau 24 giờ, dòng này giữ RULES.leaderboardKeepMs
   room_id     INTEGER NOT NULL,
   name        TEXT NOT NULL CHECK (length(name) <= 40),
-  name_key    TEXT NOT NULL,                       -- tên đã chuẩn hóa: cùng tên ở nhiều phòng = một người (lấy trận điểm cao nhất)
+  name_key    TEXT NOT NULL,                       -- tên đã chuẩn hóa: cùng tên ở nhiều phòng = một người (cộng dồn)
+  hidden      INTEGER NOT NULL DEFAULT 0,          -- 1: quản trị ẩn khỏi bảng công khai
   color       TEXT NOT NULL,
   score       INTEGER NOT NULL,
   stamps      INTEGER NOT NULL,

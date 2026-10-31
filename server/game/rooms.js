@@ -4,7 +4,7 @@ import { transaction } from '../db.js'
 import { RULES, TEAM_STYLES, GameError, normalizeText, cleanName } from './rules.js'
 
 export function createRooms(ctx) {
-  const { db, q, now, json, provinces, timedOut, defaultDurationMin, newCode, hashSecret, room: roomScope } = ctx
+  const { db, q, now, json, provinces, timedOut, defaultDurationMin, newCode, hashSecret, sealSecret, room: roomScope } = ctx
 
   // ---------- Phòng ----------
   function uniqueRoomCode() {
@@ -40,9 +40,9 @@ export function createRooms(ctx) {
     const screenCode = newCode(6)
     const code = uniqueRoomCode()
     return transaction(db, () => {
-      const { lastInsertRowid } = db.prepare(`INSERT INTO rooms (code, name, owner_key_hash, screen_code, duration_min, topic_choice, bet_choice, mode, pioneer, preset, quiz_count, listed, created_at)
-                                              VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`)
-        .run(code, roomName, hashSecret(ownerKey), screenCode, minutes, topicChoice ? 1 : 0, betChoice ? 1 : 0, mode, pioneer ? 1 : 0, preset, quiz, listed && !preset ? 1 : 0, now())
+      const { lastInsertRowid } = db.prepare(`INSERT INTO rooms (code, name, owner_key_hash, owner_key_sealed, screen_code, duration_min, topic_choice, bet_choice, mode, pioneer, preset, quiz_count, listed, created_at)
+                                              VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`)
+        .run(code, roomName, hashSecret(ownerKey), sealSecret ? sealSecret(ownerKey) : null, screenCode, minutes, topicChoice ? 1 : 0, betChoice ? 1 : 0, mode, pioneer ? 1 : 0, preset, quiz, listed && !preset ? 1 : 0, now())
       const roomId = Number(lastInsertRowid)
       for (const style of TEAM_STYLES.slice(0, n)) {
         db.prepare('INSERT INTO teams (room_id, name, color, mascot) VALUES (?, ?, ?, ?)')
@@ -199,10 +199,10 @@ export function createRooms(ctx) {
     const rows = db.prepare(`WITH latest AS (
                                SELECT name_key, name, color,
                                       ROW_NUMBER() OVER (PARTITION BY name_key ORDER BY played_at DESC, id DESC) AS rn
-                               FROM leaderboard WHERE played_at >= ?),
+                               FROM leaderboard WHERE played_at >= ? AND hidden = 0),
                              sums AS (
                                SELECT name_key, SUM(score) AS score, SUM(stamps) AS stamps, COUNT(*) AS games, MAX(played_at) AS last
-                               FROM leaderboard WHERE played_at >= ? GROUP BY name_key)
+                               FROM leaderboard WHERE played_at >= ? AND hidden = 0 GROUP BY name_key)
                              SELECT l.name, l.color, s.score, s.stamps, s.games FROM sums s JOIN latest l ON l.name_key = s.name_key AND l.rn = 1
                              ORDER BY s.score DESC, s.stamps DESC, s.last LIMIT ?`).all(since, since, RULES.leaderboardSize)
     let rank = 0
@@ -211,7 +211,7 @@ export function createRooms(ctx) {
       if (!prev || prev.score !== r.score || prev.stamps !== r.stamps) rank = i + 1
       return { rank, name: r.name, color: r.color, score: r.score, stamps: r.stamps, games: r.games }
     })
-    const totals = db.prepare('SELECT COUNT(DISTINCT name_key) AS players, COUNT(*) AS plays FROM leaderboard WHERE played_at >= ?').get(since)
+    const totals = db.prepare('SELECT COUNT(DISTINCT name_key) AS players, COUNT(*) AS plays FROM leaderboard WHERE played_at >= ? AND hidden = 0').get(since)
     return { entries, players: totals.players, plays: totals.plays, keepDays: Math.round(RULES.leaderboardKeepMs / 86_400_000) }
   }
 

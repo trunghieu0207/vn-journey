@@ -5,6 +5,7 @@ import { existsSync, mkdirSync, readdirSync, rmSync } from 'node:fs'
 import { join, dirname } from 'node:path'
 import { openDatabase, backupDatabase } from './db.js'
 import { config } from './config.js'
+import { loadSecretKey } from './auth.js'
 import { createApp } from './app.js'
 
 if (!existsSync(config.dbPath)) {
@@ -13,7 +14,9 @@ if (!existsSync(config.dbPath)) {
 }
 
 const db = openDatabase(config.dbPath)
-const app = createApp({ db, config })
+// Khóa mã hóa mã chủ phòng (trang quản trị xem lại được): SECRET_KEY hoặc var/secret.key (tự tạo lần đầu, quyền 600)
+const secretKey = loadSecretKey(join(dirname(config.dbPath), 'secret.key'), process.env.SECRET_KEY)
+const app = createApp({ db, config: { ...config, secretKey } })
 if (config.presetRooms) app.game.ensurePresetRooms() // phòng chơi đơn có sẵn
 
 const server = createServer((req, res) => {
@@ -45,6 +48,7 @@ const backup = setInterval(() => {
 server.listen(config.port, config.host, () => {
   console.log(`Hành trình 3 miền đang chạy: http://${config.host}:${config.port}`)
   console.log(`  Vào / để tạo phòng hoặc tham gia phòng · Màn chiếu: /screen.html · Chủ phòng (MC): /admin.html`)
+  console.log(app.sys.adminCount() ? '  Quản trị: /quan-tri' : '  Quản trị: chưa có tài khoản — tạo bằng "pnpm run admin:create -- <tên-đăng-nhập> <Tên hiển thị>"')
 })
 
 function shutdown() {

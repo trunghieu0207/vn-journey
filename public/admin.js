@@ -122,6 +122,8 @@ $('logoutBtn').addEventListener('click', async () => {
 
 async function enter() {
   await requireRole('owner')
+  // Mở từ trang quản trị (nút Điều khiển): có nút quay về
+  $('sysBack').hidden = !fromSys
   const v = await api('/api/owner/overview')
   // Sang màn chơi: đang chơi (giữ quyền chủ phòng) thì quay lại màn chơi; chưa chơi thì vào phòng này như người chơi —
   // server thấy phiên chủ phòng nên vẫn giữ quyền chủ phòng
@@ -537,6 +539,8 @@ $('logoutBtnBot').addEventListener('click', () => $('logoutBtn').click())
 
 // ---------- Khởi động ----------
 const invited = new URLSearchParams(location.search).get('room')
+// Mở từ trang quản trị (nút Điều khiển) — đọc trước khi xóa query khỏi thanh địa chỉ
+const fromSys = new URLSearchParams(location.search).get('from') === 'quan-tri'
 if (location.search) history.replaceState(null, '', location.pathname)
 if (invited) $('code').value = invited.toUpperCase()
 enter().catch(err => showEntry(err.status === 401 || err.status === 403 ? '' : err.message))
