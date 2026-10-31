@@ -101,24 +101,39 @@ export function originAllowed(req, allowedOrigin) {
   return !origin || origin === allowedOrigin
 }
 
-// Giới hạn tần suất kiểu "cửa sổ trượt" trong bộ nhớ
+// Giới hạn tần suất kiểu "cửa sổ trượt" trong bộ nhớ.
+// Ghi lại các lượt bị chặn 15 phút gần nhất (trang quản trị xem + bỏ chặn); khởi động lại server thì mất — đủ dùng
+const BLOCK_KEEP_MS = 15 * 60_000
 export function createRateLimiter({ windowMs, max, now = Date.now }) {
   const hits = new Map()
+  const blocked = new Map() // key → { count, first, last }
   return {
     allow(key) {
       const t = now()
       const list = (hits.get(key) || []).filter(x => x > t - windowMs)
       if (list.length >= max) {
         hits.set(key, list)
+        const b = blocked.get(key) ?? { count: 0, first: t }
+        blocked.set(key, { ...b, count: b.count + 1, last: t })
         return false
       }
       list.push(t)
       hits.set(key, list)
       return true
     },
+    blocks() {
+      const t = now()
+      return [...blocked].filter(([, b]) => b.last > t - BLOCK_KEEP_MS).map(([key, b]) => ({ key, ...b }))
+    },
+    // Bỏ chặn ngay (vd. cả văn phòng chung một IP bị chặn)
+    reset(key) {
+      hits.delete(key)
+      blocked.delete(key)
+    },
     cleanup() {
       const t = now()
       for (const [k, list] of hits) if (!list.some(x => x > t - windowMs)) hits.delete(k)
+      for (const [k, b] of blocked) if (b.last <= t - BLOCK_KEEP_MS) blocked.delete(k)
     },
   }
 }

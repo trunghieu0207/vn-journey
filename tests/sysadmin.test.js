@@ -248,3 +248,131 @@ test('quản trị: tài khoản — tạo, đặt lại mật khẩu, khóa (ph
   const log = (await s.call('/api/sys/log', { as: 'adm' })).json
   assert.ok(log.some(l => l.action === 'admin-create' && l.by === 'boss'))
 })
+
+test('quản trị câu hỏi: sửa, duyệt, thêm câu (mã tự đặt), lỗi kiểm tra, không đổi tỉnh câu đã có', async t => {
+  const s = await startServer(); t.after(s.close)
+  await loginAdmin(s)
+  const list = (await s.call('/api/sys/questions', { as: 'adm' })).json
+  assert.equal(list.questions.length, s.db.prepare('SELECT COUNT(*) AS n FROM questions').get().n)
+  assert.equal(list.provinces.length, 34)
+  assert.ok(!JSON.stringify(list.questions[0]).includes('"answer"')) // danh sách không kèm đáp án
+
+  const q = (await s.post('/api/sys/question/get', { id: 'hue-12' }, 'adm')).json
+  assert.equal(q.sources.length, 2)
+  const saved = await s.post('/api/sys/question/save', { ...q, content: `${q.content} (sửa)`, status: 'ok' }, 'adm')
+  assert.equal(saved.status, 200)
+  const row = s.db.prepare('SELECT content, status, updated_by FROM questions WHERE id = ?').get('hue-12')
+  assert.deepEqual([row.content.endsWith('(sửa)'), row.status, row.updated_by], [true, 'ok', 'boss'])
+
+  const base = { province: 'hue', difficulty: 'normal', topic: 'am-thuc', kind: 'choice', level: 2, content: 'Món bánh nào của Huế gói lá chuối, hấp chín?',
+    options: ['Bánh bột lọc', 'Bánh pía', 'Bánh tét', 'Bánh xèo'], answer: 0, explanation: 'Bánh bột lọc Huế.', sources: ['https://example.vn/a'] }
+  const added = await s.post('/api/sys/question/save', base, 'adm')
+  assert.equal(added.status, 200)
+  assert.match(added.json.id, /^hue-\d{2}$/)
+  assert.ok(added.json.warnings.some(w => w.includes('2 nguồn')))
+  assert.equal(s.db.prepare('SELECT status FROM questions WHERE id = ?').get(added.json.id).status, 'new')
+
+  assert.equal((await s.post('/api/sys/question/save', { ...base, options: ['Một'], answer: 0 }, 'adm')).json.error, 'bad-question')
+  assert.equal((await s.post('/api/sys/question/save', { ...base, sources: ['http://khong-an-toan.vn'] }, 'adm')).json.error, 'bad-question')
+  assert.equal((await s.post('/api/sys/question/save', { ...base, id: 'hue-12', province: 'ha-noi' }, 'adm')).json.error, 'bad-question')
+  assert.ok(s.app.sys.listLog().some(l => l.action === 'question-add'))
+})
+
+test('quản trị câu hỏi: câu bị ẩn không phát nữa; không ẩn được câu cuối cùng của tỉnh', async t => {
+  const s = await startServer(); t.after(s.close)
+  await loginAdmin(s)
+  const ids = s.db.prepare("SELECT id FROM questions WHERE province_id = 'hue' AND difficulty = 'normal' ORDER BY id").all().map(r => r.id)
+  const keep = ids.pop()
+  for (const id of ids) assert.equal((await s.post('/api/sys/question/hide', { id, hidden: true }, 'adm')).status, 200)
+  assert.equal((await s.post('/api/sys/question/hide', { id: keep, hidden: true }, 'adm')).json.error, 'last-question')
+
+  // Team tới Huế chỉ nhận được câu còn hiện
+  const r = await s.post('/api/sys/rooms', { name: 'Phòng', teamCount: 2, betChoice: false }, 'adm')
+  const room = s.app.game.room(r.json.roomId)
+  room.start()
+  s.db.prepare('UPDATE rooms SET started_at = started_at - 10000, ends_at = ends_at - 10000').run() // qua đếm ngược
+  const team = s.db.prepare('SELECT id FROM teams WHERE room_id = ? ORDER BY id').get(r.json.roomId).id
+  s.db.prepare("UPDATE teams SET current_province = 'quang-tri', previous_province = NULL WHERE id = ?").run(team)
+  s.db.prepare("DELETE FROM ownership WHERE province_id = 'hue'").run()
+  const moved = room.move(team, 'hue')
+  assert.equal(moved.question.id, keep)
+})
+
+test('quản trị câu hỏi: xuất questions.json giống hệt file gốc khi chưa sửa; có sửa thì mang theo trạng thái + câu ẩn', async t => {
+  const { readFileSync } = await import('node:fs')
+  const s = await startServer(); t.after(s.close)
+  await loginAdmin(s)
+  const orig = readFileSync(new URL('../data/questions.json', import.meta.url), 'utf8')
+  const r = await s.call('/api/sys/questions/export', { as: 'adm' })
+  assert.equal(r.status, 200)
+  assert.equal(r.text, orig)
+  await s.post('/api/sys/question/save', { ...(await s.post('/api/sys/question/get', { id: 'hue-12' }, 'adm')).json, status: 'ok' }, 'adm')
+  await s.post('/api/sys/question/hide', { id: 'hue-01', hidden: true }, 'adm')
+  const out = JSON.parse((await s.call('/api/sys/questions/export', { as: 'adm' })).text)
+  assert.equal(out.questions.find(q => q.id === 'hue-12').status, 'ok')
+  assert.equal(out.questions.find(q => q.id === 'hue-01').hidden, true)
+  assert.equal(out.questions.length, JSON.parse(orig).questions.length)
+  assert.equal((await s.call('/api/sys/questions/export')).status, 401)
+})
+
+test('quản trị cài đặt: tắt tạo phòng, tắt phòng có sẵn, thông báo chung, từ cấm', async t => {
+  const s = await startServer(); t.after(s.close)
+  s.app.game.ensurePresetRooms()
+  await loginAdmin(s)
+  assert.deepEqual((await s.call('/api/notice')).json, { text: null })
+
+  await s.post('/api/sys/settings', { allowCreate: false, presetRooms: false, notice: '14:45 trao giải', noticeOn: true, bannedWords: ['Xấu', 'xau', ' '] }, 'adm')
+  const create = await s.post('/api/rooms', { name: 'Phòng', teamCount: 2 })
+  assert.equal(create.status, 403)
+  assert.equal(create.json.error, 'create-off')
+  const list = (await s.call('/api/rooms/list')).json
+  assert.deepEqual([list.preset, list.allowCreate], [[], false])
+  assert.equal((await s.post('/api/sys/rooms', { name: 'Ban tổ chức tạo', teamCount: 2 }, 'adm')).status, 200) // quản trị vẫn tạo được
+  assert.deepEqual((await s.call('/api/notice')).json, { text: '14:45 trao giải' })
+  assert.deepEqual((await s.call('/api/sys/settings', { as: 'adm' })).json.bannedWords, ['xấu', 'xau'])
+
+  // Từ cấm: gắn cờ tên chứa cả từ (bỏ dấu), không gắn cờ tên chỉ chứa một phần chữ
+  const code = (await s.call('/api/sys/rooms', { as: 'adm' })).json.find(r => r.name === 'Ban tổ chức tạo').code
+  const lobby = (await s.post('/api/rooms/lookup', { code })).json
+  await s.post('/api/join', { code, name: 'Bạn Xấu Tính', teamId: lobby.teams[0].id })
+  await s.post('/api/join', { code, name: 'Xauxi', teamId: lobby.teams[1].id })
+  const flags = Object.fromEntries((await s.call('/api/sys/players', { as: 'adm' })).json.map(p => [p.name, p.flagged]))
+  assert.deepEqual(flags, { 'Bạn Xấu Tính': true, Xauxi: false })
+  assert.equal((await s.call('/api/sys/overview', { as: 'adm' })).json.flaggedNames, 1)
+
+  await s.post('/api/sys/settings', { allowCreate: true, noticeOn: false }, 'adm')
+  assert.equal((await s.post('/api/rooms', { name: 'Phòng', teamCount: 2 })).status, 200)
+  assert.deepEqual((await s.call('/api/notice')).json, { text: null })
+  assert.equal((await s.call('/shared/notice.js')).status, 200)
+})
+
+test('quản trị hệ thống: số liệu, danh sách bị chặn + bỏ chặn, xóa phòng đã xong, CSV bảng xếp hạng', async t => {
+  const s = await startServer(); t.after(s.close)
+  await loginAdmin(s)
+  for (let i = 0; i < 6; i++) await s.post('/api/rooms', { name: `P${i}`, teamCount: 2 })
+  assert.equal((await s.post('/api/rooms', { name: 'Bị chặn', teamCount: 2 })).status, 429)
+  const sys = (await s.call('/api/sys/system', { as: 'adm' })).json
+  assert.equal(sys.requests.length, 30)
+  assert.ok(sys.requests.at(-1) > 0)
+  const block = sys.blocks.find(b => b.limiter === 'create')
+  assert.ok(block.count >= 2)
+  assert.equal((await s.post('/api/sys/system/unblock', { limiter: block.limiter, key: block.key }, 'adm')).status, 200)
+  assert.equal((await s.post('/api/rooms', { name: 'Sau bỏ chặn', teamCount: 2 })).status, 200)
+  assert.equal((await s.post('/api/sys/system/unblock', { limiter: 'khong-co', key: 'x' }, 'adm')).status, 400)
+
+  // Xóa phòng đã xong
+  const rooms = (await s.call('/api/sys/rooms', { as: 'adm' })).json
+  const ended = s.app.game.room(rooms[0].id)
+  ended.start()
+  ended.end()
+  assert.deepEqual((await s.post('/api/sys/rooms/delete-ended', {}, 'adm')).json, { deleted: 1 })
+
+  // CSV: có BOM, chống công thức Excel
+  s.db.prepare("INSERT INTO leaderboard (room_id, name, name_key, color, score, stamps, played_at) VALUES (1, '=CMD()', 'cmd', '#000', 10, 1, ?)").run(Date.now())
+  const csv = await s.call('/api/sys/leaderboard.csv', { as: 'adm' })
+  assert.equal(csv.status, 200)
+  assert.ok(csv.text.startsWith('Hạng,Tên')) // fetch tự bỏ BOM khi đọc chữ — kiểm tra BOM ở dòng dưới
+  assert.ok(s.app.sys.leaderboardCsv(null).startsWith('\uFEFF'))
+  assert.match(csv.text, /"'=CMD\(\)"/)
+  assert.equal((await s.call('/api/sys/backup', { as: 'adm' })).status, 404) // test không cấu hình thư mục sao lưu
+})

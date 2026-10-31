@@ -256,6 +256,8 @@ function renderOverlay() {
     : state.me.canRetry
       ? `Trả lời sai — nghỉ xong thì trả lời lại câu khác ở đây hoặc đi tỉnh khác${state.me.progress ? ` (vẫn giữ ${state.me.progress.done}/${state.me.progress.of} câu đã đúng)` : ''}`
       : 'Trả lời sai — chờ hết thời gian để chơi tiếp', false]
+  // Phòng có sẵn: đủ 2 người mà chủ phòng chưa bấm Bắt đầu → server tự bắt đầu (housekeeping.js)
+  if (s === 'waiting' && state.me.autoStartAt) text += ` Trận tự bắt đầu sau ${formatClock(state.me.autoStartAt - now())} nếu chủ phòng chưa bấm.`
   $('overlay').hidden = !title
   $('overlay').classList.toggle('calm', calm)
   $('ovTitle').textContent = title
@@ -318,6 +320,7 @@ let wasLocked = false, wasScout = false, hadEvent = false, wasWaiting = false
 setInterval(() => {
   if (!state.me) return
   renderFact($('ovFact'), state.me.status === 'waiting' ? state.me.facts : null, state.me.factMs, now(), nameOf) // sảnh chờ "Bạn có biết?"
+  if (state.me.status === 'waiting' && state.me.autoStartAt) renderOverlay() // đếm ngược tự bắt đầu
   const l = locked(), sc = scoutActive(), ev = !!(state.me.event && state.me.event.until > now()), w = !!siegeWait()
   if (l !== wasLocked || sc !== wasScout || ev !== hadEvent || w !== wasWaiting) {
     wasWaiting = w

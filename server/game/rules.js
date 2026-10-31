@@ -82,6 +82,12 @@ export const RULES = {
   maxPlayersPerTeam: 12,
   maxOpenRooms: 50,
   roomLifetimeMs: 24 * 60 * 60_000,
+  // Phòng bị bỏ / treo (server/housekeeping.js, chốt 31/10): phòng chờ không ai mở trang 30 phút → xóa (phòng có sẵn: làm mới);
+  // chủ phòng có sẵn đóng trang 2 phút → chuyển quyền; phòng có sẵn ≥ 2 người chờ 3 phút → tự bắt đầu; mỗi trình duyệt ≤ 3 phòng chưa xong
+  idleRoomMs: 30 * 60_000,
+  hostAwayMs: 2 * 60_000,
+  autoStartMs: 3 * 60_000,
+  maxRoomsPerCreator: 3,
   durationMin: { min: 10, max: 90 },
   // Số câu phải trả lời đúng ở một tỉnh trống (chủ phòng chọn lúc tạo phòng; 1 = luật gốc). Sai giữa chừng giữ tiến độ
   quizCount: { min: 1, max: 3, default: 1 },

@@ -62,6 +62,7 @@ const FILES = {
   '/shared/shared-q.js': 'public/shared/shared-q.js',
   '/shared/facts.js': 'public/shared/facts.js',
   '/shared/culture.js': 'public/shared/culture.js',
+  '/shared/notice.js': 'public/shared/notice.js',
   '/shared/map/assets.js': 'public/shared/map/assets.js',
   '/shared/map/geometry.js': 'public/shared/map/geometry.js',
   '/shared/map/camera-path.js': 'public/shared/map/camera-path.js',

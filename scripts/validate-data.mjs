@@ -69,6 +69,8 @@ for (const q of questions) {
   if (!q.content || q.content.length < 10) err(`${where}: thiếu nội dung`)
   if (!q.explanation) warn(`${where}: thiếu giải thích`)
   if (![1, 2, 3].includes(q.level)) err(`${where}: level phải là 1, 2 hoặc 3`)
+  if (q.status !== undefined && !['new', 'ok', 'fix'].includes(q.status)) err(`${where}: status phải là new / ok / fix`)
+  if (q.hidden !== undefined && typeof q.hidden !== 'boolean') err(`${where}: hidden phải là true/false`)
   else if (q.difficulty === 'siege' && q.level === 1) warn(`${where}: câu công thành nhưng mức Dễ`)
 
   if (q.kind === 'choice') {

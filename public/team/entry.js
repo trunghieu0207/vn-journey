@@ -91,7 +91,11 @@ let kind = 'all'
 try { kind = localStorage.getItem('vnj-room-filter') || 'all' } catch {}
 async function loadRooms() {
   try {
-    ({ preset: presets, open: openRooms } = await api('/api/rooms/list'))
+    let allowCreate
+    ;({ preset: presets, open: openRooms, allowCreate } = await api('/api/rooms/list'))
+    // Ban tổ chức tắt tạo phòng (trang quản trị): báo ngay trên form thay vì để bấm rồi mới lỗi
+    $('createOff').hidden = allowCreate !== false
+    $('createSubmit').disabled = allowCreate === false
   } catch {}
   renderRooms()
 }

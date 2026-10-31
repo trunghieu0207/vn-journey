@@ -3,11 +3,14 @@
 
 import { api } from '/shared/api.js'
 import { $, el, button } from '/shared/dom.js'
-import { icon, fillIcons } from '/shared/icons.js'
+import { icon, fillIcons, ICON_NAMES } from '/shared/icons.js'
 import { mascotIcon } from '/shared/mascots.js'
 
 const REFRESH_MS = 10_000
-const state = { me: null, sec: 'dash', rooms: [], players: [], board: [], admins: [], timer: null }
+const state = { me: null, sec: 'dash', rooms: [], players: [], board: [], admins: [], timer: null,
+  q: { list: [], topics: {}, provinces: [], province: '', current: null, loaded: false }, settings: null }
+const Q_TARGET = 30 // mục tiêu mỗi tỉnh: 22 câu thường + 8 câu thử tài
+const Q_SHOW = 150  // số dòng hiện một lúc (910 câu — lọc / tìm để thu hẹp)
 const fmt = n => Number(n).toLocaleString('vi-VN')
 const clock = t => new Date(t).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })
 const when = t => {
@@ -139,7 +142,9 @@ function enterApp() {
 }
 
 // ---------- Điều hướng + làm mới ----------
-const LOADERS = { dash: loadDash, rooms: loadRooms, players: loadPlayers, board: loadBoard, accounts: loadAccounts, log: loadLog }
+const LOADERS = { dash: loadDash, rooms: loadRooms, players: loadPlayers, questions: loadQuestions, board: loadBoard, system: loadSystem, settings: loadSettings, accounts: loadAccounts, log: loadLog }
+// Mục không tự làm mới 10 giây (đang sửa dở thì không bị vẽ lại)
+const NO_POLL = new Set(['questions', 'settings', 'accounts'])
 
 function go(sec) {
   state.sec = sec
@@ -147,7 +152,7 @@ function go(sec) {
   for (const s of document.querySelectorAll('.ad-sec')) s.classList.toggle('on', s.id === `sec-${sec}`)
   stopTimer()
   refresh()
-  state.timer = setInterval(() => { if (!document.hidden && !$('dlg').open) refresh() }, REFRESH_MS)
+  if (!NO_POLL.has(sec)) state.timer = setInterval(() => { if (!document.hidden && !$('dlg').open) refresh() }, REFRESH_MS)
 }
 function stopTimer() {
   clearInterval(state.timer)
@@ -177,10 +182,10 @@ document.addEventListener('click', e => {
     renderSection()
   }
 })
-for (const id of ['roomSearch', 'playerSearch', 'boardSearch', 'playerRoom']) $(id).addEventListener('input', () => renderSection())
+for (const id of ['roomSearch', 'playerSearch', 'boardSearch', 'playerRoom', 'qTopic', 'qDiff', 'qSrc', 'qSearch']) $(id).addEventListener('input', () => renderSection())
 const segValue = id => $(id).querySelector('.on')?.dataset.v ?? ''
 function renderSection() {
-  ;({ rooms: renderRooms, players: renderPlayers, board: renderBoard }[state.sec] ?? (() => {}))()
+  ;({ rooms: renderRooms, players: renderPlayers, board: renderBoard, questions: renderQuestions }[state.sec] ?? (() => {}))()
 }
 
 // ---------- Tổng quan ----------
@@ -198,6 +203,16 @@ async function loadDash() {
     kpi('trophy', 'Lượt chơi đơn hôm nay', v.playsToday, 'đã ghi bảng xếp hạng'),
   )
   renderLog($('dashLog'), v.log)
+  const q = v.questions
+  const todo = (cls, text, sub, sec) => el('div', { class: 'todo' }, el('span', { class: `dot ${cls}` }),
+    el('div', {}, el('p', {}, text), el('small', {}, sub)), sec ? button('Mở', 'sm', () => go(sec)) : '')
+  const items = [
+    v.flaggedNames && todo('', `${v.flaggedNames} tên người chơi chứa từ cấm`, 'Mục Người chơi / Bảng xếp hạng có gắn cờ', 'players'),
+    q.fix && todo('', `${q.fix} câu hỏi đánh dấu "Cần sửa"`, 'Lọc "Cần sửa" ở mục Câu hỏi', 'questions'),
+    q.weakSources && todo('y', `${q.weakSources} câu hỏi chưa đủ 2 nguồn`, 'Luật nguồn: ≥ 2 nguồn độc lập, ít nhất 1 nguồn chính thống', 'questions'),
+    q.total - q.approved - q.hidden > 0 && todo('y', `${q.total - q.approved - q.hidden} câu hỏi chưa duyệt`, `Đã duyệt ${q.approved}/${q.total}`, 'questions'),
+  ].filter(Boolean)
+  $('todos').replaceChildren(...(items.length ? items : [el('p', { class: 'muted' }, 'Không có việc gì cần xử lý.')]))
 }
 
 // ---------- Phòng ----------
@@ -361,7 +376,7 @@ function renderPlayers() {
   const only = segValue('playerFilter'), room = $('playerRoom').value, q = norm($('playerSearch').value.trim())
   const rows = state.players.filter(p => (!only || p.online) && (!room || String(p.roomId) === room) && (!q || norm(p.name).includes(q)))
   $('playerRows').replaceChildren(...rows.map(p => el('tr', {},
-    el('td', {}, el('span', { class: 'who' }, avatar(p), p.name)),
+    el('td', {}, el('span', { class: 'who' }, avatar(p), p.name), p.flagged ? tag('priv', 'từ cấm') : ''),
     el('td', {}, `${p.roomName} `, el('span', { class: 'mono muted' }, p.roomCode)),
     el('td', {}, p.mode === 'solo' ? el('span', { class: 'muted' }, '—') : p.teamName),
     el('td', { class: 'r' }, fmt(p.score)),
@@ -396,7 +411,7 @@ function renderBoard() {
   const rows = ranked.filter(e => (!only || e.hidden) && (!q || norm(e.name).includes(q)))
   $('boardRows').replaceChildren(...rows.map(e => el('tr', { class: e.hidden ? 'dim' : '' },
     el('td', { class: 'r' }, e.rank ?? '—'),
-    el('td', {}, e.name, e.hidden ? tag('hide', 'đang ẩn') : ''),
+    el('td', {}, e.name, e.hidden ? tag('hide', 'đang ẩn') : '', e.flagged ? tag('priv', 'từ cấm') : ''),
     el('td', { class: 'r' }, fmt(e.score)), el('td', { class: 'r' }, e.stamps), el('td', { class: 'r' }, e.games),
     el('td', { class: 'muted' }, when(e.lastPlayed)),
     el('td', {}, el('div', { class: 'acts' },
@@ -457,6 +472,292 @@ $('accForm').addEventListener('submit', async e => {
     $('accError').textContent = err.message
   }
 })
+
+// ---------- Câu hỏi ----------
+const LEVELS = { 1: 'Dễ', 2: 'Vừa', 3: 'Khó' }
+const QSTATUS = { new: ['wait', 'Chờ duyệt'], fix: ['priv', 'Cần sửa'], ok: ['ok', 'Đã duyệt'] }
+const rate = q => (q.answers ? Math.round(q.correct / q.answers * 100) : null)
+// Mức đề xuất theo số liệu thật (PLAN 7.9): ≥ 3 lượt; đúng > 70% Dễ, 40–70% Vừa, < 40% Khó
+const suggestLevel = q => (q.answers < 3 ? null : q.correct / q.answers > 0.7 ? 1 : q.correct / q.answers >= 0.4 ? 2 : 3)
+
+async function loadQuestions() {
+  const r = await api('/api/sys/questions')
+  Object.assign(state.q, { list: r.questions, topics: r.topics, provinces: r.provinces })
+  if (!state.q.loaded) {
+    $('qTopic').append(...Object.entries(r.topics).map(([k, v]) => el('option', { value: k }, v)))
+    state.q.loaded = true
+  }
+  const visible = r.questions.filter(q => !q.hidden)
+  $('qSub').textContent = `${fmt(visible.length)} câu đang dùng · ${r.questions.filter(q => q.status === 'ok').length} đã duyệt · ${r.questions.length - visible.length} đang ẩn`
+  $('navQuestions').textContent = r.questions.filter(q => q.status === 'fix').length || ''
+  renderCoverage()
+  renderQuestions()
+}
+
+function renderCoverage() {
+  const by = new Map(state.q.provinces.map(p => [p.id, { n: 0, weak: 0 }]))
+  for (const q of state.q.list) {
+    if (q.hidden) continue
+    const c = by.get(q.province)
+    c.n++
+    if (q.sourceCount < 2) c.weak++
+  }
+  $('cov').replaceChildren(...state.q.provinces.map(p => {
+    const c = by.get(p.id)
+    const bar = el('i', { class: c.n < Q_TARGET ? 'y' : '' })
+    bar.style.width = `${Math.min(100, c.n / Q_TARGET * 100)}%`
+    return el('button', { type: 'button', class: state.q.province === p.id ? 'on' : '', title: `${c.n} câu đang dùng · ${c.weak} chưa đủ 2 nguồn`,
+      onclick: () => { state.q.province = state.q.province === p.id ? '' : p.id; renderCoverage(); renderQuestions() } },
+    el('span', {}, p.name), el('span', { class: 'm' }, bar), el('small', {}, `${c.n}/${Q_TARGET}${c.weak ? ` · ${c.weak} thiếu nguồn` : ''}`))
+  }))
+}
+
+function renderQuestions() {
+  const st = segValue('qStatus'), topic = $('qTopic').value, diff = $('qDiff').value, src = $('qSrc').value, k = norm($('qSearch').value.trim())
+  const prov = new Map(state.q.provinces.map(p => [p.id, p.name]))
+  const rows = state.q.list.filter(q => (!state.q.province || q.province === state.q.province)
+    && (!st || (st === 'hidden' ? q.hidden : !q.hidden && q.status === st)) && (!topic || q.topic === topic) && (!diff || q.difficulty === diff)
+    && (src === '' || Math.min(2, q.sourceCount) === Number(src)) && (!k || norm(`${q.id} ${q.content}`).includes(k)))
+  $('qRows').replaceChildren(...rows.slice(0, Q_SHOW).map(q => {
+    const pct = rate(q)
+    const srcBox = el('span', { class: `src${q.sourceCount === 0 ? ' none' : q.sourceCount === 1 ? ' weak' : ''}`, title: `${q.sourceCount} nguồn` },
+      ...[0, 1, 2].map(i => el('i', { class: i < q.sourceCount ? 'on' : '' })))
+    return el('tr', { class: `click${state.q.current?.id === q.id ? ' sel' : ''}${q.hidden ? ' dim' : ''}`, onclick: () => openQuestion(q.id) },
+      el('td', { class: 'mono' }, q.id),
+      el('td', {}, el('span', { class: 'qtext' }, q.content), el('small', { class: 'muted' }, `${prov.get(q.province)}${q.difficulty === 'siege' ? ' · thử tài' : ''}`)),
+      // Chủ đề chưa có icon riêng (vd. Địa lý) thì hiện tên ngắn
+      el('td', {}, el('span', { title: state.q.topics[q.topic] ?? q.topic },
+        ICON_NAMES.includes(`topic-${q.topic}`) ? icon(`topic-${q.topic}`) : el('small', { class: 'muted' }, (state.q.topics[q.topic] ?? q.topic).split(/[ ,&]/)[0]))),
+      el('td', {}, LEVELS[q.level]),
+      el('td', {}, srcBox),
+      el('td', { class: `r${pct == null ? '' : pct < 20 ? ' lo' : pct > 85 ? ' hi' : ''}`, title: `${q.answers} lượt trả lời` }, pct == null ? '—' : `${pct}%`),
+      el('td', {}, q.hidden ? tag('hide', 'Đang ẩn') : tag(...QSTATUS[q.status])))
+  }))
+  if (!rows.length) $('qRows').append(emptyRow(7, 'Không có câu nào khớp bộ lọc.'))
+  $('qMore').textContent = rows.length > Q_SHOW ? `Đang hiện ${Q_SHOW}/${fmt(rows.length)} câu — chọn tỉnh ở trên hoặc tìm để thu hẹp.` : `${fmt(rows.length)} câu`
+}
+
+async function openQuestion(id) {
+  try {
+    const q = await api('/api/sys/question/get', { id })
+    state.q.current = q
+    renderQuestions()
+    renderEditor(q)
+  } catch (err) {
+    toast(err.message, true)
+  }
+}
+$('qNew').addEventListener('click', () => {
+  state.q.current = null
+  renderQuestions()
+  renderEditor({ province: state.q.province || state.q.provinces[0]?.id, difficulty: 'normal', topic: 'am-thuc', kind: 'choice', level: 2,
+    content: '', options: ['', '', '', ''], answer: 0, explanation: '', sources: [], status: 'new' })
+})
+
+// Trình sửa: đọc lại toàn bộ form khi lưu; kiểm tra nhanh ngay khi gõ (server kiểm tra lại đầy đủ)
+function renderEditor(q) {
+  const isNew = !q.id
+  const sel = (opts, value, attrs = {}) => {
+    const s = el('select', { class: 'ad-input', ...attrs }, ...opts.map(([v, t]) => el('option', { value: v }, t)))
+    s.value = String(value)
+    return s
+  }
+  const field = (label, input, cls = '') => el('label', { class: cls }, label, input)
+  const province = sel(state.q.provinces.map(p => [p.id, p.name]), q.province, { disabled: !isNew })
+  const difficulty = sel([['normal', 'Câu thường'], ['siege', 'Câu thử tài']], q.difficulty, { disabled: !isNew })
+  const topic = sel(Object.entries(state.q.topics), q.topic)
+  const level = sel(Object.entries(LEVELS), q.level)
+  const kind = sel([['choice', 'Trắc nghiệm'], ['truefalse', 'Đúng / Sai'], ['text', 'Tự điền']], q.kind)
+  const status = sel(Object.entries(QSTATUS).map(([k, [, t]]) => [k, t]), q.status)
+  const content = el('textarea', { class: 'ad-input wide', rows: 3, maxlength: 500 })
+  content.value = q.content
+  const explanation = el('textarea', { class: 'ad-input wide', rows: 3, maxlength: 800 })
+  explanation.value = q.explanation ?? ''
+  const sources = el('textarea', { class: 'ad-input wide', rows: 3, placeholder: 'Mỗi dòng một link https://…' })
+  sources.value = (q.sources ?? []).join('\n')
+
+  // Phần đáp án đổi theo kiểu câu
+  const answerBox = el('div', { class: 'answers' })
+  let opts = q.kind === 'choice' ? [...q.options, '', '', '', ''].slice(0, 4) : ['', '', '', '']
+  let right = q.kind === 'choice' ? q.answer : 0
+  let tf = q.kind === 'truefalse' ? q.answer : true
+  let texts = q.kind === 'text' ? q.answer.join('\n') : ''
+  function drawAnswers() {
+    if (kind.value === 'choice') {
+      answerBox.replaceChildren(el('span', { class: 'lbl' }, 'Lựa chọn — chấm tròn là đáp án đúng (2–4 lựa chọn)'), ...opts.map((o, i) => {
+        const radio = el('input', { type: 'radio', name: 'qRight', 'aria-label': `Đáp án đúng ${i + 1}` })
+        radio.checked = i === right
+        radio.addEventListener('change', () => { right = i; drawAnswers(); check() })
+        const input = el('input', { class: 'ad-input', maxlength: 120, value: o, 'aria-label': `Lựa chọn ${i + 1}` })
+        input.addEventListener('input', () => { opts[i] = input.value; check() })
+        return el('div', { class: `opt${i === right ? ' right' : ''}` }, radio, input)
+      }))
+    } else if (kind.value === 'truefalse') {
+      const pick = sel([['true', 'Đúng'], ['false', 'Sai']], tf)
+      pick.addEventListener('change', () => { tf = pick.value === 'true' })
+      answerBox.replaceChildren(field('Đáp án', pick))
+    } else {
+      const area = el('textarea', { class: 'ad-input wide', rows: 3, placeholder: 'Mỗi dòng một cách viết được chấp nhận (không phân biệt dấu, hoa thường)' })
+      area.value = texts
+      area.addEventListener('input', () => { texts = area.value; check() })
+      answerBox.replaceChildren(field('Đáp án chấp nhận', area))
+    }
+  }
+  kind.addEventListener('change', () => { drawAnswers(); check() })
+  drawAnswers()
+
+  const checks = el('div', { class: 'checks' })
+  const warnBox = el('div', { class: 'checks' })
+  warnBox.hidden = true
+  const links = () => sources.value.split('\n').map(s => s.trim()).filter(Boolean)
+  function check() {
+    const list = links()
+    const https = list.every(u => /^https:\/\/\S+$/.test(u))
+    const correct = kind.value === 'choice' ? [opts[right] ?? ''] : kind.value === 'text' ? texts.split('\n') : []
+    const leak = correct.some(a => a.trim().length >= 3 && norm(content.value).includes(norm(a.trim()))) || /\([^)]*cũ\)/i.test(content.value)
+    checks.replaceChildren(
+      el('span', { class: list.length >= 2 ? 'ok' : 'bad' }, list.length >= 2 ? `✓ ${list.length} nguồn` : `✕ Mới ${list.length} nguồn — cần ≥ 2 nguồn độc lập`),
+      el('span', { class: https ? 'ok' : 'bad' }, https ? '✓ Link đều https' : '✕ Có link không phải https'),
+      el('span', { class: leak ? 'bad' : 'ok' }, leak ? '✕ Có thể lộ đáp án (đáp án nằm trong câu hỏi, hoặc có "(… cũ)")' : '✓ Không thấy lộ đáp án'),
+    )
+  }
+  for (const i of [content, sources]) i.addEventListener('input', check)
+  check()
+
+  // Số liệu thật + mức đề xuất
+  const stat = state.q.list.find(x => x.id === q.id)
+  const stats = el('div', { class: 'qstat' })
+  if (stat) {
+    const pct = rate(stat), sug = suggestLevel(stat)
+    stats.append(el('span', {}, 'Đã phát ', el('b', {}, fmt(stat.asked)), ' lần'), el('span', {}, 'Trả lời ', el('b', {}, fmt(stat.answers))),
+      el('span', {}, 'Đúng ', el('b', {}, pct == null ? '—' : `${pct}%`)))
+    if (sug && sug !== q.level) {
+      stats.append(el('span', { class: 'suggest' }, `Đề xuất mức ${LEVELS[sug]} (theo số liệu thật) `,
+        button('Áp dụng', 'sm', () => { level.value = String(sug); toast(`Đã chọn mức ${LEVELS[sug]} — bấm Lưu để ghi`) })))
+    }
+  }
+
+  async function save() {
+    const body = { id: q.id, province: province.value, difficulty: difficulty.value, topic: topic.value, kind: kind.value, level: Number(level.value),
+      content: content.value, explanation: explanation.value, sources: links(), status: status.value }
+    if (kind.value === 'choice') {
+      // Bỏ ô trống ở cuối, giữ đúng vị trí đáp án
+      const filled = opts.map(o => o.trim())
+      while (filled.length > 2 && !filled.at(-1) && right < filled.length - 1) filled.pop()
+      Object.assign(body, { options: filled, answer: right })
+    } else if (kind.value === 'truefalse') body.answer = tf
+    else body.answer = texts.split('\n').map(s => s.trim()).filter(Boolean)
+    try {
+      const r = await api('/api/sys/question/save', body)
+      warnBox.hidden = !r.warnings.length
+      warnBox.replaceChildren(...r.warnings.map(w => el('span', { class: 'mid' }, `! ${w}`)))
+      toast(isNew ? `Đã thêm câu ${r.id}` : 'Đã lưu')
+      await loadQuestions()
+      const fresh = await api('/api/sys/question/get', { id: r.id })
+      state.q.current = fresh
+      renderQuestions()
+      if (isNew || !r.warnings.length) renderEditor(fresh)
+    } catch (err) {
+      toast(err.message, true)
+    }
+  }
+
+  const head = el('div', { class: 'hd' }, el('b', {}, isNew ? 'Thêm câu' : 'Sửa câu'), el('span', { class: 'mono muted' }, q.id ?? 'mã tự đặt'),
+    q.hidden ? tag('hide', 'Đang ẩn') : '', q.updatedBy ? el('small', { class: 'muted' }, `sửa bởi ${q.updatedBy} · ${when(q.updatedAt)}`) : '')
+  const actions = el('div', { class: 'btn-row' }, button(isNew ? 'Thêm câu' : 'Lưu', 'green', save),
+    !isNew ? button(q.hidden ? 'Hiện lại' : 'Ẩn câu', '', async () => {
+      try {
+        await api('/api/sys/question/hide', { id: q.id, hidden: !q.hidden })
+        toast(q.hidden ? 'Đã hiện lại' : 'Đã ẩn — không phát cho phòng nào nữa')
+        await loadQuestions()
+        openQuestion(q.id)
+      } catch (err) {
+        toast(err.message, true)
+      }
+    }) : '')
+  $('qEditor').replaceChildren(head,
+    el('div', { class: 'row3' }, field('Tỉnh', province), field('Loại', difficulty), field('Trạng thái', status)),
+    el('div', { class: 'row3' }, field('Chủ đề', topic), field('Mức', level), field('Kiểu câu', kind)),
+    field('Nội dung', content), answerBox, field('Lời giải (người chơi thấy sau khi trả lời đúng)', explanation),
+    field('Nguồn kiểm chứng', sources), checks, warnBox, stats, actions,
+    !isNew ? el('p', { class: 'muted hint' }, 'Đổi tỉnh / loại câu: thêm câu mới rồi ẩn câu này.') : '')
+}
+$('qEditor').addEventListener('submit', e => e.preventDefault())
+
+// ---------- Hệ thống ----------
+const bytes = n => (n >= 1 << 30 ? `${(n / (1 << 30)).toFixed(1)} GB` : n >= 1 << 20 ? `${(n / (1 << 20)).toFixed(1)} MB` : `${Math.round(n / 1024)} KB`)
+function duration(ms) {
+  const m = Math.floor(ms / 60_000), h = Math.floor(m / 60)
+  return h ? `${h} giờ ${m % 60} phút` : `${m} phút`
+}
+
+async function loadSystem() {
+  const v = await api('/api/sys/system')
+  $('sysSub').textContent = `Server chạy ${duration(v.serverNow - v.startedAt)} · Node ${v.node} · tự cập nhật 10 giây`
+  $('navSystem').textContent = v.errors.length + v.blocks.length || ''
+  const kpi = (label, value, sub, cls = '') => el('div', { class: `kpi ${cls}` }, el('span', { class: 't' }, label), el('b', {}, value), sub)
+  const spark = el('div', { class: 'spark' }, ...v.requests.map(n => {
+    const i = el('i')
+    i.style.height = `${Math.max(4, n / Math.max(1, ...v.requests) * 100)}%`
+    return i
+  }))
+  $('sysKpis').replaceChildren(
+    kpi('Kết nối realtime', fmt(v.connections), el('small', {}, 'trang đang mở'), 'good'),
+    kpi('Yêu cầu / phút', fmt(v.requests.at(-2) ?? 0), spark),
+    kpi('Thời gian phản hồi', v.responseMs ? `${Math.round(v.responseMs.median)} ms` : '—', el('small', {}, v.responseMs ? `95%: ${Math.round(v.responseMs.p95)} ms · chậm nhất ${Math.round(v.responseMs.max)} ms` : 'chưa có số liệu')),
+    kpi('Bộ nhớ server', bytes(v.memory.rss), el('small', {}, `máy còn trống ${bytes(v.memory.free)} / ${bytes(v.memory.total)}`)),
+    kpi('Bị chặn (15 phút)', fmt(v.blocks.reduce((s, b) => s + b.count, 0)), el('small', {}, `${v.blocks.length} nguồn`), v.blocks.length ? 'warn' : ''),
+    kpi('Lỗi máy chủ', fmt(v.errors.length), el('small', {}, 'từ lúc khởi động'), v.errors.length ? 'warn' : ''),
+  )
+  $('errRows').replaceChildren(...(v.errors.length ? v.errors.map(e => el('div', { class: 'err' }, el('time', { class: 'muted' }, when(e.at)),
+    el('span', { class: 'mono' }, `${e.method} ${e.path}`), el('code', {}, e.message))) : [el('p', { class: 'muted' }, 'Chưa có lỗi nào.')]))
+  $('blockRows').replaceChildren(...v.blocks.map(b => el('tr', {},
+    el('td', { class: 'mono' }, b.key.startsWith('t:') ? 'một phiên đăng nhập' : b.key.replace(/^ip:/, '')),
+    el('td', {}, b.label), el('td', { class: 'r' }, fmt(b.count)), el('td', { class: 'muted' }, when(b.last)),
+    el('td', {}, el('div', { class: 'acts' }, button('Bỏ chặn', 'sm', () => act(() => api('/api/sys/system/unblock', { limiter: b.limiter, key: b.key }), 'Đã bỏ chặn')))))))
+  if (!v.blocks.length) $('blockRows').append(emptyRow(5, 'Không ai bị chặn.'))
+  const row = (label, sub, extra = '') => el('div', { class: 'set-row' }, el('span', {}, label, el('small', {}, sub)), extra)
+  $('dataRows').replaceChildren(
+    v.db ? row('Database', `var/game.db · ${bytes(v.db.size)} · WAL ${bytes(v.db.wal)}`) : row('Database', 'không rõ (chạy trong test)'),
+    row('Sao lưu tự động', v.backups.length ? `${v.backups.length} bản · gần nhất ${when(v.backups[0].at)} · ${bytes(v.backups[0].size)}` : 'chưa có bản nào (5 phút sau khi server chạy)',
+      el('a', { class: 'btn sm', href: '/api/sys/backup' }, 'Tải bản mới nhất')),
+  )
+}
+
+// ---------- Cài đặt ----------
+async function loadSettings() {
+  state.settings = await api('/api/sys/settings')
+  const s = state.settings
+  $('setCreate').checked = s.allowCreate
+  $('setPreset').checked = s.presetRooms
+  $('setNotice').value = s.notice
+  $('setNoticeOn').checked = s.noticeOn
+  $('words').replaceChildren(...(s.bannedWords.length ? s.bannedWords.map(w => el('span', { class: 'tag word' }, w,
+    el('button', { type: 'button', 'aria-label': `Bỏ từ ${w}`, onclick: () => saveSettings({ bannedWords: s.bannedWords.filter(x => x !== w) }, 'Đã bỏ từ') }, '✕')))
+    : [el('span', { class: 'muted' }, 'Chưa có từ nào.')]))
+}
+async function saveSettings(patch, msg = 'Đã lưu cài đặt') {
+  try {
+    state.settings = await api('/api/sys/settings', patch)
+    toast(msg)
+  } catch (err) {
+    toast(err.message, true)
+  }
+  loadSettings()
+}
+$('setCreate').addEventListener('change', e => saveSettings({ allowCreate: e.target.checked }, e.target.checked ? 'Đã mở lại tạo phòng' : 'Đã tắt tạo phòng cho mọi người'))
+$('setPreset').addEventListener('change', e => saveSettings({ presetRooms: e.target.checked }))
+$('saveNotice').addEventListener('click', () => saveSettings({ notice: $('setNotice').value, noticeOn: $('setNoticeOn').checked }, 'Đã lưu thông báo'))
+$('setNoticeOn').addEventListener('change', e => saveSettings({ notice: $('setNotice').value, noticeOn: e.target.checked }, e.target.checked ? 'Đang hiện thông báo' : 'Đã tắt thông báo'))
+$('wordForm').addEventListener('submit', e => {
+  e.preventDefault()
+  const w = $('wordInput').value.trim()
+  if (!w) return
+  $('wordInput').value = ''
+  saveSettings({ bannedWords: [...(state.settings?.bannedWords ?? []), w] }, 'Đã thêm từ')
+})
+$('delEnded').addEventListener('click', () => confirmBox('Xóa mọi phòng đã kết thúc?', 'Xóa hẳn các phòng đã kết thúc cùng người chơi trong đó. Bảng xếp hạng cá nhân giữ nguyên.', 'Xóa',
+  async () => { const r = await api('/api/sys/rooms/delete-ended', {}); toast(`Đã xóa ${r.deleted} phòng`) }))
 
 // ---------- Nhật ký ----------
 async function loadLog() {

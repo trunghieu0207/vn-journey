@@ -16,7 +16,7 @@ export function createShared(ctx) {
     const topics = RULES.sharedTopics.map(() => '?').join(', ')
     const rows = db.prepare(`
       SELECT id, asked_count FROM questions
-      WHERE kind = 'choice' AND difficulty = 'normal' AND level <= 2 AND explanation IS NOT NULL AND topic IN (${topics})
+      WHERE kind = 'choice' AND difficulty = 'normal' AND hidden = 0 AND level <= 2 AND explanation IS NOT NULL AND topic IN (${topics})
         AND id NOT IN (SELECT a.question_id FROM answered a JOIN teams t ON t.id = a.team_id WHERE t.room_id = ?)
         AND id NOT IN (SELECT pending_question FROM teams WHERE room_id = ? AND pending_question IS NOT NULL)
         AND id NOT IN (SELECT json_extract(detail, '$.question') FROM events_log WHERE room_id = ? AND action = 'shared')

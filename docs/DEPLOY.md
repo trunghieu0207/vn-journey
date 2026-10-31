@@ -312,6 +312,7 @@ journalctl -u vn-journey -n 20
 ```
 
 - **Không sửa file trực tiếp trên VPS** (trừ `.env`). Sửa ở máy dev → push → pull. Nếu `git pull --ff-only` báo lỗi, xem `$G status` — có file bị sửa tay trên VPS.
+- **Câu hỏi đã sửa trong trang quản trị nằm trong DB trên VPS, không nằm trong git.** Trước khi tạo lại DB: vào `/quan-tri` → Câu hỏi → **Xuất questions.json**, thay `data/questions.json` trên máy dev, commit + push, rồi mới làm bước dưới — không thì mất các chỗ đã sửa.
 - Bản cập nhật **có sửa `db/schema.sql` hoặc `data/`** (câu hỏi, tỉnh) → phải tạo lại DB vì dữ liệu được nạp lúc tạo:
   ```bash
   sudo systemctl stop vn-journey

@@ -17,7 +17,7 @@ const db = openDatabase(config.dbPath)
 // Khóa mã hóa mã chủ phòng (trang quản trị xem lại được): SECRET_KEY hoặc var/secret.key (tự tạo lần đầu, quyền 600)
 const secretKey = loadSecretKey(join(dirname(config.dbPath), 'secret.key'), process.env.SECRET_KEY)
 const app = createApp({ db, config: { ...config, secretKey } })
-if (config.presetRooms) app.game.ensurePresetRooms() // phòng chơi đơn có sẵn
+if (config.presetRooms && app.sys.settings().presetRooms) app.game.ensurePresetRooms() // phòng chơi đơn có sẵn (tắt được trong trang quản trị)
 
 const server = createServer((req, res) => {
   app.handle(req, res).catch(e => {

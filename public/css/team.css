@@ -185,6 +185,9 @@ dialog.docked.defense { border-color: #FFB3B3; box-shadow: 0 0 0 4px #fff, 0 8px
 .result .answer { margin: 10px 0; font-size: 19px; font-weight: 800; }
 .result .explain { margin: 8px 0 16px; color: var(--muted); }
 .result .reward { margin: 8px 0; color: var(--orange); font-size: 18px; font-weight: 900; }
+/* Dòng dài xuống hàng: icon đi liền chữ (inline-flex làm chữ chiếm cả dòng, đẩy icon ra sát mép trái) */
+.result p > .with-icon { display: inline; text-wrap: balance; }
+.result p > .with-icon > .icon { margin-right: .35em; vertical-align: -.2em; }
 .result .reward.late { color: var(--red-dark); }
 .result .reward.golden { color: #B86E00; }
 .result .reward.home { color: #C7305F; }

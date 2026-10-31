@@ -52,8 +52,8 @@ export function seedDatabase(db) {
   const insertCollection = db.prepare('INSERT INTO collections (id, name, description, need, bonus) VALUES (?, ?, ?, ?, ?)')
   const insertMember = db.prepare('INSERT INTO collection_members (collection_id, province_id) VALUES (?, ?)')
   const insertQuestion = db.prepare(`
-    INSERT INTO questions (id, province_id, difficulty, level, topic, kind, content, options, answer, explanation)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`)
+    INSERT INTO questions (id, province_id, difficulty, level, topic, kind, content, options, answer, explanation, sources, status, hidden)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`)
 
   transaction(db, () => {
     for (const p of provinces) {
@@ -76,7 +76,8 @@ export function seedDatabase(db) {
     }
     for (const q of questions) {
       insertQuestion.run(q.id, q.province, q.difficulty, q.level, q.topic, q.kind, q.content,
-        q.options ? JSON.stringify(q.options) : null, JSON.stringify(q.answer), q.explanation ?? null)
+        q.options ? JSON.stringify(q.options) : null, JSON.stringify(q.answer), q.explanation ?? null, q.sources ? JSON.stringify(q.sources) : null,
+        q.status ?? 'new', q.hidden ? 1 : 0) // status / hidden: có khi file được xuất từ trang quản trị
     }
   })
 }

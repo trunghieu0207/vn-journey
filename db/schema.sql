@@ -57,7 +57,12 @@ CREATE TABLE questions (
   options     TEXT,                                -- JSON
   answer      TEXT NOT NULL,                       -- JSON — KHÔNG BAO GIỜ trả về client
   explanation TEXT,
-  asked_count INTEGER NOT NULL DEFAULT 0            -- số lần đã phát (mọi phòng, mọi trận) — ưu tiên câu ít được hỏi để xoay vòng
+  asked_count INTEGER NOT NULL DEFAULT 0,           -- số lần đã phát (mọi phòng, mọi trận) — ưu tiên câu ít được hỏi để xoay vòng
+  sources     TEXT,                                -- JSON: link nguồn kiểm chứng (https); NULL = câu cũ chưa có nguồn
+  status      TEXT NOT NULL DEFAULT 'new' CHECK (status IN ('new', 'ok', 'fix')), -- duyệt trong trang quản trị: chờ duyệt / đã duyệt / cần sửa
+  hidden      INTEGER NOT NULL DEFAULT 0,          -- 1: quản trị ẩn — không phát cho phòng nào nữa
+  updated_at  INTEGER,
+  updated_by  TEXT                                 -- tên đăng nhập quản trị sửa gần nhất
 ) STRICT;
 CREATE INDEX idx_questions_province ON questions(province_id, difficulty);
 
@@ -136,6 +141,11 @@ CREATE TABLE visits (                              -- tỉnh team đã đặt ch
 ) STRICT;
 
 -- ---------- Trang quản trị (/quan-tri) ----------
+
+CREATE TABLE settings (                            -- cài đặt chỉnh trong trang quản trị (khóa → JSON)
+  key   TEXT PRIMARY KEY,
+  value TEXT NOT NULL
+) STRICT;
 
 CREATE TABLE admins (                              -- tài khoản quản trị (một vai trò). Tài khoản đầu tiên: pnpm run admin:create
   id            INTEGER PRIMARY KEY,

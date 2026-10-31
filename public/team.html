@@ -200,8 +200,9 @@
         <input type="checkbox" id="newPioneer" checked>
         <span><b>Tem Tiên phong</b>: người đầu tiên có tem một tỉnh được <b>+50</b></span>
       </label>
+      <p class="form-error" id="createOff" hidden>Ban tổ chức đang tạm tắt tạo phòng — vào phòng có sẵn hoặc nhập mã phòng được gửi.</p>
       <div class="form-error" id="createError" role="alert"></div>
-      <button class="btn green" type="submit">Tạo phòng</button>
+      <button class="btn green" type="submit" id="createSubmit">Tạo phòng</button>
     </form>
 
 
@@ -378,5 +379,6 @@
   <p id="coverHint">Nhấn Esc để mở lại</p>
 </div>
 
+<script type="module" src="/shared/notice.js"></script>
 </body>
 </html>

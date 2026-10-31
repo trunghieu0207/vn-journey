@@ -6,12 +6,22 @@ import { hashSecret, verifySecret } from './auth.js'
 import { GameError, RULES, normalizeText } from './game.js'
 import { cleanName } from './game/rules.js'
 import { transaction } from './db.js'
+import { checkQuestion, QUESTION_STATUS } from './question-rules.js'
 
 export const ADMIN_RULES = {
   maxFails: 5,
   lockMs: 15 * 60_000,
   minPassword: 12,
   logKeepMs: 30 * 24 * 3_600_000,
+}
+
+// Cài đặt chỉnh trong trang (bảng settings); thiếu khóa nào thì dùng mặc định
+export const DEFAULT_SETTINGS = {
+  allowCreate: true,   // mọi người tạo phòng ở trang chủ (tắt: chỉ quản trị tạo)
+  presetRooms: true,   // 4 phòng chơi đơn có sẵn
+  notice: '',          // thông báo chung hiện đầu mọi trang
+  noticeOn: false,
+  bannedWords: [],     // tên người chơi chứa từ này bị gắn cờ (không tự chặn)
 }
 
 const USERNAME = /^[a-z0-9._-]{3,32}$/
@@ -152,8 +162,15 @@ export function createSysadmin({ db, now = Date.now, game, hub, sealer, newCode 
     return { ownerKey: key }
   }
 
+  // Phòng quản trị tạo hộ (chuẩn bị trước sự kiện): không bị dọn khi chưa ai mở trang (housekeeping.js)
+  const keptRooms = () => new Set(JSON.parse(db.prepare("SELECT value FROM settings WHERE key = 'keepRooms'").get()?.value ?? '[]'))
+  const isKept = roomId => keptRooms().has(roomId)
+
   function createRoom(opts, by) {
     const r = game.createRoom(opts)
+    const alive = new Set(db.prepare('SELECT id FROM rooms').all().map(x => x.id))
+    const kept = [...keptRooms()].filter(id => alive.has(id)).concat(r.roomId)
+    db.prepare("INSERT INTO settings (key, value) VALUES ('keepRooms', ?) ON CONFLICT(key) DO UPDATE SET value = excluded.value").run(JSON.stringify(kept))
     log(by, 'room-create', `Tạo phòng "${cleanName(opts.name, RULES.roomNameMaxLength)}" (${r.code})`)
     return r
   }
@@ -208,7 +225,7 @@ export function createSysadmin({ db, now = Date.now, game, hub, sealer, newCode 
       if (!scoreCache.has(roomId)) scoreCache.set(roomId, new Map(game.room(roomId).scores().map(s => [s.teamId, s.total])))
       return scoreCache.get(roomId).get(teamId) ?? 0
     }
-    return list.map(p => ({ ...p, score: p.status === 'waiting' ? 0 : scoreOf(p.roomId, p.teamId), online: hub.isOnline(p.id) }))
+    return list.map(p => ({ ...p, score: p.status === 'waiting' ? 0 : scoreOf(p.roomId, p.teamId), online: hub.isOnline(p.id), flagged: flagged(p.name) }))
   }
 
   function renamePlayer(playerId, name, by) {
@@ -235,7 +252,7 @@ export function createSysadmin({ db, now = Date.now, game, hub, sealer, newCode 
                               (SELECT name FROM leaderboard l2 WHERE l2.name_key = l.name_key ORDER BY played_at DESC, id DESC LIMIT 1) AS name,
                               SUM(score) AS score, SUM(stamps) AS stamps, COUNT(*) AS games, MAX(played_at) AS lastPlayed, MAX(hidden) AS hidden
                        FROM leaderboard l WHERE played_at >= ? GROUP BY name_key ORDER BY score DESC, stamps DESC, lastPlayed`).all(since)
-      .map(e => ({ ...e, hidden: !!e.hidden }))
+      .map(e => ({ ...e, hidden: !!e.hidden, flagged: flagged(e.name) }))
   }
 
   function requireBoardName(nameKey) {
@@ -269,6 +286,164 @@ export function createSysadmin({ db, now = Date.now, game, hub, sealer, newCode 
     return { ok: true }
   }
 
+  // ---------- Câu hỏi (sửa trực tiếp trong DB — chốt 31/10; "Xuất questions.json" để đưa vào git) ----------
+  const topics = () => Object.fromEntries(db.prepare('SELECT id, name FROM topics').all().map(t => [t.id, t.name]))
+  const provinceMap = () => new Map(db.prepare('SELECT id, name, merged_from FROM provinces').all().map(p => [p.id, p]))
+  const parse = v => (v == null ? null : JSON.parse(v))
+
+  // Danh sách gọn (không có lựa chọn / đáp án) + số lượt trả lời, % đúng gộp mọi phòng
+  function questions() {
+    return db.prepare(`SELECT q.id, q.province_id AS province, q.difficulty, q.topic, q.kind, q.level, q.content, q.status, q.hidden,
+                              q.asked_count AS asked, json_array_length(q.sources) AS sourceCount, q.updated_at AS updatedAt, q.updated_by AS updatedBy,
+                              COUNT(a.team_id) AS answers, COALESCE(SUM(a.correct), 0) AS correct
+                       FROM questions q LEFT JOIN answered a ON a.question_id = q.id AND a.skipped = 0
+                       GROUP BY q.id ORDER BY q.province_id, q.difficulty, q.id`).all()
+      .map(q => ({ ...q, hidden: !!q.hidden, sourceCount: q.sourceCount ?? 0 }))
+  }
+
+  function question(id) {
+    const r = db.prepare('SELECT * FROM questions WHERE id = ?').get(String(id ?? ''))
+    if (!r) throw new GameError('no-question', 'Không tìm thấy câu hỏi', 404)
+    return {
+      id: r.id, province: r.province_id, difficulty: r.difficulty, topic: r.topic, kind: r.kind, level: r.level, content: r.content,
+      options: parse(r.options), answer: parse(r.answer), explanation: r.explanation, sources: parse(r.sources) ?? [],
+      status: r.status, hidden: !!r.hidden, updatedAt: r.updated_at, updatedBy: r.updated_by,
+    }
+  }
+
+  // Mã câu mới theo tỉnh: <tỉnh>-NN (thường) / <tỉnh>-sN (thử tài), số kế tiếp chưa dùng
+  function nextQuestionId(province, difficulty) {
+    const used = new Set(db.prepare('SELECT id FROM questions WHERE province_id = ?').all(province).map(r => r.id))
+    for (let n = 1; ; n++) {
+      const id = difficulty === 'siege' ? `${province}-s${n}` : `${province}-${String(n).padStart(2, '0')}`
+      if (!used.has(id)) return id
+    }
+  }
+
+  // Lưu câu (id có → sửa, không có → thêm). Lỗi kiểm tra thì từ chối; trả về cảnh báo để trang hiện
+  function saveQuestion(body, by) {
+    const q = {
+      province: String(body.province ?? ''), difficulty: body.difficulty, topic: String(body.topic ?? ''), kind: body.kind,
+      level: Number(body.level), content: String(body.content ?? '').trim(), explanation: String(body.explanation ?? '').trim() || null,
+      options: body.kind === 'choice' && Array.isArray(body.options) ? body.options.map(o => String(o).trim()) : null,
+      answer: body.kind === 'text' && Array.isArray(body.answer) ? body.answer.map(a => String(a).trim()).filter(Boolean) : body.answer,
+      sources: Array.isArray(body.sources) ? body.sources.map(u => String(u).trim()).filter(Boolean) : [],
+    }
+    const status = QUESTION_STATUS.includes(body.status) ? body.status : 'new'
+    const { errors, warnings } = checkQuestion(q, { provinces: provinceMap(), topics: topics() })
+    if (errors.length) throw new GameError('bad-question', errors.join(' · '))
+    const old = body.id ? question(body.id) : null
+    if (old && (old.province !== q.province || old.difficulty !== q.difficulty)) {
+      throw new GameError('bad-question', 'Không đổi tỉnh / loại câu của câu đã có — thêm câu mới rồi ẩn câu cũ')
+    }
+    const id = old?.id ?? nextQuestionId(q.province, q.difficulty)
+    const cols = [q.topic, q.kind, q.level, q.content, q.options ? JSON.stringify(q.options) : null, JSON.stringify(q.answer), q.explanation,
+      q.sources.length ? JSON.stringify(q.sources) : null, status, now(), by?.username ?? null]
+    if (old) {
+      db.prepare(`UPDATE questions SET topic = ?, kind = ?, level = ?, content = ?, options = ?, answer = ?, explanation = ?, sources = ?,
+                  status = ?, updated_at = ?, updated_by = ? WHERE id = ?`).run(...cols, id)
+    } else {
+      db.prepare(`INSERT INTO questions (topic, kind, level, content, options, answer, explanation, sources, status, updated_at, updated_by, id, province_id, difficulty)
+                  VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`).run(...cols, id, q.province, q.difficulty)
+    }
+    log(by, old ? 'question-edit' : 'question-add', `${old ? 'Sửa' : 'Thêm'} câu ${id}${status !== old?.status ? ` (${{ new: 'chờ duyệt', ok: 'đã duyệt', fix: 'cần sửa' }[status]})` : ''}`)
+    return { id, warnings }
+  }
+
+  // Ẩn: không phát cho phòng nào nữa (câu đang chờ trả lời vẫn trả lời xong). Không cho ẩn câu cuối cùng còn hiện của tỉnh / loại đó
+  function hideQuestion(id, hidden, by) {
+    const q = question(id)
+    if (hidden) {
+      const left = db.prepare('SELECT COUNT(*) AS n FROM questions WHERE province_id = ? AND difficulty = ? AND hidden = 0 AND id <> ?')
+        .get(q.province, q.difficulty, q.id).n
+      if (!left) throw new GameError('last-question', 'Đây là câu cuối cùng còn hiện của tỉnh này — thêm câu khác trước khi ẩn')
+    }
+    db.prepare('UPDATE questions SET hidden = ?, updated_at = ?, updated_by = ? WHERE id = ?').run(hidden ? 1 : 0, now(), by?.username ?? null, q.id)
+    log(by, hidden ? 'question-hide' : 'question-show', `${hidden ? 'Ẩn' : 'Hiện lại'} câu ${q.id}`)
+    return { ok: true }
+  }
+
+  // Xuất đúng định dạng data/questions.json (giữ phần đầu file gốc, mỗi câu một dòng như scripts/merge-questions.mjs)
+  // để thay file trong git — db:reset nạp lại file này nên phải xuất trước khi reset
+  function exportQuestions(meta, by) {
+    // Giữ thứ tự file gốc: theo thứ tự tỉnh, câu thường trước câu thử tài, câu thêm sau xếp cuối nhóm
+    const rows = db.prepare(`SELECT q.id FROM questions q JOIN provinces p ON p.id = q.province_id
+                             ORDER BY p.rowid, q.difficulty, q.rowid`).all()
+    const list = rows.map(({ id }) => {
+      const q = question(id)
+      const out = { id: q.id, province: q.province, difficulty: q.difficulty, topic: q.topic, kind: q.kind, content: q.content }
+      if (q.options) out.options = q.options
+      out.answer = q.answer
+      if (q.explanation) out.explanation = q.explanation
+      out.level = q.level
+      if (q.sources.length) out.sources = q.sources
+      if (q.status !== 'new') out.status = q.status
+      if (q.hidden) out.hidden = true
+      return out
+    })
+    log(by, 'question-export', `Xuất ${list.length} câu hỏi`)
+    const { legacyUnsourced, ...head } = meta
+    const val = v => (Array.isArray(v) ? `[${v.map(x => JSON.stringify(x)).join(', ')}]` : JSON.stringify(v))
+    const line = q => `{${Object.entries(q).map(([k, v]) => `${JSON.stringify(k)}: ${val(v)}`).join(', ')}}`
+    const text = `${JSON.stringify(head, null, 2).slice(0, -2)},\n  "legacyUnsourced": ${val(legacyUnsourced ?? [])},\n  "questions": [\n${list.map(q => `    ${line(q)}`).join(',\n')}\n  ]\n}\n`
+    JSON.parse(text) // chắc chắn là JSON hợp lệ
+    return text
+  }
+
+  // ---------- Cài đặt ----------
+  function settings() {
+    const saved = Object.fromEntries(db.prepare('SELECT key, value FROM settings').all()
+      .filter(r => Object.hasOwn(DEFAULT_SETTINGS, r.key)).map(r => [r.key, JSON.parse(r.value)])) // bỏ khóa nội bộ (keepRooms)
+    return { ...DEFAULT_SETTINGS, ...saved }
+  }
+
+  function saveSettings(body, by) {
+    const patch = {}
+    for (const k of ['allowCreate', 'presetRooms', 'noticeOn']) if (k in body) patch[k] = body[k] === true
+    if ('notice' in body) patch.notice = cleanName(body.notice, 200)
+    if ('bannedWords' in body) {
+      if (!Array.isArray(body.bannedWords)) throw new GameError('bad-settings', 'Danh sách từ cấm không hợp lệ')
+      patch.bannedWords = [...new Set(body.bannedWords.map(w => cleanName(w, 30).toLowerCase()).filter(Boolean))].slice(0, 200)
+    }
+    const put = db.prepare('INSERT INTO settings (key, value) VALUES (?, ?) ON CONFLICT(key) DO UPDATE SET value = excluded.value')
+    transaction(db, () => { for (const [k, v] of Object.entries(patch)) put.run(k, JSON.stringify(v)) })
+    if (Object.keys(patch).length) log(by, 'settings', `Cài đặt: ${Object.keys(patch).join(', ')}`)
+    return settings()
+  }
+
+  // Tên chứa từ cấm (so bỏ dấu, theo cả từ)
+  function flagged(name) {
+    const words = settings().bannedWords
+    if (!words.length) return false
+    const n = ` ${normalizeText(name)} `
+    return words.some(w => { const k = normalizeText(w); return k && n.includes(` ${k} `) })
+  }
+
+  // Thông báo chung đang bật (trang công khai đọc)
+  function notice() {
+    const s = settings()
+    return { text: s.noticeOn && s.notice ? s.notice : null }
+  }
+
+  // Xóa mọi phòng đã kết thúc (không đụng phòng có sẵn — chúng tự làm mới)
+  function deleteEndedRooms(by) {
+    const n = Number(db.prepare("DELETE FROM rooms WHERE status = 'ended' AND preset IS NULL").run().changes)
+    log(by, 'room-delete', `Xóa ${n} phòng đã kết thúc`)
+    return { deleted: n }
+  }
+
+  // Bảng xếp hạng dạng CSV (Excel mở được: có BOM UTF-8)
+  function leaderboardCsv(by) {
+    const cell = v => {
+      const s = String(v ?? '')
+      return /[",\n]/.test(s) || /^[=+\-@]/.test(s) ? `"${(/^[=+\-@]/.test(s) ? "'" : '') + s.replace(/"/g, '""')}"` : s // chống công thức Excel
+    }
+    const rows = leaderboard().filter(e => !e.hidden)
+    log(by, 'board-export', `Xuất CSV bảng xếp hạng (${rows.length} người)`)
+    return '\uFEFF' + [['Hạng', 'Tên', 'Điểm', 'Tem', 'Số trận'], ...rows.map((e, i) => [i + 1, e.name, e.score, e.stamps, e.games])]
+      .map(r => r.map(cell).join(',')).join('\r\n')
+  }
+
   // ---------- Tổng quan + nhật ký ----------
   function overview() {
     const count = sql => db.prepare(sql).get().n
@@ -284,6 +459,10 @@ export function createSysadmin({ db, now = Date.now, game, hub, sealer, newCode 
       players: count('SELECT COUNT(*) AS n FROM players'),
       online: hub.size(),
       playsToday: db.prepare('SELECT COUNT(*) AS n FROM leaderboard WHERE played_at >= ?').get(dayStart).n,
+      questions: db.prepare(`SELECT COUNT(*) AS total, SUM(status = 'ok') AS approved, SUM(status = 'fix') AS fix, SUM(hidden) AS hidden,
+                                    SUM(sources IS NULL OR json_array_length(sources) < 2) AS weakSources FROM questions`).get(),
+      flaggedNames: db.prepare('SELECT name FROM players').all().filter(p => flagged(p.name)).length
+        + db.prepare('SELECT DISTINCT name FROM leaderboard WHERE hidden = 0').all().filter(p => flagged(p.name)).length,
       log: listLog(8),
     }
   }
@@ -297,8 +476,10 @@ export function createSysadmin({ db, now = Date.now, game, hub, sealer, newCode 
 
   return {
     log, adminCount, createAdmin, login, changePassword, resetPassword, setDisabled, listAdmins,
-    rooms, roomCodes, rotateOwnerKey, createRoom, updateRoom, deleteRoom, requireRoom,
+    rooms, roomCodes, rotateOwnerKey, createRoom, updateRoom, deleteRoom, requireRoom, isKept,
     players, renamePlayer, kickPlayer, leaderboard, renameBoard, hideBoard, deleteBoard,
     overview, listLog, cleanup,
+    questions, question, saveQuestion, hideQuestion, exportQuestions,
+    settings, saveSettings, notice, deleteEndedRooms, leaderboardCsv,
   }
 }

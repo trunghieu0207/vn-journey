@@ -59,6 +59,9 @@ async function startServer() {
   return { call, post, stream, close, db, app, base, jar, cookieOf }
 }
 
+// Cookie phiên đăng nhập của một "trình duyệt" (bỏ vnj_creator — cookie đếm phòng mình tạo, không phải phiên)
+const sessionCookies = (s, as) => Object.keys(s.jar[as] ?? {}).filter(k => k !== 'vnj_creator').sort()
+
 // Chủ phòng tạo phòng 3 team; trả về mã phòng + các mã bí mật
 async function withRoom(s, as = 'owner') {
   const r = await s.post('/api/rooms', { name: 'Phòng test', teamCount: 3 }, as)
@@ -405,7 +408,7 @@ test('mỗi vai một cookie: cùng một trình duyệt vừa chủ phòng, v�
   const room = await withRoom(s, 'me') // cookie chủ phòng
   assert.equal((await s.post('/api/join', { code: room.code, name: 'An', teamId: room.teams[0].id }, 'me')).status, 200) // + cookie người chơi
   assert.equal((await s.post('/api/screen/login', { code: room.code, screenCode: room.screenCode }, 'me')).status, 200) // + cookie màn chiếu
-  assert.deepEqual(Object.keys(s.jar.me).sort(), ['vnj_owner', 'vnj_player', 'vnj_screen'])
+  assert.deepEqual(sessionCookies(s, 'me'), ['vnj_owner', 'vnj_player', 'vnj_screen'])
   // Mỗi trang thấy đúng vai của mình
   assert.deepEqual((await s.call('/api/session', { as: 'me', page: 'team' })).json.roles, ['player', 'owner']) // người tạo phòng chơi luôn: bảng "Chủ phòng ▾" trong màn chơi
   assert.deepEqual((await s.call('/api/session', { as: 'me', page: 'admin' })).json.roles, ['owner', 'player'])
@@ -420,14 +423,14 @@ test('mỗi vai một cookie: cùng một trình duyệt vừa chủ phòng, v�
   assert.equal((await s.call('/api/owner/overview', { as: 'mate', page: 'team' })).status, 403)
   // Thoát ở màn chơi chỉ xóa cookie người chơi; trang chủ phòng và màn chiếu vẫn chạy
   assert.equal((await s.post('/api/logout', {}, 'me', 'team')).status, 200)
-  assert.deepEqual(Object.keys(s.jar.me).sort(), ['vnj_owner', 'vnj_screen'])
+  assert.deepEqual(sessionCookies(s, 'me'), ['vnj_owner', 'vnj_screen'])
   assert.equal((await s.call('/api/owner/overview', { as: 'me', page: 'admin' })).json.playing, false)
   assert.equal((await s.call('/api/screen', { as: 'me', page: 'screen' })).status, 200)
   // Vào lại đúng tên: phiên chủ phòng còn nên vẫn là chủ phòng
   assert.equal((await s.post('/api/join', { code: room.code, name: 'An', teamId: room.teams[0].id }, 'me', 'team')).json.host, true)
   // Thoát ở trang chủ phòng chỉ xóa cookie chủ phòng
   await s.post('/api/logout', {}, 'me', 'admin')
-  assert.deepEqual(Object.keys(s.jar.me).sort(), ['vnj_player', 'vnj_screen'])
+  assert.deepEqual(sessionCookies(s, 'me'), ['vnj_player', 'vnj_screen'])
   assert.equal((await s.call('/api/me', { as: 'me', page: 'team' })).status, 200)
 })
 
@@ -457,4 +460,14 @@ test('trang chủ dạng landing: / có phần giới thiệu + khu Vào chơi; 
   assert.equal(home.status, 200)
   for (const id of ['lpTop', 'how', 'modes', 'play', 'heroForm', 'roomList', 'lookupForm', 'createForm']) assert.match(home.text, new RegExp(`id="${id}"`))
   assert.equal((await s.call('/css/landing.css')).status, 200)
+})
+
+test('tạo phòng: mỗi trình duyệt tối đa 3 phòng chưa kết thúc (cookie vnj_creator); trình duyệt khác vẫn tạo được', async t => {
+  const s = await startServer(); t.after(s.close)
+  for (let i = 0; i < RULES.maxRoomsPerCreator; i++) assert.equal((await s.post('/api/rooms', { name: `P${i}`, teamCount: 2 }, 'me')).status, 200)
+  assert.ok(s.jar.me.vnj_creator)
+  const over = await s.post('/api/rooms', { name: 'Thêm', teamCount: 2 }, 'me')
+  assert.equal(over.status, 429)
+  assert.equal(over.json.error, 'too-many-own')
+  assert.equal((await s.post('/api/rooms', { name: 'Người khác', teamCount: 2 }, 'other')).status, 200)
 })

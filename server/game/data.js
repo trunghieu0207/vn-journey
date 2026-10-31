@@ -21,7 +21,7 @@ export function loadData(db, now) {
   // Kho câu cho sảnh chờ "Bạn có biết?" theo miền (dễ / vừa, có lời giải, chủ đề văn hóa — đời sống)
   const factPool = Object.fromEntries(['north', 'central', 'south'].map(r => [r, db.prepare(`
     SELECT q.id FROM questions q JOIN provinces p ON p.id = q.province_id
-    WHERE p.region = ? AND q.difficulty = 'normal' AND q.level <= 2 AND q.explanation IS NOT NULL
+    WHERE p.region = ? AND q.difficulty = 'normal' AND q.hidden = 0 AND q.level <= 2 AND q.explanation IS NOT NULL
       AND q.topic IN (${RULES.factTopics.map(() => '?').join(', ')}) ORDER BY q.id`).all(r, ...RULES.factTopics).map(x => x.id)]))
 
   // ---------- Câu lệnh SQL dùng chung ----------
@@ -36,9 +36,9 @@ export function loadData(db, now) {
     question: db.prepare('SELECT * FROM questions WHERE id = ?'),
     candidates: db.prepare(`
       SELECT id FROM questions
-      WHERE province_id = ? AND difficulty = ?
+      WHERE province_id = ? AND difficulty = ? AND hidden = 0
         AND id NOT IN (SELECT question_id FROM answered WHERE team_id = ?)`),
-    anyCandidates: db.prepare('SELECT id FROM questions WHERE province_id = ? AND difficulty = ?'),
+    anyCandidates: db.prepare('SELECT id FROM questions WHERE province_id = ? AND difficulty = ? AND hidden = 0'), // câu bị quản trị ẩn không phát nữa
     // Số lần câu đã ra trong phòng (đã trả lời / bỏ qua / đang chờ, mọi team) — để các team trong phòng nhận câu khác nhau
     roomUses: db.prepare(`SELECT (SELECT COUNT(*) FROM answered a JOIN teams t ON t.id = a.team_id WHERE t.room_id = ? AND a.question_id = ?)
                                + (SELECT COUNT(*) FROM teams WHERE room_id = ? AND pending_question = ?) AS n`),

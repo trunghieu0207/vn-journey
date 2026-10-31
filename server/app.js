@@ -1,10 +1,15 @@
 // Định tuyến HTTP. Tách khỏi index.js để test gọi trực tiếp được.
 // Mọi phiên gắn với một phòng: người chơi / chủ phòng / màn chiếu chỉ thấy dữ liệu phòng của mình.
 
-import { createGame, GameError } from './game.js'
+import { createGame, GameError, RULES } from './game.js'
 import { randomBytes } from 'node:crypto'
+import { readFileSync, readdirSync, statSync, createReadStream, mkdirSync, existsSync } from 'node:fs'
+import { join, dirname } from 'node:path'
+import { totalmem, freemem } from 'node:os'
+import { ROOT, backupDatabase } from './db.js'
 import { createAuth, createSealer, hashSecret, verifySecret, safeEqual } from './auth.js'
 import { createSysadmin } from './sysadmin.js'
+import { createHousekeeping } from './housekeeping.js'
 import { randomCode } from './config.js'
 import { createHub } from './sse.js'
 import { serveStatic } from './static.js'
@@ -36,13 +41,19 @@ export function createApp({ db, config, now = Date.now, random = Math.random }) 
   const PAGE_ROLES = { team: ['player'], admin: ['owner', 'player'], screen: ['screen', 'owner'] }
   const ALL_ROLES = ['player', 'owner', 'screen']
   const VIEW_PAGE = { team: 'team', owner: 'admin', screen: 'screen' }
+  // autoStartAt: phòng có sẵn sắp tự bắt đầu (housekeeping) — màn chờ hiện đếm ngược
+  const withAuto = (roomId, v) => ({ ...v, autoStartAt: housekeeping.autoStartAt(roomId) })
   const hub = createHub((session, view) => {
     const room = game.room(session.room_id)
-    return view === 'team' ? room.teamView(session.team_id)
+    return withAuto(session.room_id, view === 'team' ? room.teamView(session.team_id)
       : view === 'owner' ? room.ownerView()
-      : room.screenView()
+      : room.screenView())
   }, session => auth.isValid(session))
   const sys = createSysadmin({ db, now, game, hub, sealer })
+  const housekeeping = createHousekeeping({ db, game, hub, now, keepRoom: sys.isKept })
+  // Khóa trình duyệt người tạo phòng (giới hạn số phòng chưa xong mỗi người) — cookie ngẫu nhiên, không gắn danh tính
+  const CREATOR_COOKIE = 'vnj_creator'
+  const creatorCookie = key => [`${CREATOR_COOKIE}=${key}`, 'Path=/', 'HttpOnly', 'SameSite=Strict', `Max-Age=${30 * 86_400}`, ...(config.cookieSecure ? ['Secure'] : [])].join('; ')
 
   // Cả văn phòng thường ra Internet chung 1 IP → giới hạn theo IP phải đủ rộng cho ~100 người vào phòng cùng lúc
   const createLimiter = createRateLimiter({ windowMs: 60_000, max: 5, now })
@@ -50,7 +61,72 @@ export function createApp({ db, config, now = Date.now, random = Math.random }) 
   const listLimiter = createRateLimiter({ windowMs: 60_000, max: 300, now })
   const loginLimiter = createRateLimiter({ windowMs: 60_000, max: 10, now })
   const apiLimiter = createRateLimiter({ windowMs: 10_000, max: 60, now })
-  const limiters = [createLimiter, joinLimiter, loginLimiter, apiLimiter]
+  const limiters = [createLimiter, joinLimiter, loginLimiter, apiLimiter, listLimiter]
+  // Tên hiện ở trang quản trị (mục Hệ thống: ai đang bị chặn, bỏ chặn)
+  const LIMITERS = {
+    create: { limiter: createLimiter, label: 'Tạo phòng (5/phút)' },
+    join: { limiter: joinLimiter, label: 'Vào phòng (150/phút)' },
+    list: { limiter: listLimiter, label: 'Danh sách phòng (300/phút)' },
+    login: { limiter: loginLimiter, label: 'Đăng nhập (10/phút)' },
+    api: { limiter: apiLimiter, label: 'Thao tác (60/10 giây)' },
+  }
+
+  // Số liệu cho mục Hệ thống — chỉ trong bộ nhớ (khởi động lại thì mất; chốt 31/10)
+  const startedAt = now()
+  const perMinute = new Map() // phút → số request API
+  const durations = []        // thời gian xử lý 500 request API gần nhất (ms)
+  const errors = []           // 50 lỗi máy chủ gần nhất
+  function recordRequest(ms) {
+    const minute = Math.floor(now() / 60_000)
+    perMinute.set(minute, (perMinute.get(minute) ?? 0) + 1)
+    for (const m of perMinute.keys()) if (m < minute - 30) perMinute.delete(m)
+    durations.push(ms)
+    if (durations.length > 500) durations.shift()
+  }
+  function recordError(req, e) {
+    errors.unshift({ at: now(), method: req.method, path: new URL(req.url, 'http://localhost').pathname, message: String(e?.message ?? e).slice(0, 200) })
+    errors.length = Math.min(errors.length, 50)
+  }
+  const backupDir = config.dbPath ? join(dirname(config.dbPath), 'backups') : null
+  function backups() {
+    if (!backupDir || !existsSync(backupDir)) return []
+    return readdirSync(backupDir).filter(f => f.startsWith('backup-')).sort().reverse()
+      .map(f => ({ name: f, ...(({ size, mtimeMs }) => ({ size, at: mtimeMs }))(statSync(join(backupDir, f))) }))
+  }
+  const fileSize = f => { try { return statSync(f).size } catch { return 0 } }
+  function systemInfo() {
+    const minute = Math.floor(now() / 60_000)
+    const sorted = [...durations].sort((a, b) => a - b)
+    return {
+      serverNow: now(), startedAt, node: process.version,
+      requests: Array.from({ length: 30 }, (_, i) => perMinute.get(minute - 29 + i) ?? 0),
+      responseMs: sorted.length ? { median: sorted[Math.floor(sorted.length / 2)], p95: sorted[Math.floor(sorted.length * 0.95)], max: sorted.at(-1) } : null,
+      memory: { rss: process.memoryUsage().rss, total: totalmem(), free: freemem() },
+      connections: hub.size(),
+      blocks: Object.entries(LIMITERS).flatMap(([name, l]) => l.limiter.blocks().map(b => ({ limiter: name, label: l.label, ...b })))
+        .sort((a, b) => b.last - a.last),
+      errors,
+      db: config.dbPath ? { size: fileSize(config.dbPath), wal: fileSize(`${config.dbPath}-wal`) } : null,
+      backups: backups().slice(0, 12),
+    }
+  }
+  // Phần đầu data/questions.json (version, note, chủ đề…) — giữ khi xuất lại file từ DB
+  const questionsMeta = () => {
+    const { questions, ...meta } = JSON.parse(readFileSync(join(ROOT, 'data', 'questions.json'), 'utf8'))
+    void questions
+    return meta
+  }
+  // Trả file tải về (route raw)
+  function sendFile(res, { type, name, body, path }) {
+    const headers = { 'Content-Type': type, 'Content-Disposition': `attachment; filename="${name}"`, 'Cache-Control': 'no-store' }
+    if (path) {
+      res.writeHead(200, { ...headers, 'Content-Length': statSync(path).size })
+      createReadStream(path).pipe(res)
+    } else {
+      res.writeHead(200, { ...headers, 'Content-Length': Buffer.byteLength(body) })
+      res.end(body)
+    }
+  }
   const cookieOpts = { secure: config.cookieSecure }
 
   const ipOf = req => (config.trustProxy && req.headers['x-real-ip']) || req.socket.remoteAddress || 'unknown'
@@ -93,9 +169,19 @@ export function createApp({ db, config, now = Date.now, random = Math.random }) 
     // ----- Phòng (công khai) -----
     'POST /api/rooms': {
       auth: null, limit: createLimiter,
-      run: ({ body, res }) => {
+      run: ({ req, body, res }) => {
+        if (!sys.settings().allowCreate) throw new GameError('create-off', 'Ban tổ chức đang tạm tắt tạo phòng — vào phòng có sẵn hoặc nhập mã phòng được gửi', 403)
+        let creator = parseCookies(req.headers.cookie)[CREATOR_COOKIE]
+        if (!/^[A-Za-z0-9_-]{16,64}$/.test(creator ?? '')) {
+          creator = randomBytes(16).toString('base64url')
+          res.appendHeader('Set-Cookie', creatorCookie(creator))
+        }
+        if (!housekeeping.canCreate(creator)) {
+          throw new GameError('too-many-own', `Bạn đang có ${RULES.maxRoomsPerCreator} phòng chưa kết thúc — kết thúc bớt phòng cũ (trang chủ phòng) rồi tạo tiếp`, 429)
+        }
         const r = game.createRoom({ name: body.name, teamCount: body.teamCount, durationMin: body.durationMin, topicChoice: body.topicChoice === true, betChoice: body.betChoice !== false,
           mode: body.mode === 'solo' ? 'solo' : 'team', pioneer: body.pioneer !== false, quizCount: body.quizCount, listed: body.listed === true })
+        housekeeping.noteCreated(creator, r.roomId)
         setSession(res, 'owner', auth.createSession('owner', { roomId: r.roomId }))
         return { role: 'owner', code: r.code, ownerKey: r.ownerKey, screenCode: r.screenCode }
       },
@@ -103,7 +189,12 @@ export function createApp({ db, config, now = Date.now, random = Math.random }) 
     // Phòng chơi đơn có sẵn: ai vào trước làm chủ phòng
     'GET /api/rooms/preset': { auth: null, limit: joinLimiter, run: () => game.presetRooms() },
     // Màn Tham gia (tự làm mới 10 giây): phòng có sẵn + phòng tự tạo bật "hiện trong danh sách". Hạn mức riêng để không ăn vào lượt vào phòng
-    'GET /api/rooms/list': { auth: null, limit: listLimiter, run: () => ({ preset: game.presetRooms(), open: game.publicRooms() }) },
+    'GET /api/rooms/list': {
+      auth: null, limit: listLimiter,
+      run: () => ({ preset: sys.settings().presetRooms ? game.presetRooms() : [], open: game.publicRooms(), allowCreate: sys.settings().allowCreate }),
+    },
+    // Thông báo chung của ban tổ chức (mọi trang hỏi định kỳ)
+    'GET /api/notice': { auth: null, limit: listLimiter, run: () => sys.notice() },
     // Bảng xếp hạng cá nhân cả sự kiện (phòng chơi đơn) — trang /leaderboard và màn chiếu
     'GET /api/leaderboard': { auth: null, limit: listLimiter, run: () => game.leaderboard() },
     'POST /api/rooms/lookup': { auth: null, limit: joinLimiter, run: ({ body }) => game.lobby(body.code) },
@@ -214,6 +305,55 @@ export function createApp({ db, config, now = Date.now, random = Math.random }) 
     'POST /api/sys/leaderboard/hide': { sys: true, run: ({ body, admin }) => sys.hideBoard(body.nameKey, body.hidden === true, admin) },
     'POST /api/sys/leaderboard/delete': { sys: true, run: ({ body, admin }) => sys.deleteBoard(body.nameKey, admin) },
     'GET /api/sys/admins': { sys: true, run: () => sys.listAdmins() },
+    'GET /api/sys/questions': {
+      sys: true,
+      run: () => ({
+        questions: sys.questions(),
+        topics: Object.fromEntries(db.prepare('SELECT id, name FROM topics').all().map(t => [t.id, t.name])),
+        provinces: db.prepare('SELECT id, name, region FROM provinces ORDER BY rowid').all(),
+      }),
+    },
+    'POST /api/sys/question/get': { sys: true, run: ({ body }) => sys.question(body.id) },
+    'POST /api/sys/question/save': { sys: true, run: ({ body, admin }) => sys.saveQuestion(body, admin) },
+    'POST /api/sys/question/hide': { sys: true, run: ({ body, admin }) => sys.hideQuestion(body.id, body.hidden === true, admin) },
+    'GET /api/sys/questions/export': {
+      sys: true, raw: true,
+      run: ({ res, admin }) => sendFile(res, { type: 'application/json; charset=utf-8', name: 'questions.json',
+        body: sys.exportQuestions(questionsMeta(), admin) }),
+    },
+    'GET /api/sys/system': { sys: true, run: () => systemInfo() },
+    'POST /api/sys/system/unblock': {
+      sys: true,
+      run: ({ body, admin }) => {
+        const l = Object.hasOwn(LIMITERS, body.limiter ?? '') ? LIMITERS[body.limiter] : null
+        if (!l) throw new GameError('bad-limiter', 'Không rõ loại giới hạn')
+        l.limiter.reset(String(body.key ?? ''))
+        sys.log(admin, 'unblock', `Bỏ chặn ${String(body.key ?? '').startsWith('t:') ? 'một phiên' : body.key} (${l.label})`)
+        return { ok: true }
+      },
+    },
+    // Tải bản sao lưu mới nhất (chưa có thì sao lưu ngay)
+    'GET /api/sys/backup': {
+      sys: true, raw: true,
+      run: ({ res, admin }) => {
+        if (!backupDir) throw new GameError('no-backup', 'Server chưa cấu hình thư mục sao lưu', 404)
+        let file = backups()[0]?.name
+        if (!file) {
+          mkdirSync(backupDir, { recursive: true, mode: 0o700 })
+          file = `backup-${new Date(now()).toISOString().replace(/[:.]/g, '-')}.db`
+          backupDatabase(db, join(backupDir, file))
+        }
+        sys.log(admin, 'backup-download', `Tải bản sao lưu ${file}`)
+        sendFile(res, { type: 'application/octet-stream', name: file, path: join(backupDir, file) })
+      },
+    },
+    'GET /api/sys/leaderboard.csv': {
+      sys: true, raw: true,
+      run: ({ res, admin }) => sendFile(res, { type: 'text/csv; charset=utf-8', name: 'bang-xep-hang.csv', body: sys.leaderboardCsv(admin) }),
+    },
+    'GET /api/sys/settings': { sys: true, run: () => sys.settings() },
+    'POST /api/sys/settings': { sys: true, run: ({ body, admin }) => sys.saveSettings(body, admin) },
+    'POST /api/sys/rooms/delete-ended': { sys: true, run: ({ admin }) => sys.deleteEndedRooms(admin) },
     'POST /api/sys/admins': { sys: true, run: ({ body, admin }) => sys.createAdmin({ username: body.username, displayName: body.displayName }, admin) },
     'POST /api/sys/admins/reset': { sys: true, run: ({ body, admin }) => sys.resetPassword(body.id, admin) },
     'POST /api/sys/admins/disable': { sys: true, run: ({ body, admin }) => sys.setDisabled(body.id, body.disabled === true, admin) },
@@ -221,7 +361,7 @@ export function createApp({ db, config, now = Date.now, random = Math.random }) 
     // ----- Người chơi -----
     'GET /api/me': {
       auth: ['player'],
-      run: ({ session }) => ({ ...roomOf(session).teamView(session.team_id), me: { id: session.player_id, name: session.player_name } }),
+      run: ({ session }) => ({ ...withAuto(session.room_id, roomOf(session).teamView(session.team_id)), me: { id: session.player_id, name: session.player_name } }),
     },
     // Sổ tay hành trình (phòng đơn): của chính người chơi
     'GET /api/journal': { auth: ['player'], run: ({ session }) => roomOf(session).journal(session.team_id, session.player_id) },
@@ -289,7 +429,7 @@ export function createApp({ db, config, now = Date.now, random = Math.random }) 
     // playing: phiên này là người chơi giữ quyền chủ phòng (trang chủ phòng hiện nút "Quay lại chơi" thay cho "Vào chơi")
     'GET /api/owner/overview': {
       auth: ['owner'],
-      run: ({ session, sessions }) => ({ ...roomOf(session).ownerView(), playing: sessions.player?.room_id === session.room_id }),
+      run: ({ session, sessions }) => ({ ...withAuto(session.room_id, roomOf(session).ownerView()), playing: sessions.player?.room_id === session.room_id }),
     },
     'GET /api/owner/question-stats': { auth: ['owner'], run: ({ session }) => roomOf(session).questionStats() },
     'POST /api/owner/game': {
@@ -360,6 +500,10 @@ export function createApp({ db, config, now = Date.now, random = Math.random }) 
     securityHeaders(res, { https: config.cookieSecure })
     const url = new URL(req.url, 'http://localhost')
     const pathname = url.pathname
+    if (pathname.startsWith('/api/') && pathname !== '/api/stream') {
+      const t0 = performance.now()
+      res.once('finish', () => recordRequest(performance.now() - t0))
+    }
 
     if (!pathname.startsWith('/api/')) {
       // Chưa có tài khoản quản trị nào (chưa chạy pnpm run admin:create) → không lộ trang quản trị
@@ -412,6 +556,7 @@ export function createApp({ db, config, now = Date.now, random = Math.random }) 
     try {
       const body = req.method === 'POST' ? await readJson(req) : {}
       const result = route.run({ req, res, body, session, sessions, pageSessions, sysSession, admin })
+      if (route.raw) return // route tự trả file
       sendJson(res, 200, result ?? { ok: true })
       if (route.change) hub.broadcast(session.room_id)
       const changedRoom = route.broadcast?.(result, body)
@@ -421,6 +566,7 @@ export function createApp({ db, config, now = Date.now, random = Math.random }) 
       if (e.status === 413) res.setHeader('Connection', 'close')
       if (e.status) return sendError(res, e.status, 'bad-request', e.message)
       console.error(e) // chi tiết lỗi chỉ ghi ở server, không gửi về client
+      recordError(req, e)
       sendError(res, 500, 'server-error', 'Lỗi máy chủ')
     }
   }
@@ -430,6 +576,7 @@ export function createApp({ db, config, now = Date.now, random = Math.random }) 
   let ticks = 0
   function tick() {
     const changed = new Set(game.expireQuestions())
+    for (const id of housekeeping.tick()) changed.add(id) // phòng bỏ trống / chủ phòng vắng / tự bắt đầu
     for (const roomId of game.activeRoomIds()) {
       const room = game.room(roomId)
       if (room.settleShared()) changed.add(roomId) // câu hỏi chung hết giờ → công bố
@@ -446,7 +593,7 @@ export function createApp({ db, config, now = Date.now, random = Math.random }) 
     if (++ticks % 60 === 0) {
       game.cleanupRooms()
       sys.cleanup()
-      if (config.presetRooms) game.ensurePresetRooms()
+      if (config.presetRooms && sys.settings().presetRooms) game.ensurePresetRooms()
       for (const id of lastSignature.keys()) if (!game.activeRoomIds().includes(id)) lastSignature.delete(id)
     }
     for (const l of limiters) l.cleanup()

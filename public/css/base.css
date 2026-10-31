@@ -330,3 +330,6 @@ button.sq-opt:hover { border-color: #BDE6FA; }
 .facts dd { margin: 0; font-weight: 700; }
 .mode-explain .fit { margin-top: 14px !important; padding: 8px 12px; border-radius: 12px; background: #F1FBE8; }
 .owner-note { padding: 8px 12px; border-radius: 12px; background: #FFF6D1; color: #8A5A00; font-size: 14px; font-weight: 800; }
+
+/* Thông báo chung của ban tổ chức (shared/notice.js) — nằm trên cùng mọi trang */
+.notice-bar { position: sticky; top: 0; z-index: 60; padding: 8px 16px; background: #FFF1C2; color: #7A4A00; font-weight: 800; text-align: center; box-shadow: 0 2px 0 #F5D58A; }

@@ -56,8 +56,11 @@
     <button class="ad-nav on" data-sec="dash" type="button"><span data-icon="stats"></span>Tổng quan</button>
     <button class="ad-nav" data-sec="rooms" type="button"><span data-icon="map"></span>Phòng <i id="navRooms"></i></button>
     <button class="ad-nav" data-sec="players" type="button"><span data-icon="flag"></span>Người chơi <i id="navPlayers"></i></button>
+    <button class="ad-nav" data-sec="questions" type="button"><span data-icon="question"></span>Câu hỏi <i id="navQuestions"></i></button>
     <button class="ad-nav" data-sec="board" type="button"><span data-icon="trophy"></span>Bảng xếp hạng</button>
     <button class="ad-nav" data-sec="accounts" type="button"><span data-icon="lock"></span>Tài khoản admin</button>
+    <button class="ad-nav" data-sec="system" type="button"><span data-icon="screen"></span>Hệ thống <i class="warn" id="navSystem"></i></button>
+    <button class="ad-nav" data-sec="settings" type="button"><span data-icon="card"></span>Cài đặt</button>
     <button class="ad-nav" data-sec="log" type="button"><span data-icon="timer"></span>Nhật ký</button>
     <div class="ad-grow"></div>
     <div class="ad-me">
@@ -74,6 +77,10 @@
       <div class="ad-top"><h2>Tổng quan</h2><span class="sub" id="dashTime"></span></div>
       <div class="ad-body">
         <div class="kpis" id="kpis"></div>
+        <div class="panel" id="todoPanel">
+          <h3>Cần xử lý</h3>
+          <div id="todos"></div>
+        </div>
         <div class="panel">
           <h3>Thao tác gần đây <button class="linkish" type="button" data-go="log">Xem nhật ký</button></h3>
           <div class="log" id="dashLog"></div>
@@ -150,6 +157,84 @@
             <div class="full btn-row"><button class="btn green" type="submit">Tạo tài khoản</button></div>
           </form>
           <p class="muted hint">Người mới nhận <b>mật khẩu tạm</b> (chỉ hiện một lần), lần đầu đăng nhập phải đổi.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Câu hỏi -->
+    <section class="ad-sec" id="sec-questions">
+      <div class="ad-top"><h2>Câu hỏi</h2><span class="sub" id="qSub"></span>
+        <div class="right"><a class="btn" href="/api/sys/questions/export" download="questions.json" id="qExport">Xuất questions.json</a><button class="btn green" type="button" id="qNew">Thêm câu</button></div></div>
+      <div class="ad-body">
+        <p class="muted hint">Sửa ở đây có hiệu lực ngay (câu đang chờ trả lời giữ bản cũ). <b>Trước khi <code>db:reset</code> hoặc deploy bản mới, bấm "Xuất questions.json"</b> rồi thay file <code>data/questions.json</code> trong git — reset nạp lại từ file đó.</p>
+        <div class="cov" id="cov"></div>
+        <div class="toolbar">
+          <div class="seg" id="qStatus"><button class="on" data-v="" type="button">Tất cả</button><button data-v="new" type="button">Chờ duyệt</button><button data-v="fix" type="button">Cần sửa</button><button data-v="ok" type="button">Đã duyệt</button><button data-v="hidden" type="button">Đang ẩn</button></div>
+          <select class="ad-input" id="qTopic" aria-label="Chủ đề"><option value="">Mọi chủ đề</option></select>
+          <select class="ad-input" id="qDiff" aria-label="Loại câu"><option value="">Thường + thử tài</option><option value="normal">Câu thường</option><option value="siege">Câu thử tài</option></select>
+          <select class="ad-input" id="qSrc" aria-label="Số nguồn"><option value="">Mọi mức nguồn</option><option value="0">Chưa có nguồn</option><option value="1">1 nguồn</option><option value="2">≥ 2 nguồn</option></select>
+          <input class="ad-input search" id="qSearch" placeholder="Tìm nội dung hoặc mã câu" aria-label="Tìm câu hỏi">
+        </div>
+        <div class="qs">
+          <div>
+            <div class="tbl-wrap qtbl"><table class="tbl">
+              <thead><tr><th>Mã</th><th>Câu hỏi</th><th>Chủ đề</th><th>Mức</th><th>Nguồn</th><th class="r">% đúng</th><th>Trạng thái</th></tr></thead>
+              <tbody id="qRows"></tbody>
+            </table></div>
+            <p class="muted hint" id="qMore"></p>
+          </div>
+          <form class="editor" id="qEditor" autocomplete="off"><p class="muted">Chọn một câu để sửa, hoặc bấm "Thêm câu".</p></form>
+        </div>
+      </div>
+    </section>
+
+    <!-- Hệ thống -->
+    <section class="ad-sec" id="sec-system">
+      <div class="ad-top"><h2>Hệ thống</h2><span class="sub" id="sysSub"></span>
+        <div class="right"><a class="btn" href="/api/sys/backup" id="backupBtn">Tải bản sao lưu</a></div></div>
+      <div class="ad-body">
+        <div class="kpis" id="sysKpis"></div>
+        <div class="grid2">
+          <div class="panel"><h3>Lỗi máy chủ gần đây</h3><div id="errRows"></div>
+            <p class="muted hint">Chỉ loại lỗi + đường dẫn; chi tiết ở log server (<code>journalctl -u vn-journey</code>). Khởi động lại server thì danh sách làm mới.</p></div>
+          <div class="panel"><h3>Bị chặn vì gửi quá nhiều (15 phút qua)</h3>
+            <div class="tbl-wrap"><table class="tbl"><thead><tr><th>Ai</th><th>Giới hạn</th><th class="r">Lượt</th><th>Gần nhất</th><th></th></tr></thead><tbody id="blockRows"></tbody></table></div>
+            <p class="muted hint">Cả văn phòng ra Internet chung một IP: IP văn phòng bị chặn là cả văn phòng không vào được — bấm Bỏ chặn.</p></div>
+        </div>
+        <div class="panel"><h3>Dữ liệu</h3><div id="dataRows"></div></div>
+      </div>
+    </section>
+
+    <!-- Cài đặt -->
+    <section class="ad-sec" id="sec-settings">
+      <div class="ad-top"><h2>Cài đặt</h2><span class="sub">Có hiệu lực ngay, không cần khởi động lại server</span></div>
+      <div class="ad-body">
+        <div class="grid2">
+          <div class="panel">
+            <h3>Phòng</h3>
+            <label class="set-row"><span>Cho mọi người tạo phòng<small>Tắt: chỉ quản trị tạo phòng; trang chủ báo "ban tổ chức tạm tắt tạo phòng"</small></span><input type="checkbox" class="sw" id="setCreate"></label>
+            <label class="set-row"><span>Phòng chơi đơn có sẵn<small>Phòng Sen, Mai, Đào, Trúc (30 phút). Tắt: ẩn khỏi danh sách, không tạo lại</small></span><input type="checkbox" class="sw" id="setPreset"></label>
+            <div class="set-row"><span>Xóa mọi phòng đã kết thúc<small>Không xóa bảng xếp hạng, không đụng phòng có sẵn</small></span><button class="btn danger sm" type="button" id="delEnded">Xóa</button></div>
+          </div>
+          <div class="panel">
+            <h3>Thông báo chung</h3>
+            <p class="muted hint">Hiện trên cùng mọi trang (trang chủ, màn chơi, màn chiếu, trang chủ phòng) trong vòng 1 phút.</p>
+            <textarea class="ad-input wide" id="setNotice" rows="2" maxlength="200" placeholder="Vd. 14:45 trao giải ở sảnh tầng 3"></textarea>
+            <label class="set-row"><span>Đang hiện</span><input type="checkbox" class="sw" id="setNoticeOn"></label>
+            <div class="btn-row"><button class="btn green sm" type="button" id="saveNotice">Lưu thông báo</button></div>
+          </div>
+          <div class="panel">
+            <h3>Tên người chơi — từ cấm</h3>
+            <p class="muted hint">Tên chứa từ này (so bỏ dấu, theo cả từ) bị gắn cờ ở mục Người chơi, Bảng xếp hạng và Tổng quan — không tự chặn.</p>
+            <div class="words" id="words"></div>
+            <form class="btn-row" id="wordForm"><input class="ad-input" id="wordInput" maxlength="30" placeholder="Thêm từ" aria-label="Từ cấm"><button class="btn sm" type="submit">Thêm</button></form>
+          </div>
+          <div class="panel">
+            <h3>Xuất dữ liệu</h3>
+            <div class="set-row"><span>Bảng xếp hạng cá nhân (CSV, mở bằng Excel)<small>Không có người đang bị ẩn</small></span><a class="btn sm" href="/api/sys/leaderboard.csv">Tải CSV</a></div>
+            <div class="set-row"><span>Kho câu hỏi (questions.json)<small>Thay file data/questions.json trong git</small></span><a class="btn sm" href="/api/sys/questions/export" download="questions.json">Tải</a></div>
+            <div class="set-row"><span>Bản sao lưu database<small>Có tên người chơi — xóa sau khi dùng xong</small></span><a class="btn sm" href="/api/sys/backup">Tải</a></div>
+          </div>
         </div>
       </div>
     </section>
