@@ -178,3 +178,12 @@ dialog {
   background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M2.5 8.5l3.5 3.5 7.5-8' fill='none' stroke='%2358A700' stroke-width='2.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center / contain no-repeat;
 }
 .pick-list li[aria-disabled="true"] { color: #AFAFAF; cursor: not-allowed; }
+
+/* Điện thoại / máy tính bảng (Safari, Chrome iOS — cùng nhân WebKit): bộ lọc SVG trên phần tử HTML chạy bằng CPU và tính lại
+   mỗi lần vùng đó vẽ lại (con trỏ nhấp nháy trong ô nhập, danh sách phòng lọc lại theo từng phím, icon nhún) → gõ chữ bị giật.
+   Bỏ nét run, giữ bo góc lệch + gờ đáy nên vẫn ra chất vẽ tay */
+@media (pointer: coarse) {
+  :is(.btn, .card, .score-row, .toast, .pill, .q-head .tag, .alert-lost, .caption, .results-mine, .podium-step, .results-board, .pick, .options .key)::before,
+  :is(.btn, .card, .score-row, .alert-lost, .caption, .podium-step, .results-board)::after,
+  svg g[filter] { filter: none; }
+}

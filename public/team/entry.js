@@ -82,6 +82,9 @@ async function drawHeroMap() {
   svg.append(pin)
 }
 
+// Phần đầu trang khuất khỏi màn hình → dừng hiệu ứng nhún (đỡ vẽ lại bản đồ minh họa khi đang gõ ở khu chọn phòng)
+new IntersectionObserver(([e]) => $('lpTop').classList.toggle('still', !e.isIntersecting)).observe($('lpTop'))
+
 // ---------- Danh sách phòng đang mở (cột phải, mockup/room-list.html kiểu A) ----------
 // Phòng công khai (mọi người tạo) + phòng chơi đơn có sẵn; lọc Tất cả / Theo team / Chơi đơn + tìm tên. Bấm "Vào" = tra mã như nhập tay
 const STATUS = { waiting: 'Đang chờ', running: 'Đang chơi', paused: 'Tạm dừng', ended: 'Đã kết thúc' }

@@ -6,6 +6,7 @@
 
 /* Thanh trên */
 .lp-nav { position: sticky; top: 0; z-index: 20; border-bottom: 2px solid var(--line); background: rgba(255, 255, 255, .94); backdrop-filter: blur(8px); }
+@media (pointer: coarse) { .lp-nav { background: #fff; backdrop-filter: none; } }
 .lp-nav .lp-wrap { display: flex; align-items: center; gap: 18px; min-height: 64px; }
 .lp-logo { display: flex; align-items: center; gap: 8px; color: var(--green); font-size: 21px; font-weight: 900; text-decoration: none; white-space: nowrap; }
 .lp-logo .icon { width: 30px; height: 30px; }
@@ -45,6 +46,8 @@
 #heroMap > path.own { stroke-width: 2; }
 .lp-pin { animation: lp-hop 1.6s ease-in-out infinite; transform-box: fill-box; transform-origin: bottom; }
 @keyframes lp-hop { 0%, 60%, 100% { transform: none; } 30% { transform: translateY(-10px); } }
+/* Cuộn khỏi phần đầu trang → dừng nhún (nón trong bản đồ SVG làm vẽ lại cả bản đồ mỗi khung hình) — team/entry.js */
+.lp-hero.still :is(.lp-pin, .entry-mascots svg) { animation-play-state: paused; }
 .lp-bubble { position: absolute; display: flex; align-items: center; gap: 8px; padding: 8px 12px; border-radius: 14px; background: #fff; box-shadow: 0 4px 0 rgba(0, 0, 0, .08); font-size: 14px; font-weight: 800; }
 .lp-bubble .icon { width: 22px; height: 22px; }
 .lp-bubble small { display: block; color: var(--muted); font-size: 12px; font-weight: 700; }
