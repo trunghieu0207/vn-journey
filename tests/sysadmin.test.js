@@ -360,6 +360,9 @@ test('quản trị hệ thống: số liệu, danh sách bị chặn + bỏ ch�
   assert.equal((await s.post('/api/rooms', { name: 'Bị chặn', teamCount: 2 })).status, 429)
   const sys = (await s.call('/api/sys/system', { as: 'adm' })).json
   assert.equal(sys.requests.length, 30)
+  assert.equal(sys.cpu.history.length, 30)
+  assert.ok(sys.cpu.cores >= 1 && sys.cpu.load.length === 3)
+  assert.ok(sys.cpu.process === null || sys.cpu.process >= 0) // vừa khởi động (< 20 ms) thì chưa có mẫu
   assert.ok(sys.requests.at(-1) > 0)
   const block = sys.blocks.find(b => b.limiter === 'create')
   assert.ok(block.count >= 2)

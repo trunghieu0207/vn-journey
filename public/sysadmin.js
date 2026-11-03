@@ -703,6 +703,20 @@ function duration(ms) {
   return h ? `${h} giờ ${m % 60} phút` : `${m} phút`
 }
 
+// CPU: tiến trình game tính trên 1 lõi (Node chạy 1 luồng) — từ 70% vàng, 90% đỏ; kèm cả máy, số lõi, tải trung bình 1 phút
+const pct = n => (n == null ? '—' : `${Math.round(n)}%`)
+function cpuKpi(c) {
+  const spark = el('div', { class: 'spark' }, ...c.history.map(n => {
+    const i = el('i')
+    i.style.height = `${Math.max(4, Math.min(100, n ?? 0))}%`
+    return i
+  }))
+  const level = c.process >= 90 ? 'warn' : c.process >= 70 ? 'mid' : 'good'
+  return el('div', { class: `kpi ${level === 'warn' ? 'warn' : ''}`, title: 'Tiến trình game chỉ dùng 1 lõi: gần 100% là server bắt đầu chậm' },
+    el('span', { class: 't' }, 'CPU tiến trình game'), el('b', {}, pct(c.process)), spark,
+    el('small', {}, `cả máy ${pct(c.system)} · ${c.cores} lõi · tải ${c.load[0].toFixed(2)}`))
+}
+
 async function loadSystem() {
   const v = await api('/api/sys/system')
   $('sysSub').textContent = `Server chạy ${duration(v.serverNow - v.startedAt)} · Node ${v.node} · tự cập nhật 10 giây`
@@ -717,6 +731,7 @@ async function loadSystem() {
     kpi('Kết nối realtime', fmt(v.connections), el('small', {}, 'trang đang mở'), 'good'),
     kpi('Yêu cầu / phút', fmt(v.requests.at(-2) ?? 0), spark),
     kpi('Thời gian phản hồi', v.responseMs ? `${Math.round(v.responseMs.median)} ms` : '—', el('small', {}, v.responseMs ? `95%: ${Math.round(v.responseMs.p95)} ms · chậm nhất ${Math.round(v.responseMs.max)} ms` : 'chưa có số liệu')),
+    cpuKpi(v.cpu),
     kpi('Bộ nhớ server', bytes(v.memory.rss), el('small', {}, `máy còn trống ${bytes(v.memory.free)} / ${bytes(v.memory.total)}`)),
     kpi('Bị chặn (15 phút)', fmt(v.blocks.reduce((s, b) => s + b.count, 0)), el('small', {}, `${v.blocks.length} nguồn`), v.blocks.length ? 'warn' : ''),
     kpi('Lỗi máy chủ', fmt(v.errors.length), el('small', {}, 'từ lúc khởi động'), v.errors.length ? 'warn' : ''),

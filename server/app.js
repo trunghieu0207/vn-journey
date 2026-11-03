@@ -5,7 +5,7 @@ import { createGame, GameError, RULES } from './game.js'
 import { randomBytes } from 'node:crypto'
 import { readFileSync, readdirSync, statSync, createReadStream, mkdirSync, existsSync } from 'node:fs'
 import { join, dirname } from 'node:path'
-import { totalmem, freemem } from 'node:os'
+import { totalmem, freemem, cpus, loadavg } from 'node:os'
 import { ROOT, backupDatabase } from './db.js'
 import { createAuth, createSealer, hashSecret, verifySecret, safeEqual } from './auth.js'
 import { createSysadmin } from './sysadmin.js'
@@ -96,7 +96,29 @@ export function createApp({ db, config, now = Date.now, random = Math.random }) 
       .map(f => ({ name: f, ...(({ size, mtimeMs }) => ({ size, at: mtimeMs }))(statSync(join(backupDir, f))) }))
   }
   const fileSize = f => { try { return statSync(f).size } catch { return 0 } }
+  // CPU (trang Hệ thống): lấy mẫu mỗi 5 giây trong tick. Tiến trình game: % của MỘT lõi (Node chạy 1 luồng — gần 100% là quá tải);
+  // cả máy: % thời gian bận của mọi lõi (os.cpus). Giữ trung bình theo phút 30 phút gần nhất (như yêu cầu / phút)
+  const cpuCores = cpus().length || 1
+  const sysTimes = () => cpus().reduce((a, c) => ({ idle: a.idle + c.times.idle, total: a.total + Object.values(c.times).reduce((x, y) => x + y, 0) }), { idle: 0, total: 0 })
+  let cpuPrev = { at: performance.now(), proc: process.cpuUsage(), sys: sysTimes() }
+  const cpuNow = { process: null, system: null }
+  const cpuPerMinute = new Map() // phút → { sum, n } (% tiến trình)
+  function sampleCpu(force = false) {
+    const at = performance.now()
+    if (at - cpuPrev.at < (force ? 20 : 5000)) return
+    const proc = process.cpuUsage(), sys = sysTimes()
+    cpuNow.process = (proc.user + proc.system - cpuPrev.proc.user - cpuPrev.proc.system) / 1000 / (at - cpuPrev.at) * 100
+    const total = sys.total - cpuPrev.sys.total
+    cpuNow.system = total > 0 ? (1 - (sys.idle - cpuPrev.sys.idle) / total) * 100 : null
+    cpuPrev = { at, proc, sys }
+    const minute = Math.floor(now() / 60_000)
+    const m = cpuPerMinute.get(minute) ?? { sum: 0, n: 0 }
+    cpuPerMinute.set(minute, { sum: m.sum + cpuNow.process, n: m.n + 1 })
+    for (const k of cpuPerMinute.keys()) if (k < minute - 30) cpuPerMinute.delete(k)
+  }
+
   function systemInfo() {
+    sampleCpu(true) // mở trang lần đầu (chưa có mẫu nào) vẫn có số
     const minute = Math.floor(now() / 60_000)
     const sorted = [...durations].sort((a, b) => a - b)
     return {
@@ -104,6 +126,10 @@ export function createApp({ db, config, now = Date.now, random = Math.random }) 
       requests: Array.from({ length: 30 }, (_, i) => perMinute.get(minute - 29 + i) ?? 0),
       responseMs: sorted.length ? { median: sorted[Math.floor(sorted.length / 2)], p95: sorted[Math.floor(sorted.length * 0.95)], max: sorted.at(-1) } : null,
       memory: { rss: process.memoryUsage().rss, total: totalmem(), free: freemem() },
+      cpu: {
+        ...cpuNow, cores: cpuCores, load: loadavg(),
+        history: Array.from({ length: 30 }, (_, i) => { const m = cpuPerMinute.get(minute - 29 + i); return m ? m.sum / m.n : null }),
+      },
       connections: hub.size(),
       blocks: Object.entries(LIMITERS).flatMap(([name, l]) => l.limiter.blocks().map(b => ({ limiter: name, label: l.label, ...b })))
         .sort((a, b) => b.last - a.last),
@@ -590,6 +616,7 @@ export function createApp({ db, config, now = Date.now, random = Math.random }) 
   const lastSignature = new Map()
   let ticks = 0
   function tick() {
+    sampleCpu()
     const changed = new Set(game.expireQuestions())
     for (const id of housekeeping.tick()) changed.add(id) // phòng bỏ trống / chủ phòng vắng / tự bắt đầu
     for (const roomId of game.activeRoomIds()) {
