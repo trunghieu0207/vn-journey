@@ -5,6 +5,8 @@
 import { api, connectStream, formatClock, requireRole, serverClock } from '/shared/api.js'
 import { createMap, heatTiles, heatNotes } from '/shared/map.js'
 import { sound } from '/shared/sound.js'
+import { music } from '/shared/music.js'
+import '/shared/nocopy.js'
 import { mascotIcon } from '/shared/mascots.js'
 import { icon, labeled, fillIcons } from '/shared/icons.js'
 import { fmtTime } from '/shared/results.js'
@@ -107,6 +109,7 @@ function apply(v) {
 
 function render() {
   const v = view
+  music.mode(v.status === 'waiting' ? 'calm' : v.status === 'ended' ? (replay?.revealing ? 'finale' : 'calm') : 'play')
   $('roomName').textContent = v.room.name
   $('ticker').replaceChildren(labeled('rumor', v.news.length ? v.news.map(n => n.text).join('     ·     ') : 'Chào mừng đến với Hành trình 3 miền!'))
   $('ticker').style.animationDuration = `${Math.max(18, $('ticker').textContent.length * 0.22)}s`
@@ -130,10 +133,10 @@ function render() {
   renderFeed(v)
   if (v.status === 'ended') return // phần còn lại do màn tua lại + công bố điều khiển
 
-  // Bản đồ "bí ẩn": không màu team, chỉ hiện bão / lễ hội. Phòng đơn: bản đồ nhiệt số người có tem (không lộ là ai)
+  // Bản đồ "bí ẩn": không màu team, chỉ hiện bão / lễ hội. Phòng đơn / Team gọn tắt Đấu: bản đồ nhiệt số người / số đội đã tới (không lộ là ai)
   const solo = v.room.mode === 'solo'
   map.render({
-    current: null, trail: [], tiles: solo ? heatTiles(v.heat) : {}, notes: solo ? heatNotes(v.heat) : null,
+    current: null, trail: [], tiles: v.room.stamps ? heatTiles(v.heat) : {}, notes: v.room.stamps ? heatNotes(v.heat, solo ? 'người' : 'đội') : null,
     storm: v.event?.kind === 'storm' ? v.event.region : null,
     festival: v.event?.kind === 'festival' ? v.event.region : null,
   })
@@ -163,7 +166,7 @@ function render() {
 
 // Khung "Diễn biến mới nhất" (góc trái bản đồ): 5 tin gần nhất, tin mới nảy vào từ trên. Cùng nội dung ẩn danh với bản tin chạy chữ
 // (không lộ đội nào); chỉ hiện lúc đang chơi — sảnh chờ, tạm dừng, câu hỏi chung, tua lại cuối trận đã có khung riêng
-const FEED_ICONS = { capture: 'flag', steal: 'flag-unknown', defend: 'shield', start: 'play', end: 'finish', streak: 'streak',
+const FEED_ICONS = { capture: 'flag', steal: 'flag-unknown', defend: 'shield', start: 'play', end: 'finish', finish: 'trophy', streak: 'streak',
   pioneer: 'star', shared: 'question', 'shared-result': 'stats' }
 const FEED_MAX = 5
 const feedKey = n => `${n.at}|${n.kind}|${n.text}`
@@ -313,8 +316,8 @@ async function startReplay() {
   const teams = new Map(data.teams.map((t, i) => [t.id, { ...t, no: i + 1 }]))
   $('replayButtons').hidden = false
   $('eventBtn').hidden = data.mode !== 'solo'
-  // Phòng đơn: không tua bản đồ (đông người, tỉnh không thuộc riêng ai) — công bố top 10 luôn
-  if (data.mode === 'solo') return reveal(token)
+  // Phòng đơn / Team gọn tắt Đấu: không tua bản đồ (tỉnh không thuộc riêng ai) — công bố luôn
+  if (data.mode === 'solo' || data.stamps) return reveal(token)
   $('frozen').hidden = true
   $('boardTitle').textContent = 'Tua lại trận đấu'
   renderRows(data.teams.map((t, i) => ({ key: t.name, rank: i + 1, color: t.color, mascot: t.mascot, name: t.name, value: '', unit: '' })))
@@ -379,6 +382,7 @@ async function startReplay() {
 async function reveal(token, fast = false) {
   if (replay?.token !== token || replay.revealing) return
   replay.revealing = true
+  music.mode('finale')
   $('caption').hidden = true
   $('boardTitle').replaceChildren(labeled('trophy', 'Bảng xếp hạng'))
   const solo = replay.data.mode === 'solo'
@@ -531,6 +535,17 @@ $('muteBtn').addEventListener('click', () => {
   sound.click()
 })
 renderMute()
+
+// Nhạc nền (shared/music.js): máy chiếu mặc định bật — phát từ lúc MC bấm vào phòng (cú bấm cho phép trình duyệt phát)
+music.setup('vnj-music-screen', true)
+function renderMusic() {
+  $('musicBtn').replaceChildren(music.on ? icon('music-on', { label: 'Tắt nhạc nền' }) : labeled('music-off', 'Bật nhạc nền'))
+}
+$('musicBtn').addEventListener('click', () => {
+  music.setOn(!music.on)
+  renderMusic()
+})
+renderMusic()
 
 // ---------- Khởi động ----------
 const invited = new URLSearchParams(location.search).get('room')

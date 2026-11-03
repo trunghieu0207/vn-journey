@@ -651,7 +651,7 @@ test('bỏ qua câu hỏi: lùi về tỉnh trước, khóa 10 giây, không g�
 
 test('bỏ qua: khóa = 10 giây + thời gian đã xem (tối đa = khóa khi sai); quá giờ thì tính hết giờ', () => {
   const cases = [
-    ['normal', 0, 10_000], ['normal', 12_000, 22_000], ['normal', 25_000, RULES.lockWrongMs],
+    ['normal', 0, 10_000], ['normal', 3_000, 13_000], ['normal', 12_000, RULES.lockWrongMs],
     ['siege', 20_000, 30_000], ['siege', 40_000, RULES.lockSiegeWrongMs],
   ]
   for (const [kind, elapsed, lock] of cases) {
@@ -1695,7 +1695,7 @@ test('danh sách phòng đang mở: chỉ phòng tự tạo bật "hiện trong 
   const list = core.publicRooms()
   assert.deepEqual(list.map(r => r.code), [solo.code, team.code])
   assert.ok(!list.some(r => r.code === hidden.code))
-  assert.deepEqual(list[0], { code: solo.code, name: 'Phòng đơn', status: 'waiting', mode: 'solo', durationMin: list[0].durationMin, players: 1, teams: null, maxPerTeam: RULES.maxPlayersPerTeam, max: RULES.maxSoloPlayers })
+  assert.deepEqual(list[0], { code: solo.code, name: 'Phòng đơn', status: 'waiting', mode: 'solo', compact: false, durationMin: list[0].durationMin, players: 1, teams: null, maxPerTeam: RULES.maxPlayersPerTeam, max: RULES.maxSoloPlayers })
   assert.equal(list[1].teams.length, 3)
   assert.deepEqual(Object.keys(list[1].teams[0]).sort(), ['color', 'mascot', 'members'])
   assert.equal(list[1].max, 3 * RULES.maxPlayersPerTeam)

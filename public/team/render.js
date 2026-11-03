@@ -12,7 +12,7 @@ import { openCard } from './cards.js'
 import { renderHost } from './host.js'
 import { renderJournal, toast } from './notify.js'
 import { openSiegeBet, updateBetTimer } from './siege-bet.js'
-import { CARD_INFO, canMove, hasPending, hostBtnWhere, isHost, locked, nameOf, now, reachable, running, scoutActive, solo, state, stormRegion } from './state.js'
+import { CARD_INFO, canMove, compactRoom, hasPending, hostBtnWhere, isHost, locked, nameOf, now, reachable, running, scoutActive, solo, state, stormRegion } from './state.js'
 
 function mapView() {
   // Phòng đơn sau khi kết thúc: chỉ tô các tỉnh mình có tem, không còn sương mù
@@ -138,11 +138,15 @@ export function renderAll() {
     $('journeyText').textContent = `${state.me.stamps?.length ?? 0} tem${firsts ? ` · ${firsts} tem Tiên phong` : ''}. Mỗi tem kèm điều bạn đã học.`
   }
   $('cardsEmpty').textContent = one ? 'Nhận tem ở thành phố trực thuộc TW để nhận thẻ.' : 'Cắm cờ ở thành phố trực thuộc TW để nhận thẻ.'
-  // Chuỗi đúng: cứ 3 câu liên tiếp nhận 1 thẻ trợ giúp
+  // Team gọn: không thẻ bài — ẩn khay thẻ (cả tab dưới trên điện thoại)
+  const noCards = compactRoom()
+  document.querySelector('.card.cards').hidden = noCards
+  document.querySelector('#tabbar [data-tab="cards"]').hidden = noCards
+  // Chuỗi đúng: cứ 3 câu liên tiếp nhận 1 thẻ trợ giúp (Team gọn: +50 điểm)
   const streak = state.me.streak ?? 0
   $('streakBox').hidden = !streak
   $('streak').textContent = String(streak)
-  $('streakBox').title = `${streak} câu đúng liên tiếp — còn ${3 - (streak % 3)} câu nữa nhận thẻ trợ giúp. Sai, hết giờ hoặc bỏ qua thì về 0`
+  $('streakBox').title = `${streak} câu đúng liên tiếp — còn ${3 - (streak % 3)} câu nữa ${noCards ? 'được +50 điểm' : 'nhận thẻ trợ giúp'}. Sai, hết giờ hoặc bỏ qua thì về 0`
   $('roomInfo').textContent = `${state.me.room.name} · ${state.me.room.code}`
   $('memberCount').textContent = `· ${state.me.members.length}`
   $('members').replaceChildren(...state.me.members.map(m =>
@@ -250,6 +254,8 @@ function renderOverlay() {
     : `${state.me.room.name} · ${state.me.members.length} người trong ${state.me.team.name}. Bản đồ sẽ mở khi trận đấu bắt đầu.`]
   else if (s === 'paused') [title, text] = state.me.shared ? ['Câu hỏi chung cả phòng', 'Trận tạm dừng trong lúc cả phòng cùng trả lời'] : ['Tạm dừng', 'Chủ phòng đang tạm dừng trận đấu']
   else if (s === 'ended' && !state.final) [title, text] = ['Hết giờ!', 'Đang tổng kết…']
+  // Team gọn tắt Đấu: đã đi đủ cả nước — không còn tỉnh nào để đi, chờ các đội khác
+  else if (state.me.finished) [title, text] = ['Về đích!', `${state.me.team.name} đã đi đủ ${state.map.byId.size} tỉnh: +${state.me.finished.bonus.toLocaleString('vi-VN')} điểm về đích. Chờ các đội khác về đích hoặc hết giờ.`]
   // holdLock: đang diễn cảnh "bị đẩy lui" trên tỉnh — chưa phủ màn khóa lên bản đồ
   else if (locked() && !state.holdLock) [title, text, calm] = ['Nghỉ chân', state.me.lastResult?.repelled
     ? 'Chủ nhà trả lời đúng trước — chờ hết thời gian để chơi tiếp'
@@ -265,9 +271,15 @@ function renderOverlay() {
   $('ovBig').hidden = calm
 }
 
+// Team gọn: thưởng nhanh còn nhận được nếu đúng lúc `at` (cùng công thức với server: giảm đều từ 100% điểm tỉnh về 0 lúc hết giờ)
+function speedLeft(q, at) {
+  const points = q.worth ?? state.map.byId.get(q.province).points
+  return Math.round(points * Math.min(1, Math.max(0, (q.deadline - at) / (q.deadline - q.issuedAt))))
+}
+
 // Điểm tỉnh còn nhận được nếu trả lời đúng lúc `at` (cùng công thức với server: trừ dần sau khoảng không trừ)
 function pointsLeft(q, at) {
-  const points = state.map.byId.get(q.province).points
+  const points = q.worth ?? state.map.byId.get(q.province).points
   if (at <= q.freeUntil) return points
   return points - Math.round(points * Math.min(1, (at - q.freeUntil) / (q.deadline - q.freeUntil)))
 }
@@ -307,10 +319,10 @@ export function renderTimers() {
       // Giờ chỉ bắt đầu chạy từ issuedAt (server phát câu sớm 1 giây cho camera bay tới) — trước đó đứng ở 00:30
       const at = Math.max(q.issuedAt, state.me.status === 'paused' ? state.me.pausedAt : t)
       const left = q.deadline - at
-      timer.replaceChildren(labeled('timer', left > 0
-        ? `${formatClock(left)} · còn ${pointsLeft(q, at)} điểm${at < q.freeUntil ? ` (đủ điểm thêm ${formatClock(q.freeUntil - at)})` : ''}`
-        : 'Hết giờ!'))
-      timer.classList.toggle('late', at >= q.freeUntil)
+      timer.replaceChildren(labeled('timer', left <= 0 ? 'Hết giờ!'
+        : compactRoom() ? `${formatClock(left)} · thưởng nhanh +${speedLeft(q, at)}`
+          : `${formatClock(left)} · còn ${pointsLeft(q, at)} điểm${at < q.freeUntil ? ` (đủ điểm thêm ${formatClock(q.freeUntil - at)})` : ''}`))
+      timer.classList.toggle('late', !compactRoom() && at >= q.freeUntil)
     }
   }
 }

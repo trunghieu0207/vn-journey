@@ -37,6 +37,7 @@
     <a href="#su-kien">Sự kiện</a>
     <a href="#diem">Điểm số</a>
     <a href="#choi-don">Chơi đơn</a>
+    <a href="#team-gon">Team gọn</a>
     <a href="#chu-phong">Chủ phòng</a>
     <a href="#meo">Mẹo</a>
   </nav>
@@ -102,10 +103,11 @@
     <h2><span class="num">5</span> Đúng · Sai · Bỏ qua</h2>
     <div class="outcomes">
       <div class="oc good"><b>Đúng</b><span>Cắm cờ, tỉnh thành màu team.</span></div>
-      <div class="oc bad"><b>Sai / hết giờ</b><span>Nghỉ chân <b>30 giây</b> tại chỗ. Nghỉ xong: <b>trả lời lại</b> câu khác hoặc đi tỉnh khác.</span></div>
-      <div class="oc skip"><b>Bỏ qua</b><span>Bấm 2 lần. Quay về tỉnh trước, nghỉ chân <b>10 giây + thời gian đã xem</b> (tối đa 30). Không gặp lại câu đó.</span></div>
+      <div class="oc bad"><b>Sai / hết giờ</b><span>Nghỉ chân <b>15 giây</b> tại chỗ. Nghỉ xong: <b>trả lời lại</b> câu khác hoặc đi tỉnh khác.</span></div>
+      <div class="oc skip"><b>Bỏ qua</b><span>Bấm 2 lần. Quay về tỉnh trước, nghỉ chân <b>10 giây + thời gian đã xem</b> (tối đa 15). Không gặp lại câu đó.</span></div>
     </div>
     <p class="muted">Đáp án đúng không bao giờ bị lộ khi trả lời sai.</p>
+    <p><b>Trượt nhiều lần ở một tỉnh thì tỉnh đó giảm giá:</b> mỗi lần sai, hết giờ hoặc bỏ qua (sau khi đã xem câu) ở một tỉnh, điểm tỉnh đó với đội bạn <b>giảm 25%</b> — thấp nhất còn 25%. Khung câu hỏi ghi rõ, ví dụ "75/100 điểm". Các khoản thưởng (Mạo hiểm, nhanh, câu vàng) tính trên số điểm còn lại. Cắm cờ xong thì đếm lại từ đầu.</p>
     <p><b>Phòng 2–3 câu mỗi tỉnh</b> (chủ phòng chọn lúc tạo phòng): phải đúng đủ số câu ở một tỉnh mới cắm cờ / nhận tem. Đúng một câu thì bấm <b>"Câu tiếp theo"</b>; sai thì nghỉ chân nhưng <b>vẫn giữ số câu đã đúng</b>; đi sang tỉnh khác thì mất. Mạo hiểm chọn một lần ở câu đầu; Siêu tốc và trừ điểm chậm tính trung bình các câu.</p>
   </div>
   <div class="stage" data-scene="outcomes" aria-hidden="true"></div>
@@ -115,7 +117,7 @@
   <div class="rule-text">
     <h2><span class="num">6</span> Mạo hiểm · Siêu tốc · Chuỗi đúng · Về quê</h2>
     <ul>
-      <li><b>Đặt cược</b> (phòng bật): trước khi xem câu, chọn <b>Chắc ăn</b> hoặc <b>Mạo hiểm</b>. Mạo hiểm mà đúng: <b>+50% điểm tỉnh</b>. Mạo hiểm mà sai: nghỉ chân thêm 30 giây (tổng 60).</li>
+      <li><b>Đặt cược</b> (phòng bật): trước khi xem câu, chọn <b>Chắc ăn</b> hoặc <b>Mạo hiểm</b>. Mạo hiểm mà đúng: <b>+50% điểm tỉnh</b>. Mạo hiểm mà sai: nghỉ chân thêm 10 giây (tổng 25).</li>
       <li><b>Siêu tốc:</b> đúng trong <b>5 giây đầu</b> → <b>+10% điểm tỉnh</b>.</li>
       <li><b>Chuỗi đúng:</b> cứ đúng <b>3 câu liền</b> → nhận 1 <b>thẻ trợ giúp</b> (khay đã đủ 3 thẻ thì +50 điểm). Sai, hết giờ hoặc bỏ qua → chuỗi về 0.</li>
       <li><b>Về quê:</b> cắm cờ ở <b>tỉnh quê của một thành viên</b> (có ghim hồng trên bản đồ team) → <b>+50</b>. Mỗi tỉnh một lần, <b>tối đa 3 tỉnh</b> mỗi team.</li>
@@ -196,7 +198,7 @@
     <ul>
       <li>Vào phòng chỉ cần tên, <b>không chọn team</b>. Tên hiện trên màn chiếu — chủ phòng có thể sửa.</li>
       <li><b>Về quê</b>: có tem ở tỉnh quê của bạn → <b>+50</b>. Chỉ bạn thấy quê của mình.</li>
-      <li>Có sẵn vài <b>phòng chơi đơn</b> ở cột phải màn vào phòng: <b>ai vào trước làm chủ phòng</b> và vẫn chơi như mọi người (xem mục 12). Chủ phòng rời phòng hoặc đóng trang quá 2 phút thì người đang chơi vào sớm nhất nhận quyền. Có từ 2 người mà sau 3 phút chủ phòng chưa bấm Bắt đầu thì trận <b>tự bắt đầu</b>.</li>
+      <li>Có sẵn vài <b>phòng chơi đơn</b> ở cột phải màn vào phòng: <b>ai vào trước làm chủ phòng</b> và vẫn chơi như mọi người (xem mục 13). Chủ phòng rời phòng hoặc đóng trang quá 2 phút thì người đang chơi vào sớm nhất nhận quyền. Có từ 2 người mà sau 3 phút chủ phòng chưa bấm Bắt đầu thì trận <b>tự bắt đầu</b>.</li>
       <li>Tỉnh <b>không thuộc riêng ai</b>: trả lời đúng là nhận <b>tem</b> tỉnh đó + điểm tỉnh. Tỉnh đã có tem thì đi qua, không hỏi lại.</li>
       <li><b>Tem Tiên phong +50</b>: người đầu tiên trong phòng trả lời đúng ở một tỉnh. Màn chiếu báo "Một lữ khách vừa là người đầu tiên tới…" (không nêu tên).</li>
       <li>Vẫn có sương mù. Tỉnh đã ghé ghi số người đã có tem; thẻ <b>Ống nhòm</b> vén mây cả miền. Không có Hàng rào, không có ghé thăm thử tài.</li>
@@ -209,9 +211,26 @@
   <div class="stage" data-scene="goal" aria-hidden="true"></div>
 </section>
 
+<section class="rule card" id="team-gon">
+  <div class="rule-text">
+    <h2><span class="num">12</span> Phòng Team gọn</h2>
+    <p>Chủ phòng chọn <b>Team gọn</b> lúc tạo phòng: chơi theo team như bình thường nhưng ít luật hơn. Các mục trên vẫn áp dụng, trừ những điểm sau:</p>
+    <ul>
+      <li><b>Không có thẻ bài</b>. Đúng liền 3 câu được <b>+50 điểm</b>.</li>
+      <li><b>Càng nhanh càng nhiều điểm</b>: trả lời đúng ngay khi câu hiện ra được thưởng thêm <b>100% điểm tỉnh</b> (gấp đôi); thưởng giảm đều về 0 lúc hết giờ. Trả lời chậm <b>không bị trừ điểm</b> (không có Siêu tốc và trừ giờ như mục 6).</li>
+      <li><b>Mạo hiểm</b> giữ nguyên (nếu chủ phòng bật): đúng +50% điểm tỉnh, sai nghỉ chân tổng 25 giây.</li>
+      <li><b>Mặc định không đấu</b>: mỗi team một bản đồ riêng. Tỉnh team khác đã cắm cờ thì với đội bạn vẫn là tỉnh mới — trả lời đúng là cắm cờ. Không có ghé thăm thử tài.</li>
+      <li><b>Về đích</b>: đội đi đủ <b>34 tỉnh</b> được <b>+100 điểm cho mỗi phút còn lại</b>. Mọi đội về đích thì trận kết thúc sớm.</li>
+      <li>Chủ phòng bật <b>Cho đấu</b> khi tạo phòng: chung bản đồ, tỉnh team khác phải thử tài như mục 7 (vẫn không thẻ bài, vẫn thưởng nhanh).</li>
+      <li>Màn chiếu: bảng điểm các đội; bản đồ ghi số đội đã cắm cờ ở mỗi tỉnh (không nêu đội nào).</li>
+    </ul>
+  </div>
+  <div class="stage" data-scene="goal" aria-hidden="true"></div>
+</section>
+
 <section class="rule card" id="chu-phong">
   <div class="rule-text">
-    <h2><span class="num">12</span> Dành cho chủ phòng</h2>
+    <h2><span class="num">13</span> Dành cho chủ phòng</h2>
     <ul>
       <li><b>Tạo phòng</b> (tab bên trái màn ngoài): chọn <b>Theo team</b> hoặc <b>Chơi đơn</b> — cột phải giải thích kiểu đang chọn. Tạo xong, cột phải hiện <b>mã phòng</b>, link mời, <b>mã chủ phòng</b> (chỉ hiện 1 lần — ghi lại) và <b>mã màn chiếu</b>.</li>
       <li><b>Vừa chơi vừa làm chủ phòng:</b> bấm <b>Vào chơi luôn</b>, nhập tên, chọn team. Bạn vẫn giữ quyền chủ phòng; đồng đội cùng team thì không. Đổi team trước khi bắt đầu vẫn giữ quyền.</li>
@@ -227,7 +246,7 @@
 
 <section class="rule card" id="meo">
   <div class="rule-text">
-    <h2><span class="num">13</span> Mẹo &amp; phím tắt</h2>
+    <h2><span class="num">14</span> Mẹo &amp; phím tắt</h2>
     <ul class="keys">
       <li><kbd>1</kbd>–<kbd>4</kbd> chọn đáp án · <kbd>Enter</kbd> chốt đáp án</li>
       <li><kbd>Esc</kbd> che màn hình nhanh (đội bên cạnh đang nhìn!) · điện thoại: menu <b>≡</b> → <b>Che màn hình</b>, chạm 2 lần để mở lại</li>

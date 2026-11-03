@@ -81,6 +81,8 @@ CREATE TABLE rooms (
   topic_choice     INTEGER NOT NULL DEFAULT 0,      -- 1: người chơi chọn chủ đề trước khi nhận câu hỏi (câu thường)
   bet_choice       INTEGER NOT NULL DEFAULT 0,      -- 1: trước câu thường team chọn "Chắc ăn" / "Liều" (đặt cược; form tạo phòng mặc định bật)
   mode             TEXT NOT NULL DEFAULT 'team' CHECK (mode IN ('team', 'solo')), -- solo: mỗi người một hành trình (mỗi người là một team ẩn 1 người)
+  compact          INTEGER NOT NULL DEFAULT 0,      -- 1: phòng "Team gọn" (mode = 'team'): không thẻ bài, thưởng nhanh thay trừ giờ (PLAN 3.0)
+  duel             INTEGER NOT NULL DEFAULT 1,      -- Team gọn: 0 = mỗi team một bản đồ riêng (tem như phòng đơn, có thưởng về đích); 1 = chung bản đồ, có thử tài
   pioneer          INTEGER NOT NULL DEFAULT 1,
   quiz_count       INTEGER NOT NULL DEFAULT 1 CHECK (quiz_count BETWEEN 1 AND 3), -- số câu phải trả lời đúng ở một tỉnh trống mới cắm cờ / nhận tem
   preset           TEXT,                            -- phòng chơi đơn có sẵn (tên mặc định); NULL = phòng tự tạo

@@ -1,5 +1,8 @@
 // Âm thanh tự tổng hợp bằng Web Audio — không tải file âm thanh nào.
 // Trình duyệt chỉ cho phát sau lần bấm đầu tiên của người dùng, nên AudioContext tạo khi cần.
+// Tiếng lớn (chiếm tỉnh, mất tỉnh, sự kiện) hạ nhạc nền xuống một lúc cho nghe rõ (shared/music.js).
+
+import { music } from '/shared/music.js'
 
 let ctx = null
 let muted = false
@@ -37,9 +40,9 @@ const drum = (start, gain = 0.6) => tone(120, start, 0.35, { gain, slide: 45 })
 export const sound = {
   correct() { tone(660, 0, 0.12); tone(990, 0.1, 0.22) },
   wrong() { tone(220, 0, 0.35, { type: 'square', gain: 0.08, slide: 140 }) },
-  capture() { drum(0); drum(0.18, 0.45); tone(784, 0.3, 0.3, { type: 'triangle' }) },
-  lost() { tone(523, 0, 0.18, { type: 'triangle' }); tone(392, 0.16, 0.18, { type: 'triangle' }); tone(262, 0.32, 0.4, { type: 'triangle' }) },
-  event() { tone(880, 0, 0.15, { type: 'triangle' }); tone(1175, 0.12, 0.15, { type: 'triangle' }); tone(1568, 0.24, 0.3, { type: 'triangle' }) },
+  capture() { music.duck(); drum(0); drum(0.18, 0.45); tone(784, 0.3, 0.3, { type: 'triangle' }) },
+  lost() { music.duck(); tone(523, 0, 0.18, { type: 'triangle' }); tone(392, 0.16, 0.18, { type: 'triangle' }); tone(262, 0.32, 0.4, { type: 'triangle' }) },
+  event() { music.duck(); tone(880, 0, 0.15, { type: 'triangle' }); tone(1175, 0.12, 0.15, { type: 'triangle' }); tone(1568, 0.24, 0.3, { type: 'triangle' }) },
   click() { tone(520, 0, 0.05, { gain: 0.08 }) },
   get muted() { return muted },
   setMuted(v) {

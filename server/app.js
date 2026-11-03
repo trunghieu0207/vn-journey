@@ -20,6 +20,8 @@ import {
 
 // Băm sẵn một mã giả để khi mã phòng sai vẫn tốn thời gian như khi mã phòng đúng (không dò được phòng tồn tại)
 const DUMMY_HASH = hashSecret('dummy-owner-key')
+// Kiểu phòng từ form: team | compact (Team gọn) | solo — giá trị lạ coi như team
+const roomMode = m => (['solo', 'compact'].includes(m) ? m : 'team')
 
 export function createApp({ db, config, now = Date.now, random = Math.random }) {
   // Khóa mã hóa mã chủ phòng (index.js đọc var/secret.key; test không truyền → khóa ngẫu nhiên theo tiến trình)
@@ -182,6 +184,7 @@ export function createApp({ db, config, now = Date.now, random = Math.random }) 
       auth: null, limit: createLimiter,
       run: ({ req, body, res }) => {
         if (!sys.settings().allowCreate) throw new GameError('create-off', 'Ban tổ chức đang tạm tắt tạo phòng — vào phòng có sẵn hoặc nhập mã phòng được gửi', 403)
+        if (body.mode === 'compact' && !sys.settings().allowCompact) throw new GameError('compact-off', 'Ban tổ chức đang tạm tắt kiểu phòng Team gọn — chọn kiểu phòng khác', 403)
         let creator = parseCookies(req.headers.cookie)[CREATOR_COOKIE]
         if (!/^[A-Za-z0-9_-]{16,64}$/.test(creator ?? '')) {
           creator = randomBytes(16).toString('base64url')
@@ -191,7 +194,7 @@ export function createApp({ db, config, now = Date.now, random = Math.random }) 
           throw new GameError('too-many-own', `Bạn đang có ${RULES.maxRoomsPerCreator} phòng chưa kết thúc — kết thúc bớt phòng cũ (trang chủ phòng) rồi tạo tiếp`, 429)
         }
         const r = game.createRoom({ name: body.name, teamCount: body.teamCount, durationMin: body.durationMin, topicChoice: body.topicChoice === true, betChoice: body.betChoice !== false,
-          mode: body.mode === 'solo' ? 'solo' : 'team', pioneer: body.pioneer !== false, quizCount: body.quizCount, listed: body.listed === true })
+          mode: roomMode(body.mode), duel: body.duel === true, pioneer: body.pioneer !== false, quizCount: body.quizCount, listed: body.listed === true })
         housekeeping.noteCreated(creator, r.roomId)
         setSession(res, 'owner', auth.createSession('owner', { roomId: r.roomId }))
         return { role: 'owner', code: r.code, ownerKey: r.ownerKey, screenCode: r.screenCode }
@@ -202,7 +205,7 @@ export function createApp({ db, config, now = Date.now, random = Math.random }) 
     // Màn Tham gia (tự làm mới 10 giây): phòng có sẵn + phòng tự tạo bật "hiện trong danh sách". Hạn mức riêng để không ăn vào lượt vào phòng
     'GET /api/rooms/list': {
       auth: null, limit: listLimiter,
-      run: () => ({ preset: sys.settings().presetRooms ? game.presetRooms() : [], open: game.publicRooms(), allowCreate: sys.settings().allowCreate }),
+      run: () => ({ preset: sys.settings().presetRooms ? game.presetRooms() : [], open: game.publicRooms(), allowCreate: sys.settings().allowCreate, allowCompact: sys.settings().allowCompact }),
     },
     // Thông báo chung của ban tổ chức (mọi trang hỏi định kỳ)
     'GET /api/notice': { auth: null, limit: listLimiter, run: () => sys.notice() },
@@ -285,7 +288,7 @@ export function createApp({ db, config, now = Date.now, random = Math.random }) 
     'POST /api/sys/rooms': {
       sys: true,
       run: ({ body, admin }) => sys.createRoom({ name: body.name, teamCount: body.teamCount, durationMin: body.durationMin, topicChoice: body.topicChoice === true,
-        betChoice: body.betChoice !== false, mode: body.mode === 'solo' ? 'solo' : 'team', pioneer: body.pioneer !== false, quizCount: body.quizCount,
+        betChoice: body.betChoice !== false, mode: roomMode(body.mode), duel: body.duel === true, pioneer: body.pioneer !== false, quizCount: body.quizCount,
         listed: body.listed === true }, admin),
     },
     'POST /api/sys/room/codes': { sys: true, run: ({ body, admin }) => sys.roomCodes(body.roomId, admin) },

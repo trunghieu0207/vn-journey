@@ -178,16 +178,18 @@ function openResults() {
   if (!final) return
   $('resultsBody').replaceChildren(resultsView(final), cultureView(final.culture, nameOf))
   if (!$('resultsDlg').open) $('resultsDlg').showModal()
+  $('resultsDlg').scrollTop = 0
 }
-$('resultsClose').addEventListener('click', () => $('resultsDlg').close())
+for (const id of ['resultsClose', 'resultsX']) $(id).addEventListener('click', () => $('resultsDlg').close())
 
 const teamById = id => view.teams.find(t => t.id === id)
 
 function tipExtra(id) {
-  // Phòng đơn: số người có tem + ai đang đứng
-  if (view?.room.mode === 'solo') {
+  // Phòng đơn / Team gọn tắt Đấu: số người / số đội đã tới + ai đang đứng
+  if (view?.room.stamps) {
     const here = view.teams.filter(t => t.current === id).map(t => t.name)
-    return [[`${view.heat?.[id] ?? 0} người đã có tem`, !view.heat?.[id]], ...(here.length ? [[`Đang đứng: ${here.join(', ')}`, false, 'hat']] : [])]
+    const n = view.heat?.[id] ?? 0
+    return [[view.room.mode === 'solo' ? `${n} người đã có tem` : `${n} đội đã cắm cờ`, !n], ...(here.length ? [[`Đang đứng: ${here.join(', ')}`, false, 'hat']] : [])]
   }
   const o = view?.ownership[id]
   const lines = o ? [[teamById(o.team)?.name ?? '', false, 'flag', teamById(o.team)?.color]] : [['Chưa có chủ', true]]
@@ -210,7 +212,7 @@ function render() {
 
   // Bản đồ thật: màu tất cả team + chấm số vị trí từng team
   // Phòng đơn: bản đồ nhiệt số người có tem (tỉnh không thuộc riêng ai)
-  const tiles = v.room.mode === 'solo' ? heatTiles(v.heat) : {}
+  const tiles = v.room.stamps ? heatTiles(v.heat) : {}
   for (const [id, o] of Object.entries(v.ownership)) {
     tiles[id] = { owner: 'owned', color: teamById(o.team)?.color, shielded: o.shieldUntil > now() }
   }
@@ -222,7 +224,7 @@ function render() {
     festival: v.event?.kind === 'festival' ? v.event.region : null,
     // Phòng đơn: tối đa 50 người → không chấm vị trí từng người (rê chuột lên tỉnh xem "Đang đứng"); ghi số người có tem thay dòng điểm
     pins: v.room.mode === 'solo' ? [] : v.teams.filter(t => t.current).map((t, i) => ({ province: t.current, color: t.color, text: String(i + 1) })),
-    notes: v.room.mode === 'solo' ? heatNotes(v.heat) : null,
+    notes: v.room.stamps ? heatNotes(v.heat, v.room.mode === 'solo' ? 'người' : 'đội') : null,
   })
 
   renderButtons()

@@ -59,8 +59,15 @@ export function createRoomScope(ctx, roomId) {
   }
 
   const shieldActive = o => o && o.shield_until && o.shield_until > now()
-  // Phòng chơi đơn (mỗi người một hành trình — tem thay cho chủ tỉnh)
+  // Phòng chơi đơn (mỗi người là một team ẩn 1 người: tên, bảng xếp hạng, xuất phát ngẫu nhiên…)
   const isSolo = () => q.room.get(roomId)?.mode === 'solo'
+  // Phòng "Team gọn": không thẻ bài, thưởng nhanh thay trừ giờ
+  const isCompact = () => !!q.room.get(roomId)?.compact
+  // Tem thay cho chủ tỉnh — mỗi team một bản đồ riêng, không thử tài: phòng đơn + Team gọn tắt Đấu
+  const usesStamps = () => {
+    const r = q.room.get(roomId)
+    return r?.mode === 'solo' || (!!r?.compact && !r.duel)
+  }
 
   // Phòng đơn vừa kết thúc: ghi điểm từng người vào bảng xếp hạng cả sự kiện (gọi trong transaction kết thúc).
   // Bỏ người chưa có tem nào và 0 điểm. "Chơi lại" rồi kết thúc lần nữa = thêm một trận
@@ -74,7 +81,19 @@ export function createRoomScope(ctx, roomId) {
     }
   }
 
-  const rctx = { ...ctx, roomId, log, state, activeEvent, requireRunning, requireTeam, requireIdle, shieldActive, isSolo }
+  // Số lần trượt của team ở tỉnh, tính từ lần cắm cờ gần nhất của team ở tỉnh đó (bỏ qua lúc chọn chủ đề / lúc cược thử tài
+  // chưa thấy câu nên không tính — xem detail.seen của 'skip')
+  function missesAt(teamId, provinceId) {
+    return db.prepare(`SELECT COUNT(*) AS n FROM events_log WHERE team_id = ? AND province_id = ?
+                         AND (action IN ('wrong', 'siege-fail') OR (action = 'skip' AND json_extract(detail, '$.seen') = 1))
+                         AND id > COALESCE((SELECT MAX(id) FROM events_log WHERE team_id = ? AND province_id = ? AND action IN ('capture', 'steal')), 0)`)
+      .get(teamId, provinceId, teamId, provinceId).n
+  }
+  // Điểm tỉnh với team sau các lần trượt (RULES.missCut mỗi lần, thấp nhất RULES.missMinRatio)
+  const worthAt = (teamId, provinceId) =>
+    Math.round(provinces.get(provinceId).points * Math.max(RULES.missMinRatio, 1 - RULES.missCut * missesAt(teamId, provinceId)))
+
+  const rctx = { ...ctx, roomId, log, state, activeEvent, requireRunning, requireTeam, requireIdle, shieldActive, isSolo, isCompact, usesStamps, recordBoard, missesAt, worthAt }
   const questions = createQuestions(rctx)
   const { react, move, retry, chooseTopic, siege, betSiege, settleSiegeBets, retreat, answer, vote, defend, skip, expireTeam, useCard, choiceFor, siegeBlock } = createActions({ ...rctx, ...questions })
   const { startShared, voteShared, settleShared, closeShared, sharedPublic } = createShared({ ...rctx, ...questions })
@@ -94,7 +113,7 @@ export function createRoomScope(ctx, roomId) {
     state, react, move, retry, chooseTopic, siege, betSiege, settleSiegeBets, retreat, answer, vote, defend, skip, expireTeam, useCard, scores,
     teamView, screenView, ownerView, replay, news, journal,
     kickPlayer, renamePlayer, leave, releaseHost, start, pause, resume, end, reset, triggerEvent, adjustScore, setTopicChoice, setBetChoice,
-    startShared, voteShared, settleShared, spawnSolo, isSolo,
+    startShared, voteShared, settleShared, spawnSolo, isSolo, isCompact, usesStamps,
     questionStats: () => questionStats(roomId),
   }
 }

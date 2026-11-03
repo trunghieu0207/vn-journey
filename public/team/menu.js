@@ -2,6 +2,7 @@
 // thanh tab dưới chọn thẻ hiện trong ngăn dưới bản đồ, màn che mở / đóng bằng chạm (không có phím Esc).
 
 import { sound } from '/shared/sound.js'
+import { music } from '/shared/music.js'
 import { $, el } from '/shared/dom.js'
 import { labeled } from '/shared/icons.js'
 
@@ -26,6 +27,7 @@ function openMenu() {
     $('journeyCard').hidden ? '' : item('map', 'Sổ tay hành trình', () => $('journeyBtn').click()),
     item('question', 'Luật chơi', () => open('/rules', '_blank', 'noopener')),
     item(muted ? 'sound-off' : 'sound-on', muted ? 'Bật âm thanh' : 'Tắt âm thanh', () => $('muteBtn').click()),
+    $('musicBtn').hidden ? '' : item(music.on ? 'music-on' : 'music-off', music.on ? 'Tắt nhạc nền' : 'Bật nhạc nền', () => $('musicBtn').click()),
     item('fog', 'Che màn hình', () => toggleCover(true)),
     el('hr'),
     item('retreat', 'Thoát', () => $('logoutBtn').click()))

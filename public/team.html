@@ -27,6 +27,7 @@
       <a class="lp-logo" href="#lpTop"><span data-icon="hat"></span>Hành trình 3 miền</a>
       <nav aria-label="Trang chủ"><a href="#how">Cách chơi</a><a href="#modes">Kiểu phòng</a><a href="#play">Phòng đang mở</a><a href="/leaderboard">Bảng xếp hạng</a><a href="/rules">Luật chơi</a></nav>
       <a class="btn green" href="#play">Vào chơi</a>
+      <button class="btn music-btn" type="button" id="lpMusic"></button>
     </div>
   </header>
 
@@ -80,7 +81,7 @@
 
   <section class="lp-sec" id="modes">
     <div class="lp-wrap">
-      <h2>Hai kiểu phòng</h2>
+      <h2>Ba kiểu phòng</h2>
       <p class="lp-sub">Chủ phòng chọn lúc tạo phòng. Phòng công khai hiện ở danh sách bên dưới, phòng riêng tư cần mã.</p>
       <div class="lp-modes">
         <div class="lp-mode team">
@@ -88,6 +89,12 @@
           <p>Các team đi khắp bản đồ giành tỉnh, bị giành lại là mất điểm.</p>
           <ul><li>2–8 team, mỗi team tối đa 12 người, bỏ phiếu chốt đáp án</li><li>Thử tài: hai đội cược 1–3 hiệp, thắng đa số</li><li>Màn chiếu: bảng điểm, bản tin, 10 phút cuối đóng băng</li></ul>
           <span class="lp-fit">Hợp với: sự kiện cả công ty, có MC và máy chiếu</span>
+        </div>
+        <div class="lp-mode compact">
+          <h3><span class="lp-ic"><span data-icon="streak"></span></span> Team gọn</h3>
+          <p>Theo team, ít luật: không thẻ bài, trả lời càng nhanh càng nhiều điểm.</p>
+          <ul><li>Đúng ngay khi câu hiện ra: gấp đôi điểm tỉnh</li><li>Mặc định không đấu: mỗi team một bản đồ, đua đi đủ 34 tỉnh</li><li>Về đích sớm: +100 điểm mỗi phút còn lại</li></ul>
+          <span class="lp-fit">Hợp với: trận ngắn, người mới chơi</span>
         </div>
         <div class="lp-mode solo">
           <h3><span class="lp-ic"><span data-icon="hat"></span></span> Chơi đơn</h3>
@@ -154,9 +161,11 @@
 
     <!-- Tạo phòng -->
     <form id="createForm" autocomplete="off" hidden>
-      <div class="mode-pick" role="radiogroup" aria-label="Kiểu phòng">
+      <div class="mode-pick three" role="radiogroup" aria-label="Kiểu phòng">
         <label class="mode-option"><input type="radio" name="mode" value="team" checked>
           <b>Theo team</b><small>Chia team, cắm cờ giành tỉnh, ghé thăm thử tài</small></label>
+        <label class="mode-option" id="modeCompact"><input type="radio" name="mode" value="compact">
+          <b>Team gọn</b><small>Theo team, không thẻ bài — trả lời càng nhanh càng nhiều điểm</small></label>
         <label class="mode-option"><input type="radio" name="mode" value="solo">
           <b>Chơi đơn</b><small>Mỗi người một hành trình: sưu tầm tem, tối đa 50 người</small></label>
       </div>
@@ -194,7 +203,11 @@
       </label>
       <label class="check">
         <input type="checkbox" id="newBetChoice" checked>
-        <span><b>Đặt cược</b> trước câu hỏi: Chắc ăn / Mạo hiểm <small class="muted">(Mạo hiểm: đúng +50% điểm, sai nghỉ chân thêm 30 giây)</small></span>
+        <span><b>Đặt cược</b> trước câu hỏi: Chắc ăn / Mạo hiểm <small class="muted">(Mạo hiểm: đúng +50% điểm, sai nghỉ chân thêm 10 giây)</small></span>
+      </label>
+      <label class="check" id="duelField" hidden>
+        <input type="checkbox" id="newDuel">
+        <span><b>Cho đấu</b>: tỉnh team khác đã chiếm phải thử tài mới giành được <small class="muted">(tắt: mỗi team một bản đồ riêng, đi đủ 34 tỉnh được thưởng về đích)</small></span>
       </label>
       <label class="check" id="pioneerField" hidden>
         <input type="checkbox" id="newPioneer" checked>
@@ -244,6 +257,19 @@
           <dt>Màn chiếu</dt><dd>Bảng điểm các team, bản tin ẩn danh; 10 phút cuối đóng băng.</dd>
         </dl>
         <p class="fit"><b>Hợp với:</b> sự kiện cả công ty, có MC và máy chiếu.</p>
+      </div>
+      <div data-mode="compact" hidden>
+        <p class="kicker">Kiểu phòng bạn đang chọn</p>
+        <h2 class="entry-title"><span data-icon="streak"></span> Team gọn</h2>
+        <p class="lead">Chơi theo team, gọn hơn: <b>không thẻ bài</b>, không trừ điểm khi chậm — trả lời <b>càng nhanh càng được nhiều điểm</b>. Mặc định không đấu: mỗi team một bản đồ riêng, đua xem ai đi đủ 34 tỉnh trước.</p>
+        <dl class="facts">
+          <dt>Người chơi</dt><dd>2–8 team, mỗi team tối đa 12 người, cùng bàn và bỏ phiếu chốt đáp án.</dd>
+          <dt>Tốc độ</dt><dd>Đúng ngay khi câu hiện ra: <b>+100% điểm tỉnh</b>; thưởng giảm dần về 0 lúc hết giờ.</dd>
+          <dt>Cược</dt><dd>Chắc ăn / Mạo hiểm (bật / tắt khi tạo phòng): đúng +50% điểm tỉnh.</dd>
+          <dt>Về đích</dt><dd>Không đấu: đi đủ 34 tỉnh được <b>+100 điểm mỗi phút còn lại</b>; mọi team về đích thì trận kết thúc.</dd>
+          <dt>Cho đấu</dt><dd>Bật thì chung bản đồ, tỉnh team khác phải thử tài như phòng team.</dd>
+        </dl>
+        <p class="fit"><b>Hợp với:</b> trận ngắn, người mới chơi, không muốn nhiều luật.</p>
       </div>
       <div data-mode="solo" hidden>
         <p class="kicker">Kiểu phòng bạn đang chọn</p>
@@ -298,6 +324,7 @@
     <button class="btn green" type="button" id="hostBtn" hidden>Chủ phòng ▾</button>
     <a class="btn" href="/rules" target="_blank" rel="noopener">Luật chơi</a>
     <button class="btn" type="button" id="muteBtn" aria-label="Bật/tắt âm thanh"></button>
+    <button class="btn" type="button" id="musicBtn" hidden></button>
     <button class="btn" type="button" id="logoutBtn">Thoát</button>
     <!-- Điện thoại / máy tính bảng dọc (css/mobile.css): các nút trên gom vào menu này (team/menu.js) -->
     <button class="btn menu-btn" type="button" id="menuBtn" aria-label="Menu" aria-haspopup="menu" aria-expanded="false">≡</button>
@@ -371,8 +398,9 @@
   </nav>
 </div>
 
-<dialog id="dlg" aria-live="polite"></dialog>
-<dialog id="sharedDlg" class="shared-dlg" aria-live="polite"></dialog>
+<!-- data-nocopy: câu hỏi không bôi đen / sao chép được (shared/nocopy.js) -->
+<dialog id="dlg" aria-live="polite" data-nocopy></dialog>
+<dialog id="sharedDlg" class="shared-dlg" aria-live="polite" data-nocopy></dialog>
 <div class="alert-lost" id="alertLost" role="alert" hidden></div>
 <div class="cover" id="cover" hidden>
   <h2>Màn hình đang được che</h2>

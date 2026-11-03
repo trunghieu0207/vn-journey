@@ -16,16 +16,22 @@ export function createRooms(ctx) {
   }
 
   // Tạo phòng + các team. Trả về mã chủ phòng (chỉ hiện 1 lần) và mã màn chiếu.
-  // mode 'solo': phòng chơi đơn — chưa tạo team nào; mỗi người vào phòng thành một team ẩn 1 người (joinRoom)
-  function createRoom({ name, teamCount, durationMin, topicChoice = false, betChoice = false, mode = 'team', pioneer = true, preset = null, quizCount = RULES.quizCount.default, listed = false } = {}) {
+  // mode 'solo': phòng chơi đơn — chưa tạo team nào; mỗi người vào phòng thành một team ẩn 1 người (joinRoom).
+  // mode 'compact': phòng "Team gọn" — lưu là phòng team (mode 'team', compact = 1); duel: có thử tài (mặc định tắt), không Tiên phong
+  function createRoom({ name, teamCount, durationMin, topicChoice = false, betChoice = false, mode = 'team', pioneer = true, preset = null, quizCount = RULES.quizCount.default, listed = false, duel = false } = {}) {
     const roomName = cleanName(name, RULES.roomNameMaxLength)
     if (!roomName) throw new GameError('bad-room', 'Cần đặt tên phòng')
-    if (!['team', 'solo'].includes(mode)) throw new GameError('bad-room', 'Kiểu phòng không hợp lệ')
+    if (!['team', 'compact', 'solo'].includes(mode)) throw new GameError('bad-room', 'Kiểu phòng không hợp lệ')
+    const compact = mode === 'compact'
+    if (compact) {
+      mode = 'team'
+      pioneer = false
+    }
     const n = mode === 'solo' ? 0 : Number(teamCount)
     if (mode === 'team' && (!Number.isInteger(n) || n < RULES.minTeams || n > RULES.maxTeams)) {
       throw new GameError('bad-room', `Số team phải từ ${RULES.minTeams} đến ${RULES.maxTeams}`)
     }
-    const minutes = durationMin == null || durationMin === '' ? defaultDurationMin : Number(durationMin)
+    const minutes = durationMin == null || durationMin === '' ? (compact ? RULES.compactDurationMin : defaultDurationMin) : Number(durationMin)
     if (!Number.isInteger(minutes) || minutes < RULES.durationMin.min || minutes > RULES.durationMin.max) {
       throw new GameError('bad-room', `Thời lượng phải từ ${RULES.durationMin.min} đến ${RULES.durationMin.max} phút`)
     }
@@ -40,9 +46,10 @@ export function createRooms(ctx) {
     const screenCode = newCode(6)
     const code = uniqueRoomCode()
     return transaction(db, () => {
-      const { lastInsertRowid } = db.prepare(`INSERT INTO rooms (code, name, owner_key_hash, owner_key_sealed, screen_code, duration_min, topic_choice, bet_choice, mode, pioneer, preset, quiz_count, listed, created_at)
-                                              VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`)
-        .run(code, roomName, hashSecret(ownerKey), sealSecret ? sealSecret(ownerKey) : null, screenCode, minutes, topicChoice ? 1 : 0, betChoice ? 1 : 0, mode, pioneer ? 1 : 0, preset, quiz, listed && !preset ? 1 : 0, now())
+      const { lastInsertRowid } = db.prepare(`INSERT INTO rooms (code, name, owner_key_hash, owner_key_sealed, screen_code, duration_min, topic_choice, bet_choice, mode, compact, duel, pioneer, preset, quiz_count, listed, created_at)
+                                              VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`)
+        .run(code, roomName, hashSecret(ownerKey), sealSecret ? sealSecret(ownerKey) : null, screenCode, minutes, topicChoice ? 1 : 0, betChoice ? 1 : 0, mode,
+          compact ? 1 : 0, !compact || duel ? 1 : 0, pioneer ? 1 : 0, preset, quiz, listed && !preset ? 1 : 0, now())
       const roomId = Number(lastInsertRowid)
       for (const style of TEAM_STYLES.slice(0, n)) {
         db.prepare('INSERT INTO teams (room_id, name, color, mascot) VALUES (?, ?, ?, ?)')
@@ -68,6 +75,7 @@ export function createRooms(ctx) {
       name: room.name,
       status: room.status,
       mode: room.mode,
+      compact: !!room.compact,
       maxPlayersPerTeam: RULES.maxPlayersPerTeam,
       // Danh sách chọn quê (tên tỉnh là thông tin công khai)
       provinces: [...provinces.values()].map(p => ({ id: p.id, name: p.name })).sort((a, b) => a.name.localeCompare(b.name, 'vi')),
@@ -151,14 +159,14 @@ export function createRooms(ctx) {
   // Phòng công khai (tự tạo, chưa kết thúc; mới nhất trước): tên, mã, kiểu, trạng thái, số người; phòng team kèm linh vật + số người
   // từng team (như sảnh chọn team) — không có tên người chơi
   function publicRooms() {
-    const rooms = db.prepare(`SELECT r.id, r.code, r.name, r.status, r.mode, r.duration_min,
+    const rooms = db.prepare(`SELECT r.id, r.code, r.name, r.status, r.mode, r.compact, r.duration_min,
                                      (SELECT COUNT(*) FROM players p WHERE p.room_id = r.id) AS players
                               FROM rooms r WHERE r.listed = 1 AND r.preset IS NULL AND r.status != 'ended' ORDER BY r.created_at DESC, r.id DESC`).all()
     const teamsOf = db.prepare(`SELECT t.mascot, t.color, (SELECT COUNT(*) FROM players p WHERE p.team_id = t.id) AS members
                                 FROM teams t WHERE t.room_id = ? ORDER BY t.id`)
     return rooms.map(r => {
       const teams = r.mode === 'solo' ? null : teamsOf.all(r.id)
-      return { code: r.code, name: r.name, status: r.status, mode: r.mode, durationMin: r.duration_min, players: r.players,
+      return { code: r.code, name: r.name, status: r.status, mode: r.mode, compact: !!r.compact, durationMin: r.duration_min, players: r.players,
         teams, maxPerTeam: RULES.maxPlayersPerTeam, max: teams ? teams.length * RULES.maxPlayersPerTeam : RULES.maxSoloPlayers }
     })
   }

@@ -1,7 +1,11 @@
 // Hằng số luật chơi, kiểu lỗi và hàm tiện ích dùng chung (không phụ thuộc DB).
 
 export const RULES = {
-  lockWrongMs: 30_000,
+  lockWrongMs: 15_000,
+  // Trượt ở một tỉnh (sai / hết giờ / bỏ qua sau khi đã xem câu) → điểm tỉnh đó với team giảm 25% mỗi lần, thấp nhất 25%;
+  // cắm cờ xong thì đếm lại. Chặn cách "để hết giờ rồi trả lời lại" để đổi câu khó lấy câu dễ mà vẫn đủ điểm (chốt 4/11)
+  missCut: 0.25,
+  missMinRatio: 0.25,    // 4/11: giảm từ 30 giây (mọi kiểu phòng) — câu thử tài giữ lockSiegeWrongMs
   lockSiegeWrongMs: 45_000,
   lockSkipMs: 10_000,     // bỏ qua câu hỏi: lùi về tỉnh trước + khóa 10 giây + thời gian đã xem (tối đa = khóa khi sai)
   stealBonus: 50,
@@ -19,9 +23,9 @@ export const RULES = {
   streakFullBonus: 50,
   // Thẻ Thêm giờ: cộng vào cả hạn chót lẫn khoảng được đủ điểm của câu đang trả lời
   extraTimeMs: 15_000,
-  // Đặt cược (câu thường, phòng bật): "Liều" đúng → thưởng thêm 50% điểm tỉnh; sai / hết giờ → khóa thêm 30 giây
+  // Đặt cược (câu thường, phòng bật): "Liều" đúng → thưởng thêm 50% điểm tỉnh; sai / hết giờ → khóa thêm 10 giây (tổng 25, chốt 4/11)
   betBonusRatio: 0.5,
-  betExtraLockMs: 30_000,
+  betExtraLockMs: 10_000,
   // Đấu tay đôi khi công thành: đội giữ tỉnh trả lời đúng trước → giữ tỉnh +50; đội công thành bị đẩy về + khóa 30 giây.
   // Chống bị công thành liên tục: tỉnh vừa đứng vững (không đổi chủ) được miễn công thành 60 giây; mỗi tỉnh một lượt công thành một lúc
   defendBonus: 50,
@@ -89,6 +93,12 @@ export const RULES = {
   autoStartMs: 3 * 60_000,
   maxRoomsPerCreator: 3,
   durationMin: { min: 10, max: 90 },
+  // Phòng "Team gọn" (chốt 3/11): không thẻ bài (đúng liền 3 câu → +50); đúng ngay khi câu hiện → thưởng thêm 100% điểm tỉnh,
+  // giảm đều về 0 lúc hết giờ (không trừ điểm khi chậm). Tắt Đấu: mỗi team một bản đồ riêng; đi đủ 34 tỉnh → thưởng về đích
+  // 100 điểm cho mỗi phút còn lại (tính lẻ theo giây); mọi team có người chơi đều về đích → trận kết thúc
+  compactSpeedRatio: 1,
+  finishBonusPerMin: 100,
+  compactDurationMin: 30,
   // Số câu phải trả lời đúng ở một tỉnh trống (chủ phòng chọn lúc tạo phòng; 1 = luật gốc). Sai giữa chừng giữ tiến độ
   quizCount: { min: 1, max: 3, default: 1 },
 }
@@ -112,7 +122,7 @@ export const CARD_KINDS = ['scout', 'shield', 'march', ...HELP_CARDS]
 export const SOLO_CARD_KINDS = CARD_KINDS.filter(k => k !== 'shield')
 export const EVENT_KINDS = ['festival', 'storm', 'golden', 'rumor']
 // Các hành động hiện trong nhật ký team
-export const TEAM_LOG_ACTIONS = ['spawn', 'move', 'retry', 'retreat', 'pushed-back', 'topic', 'capture', 'steal', 'wrong', 'siege-fail', 'siege', 'skip', 'card', 'time-penalty', 'streak', 'speed', 'defend', 'defend-fail', 'held', 'repelled', 'home', 'shared-bonus', 'pioneer', 'progress', 'siege-bet', 'duel-round']
+export const TEAM_LOG_ACTIONS = ['spawn', 'move', 'retry', 'retreat', 'pushed-back', 'topic', 'capture', 'steal', 'wrong', 'siege-fail', 'siege', 'skip', 'card', 'time-penalty', 'streak', 'speed', 'defend', 'defend-fail', 'held', 'repelled', 'home', 'shared-bonus', 'pioneer', 'progress', 'siege-bet', 'duel-round', 'finish', 'miss-penalty']
 
 // Xếp hạng: điểm cao hơn trước; bằng điểm thì tổng thời gian trả lời ít hơn trước
 export const byRank = (a, b) => b.total - a.total || a.answerMs - b.answerMs

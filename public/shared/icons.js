@@ -218,6 +218,11 @@ const ICONS = {
     + '<path d="M19.5 12a5.5 5.5 0 0 1 0 8M23 8.5a10.5 10.5 0 0 1 0 15" fill="none" stroke="currentColor" stroke-width="2.6"/>',
   'sound-off': '<path d="M4 12.5h4.5L15 7v18l-6.5-5.5H4z" fill="currentColor" stroke="currentColor" stroke-width="1.5"/>'
     + '<path d="M20 12l8 8M28 12l-8 8" fill="none" stroke="currentColor" stroke-width="2.6"/>',
+  'music-on': '<path d="M12 23V8l14-3v15" fill="none" stroke="currentColor" stroke-width="2.8"/>'
+    + '<ellipse cx="8.5" cy="23.5" rx="4" ry="3.2" fill="currentColor"/><ellipse cx="22.5" cy="20.5" rx="4" ry="3.2" fill="currentColor"/>',
+  'music-off': '<path d="M12 23V8l14-3v15" fill="none" stroke="currentColor" stroke-width="2.8" opacity=".45"/>'
+    + '<ellipse cx="8.5" cy="23.5" rx="4" ry="3.2" fill="currentColor" opacity=".45"/><ellipse cx="22.5" cy="20.5" rx="4" ry="3.2" fill="currentColor" opacity=".45"/>'
+    + '<path d="M4 4l24 24" fill="none" stroke="currentColor" stroke-width="2.8"/>',
 }
 
 // Bóng (silhouette) của icon: mọi hình tô một màu, nét dày thêm `grow` → làm mép sticker bao quanh

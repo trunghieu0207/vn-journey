@@ -4,7 +4,7 @@ import { sound } from '/shared/sound.js'
 import { labeled } from '/shared/icons.js'
 import { $, el } from '/shared/dom.js'
 import * as fx from '/shared/fx.js'
-import { CARD_INFO, nameOf, now, solo, state } from './state.js'
+import { CARD_INFO, compactRoom, nameOf, now, solo, state } from './state.js'
 
 // Thông báo dán vào như sticker, hết giờ thì bóc ra (shared/fx.js)
 let toastTimer
@@ -57,7 +57,9 @@ function logText(e) {
       if (e.bet || state.me.room.betChoice) parts.push(e.bet ? 'Mạo hiểm' : 'Chắc ăn')
       return [`${who}chọn ${parts.join(' · ')} ở ${p}`]
     }
-    case 'speed': return [`Siêu tốc ở ${p}: +${e.bonus} điểm`, 'good']
+    case 'speed': return [`${compactRoom() ? 'Thưởng nhanh' : 'Siêu tốc'} ở ${p}: +${e.bonus} điểm`, 'good']
+    case 'miss-penalty': return [`Cắm cờ ${p} sau ${e.misses} lần trượt: −${e.penalty} điểm tỉnh`, 'bad']
+    case 'finish': return [`Về đích — đi đủ cả nước: +${e.bonus} điểm`, 'good']
     case 'progress': return [`${who}đúng ${e.done}/${e.of} câu ở ${p}`, 'good']
     case 'siege-bet': return [`${who}cược ${e.rounds} hiệp ở ${p}`]
     case 'duel-round': return [`Hiệp ${e.no}/${e.of} ở ${p}: ${e.winner === 'att' ? 'thắng' : 'thua'} (${e.att}–${e.def})`, e.winner === 'att' ? 'good' : 'bad']
@@ -69,7 +71,7 @@ function logText(e) {
     case 'repelled': return [`Thử tài ở ${p} chưa thành — chủ nhà trả lời đúng trước`, 'bad']
     case 'time-penalty': return [`Trả lời chậm ở ${p}: −${e.penalty} điểm`, 'bad']
     case 'card': return [`${who}dùng thẻ ${CARD_INFO[e.kind]?.name ?? ''}${p ? ` (${p})` : ''}`]
-    case 'streak': return [`Chuỗi ${e.n} câu đúng! ${e.card ? `Nhận thẻ ${CARD_INFO[e.card].name}` : `+${e.bonus} điểm (khay thẻ đã đầy)`}`, 'good']
+    case 'streak': return [`Chuỗi ${e.n} câu đúng! ${e.card ? `Nhận thẻ ${CARD_INFO[e.card].name}` : `+${e.bonus} điểm${compactRoom() ? '' : ' (khay thẻ đã đầy)'}`}`, 'good']
     case 'lost': return [`${p} đã đổi chủ!`, 'bad']
     default: return [e.action]
   }

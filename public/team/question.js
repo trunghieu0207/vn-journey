@@ -10,7 +10,7 @@ import { act, retryHere, siege } from './actions.js'
 import { closeDialog, dlg, openDocked } from './dialogs.js'
 import { addJournal, toast } from './notify.js'
 import { renderAll, renderTimers } from './render.js'
-import { CARD_INFO, TOPIC_ICON, nameOf, now, solo, state, touchOnly } from './state.js'
+import { CARD_INFO, TOPIC_ICON, compactRoom, nameOf, now, solo, state, touchOnly } from './state.js'
 import { duelBar, duelMissed, siegeRepelled } from './siege-fx.js'
 import { roundLine, roundToast } from './siege-bet.js'
 
@@ -53,7 +53,7 @@ export function openQuestion(q, force = false) {
   }
   openDocked('question', q.province,
     el('div', { class: 'q-head' },
-      el('h2', {}, `Trạm: ${p.name} · ${p.points} điểm`),
+      el('h2', {}, `Trạm: ${p.name} · ${worthText(p, q.worth)}`),
       q.golden ? el('span', { class: 'tag golden' }, labeled('golden', 'Câu hỏi vàng ×2')) : '',
       q.bet ? el('span', { class: 'tag bet' }, labeled('bet', 'Mạo hiểm +50%')) : '',
       el('span', { class: isSiege ? 'tag siege' : 'tag' }, isSiege ? labeled('siege', q.duel ? 'So tài' : 'Thử tài') : `Mức ${q.level}`)),
@@ -176,7 +176,7 @@ export function useHelp(kind) {
 
 // Số giây bị khóa nếu bỏ qua lúc này — cùng công thức server: 10 giây + thời gian đã xem, tối đa = khóa khi sai
 function skipLockSec(since, siege = false) {
-  return Math.min(siege ? 45 : 30, Math.ceil(10 + Math.max(0, now() - since) / 1000))
+  return Math.min(siege ? 45 : 15, Math.ceil(10 + Math.max(0, now() - since) / 1000))
 }
 
 // Nút "Bỏ qua": bấm lần 1 hiện cảnh báo hậu quả, bấm lần 2 (trong 4 giây) mới bỏ qua
@@ -278,7 +278,7 @@ async function finishAnswer(r, q, value) {
       if (r.round && !r.round.done) roundToast(r.round, 'att', r.timeout ? ' (hết giờ)' : '')
       else if (r.pushedBack) toast(`Thử tài chưa thành${r.round ? ` (${r.round.att}–${r.round.def})` : ''} — quay về ${nameOf(state.me.current)}`, true)
       else if (r.golden) toast('Câu hỏi vàng chưa đúng — nghỉ chân gấp đôi', true, 'golden')
-      else if (r.bet) toast('Mạo hiểm chưa thành — chờ thêm 30 giây', true, 'bet')
+      else if (r.bet) toast('Mạo hiểm chưa thành — chờ thêm 10 giây', true, 'bet')
       else if (r.lostStreak >= 2) toast(`Mất chuỗi ${r.lostStreak} câu đúng`, true, 'streak')
     }, fx.reducedMotion ? 500 : 1300)
     return
@@ -365,6 +365,7 @@ function showResult(r, q, by = null) {
     // Phòng đơn: tem Tiên phong (người đầu tiên trong phòng tới tỉnh này)
     if (r.pioneer) lines.push(el('p', { class: 'reward golden' }, labeled('star', `Tem Tiên phong — bạn là người đầu tiên tới ${name}: +${r.pioneer} điểm`)))
     if (r.penalty) lines.push(el('p', { class: 'reward late' }, labeled('timer', `Trả lời chậm: −${r.penalty} điểm`)))
+    if (r.missPenalty) lines.push(el('p', { class: 'reward late' }, labeled('timer', `Đã trượt ở ${name} trước đó: điểm tỉnh còn ${r.worth}/${p.points}`)))
   } else {
     const why = r.reason === 'shielded' ? 'tỉnh vừa dựng hàng rào' : 'một đội khác vừa cắm cờ trước'
     lines.push(el('p', { class: 'reward' }, `Tiếc quá — ${why}!`))
@@ -373,14 +374,16 @@ function showResult(r, q, by = null) {
   if (r.bonus - (r.pioneer ?? 0)) lines.push(el('p', { class: 'reward' }, labeled('star', `+${r.bonus - (r.pioneer ?? 0)} điểm thưởng`)))
   if (r.goldenBonus) lines.push(el('p', { class: 'reward golden' }, labeled('golden', `Câu hỏi vàng: +${r.goldenBonus} điểm (×2)`)))
   if (r.betBonus) lines.push(el('p', { class: 'reward' }, labeled('bet', `Mạo hiểm thành công: +${r.betBonus} điểm`)))
-  if (r.speedBonus) lines.push(el('p', { class: 'reward' }, labeled('star', `Siêu tốc: +${r.speedBonus} điểm`)))
+  if (r.speedBonus) lines.push(el('p', { class: 'reward' }, labeled('star', `${compactRoom() ? 'Thưởng nhanh' : 'Siêu tốc'}: +${r.speedBonus} điểm`)))
   if (r.home) lines.push(el('p', { class: 'reward home' }, labeled('home', `Về quê ${r.home.names.join(', ')}: +${r.home.bonus} điểm (${r.home.n}/${state.me.homes?.max ?? 3})`)))
   if (r.card) lines.push(el('p', { class: 'reward' }, labeled('card', 'Nhận thẻ'), ' ', labeled(CARD_INFO[r.card].icon, CARD_INFO[r.card].name)))
   // Chuỗi đúng: đếm câu liên tiếp; đủ 3 câu thì nhận thẻ trợ giúp (khay đầy: điểm thưởng)
   const s = r.streak
   if (s?.card) lines.push(el('p', { class: 'reward streak' }, labeled('streak', `Chuỗi ${s.n} câu đúng! Nhận thẻ`), ' ', labeled(CARD_INFO[s.card].icon, CARD_INFO[s.card].name)))
-  else if (s?.bonus) lines.push(el('p', { class: 'reward streak' }, labeled('streak', `Chuỗi ${s.n} câu đúng! +${s.bonus} điểm (khay thẻ đã đầy)`)))
-  else if (s?.n >= 2) lines.push(el('p', { class: 'reward streak' }, labeled('streak', `Chuỗi ${s.n} câu đúng — thêm ${3 - (s.n % 3)} câu nữa nhận thẻ trợ giúp`)))
+  else if (s?.bonus) lines.push(el('p', { class: 'reward streak' }, labeled('streak', `Chuỗi ${s.n} câu đúng! +${s.bonus} điểm${compactRoom() ? '' : ' (khay thẻ đã đầy)'}`)))
+  else if (s?.n >= 2) lines.push(el('p', { class: 'reward streak' }, labeled('streak', `Chuỗi ${s.n} câu đúng — thêm ${3 - (s.n % 3)} câu nữa ${compactRoom() ? 'được +50 điểm' : 'nhận thẻ trợ giúp'}`)))
+  // Team gọn tắt Đấu: vừa đi đủ cả nước
+  if (r.finish) lines.push(el('p', { class: 'reward golden' }, labeled('trophy', `Về đích! Đi đủ ${state.map.byId.size} tỉnh: +${r.finish.bonus.toLocaleString('vi-VN')} điểm`)))
   // Chưa đủ câu: nút chính là nhận câu tiếp theo ngay tại tỉnh (giờ chỉ tính từ lúc bấm — đọc lời giải thong thả)
   const ok = r.progress
     ? button(labeled('question', `Câu tiếp theo (${r.progress.done + 1}/${r.progress.of})`), 'green', () => { closeDialog(); retryHere() })
@@ -398,7 +401,7 @@ function showResult(r, q, by = null) {
   ok.focus()
   // "Chính xác!" đóng dấu, điểm đếm tăng
   fx.stamp(dlg.querySelector('.result h2'), { tilt: -10 })
-  if (r.captured) setTimeout(() => fx.countUp(pts, 0, p.points, 700), 250)
+  if (r.captured) setTimeout(() => fx.countUp(pts, 0, r.worth ?? p.points, 700), 250)
 }
 
 // "Đã từng / Muốn thử" (không bắt buộc, mỗi người tự bấm): chỉ thấy số đếm gộp cả phòng, không ai biết ai chọn gì
@@ -432,7 +435,12 @@ function reactBox(provinceId, kind) {
 
 // ---------- Chọn trước câu hỏi: chủ đề và / hoặc đặt cược (theo cài đặt phòng) ----------
 // topics: chủ đề còn câu (rỗng = phòng không cho chọn chủ đề); bet: phòng cho đặt cược "Chắc ăn" / "Liều"
-export function openTopicPicker(provinceId, topics, bet = false) {
+// Điểm tỉnh với team: đã trượt ở tỉnh này thì giảm (server tính, RULES.missCut) — ghi kèm điểm gốc
+function worthText(p, worth) {
+  return worth != null && worth < p.points ? `${worth}/${p.points} điểm (đã trượt ở đây)` : `${p.points} điểm`
+}
+
+export function openTopicPicker(provinceId, topics, bet = false, worth = null) {
   const p = state.map.byId.get(provinceId)
   let risky = false
   const pick = topic => {
@@ -461,7 +469,7 @@ export function openTopicPicker(provinceId, topics, bet = false) {
   }
   const bets = bet ? el('div', { class: topics.length ? 'bet-row toggle' : 'bet-row' },
     betButton(false, 'Chắc ăn', 'Điểm thường', 'flag'),
-    betButton(true, 'Mạo hiểm', `Đúng +50% điểm · sai chờ thêm 30 giây`, 'bet')) : ''
+    betButton(true, 'Mạo hiểm', 'Đúng +50% điểm · sai chờ thêm 10 giây', 'bet')) : ''
   const grid = topics.length ? el('div', { class: 'topic-grid' },
     ...topics.map(t => button('', 'topic', () => pick(t.id))),
     button('', 'topic random', () => pick('random'))) : ''
@@ -477,7 +485,7 @@ export function openTopicPicker(provinceId, topics, bet = false) {
     : `Đồng hồ trả lời chỉ bắt đầu chạy sau khi chọn.${betNote ? ` Mức cược ${betNote}.` : ''}`
   openDocked('topic', provinceId,
     el('div', { class: 'q-head' },
-      el('h2', {}, `Trạm: ${p.name} · ${p.points} điểm`)),
+      el('h2', {}, `Trạm: ${p.name} · ${worthText(p, worth)}`)),
     quizSteps(),
     ...body,
     el('p', { class: 'muted' }, foot),

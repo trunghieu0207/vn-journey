@@ -6,13 +6,13 @@ export function createViews(ctx) {
   const {
     db, q, now, json, provinces, adjacency, collections, topicNames, roomId,
     state, activeEvent, requireTeam, shieldActive, pendingPublic, publicQuestion, choiceFor, siegeBlock, timedOut, lobby, sharedPublic, lobbyFacts,
-    correctAnswerText, isSolo,
+    correctAnswerText, isSolo, isCompact, usesStamps, worthAt,
   } = ctx
 
   // ---------- Điểm ----------
-  // Phòng đơn: "tỉnh của mình" = tỉnh đã có tem (tính điểm tỉnh, bộ sưu tập, xuyên 3 miền như phòng team)
+  // Phòng đơn / Team gọn tắt Đấu: "tỉnh của mình" = tỉnh đã có tem (tính điểm tỉnh, bộ sưu tập, xuyên 3 miền như phòng team)
   function scores() {
-    const owners = isSolo() ? q.roomStamps.all(roomId) : q.owners.all(roomId)
+    const owners = usesStamps() ? q.roomStamps.all(roomId) : q.owners.all(roomId)
     return q.teams.all(roomId).map(t => {
       const owned = owners.filter(o => o.team_id === t.id).map(o => o.province_id)
       const base = owned.reduce((s, id) => s + provinces.get(id).points, 0)
@@ -34,7 +34,8 @@ export function createViews(ctx) {
   // ---------- Dữ liệu cho từng màn hình (lọc theo quyền) ----------
   function timing(s) {
     return {
-      room: { code: s.code, name: s.name, durationMin: s.duration_min, topicChoice: !!s.topic_choice, betChoice: !!s.bet_choice, mode: s.mode, pioneer: !!s.pioneer, quizCount: s.quiz_count },
+      room: { code: s.code, name: s.name, durationMin: s.duration_min, topicChoice: !!s.topic_choice, betChoice: !!s.bet_choice, mode: s.mode, pioneer: !!s.pioneer, quizCount: s.quiz_count,
+        compact: !!s.compact, duel: !!s.duel, stamps: s.mode === 'solo' || (!!s.compact && !s.duel) },
       status: s.status,
       startedAt: s.started_at, endsAt: s.ends_at, freezeAt: s.freeze_at, pausedAt: s.paused_at,
       serverNow: now(),
@@ -60,13 +61,13 @@ export function createViews(ctx) {
       const o = owners.get(id)
       known[id] = !o ? 'free' : o.team_id === t.id ? 'mine' : 'taken'
     }
-    const solo = isSolo()
+    const solo = usesStamps() // mỗi team một bản đồ (phòng đơn / Team gọn tắt Đấu)
     const stamps = solo ? q.stamps.all(t.id) : []
     const mine = solo
       ? stamps.map(st => ({ province: st.province_id, shieldUntil: null }))
       : [...owners.values()].filter(o => o.team_id === t.id)
         .map(o => ({ province: o.province_id, shieldUntil: shieldActive(o) ? o.shield_until : null }))
-    if (solo) for (const id of visited) known[id] = 'free' // phòng đơn: tỉnh không thuộc riêng ai — chỉ "có tem của mình" / "chưa"
+    if (solo) for (const id of visited) known[id] = 'free' // tỉnh không thuộc riêng ai — chỉ "có tem của mình" / "chưa"
     for (const m of mine) known[m.province] = 'mine'
 
     const pending = t.pending_question ? pendingPublic(t) : null
@@ -105,9 +106,9 @@ export function createViews(ctx) {
         const d = json(e.detail)
         return {
           action: e.action, province: e.province_id, by: e.player_name, at: e.created_at,
-          kind: d?.kind ?? null, penalty: d?.penalty ?? null, timeout: !!d?.timeout,
+          kind: d?.kind ?? null, penalty: d?.penalty ?? null, timeout: !!d?.timeout, misses: d?.misses ?? null,
           ...(e.action === 'streak' ? { n: d.n, card: d.card, bonus: d.bonus } : {}),
-          ...(e.action === 'speed' || e.action === 'defend' ? { bonus: d.bonus } : {}),
+          ...(['speed', 'defend', 'finish'].includes(e.action) ? { bonus: d.bonus } : {}),
           ...(e.action === 'home' ? { bonus: d.bonus, names: d.names } : {}),
           ...(e.action === 'shared-bonus' ? { bonus: d.bonus, pct: d.pct } : {}),
           ...(e.action === 'pioneer' ? { bonus: d.bonus } : {}),
@@ -149,7 +150,9 @@ export function createViews(ctx) {
       mine,
       known,
       // Phòng đơn: tem (Tiên phong), số người có tem ở các tỉnh mình đã ghé (không lộ là ai), hạng của mình
-      ...(solo ? soloExtras(t, visited, stamps) : {}),
+      ...(isSolo() ? soloExtras(t, visited, stamps) : {}),
+      // Team gọn tắt Đấu: đã về đích (đủ tem cả nước) — { at, bonus } hoặc null
+      finished: solo && isCompact() ? finishedOf(t.id) : null,
       trail,
       log,
       lastResult: json(t.last_result),
@@ -158,7 +161,7 @@ export function createViews(ctx) {
       // Đang chọn trước câu hỏi: chủ đề (topics rỗng = không chọn chủ đề) và / hoặc đặt cược (bet)
       siegeBet,
       choosing: t.choosing_at && !t.pending_question && !siegeBet
-        ? { province: t.current_province, since: t.choosing_at, topics: [], bet: false, ...choiceFor(t.id, t.current_province) }
+        ? { province: t.current_province, since: t.choosing_at, topics: [], bet: false, ...choiceFor(t.id, t.current_province), worth: worthAt(t.id, t.current_province) }
         : null,
       cards: q.cards.all(t.id).map(c => ({ id: c.id, kind: c.kind })),
       event: activeEvent(s),
@@ -167,6 +170,11 @@ export function createViews(ctx) {
       factMs: RULES.factMs,
       alerts,
     }
+  }
+
+  function finishedOf(teamId) {
+    const e = db.prepare("SELECT detail, created_at FROM events_log WHERE team_id = ? AND action = 'finish' ORDER BY id DESC LIMIT 1").get(teamId)
+    return e ? { at: e.created_at, bonus: json(e.detail).bonus } : null
   }
 
   function soloExtras(t, visited, stamps) {
@@ -183,7 +191,7 @@ export function createViews(ctx) {
   function news(limit = 8) {
     const actions = isSolo()
       ? ['pioneer', 'event', 'start', 'end', 'streak', 'shared', 'shared-result']
-      : ['capture', 'steal', 'event', 'start', 'end', 'streak', 'defend', 'shared', 'shared-result']
+      : ['capture', 'steal', 'event', 'start', 'end', 'streak', 'defend', 'shared', 'shared-result', 'finish']
     return db.prepare(`SELECT action, province_id, detail, created_at FROM events_log
                        WHERE room_id = ? AND action IN (${actions.map(() => '?').join(', ')})
                        ORDER BY id DESC LIMIT ?`).all(roomId, ...actions, limit)
@@ -196,8 +204,9 @@ export function createViews(ctx) {
           : e.action === 'defend' ? `Chủ nhà ${name} vừa tiếp khách thành công!`
           : e.action === 'shared' ? `Câu hỏi chung cả phòng về ${name}!`
           : e.action === 'shared-result' ? `Câu hỏi chung: cả phòng đúng ${d.pct}%${d.passed ? ` — mọi team +${RULES.sharedBonus}!` : ''}`
+          : e.action === 'finish' ? `Một đội vừa đi đủ ${provinces.size} tỉnh — về đích!`
           : e.action === 'start' ? 'Trận đấu bắt đầu!'
-          : e.action === 'end' ? 'Hết giờ!'
+          : e.action === 'end' ? (d?.finished ? 'Mọi đội đã về đích!' : 'Hết giờ!')
           : d?.kind === 'festival' ? `Lễ hội ${region}! Cắm cờ ở ${region} được +${RULES.festivalBonus}`
           : d?.kind === 'storm' ? `Bão ${region}! Không thể đi vào ${region}`
           : d?.kind === 'golden' ? `Câu hỏi vàng! ${RULES.goldenMs / 60_000} phút: đúng được ×2 điểm tỉnh, sai nghỉ chân ×2`
@@ -225,7 +234,7 @@ export function createViews(ctx) {
         .map(({ name, color, mascot, total, answerMs, provinces: n }) => ({ name, color, mascot, total, answerMs, provinces: n })),
       players: all.length,
       // Phòng đơn: bản đồ nhiệt "cả phòng đang đi đâu" — số người có tem mỗi tỉnh (không lộ là ai)
-      heat: solo && s.status !== 'waiting' ? Object.fromEntries(q.stampCounts.all(roomId).map(r => [r.province_id, r.n])) : null,
+      heat: usesStamps() && s.status !== 'waiting' ? Object.fromEntries(q.stampCounts.all(roomId).map(r => [r.province_id, r.n])) : null,
       news: news(),
       event: activeEvent(s),
       shared: sharedPublic(),
@@ -250,7 +259,7 @@ export function createViews(ctx) {
       ...timing(s),
       screenCode: s.screen_code,
       hostId: s.host_player_id ?? null, // người chơi đang giữ quyền chủ phòng (phòng có sẵn / người tạo phòng vào chơi luôn)
-      heat: isSolo() ? Object.fromEntries(q.stampCounts.all(roomId).map(r => [r.province_id, r.n])) : null,
+      heat: usesStamps() ? Object.fromEntries(q.stampCounts.all(roomId).map(r => [r.province_id, r.n])) : null,
       topicNames: Object.fromEntries(topicNames),
       event: activeEvent(s),
       shared: sharedPublic(),
@@ -330,6 +339,7 @@ export function createViews(ctx) {
     if (state().status !== 'ended') throw new GameError('not-ended', 'Chỉ xem lại được sau khi kết thúc', 409)
     return {
       mode: isSolo() ? 'solo' : 'team',
+      stamps: usesStamps(), // tỉnh không thuộc riêng ai → màn chiếu không tua bản đồ
       teams: q.teams.all(roomId).map(t => ({ id: t.id, name: t.name, color: t.color, mascot: t.mascot })),
       events: db.prepare(`SELECT team_id, action, province_id, detail, created_at FROM events_log
                           WHERE room_id = ? AND action NOT IN ('home', 'rename') ORDER BY id`).all(roomId) // quê thành viên: chỉ đồng đội biết; sửa tên: chỉ chủ phòng

@@ -3,7 +3,7 @@
 import { RULES, GameError, normalizeText } from './rules.js'
 
 export function createQuestions(ctx) {
-  const { db, q, now, random, json, activeEvent, roomId, factPool, isSolo, questionLeadMs } = ctx
+  const { db, q, now, random, json, activeEvent, roomId, factPool, usesStamps, questionLeadMs, worthAt } = ctx
 
   // ---------- Câu hỏi ----------
   function shuffled(n) {
@@ -61,8 +61,8 @@ export function createQuestions(ctx) {
 
   // Câu hỏi gửi cho client: KHÔNG có đáp án; lựa chọn đã xáo trộn.
   // help: { hidden (vị trí 2 đáp án sai thẻ 50:50 đã ẩn), extraMs (thẻ Thêm giờ), golden (Câu hỏi vàng) }
-  // bet: team chọn "Liều"; votes: phiếu chọn đáp án của thành viên [{ name, answer }]
-  function publicQuestion(question, order, issuedAt, { hidden = null, extraMs = 0, golden = false, bet = false, votes = [] } = {}) {
+  // bet: team chọn "Liều"; votes: phiếu chọn đáp án của thành viên [{ name, answer }]; worth: điểm tỉnh với team (đã trừ các lần trượt)
+  function publicQuestion(question, order, issuedAt, { hidden = null, extraMs = 0, golden = false, bet = false, votes = [], worth = null } = {}) {
     const opts = json(question.options)
     return {
       issuedAt,
@@ -73,10 +73,11 @@ export function createQuestions(ctx) {
       golden,
       bet,
       votes,
+      worth,
       id: question.id,
       province: question.province_id,
       // Phòng đơn: câu thử tài chỉ dùng làm câu vàng — client hiện như câu thường (giờ vẫn theo câu thử tài: freeUntil / deadline)
-      difficulty: isSolo() ? 'normal' : question.difficulty,
+      difficulty: usesStamps() ? 'normal' : question.difficulty,
       level: question.level,
       kind: question.kind,
       content: question.content,
@@ -88,13 +89,13 @@ export function createQuestions(ctx) {
   function pendingPublic(t) {
     return publicQuestion(q.question.get(t.pending_question), json(t.pending_order), t.pending_at,
       { hidden: json(t.pending_hidden), extraMs: t.pending_extra_ms, golden: !!t.pending_golden, bet: !!t.pending_bet,
-        votes: Object.values(json(t.pending_votes) ?? {}) })
+        votes: Object.values(json(t.pending_votes) ?? {}), worth: worthAt(t.id, q.question.get(t.pending_question).province_id) })
   }
 
   // delayMs: phát câu nhưng chưa tính giờ ngay (giữa hai hiệp thử tài — để xem kết quả hiệp vừa xong)
   function issueQuestion(t, provinceId, difficulty, topic = null, bet = false, delayMs = 0) {
     // Phòng đơn: trong Câu hỏi vàng lấy câu từ kho thử tài của tỉnh (khó hơn, giờ 45 giây); tỉnh không có thì câu thường
-    if (isSolo() && activeEvent()?.kind === 'golden' && q.anyCandidates.all(provinceId, 'siege').length) difficulty = 'siege'
+    if (usesStamps() && activeEvent()?.kind === 'golden' && q.anyCandidates.all(provinceId, 'siege').length) difficulty = 'siege'
     const question = pickQuestion(t.id, provinceId, difficulty, topic)
     const opts = json(question.options)
     const order = opts ? shuffled(opts.length) : null
@@ -105,7 +106,7 @@ export function createQuestions(ctx) {
     db.prepare(`UPDATE teams SET pending_question = ?, pending_order = ?, pending_at = ?, pending_hidden = NULL,
                 pending_extra_ms = 0, pending_golden = ?, pending_bet = ?, pending_votes = NULL WHERE id = ?`)
       .run(question.id, order ? JSON.stringify(order) : null, issuedAt, golden, bet ? 1 : 0, t.id)
-    return publicQuestion(question, order, issuedAt, { golden: !!golden, bet })
+    return publicQuestion(question, order, issuedAt, { golden: !!golden, bet, worth: worthAt(t.id, provinceId) })
   }
 
   function isCorrect(question, order, answer) {

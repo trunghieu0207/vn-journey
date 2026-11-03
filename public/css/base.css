@@ -48,6 +48,9 @@
 
 * { box-sizing: border-box; }
 [hidden] { display: none !important; }
+/* Chống sao chép câu hỏi (shared/nocopy.js): không bôi đen, iPhone không hiện menu Sao chép / Tra cứu khi nhấn giữ; ô nhập vẫn chọn được */
+[data-nocopy] { -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; }
+[data-nocopy] :is(input, textarea) { -webkit-user-select: text; user-select: text; -webkit-touch-callout: default; }
 html, body { height: 100%; }
 body {
   margin: 0;
@@ -296,6 +299,8 @@ button.sq-opt:hover { border-color: #BDE6FA; }
 
 /* Tạo phòng: chọn kiểu phòng Theo team / Chơi đơn */
 .mode-pick { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 4px; text-align: left; }
+.mode-pick.three { grid-template-columns: 1fr; gap: 8px; } /* 3 kiểu phòng: xếp dọc (cột form hẹp, 3 ô ngang chữ bị bóp) */
+.mode-pick.three .mode-option { padding: 8px 14px; }
 .mode-option { display: grid; grid-template-columns: auto 1fr; align-items: center; gap: 2px 8px; padding: 10px 14px; border: 2px solid var(--line); border-radius: 14px; cursor: pointer; }
 .mode-option input { accent-color: var(--blue); }
 .mode-option small { grid-column: 2; color: var(--muted); font-weight: 700; }

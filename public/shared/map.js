@@ -867,5 +867,5 @@ export function heatTiles(heat) {
     .map(([id, n]) => [id, { owner: 'owned', color: `hsl(100 55% ${Math.round(82 - 42 * (n / max))}%)` }]))
 }
 
-// Số người có tem ghi dưới tên tỉnh (render({ notes })) — tỉnh chưa ai tới vẫn ghi điểm
-export const heatNotes = heat => Object.fromEntries(Object.entries(heat ?? {}).filter(([, n]) => n > 0).map(([id, n]) => [id, `${n} người`]))
+// Số người (phòng đơn) / số đội (Team gọn tắt Đấu) có tem ghi dưới tên tỉnh (render({ notes })) — tỉnh chưa ai tới vẫn ghi điểm
+export const heatNotes = (heat, unit = 'người') => Object.fromEntries(Object.entries(heat ?? {}).filter(([, n]) => n > 0).map(([id, n]) => [id, `${n} ${unit}`]))

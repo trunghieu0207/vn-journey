@@ -73,7 +73,7 @@
         </label>
         <label class="check switch-row">
           <input type="checkbox" id="betChoice">
-          <span><span data-icon="bet"></span> Đặt cược: chọn <b>Chắc ăn</b> / <b>Mạo hiểm</b> trước câu hỏi <small class="muted">(Mạo hiểm: đúng +50% điểm, sai nghỉ chân thêm 30 giây)</small></span>
+          <span><span data-icon="bet"></span> Đặt cược: chọn <b>Chắc ăn</b> / <b>Mạo hiểm</b> trước câu hỏi <small class="muted">(Mạo hiểm: đúng +50% điểm, sai nghỉ chân thêm 10 giây)</small></span>
         </label>
         <p class="field-label">Link mời người chơi</p>
         <div class="copy-box">
@@ -167,6 +167,7 @@
 </dialog>
 
 <dialog id="resultsDlg" class="results-dlg">
+  <div class="dlg-top"><button class="btn dlg-x" type="button" id="resultsX" aria-label="Đóng tổng kết">✕</button></div>
   <div id="resultsBody"></div>
   <div class="dialog-actions">
     <button class="btn green" type="button" id="resultsClose"><span data-icon="map"></span> Xem bản đồ</button>

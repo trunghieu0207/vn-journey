@@ -188,7 +188,7 @@
 }
 .screen .ticker span { display: inline-block; padding-left: 100%; animation: ticker 24s linear infinite; }
 @keyframes ticker { to { transform: translateX(-100%); } }
-.sound-btn { position: fixed; right: 16px; bottom: 76px; z-index: 3; }
+.sound-btns { position: fixed; right: 16px; bottom: 76px; z-index: 3; display: flex; gap: 8px; }
 .fireworks { position: fixed; inset: 0; z-index: 10; pointer-events: none; }
 
 /* Thống kê câu hỏi (trang chủ phòng) */
@@ -250,6 +250,9 @@
 
 /* Tổng kết trận đấu (trang team + trang chủ phòng) — chất sticker vẽ tay, xem hand.css */
 dialog.results-dlg { width: min(900px, calc(100% - 32px)); }
+/* Nút ✕ đóng popup dài (tổng kết): dính góc trên khi cuộn; đứng đầu popup nên được focus khi mở → popup không tự cuộn xuống nút cuối */
+.dlg-top { position: sticky; top: -8px; z-index: 3; display: flex; justify-content: flex-end; height: 0; }
+.dlg-top .dlg-x { min-width: 40px; min-height: 40px; padding: 0; justify-content: center; font-size: 18px; transform: translate(10px, -10px); }
 .results-head { display: grid; justify-items: center; gap: 14px; text-align: center; }
 .results-head h2 { color: var(--green); font-size: 30px; font-weight: 900; }
 /* Dòng "team bạn xếp hạng…": mẩu giấy dán hơi nghiêng */

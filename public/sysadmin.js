@@ -227,7 +227,9 @@ async function loadRooms() {
 
 const STATUS = { waiting: ['wait', 'Đang chờ'], running: ['run', 'Đang chơi'], paused: ['wait', 'Tạm dừng'], ended: ['end', 'Đã xong'] }
 const tag = (cls, text) => el('span', { class: `tag ${cls}` }, text)
-const modeTag = mode => mode === 'solo' ? tag('solo', 'Chơi đơn') : tag('team', 'Theo team')
+// Kiểu phòng hiển thị: Team gọn lưu là phòng team (compact)
+const roomKind = r => (r.compact ? 'compact' : r.mode)
+const modeTag = r => r.mode === 'solo' ? tag('solo', 'Chơi đơn') : r.compact ? tag('team', r.duel ? 'Team gọn · có đấu' : 'Team gọn') : tag('team', 'Theo team')
 function roomTime(r) {
   if (r.status === 'waiting') return `${r.durationMin} phút`
   if (r.status === 'ended') return `xong ${clock(r.endsAt ?? r.createdAt)}`
@@ -238,11 +240,11 @@ function roomTime(r) {
 function renderRooms() {
   const st = segValue('roomStatus'), mode = segValue('roomMode'), q = norm($('roomSearch').value.trim())
   const rows = state.rooms.filter(r => (!st || (st === 'run' ? ['running', 'paused'].includes(r.status) : r.status === st))
-    && (!mode || r.mode === mode) && (!q || norm(`${r.name} ${r.code}`).includes(q)))
+    && (!mode || roomKind(r) === mode) && (!q || norm(`${r.name} ${r.code}`).includes(q)))
   $('roomRows').replaceChildren(...rows.map(r => el('tr', {},
     el('td', { class: 'mono' }, r.code),
     el('td', {}, r.name, r.preset ? tag('', 'có sẵn') : ''),
-    el('td', {}, modeTag(r.mode)),
+    el('td', {}, modeTag(r)),
     el('td', {}, tag(...STATUS[r.status])),
     el('td', { class: 'r' }, `${r.players}${r.online ? ` · ${r.online} mở` : ''}`),
     el('td', { class: 'muted' }, roomTime(r)),
@@ -300,8 +302,9 @@ function roomForm(r = null) {
   const waiting = !r || r.status === 'waiting'
   const field = (label, input, note = '') => el('label', {}, label, input, note ? el('small', { class: 'lockn' }, note) : '')
   const name = el('input', { class: 'qt-input', maxlength: 40, required: true, value: r?.name ?? '' })
-  const mode = el('select', { class: 'qt-input', disabled: !!r }, el('option', { value: 'team' }, 'Theo team'), el('option', { value: 'solo' }, 'Chơi đơn'))
-  mode.value = r?.mode ?? 'team'
+  const mode = el('select', { class: 'qt-input', disabled: !!r }, el('option', { value: 'team' }, 'Theo team'), el('option', { value: 'compact' }, 'Team gọn'),
+    el('option', { value: 'solo' }, 'Chơi đơn'))
+  mode.value = r ? roomKind(r) : 'team'
   const teams = el('select', { class: 'qt-input', disabled: !!r }, ...[2, 3, 4, 5, 6, 7, 8].map(n => el('option', { value: n }, `${n} team`)))
   teams.value = String(r?.teams || 4)
   const duration = el('input', { class: 'qt-input', type: 'number', min: 10, max: 90, value: r?.durationMin ?? 45, disabled: !waiting })
@@ -316,9 +319,17 @@ function roomForm(r = null) {
   }
   const [betLabel, bet] = check('Đặt cược (Mạo hiểm)', r?.betChoice ?? true)
   const [topicLabel, topic] = check('Cho chọn chủ đề', r?.topicChoice ?? false)
+  const [duelLabel, duel] = check('Cho đấu (thử tài tỉnh team khác)', r?.duel ?? false)
+  duel.disabled = !!r
   const teamField = field('Số team', teams, r ? 'Không đổi sau khi tạo' : '')
-  const syncMode = () => { teamField.hidden = mode.value === 'solo' }
-  mode.addEventListener('change', syncMode)
+  const syncMode = () => {
+    teamField.hidden = mode.value === 'solo'
+    duelLabel.hidden = mode.value !== 'compact'
+  }
+  mode.addEventListener('change', () => {
+    if (!r) duration.value = mode.value === 'compact' ? 30 : 45
+    syncMode()
+  })
   syncMode()
   const lock = r && !waiting ? 'Khóa khi đã bắt đầu' : ''
   const body = el('div', { class: 'rf' },
@@ -326,7 +337,7 @@ function roomForm(r = null) {
     field('Kiểu phòng', mode, r ? 'Không đổi sau khi tạo' : ''), teamField,
     field('Thời lượng (phút)', duration, lock), field('Số câu mỗi tỉnh', quiz, lock),
     el('label', { class: 'full' }, 'Hiển thị', listed),
-    el('div', { class: 'full chks' }, betLabel, topicLabel),
+    el('div', { class: 'full chks' }, betLabel, topicLabel, duelLabel),
   )
   dialog({
     title: r ? `Sửa phòng ${r.code}` : 'Tạo phòng', body, okText: r ? 'Lưu' : 'Tạo phòng',
@@ -339,7 +350,7 @@ function roomForm(r = null) {
         toast('Đã lưu phòng')
         return refresh()
       }
-      const c = await api('/api/sys/rooms', { ...data, mode: mode.value, teamCount: Number(teams.value) })
+      const c = await api('/api/sys/rooms', { ...data, mode: mode.value, duel: duel.checked, teamCount: Number(teams.value) })
       await refresh()
       // Hiện mã ngay sau khi tạo (mã chủ phòng xem lại được ở nút Mã)
       setTimeout(() => dialog({
@@ -731,6 +742,7 @@ async function loadSettings() {
   const s = state.settings
   $('setCreate').checked = s.allowCreate
   $('setPreset').checked = s.presetRooms
+  $('setCompact').checked = s.allowCompact
   $('setNotice').value = s.notice
   $('setNoticeOn').checked = s.noticeOn
   $('words').replaceChildren(...(s.bannedWords.length ? s.bannedWords.map(w => el('span', { class: 'tag word' }, w,
@@ -748,6 +760,7 @@ async function saveSettings(patch, msg = 'Đã lưu cài đặt') {
 }
 $('setCreate').addEventListener('change', e => saveSettings({ allowCreate: e.target.checked }, e.target.checked ? 'Đã mở lại tạo phòng' : 'Đã tắt tạo phòng cho mọi người'))
 $('setPreset').addEventListener('change', e => saveSettings({ presetRooms: e.target.checked }))
+$('setCompact').addEventListener('change', e => saveSettings({ allowCompact: e.target.checked }, e.target.checked ? 'Đã mở kiểu phòng Team gọn' : 'Đã tắt kiểu phòng Team gọn'))
 $('saveNotice').addEventListener('click', () => saveSettings({ notice: $('setNotice').value, noticeOn: $('setNoticeOn').checked }, 'Đã lưu thông báo'))
 $('setNoticeOn').addEventListener('change', e => saveSettings({ notice: $('setNotice').value, noticeOn: e.target.checked }, e.target.checked ? 'Đang hiện thông báo' : 'Đã tắt thông báo'))
 $('wordForm').addEventListener('submit', e => {

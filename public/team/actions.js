@@ -20,7 +20,7 @@ async function resync() {
 }
 export function reopenPending() {
   if (state.me.pendingQuestion) openQuestion(state.me.pendingQuestion, true)
-  else if (state.me.choosing) openTopicPicker(state.me.choosing.province, state.me.choosing.topics, state.me.choosing.bet)
+  else if (state.me.choosing) openTopicPicker(state.me.choosing.province, state.me.choosing.topics, state.me.choosing.bet, state.me.choosing.worth)
 }
 // ---------- Thao tác ----------
 export async function act(fn) {
@@ -85,7 +85,7 @@ export function moveTo(id) {
 function openFor(r, id, quiet = false) {
   try {
     if (r.status === 'question') openQuestion(r.question)
-    else if (r.status === 'choose') openTopicPicker(id, r.topics, r.bet)
+    else if (r.status === 'choose') openTopicPicker(id, r.topics, r.bet, r.worth)
     else if (r.status === 'owned') openSiegeChoice(id, false, r)
     else if (r.status === 'shielded') openSiegeChoice(id, true)
     else {

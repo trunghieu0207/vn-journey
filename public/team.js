@@ -4,6 +4,8 @@
 // Phần còn lại tách theo chức năng trong public/team/ — file này: nhận trạng thái từ server, phím tắt, âm thanh, khởi động.
 
 import { sound } from '/shared/sound.js'
+import { music } from '/shared/music.js'
+import '/shared/nocopy.js'
 import { icon, fillIcons } from '/shared/icons.js'
 import { $ } from '/shared/dom.js'
 import * as fx from '/shared/fx.js'
@@ -45,6 +47,7 @@ export function apply(view) {
     state.me.me = { ...state.me.me, name: self.name }
   }
   clock.sync(view.serverNow)
+  setMusicMode(view)
   // Mở / tải lại trang giữa lúc đếm ngược: đếm tiếp phần còn lại
   if (!prev && view.status === 'running' && view.startedAt > now()) startCountdown(view)
 
@@ -158,7 +161,7 @@ export function apply(view) {
   // Câu hỏi đang chờ (kể cả sau khi tải lại trang)
   // Đang chọn chủ đề (kể cả tải lại trang / đồng đội vừa tới tỉnh); đồng đội bỏ qua thì đóng khung chọn
   const choosing = view.status === 'running' ? view.choosing : null
-  if (choosing && !state.moving && !defending && !(state.dialogMode === 'topic' && dlg.open)) openTopicPicker(choosing.province, choosing.topics, choosing.bet)
+  if (choosing && !state.moving && !defending && !(state.dialogMode === 'topic' && dlg.open)) openTopicPicker(choosing.province, choosing.topics, choosing.bet, choosing.worth)
   if (!choosing && state.dialogMode === 'topic' && !view.pendingQuestion) closeDialog()
   // (đã kết thúc thì bỏ qua câu còn treo — không mở lại đè lên tổng kết)
   const pending = view.status === 'ended' ? null : view.pendingQuestion
@@ -218,6 +221,30 @@ $('muteBtn').addEventListener('click', () => {
   sound.click()
 })
 renderMute()
+
+// Nhạc nền (shared/music.js): trang chủ + phòng đơn (mỗi người một máy); phòng theo team thì im — cả phòng đã có màn chiếu phát nhạc.
+// Mặc định tắt, bật một lần thì nhớ cho lần sau
+music.setup('vnj-music', false)
+function setMusicMode(view) {
+  const one = view.room.mode === 'solo'
+  $('musicBtn').hidden = !one
+  music.mode(one ? ({ waiting: 'calm', ended: 'finale' }[view.status] ?? 'play') : null)
+}
+function renderMusic() {
+  for (const b of [$('lpMusic'), $('musicBtn')]) {
+    b.replaceChildren(icon(music.on ? 'music-on' : 'music-off'))
+    b.title = music.on ? 'Tắt nhạc nền' : 'Bật nhạc nền'
+    b.setAttribute('aria-label', b.title)
+    b.setAttribute('aria-pressed', String(music.on))
+  }
+}
+for (const id of ['lpMusic', 'musicBtn']) {
+  $(id).addEventListener('click', () => {
+    music.setOn(!music.on)
+    renderMusic()
+  })
+}
+renderMusic()
 
 // ---------- Khởi động ----------
 // Link mời dạng /?room=MÃ: điền sẵn mã phòng

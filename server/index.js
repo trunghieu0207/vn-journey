@@ -3,7 +3,7 @@
 import { createServer } from 'node:http'
 import { existsSync, mkdirSync, readdirSync, rmSync } from 'node:fs'
 import { join, dirname } from 'node:path'
-import { openDatabase, backupDatabase } from './db.js'
+import { openDatabase, backupDatabase, upgradeDatabase } from './db.js'
 import { config } from './config.js'
 import { loadSecretKey } from './auth.js'
 import { createApp } from './app.js'
@@ -14,6 +14,7 @@ if (!existsSync(config.dbPath)) {
 }
 
 const db = openDatabase(config.dbPath)
+upgradeDatabase(db) // DB tạo từ bản cũ: thêm cột mới, không mất dữ liệu
 // Khóa mã hóa mã chủ phòng (trang quản trị xem lại được): SECRET_KEY hoặc var/secret.key (tự tạo lần đầu, quyền 600)
 const secretKey = loadSecretKey(join(dirname(config.dbPath), 'secret.key'), process.env.SECRET_KEY)
 const app = createApp({ db, config: { ...config, secretKey } })

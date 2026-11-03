@@ -101,7 +101,7 @@
       <div class="qt-body">
         <div class="toolbar">
           <div class="seg" id="roomStatus"><button class="on" data-v="" type="button">Tất cả</button><button data-v="run" type="button">Đang chơi</button><button data-v="waiting" type="button">Đang chờ</button><button data-v="ended" type="button">Đã xong</button></div>
-          <div class="seg" id="roomMode"><button class="on" data-v="" type="button">Mọi kiểu</button><button data-v="team" type="button">Theo team</button><button data-v="solo" type="button">Chơi đơn</button></div>
+          <div class="seg" id="roomMode"><button class="on" data-v="" type="button">Mọi kiểu</button><button data-v="team" type="button">Theo team</button><button data-v="compact" type="button">Team gọn</button><button data-v="solo" type="button">Chơi đơn</button></div>
           <input class="qt-input search" id="roomSearch" placeholder="Tìm tên phòng hoặc mã phòng" aria-label="Tìm phòng">
         </div>
         <div class="tbl-wrap"><table class="tbl">
@@ -219,6 +219,7 @@
           <div class="panel">
             <h3>Phòng</h3>
             <label class="set-row"><span>Cho mọi người tạo phòng<small>Tắt: chỉ quản trị tạo phòng; trang chủ báo "ban tổ chức tạm tắt tạo phòng"</small></span><input type="checkbox" class="sw" id="setCreate"></label>
+            <label class="set-row"><span>Kiểu phòng Team gọn<small>Theo team, không thẻ bài, trả lời nhanh nhiều điểm. Tắt: ẩn khỏi form tạo phòng (quản trị vẫn tạo được); phòng đang chơi không ảnh hưởng</small></span><input type="checkbox" class="sw" id="setCompact"></label>
             <label class="set-row"><span>Phòng chơi đơn có sẵn<small>Phòng Sen, Mai, Đào, Trúc (30 phút). Tắt: ẩn khỏi danh sách, không tạo lại</small></span><input type="checkbox" class="sw" id="setPreset"></label>
             <div class="set-row"><span>Xóa mọi phòng đã kết thúc<small>Không xóa bảng xếp hạng, không đụng phòng có sẵn</small></span><button class="btn danger sm" type="button" id="delEnded">Xóa</button></div>
           </div>

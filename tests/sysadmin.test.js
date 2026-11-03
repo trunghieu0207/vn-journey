@@ -342,6 +342,13 @@ test('quản trị cài đặt: tắt tạo phòng, tắt phòng có sẵn, thô
 
   await s.post('/api/sys/settings', { allowCreate: true, noticeOn: false }, 'adm')
   assert.equal((await s.post('/api/rooms', { name: 'Phòng', teamCount: 2 })).status, 200)
+  // Team gọn tắt riêng: form không tạo được, quản trị vẫn tạo được
+  await s.post('/api/sys/settings', { allowCompact: false }, 'adm')
+  assert.equal((await s.post('/api/rooms', { name: 'Gọn', teamCount: 2, mode: 'compact' })).json.error, 'compact-off')
+  assert.equal((await s.call('/api/rooms/list')).json.allowCompact, false)
+  assert.equal((await s.post('/api/sys/rooms', { name: 'Gọn BTC', teamCount: 2, mode: 'compact', duel: true }, 'adm')).status, 200)
+  const gon = (await s.call('/api/sys/rooms', { as: 'adm' })).json.find(r => r.name === 'Gọn BTC')
+  assert.deepEqual([gon.mode, gon.compact, gon.duel], ['team', true, true])
   assert.deepEqual((await s.call('/api/notice')).json, { text: null })
   assert.equal((await s.call('/shared/notice.js')).status, 200)
 })

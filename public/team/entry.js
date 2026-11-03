@@ -2,6 +2,7 @@
 
 import { api, connectStream, requireRole } from '/shared/api.js'
 import { createMap } from '/shared/map.js'
+import { music } from '/shared/music.js'
 import { mascotIcon } from '/shared/mascots.js'
 import { icon } from '/shared/icons.js'
 import { $, button, el } from '/shared/dom.js'
@@ -19,6 +20,7 @@ export function showEntry(message = '') {
   closeDialog()
   $('app').hidden = true
   $('entry').hidden = false
+  music.mode('calm')
   showTab('join')
   $('lookupError').textContent = message
   if (message) toPlay()
@@ -94,11 +96,17 @@ let kind = 'all'
 try { kind = localStorage.getItem('vnj-room-filter') || 'all' } catch {}
 async function loadRooms() {
   try {
-    let allowCreate
-    ;({ preset: presets, open: openRooms, allowCreate } = await api('/api/rooms/list'))
+    let allowCreate, allowCompact
+    ;({ preset: presets, open: openRooms, allowCreate, allowCompact } = await api('/api/rooms/list'))
     // Ban tổ chức tắt tạo phòng (trang quản trị): báo ngay trên form thay vì để bấm rồi mới lỗi
     $('createOff').hidden = allowCreate !== false
     $('createSubmit').disabled = allowCreate === false
+    // Tắt riêng Team gọn: ẩn lựa chọn (đang chọn thì về Theo team)
+    $('modeCompact').hidden = allowCompact === false
+    if (allowCompact === false && formMode() === 'compact') {
+      $('createForm').querySelector('input[name="mode"][value="team"]').checked = true
+      syncMode()
+    }
   } catch {}
   renderRooms()
 }
@@ -118,7 +126,7 @@ function roomRow(r) {
     fill.style.width = `${Math.min(100, Math.round(r.players * 100 / Math.max(1, r.max)))}%`
     extra = el('div', { class: 'room-meter' }, fill)
   }
-  const sub = team ? `Theo team · ${r.teams.length} team · ${r.players} người · ${r.durationMin} phút`
+  const sub = team ? `${r.compact ? 'Team gọn' : 'Theo team'} · ${r.teams.length} team · ${r.players} người · ${r.durationMin} phút`
     : `Chơi đơn · ${r.players}/${r.max} người · ${r.durationMin} phút${r.preset ? (r.hasHost ? '' : ' · vào trước làm chủ phòng') : ''}`
   const [text, cls] = ended ? ['Đang làm mới', ''] : picked ? ['Đang chọn', ''] : full ? ['Đầy', ''] : ['Vào', 'green']
   return el('div', { class: `room-row${picked ? ' picked' : ''}${ended ? ' ended' : ''}` },
@@ -263,13 +271,21 @@ $('joinForm').addEventListener('submit', async e => {
   }
 })
 
-// Kiểu phòng: chơi đơn thì không có số team, thêm tùy chọn tem Tiên phong
-const soloMode = () => $('createForm').querySelector('input[name="mode"]:checked')?.value === 'solo'
+// Kiểu phòng: chơi đơn thì không có số team, thêm tùy chọn tem Tiên phong; Team gọn thêm tùy chọn Cho đấu, mặc định 30 phút
+const formMode = () => $('createForm').querySelector('input[name="mode"]:checked')?.value ?? 'team'
+const soloMode = () => formMode() === 'solo'
+function syncMode() {
+  const mode = formMode()
+  $('teamCountField').hidden = mode === 'solo'
+  $('pioneerField').hidden = mode !== 'solo'
+  $('duelField').hidden = mode !== 'compact'
+  for (const d of $('modeExplain').querySelectorAll('[data-mode]')) d.hidden = d.dataset.mode !== mode
+}
 $('createForm').addEventListener('change', e => {
   if (e.target.name !== 'mode') return
-  $('teamCountField').hidden = soloMode()
-  $('pioneerField').hidden = !soloMode()
-  for (const d of $('modeExplain').querySelectorAll('[data-mode]')) d.hidden = d.dataset.mode !== (soloMode() ? 'solo' : 'team')
+  $('newDuration').value = e.target.value === 'compact' ? '30' : '45'
+  $('newDuration').dispatchEvent(new Event('change')) // ô chọn sticker (shared/select.js) vẽ lại theo giá trị mới
+  syncMode()
 })
 
 $('createForm').addEventListener('submit', async e => {
@@ -282,7 +298,8 @@ $('createForm').addEventListener('submit', async e => {
       durationMin: Number($('newDuration').value),
       topicChoice: $('newTopicChoice').checked,
       betChoice: $('newBetChoice').checked,
-      mode: soloMode() ? 'solo' : 'team',
+      mode: formMode(),
+      duel: $('newDuel').checked,
       pioneer: $('newPioneer').checked,
       quizCount: Number($('newQuizCount').value),
       listed: $('createForm').querySelector('input[name="access"]:checked')?.value === 'public',

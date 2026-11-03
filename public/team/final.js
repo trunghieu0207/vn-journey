@@ -33,8 +33,10 @@ export async function loadFinal() {
 function openResults() {
   if (!state.final) return
   state.question = null
-  openDialog('results', resultsView(state.final.data, { myTeamId: state.me.team.id }), cultureView(state.final.data.culture, nameOf),
+  openDialog('results', el('div', { class: 'dlg-top' }, button('✕', 'dlg-x', closeDialog, { 'aria-label': 'Đóng tổng kết' })),
+    resultsView(state.final.data, { myTeamId: state.me.team.id }), cultureView(state.final.data.culture, nameOf),
     el('div', { class: 'dialog-actions' }, button(labeled('map', 'Xem bản đồ'), 'green', closeDialog)))
   dlg.classList.add('results-dlg')
+  dlg.scrollTop = 0
 }
 $('resultsBtn').addEventListener('click', openResults)

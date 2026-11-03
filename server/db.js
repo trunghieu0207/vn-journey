@@ -82,6 +82,19 @@ export function seedDatabase(db) {
   })
 }
 
+// Nâng cấp DB đã có (tạo trước khi thêm cột): thêm cột còn thiếu, giữ nguyên dữ liệu — không phải db:reset
+// (db:reset xóa cả tài khoản quản trị, bảng xếp hạng, câu hỏi đã sửa). Cột mới thêm vào schema.sql thì khai báo thêm ở đây
+const ADDED_COLUMNS = [
+  ['rooms', 'compact', 'INTEGER NOT NULL DEFAULT 0'],
+  ['rooms', 'duel', 'INTEGER NOT NULL DEFAULT 1'],
+]
+export function upgradeDatabase(db) {
+  for (const [table, column, type] of ADDED_COLUMNS) {
+    const has = db.prepare(`PRAGMA table_info(${table})`).all().some(c => c.name === column)
+    if (!has) db.exec(`ALTER TABLE ${table} ADD COLUMN ${column} ${type}`)
+  }
+}
+
 // Sao lưu nhất quán khi đang chạy (không cần dừng game)
 export function backupDatabase(db, targetPath) {
   db.prepare('VACUUM INTO ?').run(targetPath)

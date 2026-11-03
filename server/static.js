@@ -52,6 +52,8 @@ const FILES = {
   '/shared/map.js': 'public/shared/map.js',
   '/shared/api.js': 'public/shared/api.js',
   '/shared/sound.js': 'public/shared/sound.js',
+  '/shared/music.js': 'public/shared/music.js',
+  '/shared/nocopy.js': 'public/shared/nocopy.js',
   '/shared/results.js': 'public/shared/results.js',
   '/shared/mascots.js': 'public/shared/mascots.js',
   '/shared/icons.js': 'public/shared/icons.js',
