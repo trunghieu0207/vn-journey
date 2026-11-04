@@ -334,7 +334,6 @@ export async function enter() {
   apply(view)
   state.stream = connectStream({
     view: 'team',
-    poll: '/api/me',
     onState: apply,
     onStatus: s => { $('conn').hidden = s === 'online' },
     onUnauthorized: () => showEntry('Bạn đã rời phòng hoặc phiên đã hết hạn. Vào lại bằng đúng tên + team cũ để tiếp tục.'),

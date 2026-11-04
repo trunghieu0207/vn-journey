@@ -518,3 +518,44 @@ test('Thoát / rời phòng khi phiên đã hết → vẫn 200 (không báo l�
   // API cần đăng nhập vẫn từ chối
   assert.equal((await s.call('/api/me', { as: 'an', page: 'team' })).status, 401)
 })
+
+test('long-poll: trả ngay khi chưa có phiên bản, giữ tới khi phòng đổi; tính là đang mở trang; cùng quyền như SSE', async t => {
+  const s = await startServer(); t.after(s.close)
+  const room = await withRoom(s, 'host')
+  await s.post('/api/join', { code: room.code, name: 'An', teamId: room.teams[0].id }, 'an', 'team')
+  const player = (await s.call('/api/me', { as: 'an', page: 'team' })).json.me.id
+  assert.equal(s.app.hub.isOnline(player), false)
+
+  const first = await s.call('/api/poll?view=team&v=', { as: 'an', page: 'team' })
+  assert.equal(first.status, 200)
+  assert.equal(first.json.data.room.code, room.code)
+  const roomId = s.db.prepare('SELECT id FROM rooms WHERE code = ?').get(room.code).id
+  assert.equal(s.app.hub.isOnline(player), true) // dọn phòng / bỏ phiếu đáp án thấy người này
+  assert.equal(s.app.hub.roomOnline(roomId), 1)
+
+  // Cùng phiên bản → server giữ; người khác vào phòng (phát tin) → trả bản mới
+  let done = false
+  const held = s.call(`/api/poll?view=team&v=${first.json.v}`, { as: 'an', page: 'team' }).then(r => { done = true; return r })
+  await new Promise(r => setTimeout(r, 150))
+  assert.equal(done, false)
+  await s.post('/api/join', { code: room.code, name: 'Bình', teamId: room.teams[0].id }, 'binh', 'team')
+  const next = await held
+  assert.equal(next.status, 200)
+  assert.notEqual(next.json.v, first.json.v)
+  assert.ok(next.json.data.members.some(m => m.name === 'Bình'))
+
+  // Quyền: chưa đăng nhập 401; người chơi xin dữ liệu chủ phòng 403; màn chiếu chỉ dữ liệu ẩn danh
+  assert.equal((await s.call('/api/poll?view=team&v=', { as: 'la', page: 'team' })).status, 401)
+  assert.equal((await s.call('/api/poll?view=owner&v=', { as: 'an', page: 'admin' })).status, 403)
+  const screen = await s.call('/api/poll?view=screen&v=', { as: 'host', page: 'screen' })
+  assert.equal(screen.status, 200)
+  assert.equal(screen.json.data.members, undefined)
+
+  // Bị mời ra / thoát → lượt đang giữ trả 401 (trang về màn vào phòng), không còn tính là đang mở trang
+  const v = (await s.call('/api/poll?view=team&v=', { as: 'an', page: 'team' })).json.v
+  const waiting = s.call(`/api/poll?view=team&v=${v}`, { as: 'an', page: 'team' })
+  await new Promise(r => setTimeout(r, 50))
+  await s.post('/api/owner/kick', { playerId: player }, 'host', 'admin')
+  assert.equal((await waiting).status, 401)
+  assert.equal(s.app.hub.isOnline(player), false)
+})

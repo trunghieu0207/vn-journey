@@ -73,7 +73,6 @@ async function enter() {
   apply(v)
   stream = connectStream({
     view: 'screen',
-    poll: '/api/screen',
     onState: apply,
     onUnauthorized: () => showEntry('Phiên màn chiếu đã hết hạn, đăng nhập lại.'),
   })

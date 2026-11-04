@@ -50,7 +50,7 @@ export function createApp({ db, config, now = Date.now, random = Math.random }) 
     return withAuto(session.room_id, view === 'team' ? room.teamView(session.team_id)
       : view === 'owner' ? room.ownerView()
       : room.screenView())
-  }, session => auth.isValid(session))
+  }, session => auth.isValid(session), now)
   const sys = createSysadmin({ db, now, game, hub, sealer })
   const housekeeping = createHousekeeping({ db, game, hub, now, keepRoom: sys.isKept })
   // Khóa trình duyệt người tạo phòng (giới hạn số phòng chưa xong mỗi người) — cookie ngẫu nhiên, không gắn danh tính
@@ -563,8 +563,8 @@ export function createApp({ db, config, now = Date.now, random = Math.random }) 
       return sendError(res, 429, 'too-many', 'Thao tác quá nhanh, thử lại sau giây lát')
     }
 
-    // Kết nối realtime
-    if (pathname === '/api/stream' && req.method === 'GET') {
+    // Kết nối realtime: SSE (/api/stream) hoặc long-poll (/api/poll?view=…&v=<phiên bản đã có>) — cùng quyền, cùng dữ liệu
+    if ((pathname === '/api/stream' || pathname === '/api/poll') && req.method === 'GET') {
       const asked = url.searchParams.get('view')
       const valid = asked != null && Object.hasOwn(STREAM_VIEWS, asked)
       const session = pickSession(sessions, valid ? VIEW_PAGE[asked] : null, valid ? STREAM_VIEWS[asked] : null)
@@ -572,6 +572,11 @@ export function createApp({ db, config, now = Date.now, random = Math.random }) 
       const view = asked || DEFAULT_VIEW[session.role]
       if (!Object.hasOwn(STREAM_VIEWS, view) || !rolesOf(session).some(r => STREAM_VIEWS[view].includes(r))) {
         return sendError(res, 403, 'unauthorized', 'Không có quyền')
+      }
+      if (pathname === '/api/poll') {
+        return hub.poll(req, session, view, url.searchParams.get('v') ?? '', (status, body) => {
+          if (!res.headersSent && !res.destroyed) sendJson(res, status, body)
+        })
       }
       return hub.connect(req, res, session, view)
     }

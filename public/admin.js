@@ -143,7 +143,6 @@ async function enter() {
   apply(v)
   stream = connectStream({
     view: 'owner',
-    poll: '/api/owner/overview',
     onState: apply,
     onStatus: s => { $('conn').hidden = s === 'online' },
     onUnauthorized: () => showEntry('Phiên đã hết hạn, đăng nhập lại.'),
