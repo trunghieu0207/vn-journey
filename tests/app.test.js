@@ -89,6 +89,25 @@ test('file tĩnh: chỉ phục vụ danh sách cho phép — không lộ câu h�
   assert.equal((await s.call('/data/map-geo.json')).status, 200)
 })
 
+test('file tĩnh: nén br / gzip, ETag → lần sau 304 không kèm nội dung', async t => {
+  const s = await startServer(); t.after(s.close)
+  const file = (await import('node:fs')).readFileSync(new URL('../public/team.js', import.meta.url), 'utf8')
+  const br = await s.call('/team.js', { headers: { 'accept-encoding': 'gzip, deflate, br' } })
+  assert.equal(br.status, 200)
+  assert.equal(br.headers.get('content-encoding'), 'br')
+  assert.equal(br.text, file) // fetch tự giải nén
+  assert.ok(Number(br.headers.get('content-length')) < file.length / 2)
+  assert.equal((await s.call('/team.js', { headers: { 'accept-encoding': 'gzip' } })).headers.get('content-encoding'), 'gzip')
+  assert.equal((await s.call('/favicon.png', { headers: { 'accept-encoding': 'br' } })).headers.get('content-encoding'), null) // ảnh đã nén sẵn
+  const etag = br.headers.get('etag')
+  assert.match(etag, /^"[\w-]+"$/)
+  assert.equal(br.headers.get('cache-control'), 'no-cache')
+  const again = await s.call('/team.js', { headers: { 'if-none-match': etag } })
+  assert.equal(again.status, 304)
+  assert.equal(again.text, '')
+  assert.equal((await s.call('/team.js', { headers: { 'if-none-match': '"cu"' } })).status, 200)
+})
+
 test('tạo phòng: cookie chủ phòng HttpOnly + SameSite=Strict; mã chủ phòng chỉ trả về 1 lần', async t => {
   const s = await startServer(); t.after(s.close)
   const r = await s.post('/api/rooms', { name: 'Phòng A', teamCount: 2 }, 'owner')
@@ -485,4 +504,17 @@ test('POST bị chặn vì Origin sai: trả 403 bad-origin và ghi log (mỗi O
   }
   assert.equal(logs.length, 1)
   assert.match(logs[0], /Origin "https:\/\/game\.example\.vn\/" khác ALLOWED_ORIGIN "http:\/\/127\.0\.0\.1"/)
+})
+
+test('Thoát / rời phòng khi phiên đã hết → vẫn 200 (không báo lỗi đỏ trong console)', async t => {
+  const s = await startServer(); t.after(s.close)
+  const room = await withRoom(s, 'host')
+  await s.post('/api/join', { code: room.code, name: 'An', teamId: room.teams[0].id }, 'an', 'team')
+  assert.equal((await s.post('/api/logout', {}, 'an', 'team')).status, 200)
+  // Bấm Thoát lần nữa (phiên đã xóa) và máy chưa từng vào phòng
+  assert.equal((await s.post('/api/logout', {}, 'an', 'team')).status, 200)
+  assert.equal((await s.post('/api/leave', {}, 'an', 'team')).status, 200)
+  assert.equal((await s.post('/api/logout', {}, 'la', 'team')).status, 200)
+  // API cần đăng nhập vẫn từ chối
+  assert.equal((await s.call('/api/me', { as: 'an', page: 'team' })).status, 401)
 })

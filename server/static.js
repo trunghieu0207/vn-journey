@@ -1,9 +1,15 @@
 // Phục vụ file tĩnh theo danh sách cho phép cố định — không ghép đường dẫn từ URL,
 // nên không thể truy cập file ngoài danh sách (chống path traversal).
 
-import { readFile } from 'node:fs/promises'
+import { readFile, stat } from 'node:fs/promises'
 import { join } from 'node:path'
+import { createHash } from 'node:crypto'
+import { promisify } from 'node:util'
+import { brotliCompress, gzip, constants as zlib } from 'node:zlib'
 import { ROOT } from './db.js'
+
+const brotli = promisify(brotliCompress)
+const gzipAsync = promisify(gzip)
 
 const TYPES = {
   '.html': 'text/html; charset=utf-8',
@@ -90,20 +96,53 @@ const FILES = {
   '/fonts/nunito.ttf': 'public/fonts/nunito.ttf',
 }
 
+// Nội dung đã đọc + đã nén, theo file (cả project ~1 MB). Đọc lại khi file đổi (so mtime) — sửa public/* không cần khởi động lại
+const cache = new Map()
+const COMPRESS = new Set(['.html', '.js', '.css', '.json', '.svg', '.ttf'])
+
+async function load(rel) {
+  const path = join(ROOT, rel)
+  const { mtimeMs } = await stat(path)
+  const hit = cache.get(rel)
+  if (hit?.mtimeMs === mtimeMs) return hit
+  const body = await readFile(path)
+  const ext = rel.slice(rel.lastIndexOf('.'))
+  const entry = {
+    mtimeMs, body, ext,
+    etag: `"${createHash('sha1').update(body).digest('base64url').slice(0, 22)}"`,
+    // Nén một lần (luồng nền của zlib, không chặn server), dùng lại cho mọi lượt tải
+    br: COMPRESS.has(ext) ? await brotli(body, { params: { [zlib.BROTLI_PARAM_QUALITY]: 9, [zlib.BROTLI_PARAM_SIZE_HINT]: body.length } }) : null,
+    gz: COMPRESS.has(ext) ? await gzipAsync(body, { level: 9 }) : null,
+  }
+  cache.set(rel, entry)
+  return entry
+}
+
 export async function serveStatic(req, res, pathname) {
   const rel = Object.hasOwn(FILES, pathname) ? FILES[pathname] : null
   if (!rel || !['GET', 'HEAD'].includes(req.method)) return false
-  let body
+  let f
   try {
-    body = await readFile(join(ROOT, rel))
+    f = await load(rel)
   } catch {
     return false
   }
-  const ext = rel.slice(rel.lastIndexOf('.'))
+  // no-cache = trình duyệt giữ bản cũ nhưng hỏi lại mỗi lần; ETag khớp → 304 không kèm nội dung (deploy xong thấy bản mới ngay)
+  const head = { 'Cache-Control': 'no-cache', ETag: f.etag, Vary: 'Accept-Encoding' }
+  if (req.headers['if-none-match'] === f.etag) {
+    res.writeHead(304, head)
+    res.end()
+    return true
+  }
+  const accept = String(req.headers['accept-encoding'] ?? '')
+  const [body, encoding] = f.br && /\bbr\b/.test(accept) ? [f.br, 'br']
+    : f.gz && /\bgzip\b/.test(accept) ? [f.gz, 'gzip']
+    : [f.body, null]
   res.writeHead(200, {
-    'Content-Type': TYPES[ext] || 'application/octet-stream',
+    ...head,
+    'Content-Type': TYPES[f.ext] || 'application/octet-stream',
     'Content-Length': body.length,
-    'Cache-Control': 'no-cache',
+    ...(encoding ? { 'Content-Encoding': encoding } : {}),
   })
   res.end(req.method === 'HEAD' ? undefined : body)
   return true

@@ -324,7 +324,7 @@ export async function enter() {
   $('app').hidden = false
   if (!state.map) {
     const [geo, provinces] = await Promise.all([
-      fetch('/data/map-geo.json', { cache: 'no-store' }).then(r => r.json()),
+      fetch('/data/map-geo.json').then(r => r.json()),
       api('/api/provinces'),
     ])
     state.map = createMap($('mapWrap'), { geo, provinces, onSelect: moveTo, tipExtra })
@@ -334,6 +334,7 @@ export async function enter() {
   apply(view)
   state.stream = connectStream({
     view: 'team',
+    poll: '/api/me',
     onState: apply,
     onStatus: s => { $('conn').hidden = s === 'online' },
     onUnauthorized: () => showEntry('Bạn đã rời phòng hoặc phiên đã hết hạn. Vào lại bằng đúng tên + team cũ để tiếp tục.'),

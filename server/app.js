@@ -271,9 +271,11 @@ export function createApp({ db, config, now = Date.now, random = Math.random }) 
       },
     },
     'POST /api/logout': {
-      auth: ['player', 'screen', 'owner'],
+      // Công khai: phiên đã hết (phòng bị dọn, bị mời ra, DB tạo lại) thì thoát vẫn thành công — không báo 401 đỏ trong console
+      auth: null,
       // Chỉ thoát vai của trang đang mở (trang chủ phòng thoát chủ phòng, màn chơi thoát người chơi)
       run: ({ res, session }) => {
+        if (!session) return { ok: true }
         if (session.role === 'player' && rolesOf(session).includes('owner')) roomOf(session).releaseHost(session.player_id)
         auth.destroySession(session.token)
         dropSession(res, session.role)
@@ -406,8 +408,9 @@ export function createApp({ db, config, now = Date.now, random = Math.random }) 
     // Sổ tay hành trình (phòng đơn): của chính người chơi
     'GET /api/journal': { auth: ['player'], run: ({ session }) => roomOf(session).journal(session.team_id, session.player_id) },
     'POST /api/leave': {
-      auth: ['player'], change: true,
+      auth: null, change: true,
       run: ({ session, sessions, res }) => {
+        if (session?.role !== 'player') return { ok: true } // phiên đã hết: coi như đã rời
         roomOf(session).leave(session.player_id) // xóa người chơi → phiên bị xóa theo
         dropSession(res, 'player')
         // Người tạo phòng rời để đổi team: cookie chủ phòng vẫn còn — vào lại team khác vẫn giữ quyền
@@ -599,7 +602,7 @@ export function createApp({ db, config, now = Date.now, random = Math.random }) 
       const result = route.run({ req, res, body, session, sessions, pageSessions, sysSession, admin })
       if (route.raw) return // route tự trả file
       sendJson(res, 200, result ?? { ok: true })
-      if (route.change) hub.broadcast(session.room_id)
+      if (route.change && session) hub.broadcast(session.room_id)
       const changedRoom = route.broadcast?.(result, body)
       if (Number.isInteger(changedRoom)) hub.broadcast(changedRoom)
     } catch (e) {

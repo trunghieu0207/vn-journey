@@ -135,7 +135,7 @@ async function enter() {
   $('app').hidden = false
   if (!map) {
     const [geo, provinces] = await Promise.all([
-      fetch('/data/map-geo.json', { cache: 'no-store' }).then(r => r.json()),
+      fetch('/data/map-geo.json').then(r => r.json()),
       api('/api/provinces'),
     ])
     map = createMap($('mapWrap'), { geo, provinces, tipExtra })
@@ -143,6 +143,7 @@ async function enter() {
   apply(v)
   stream = connectStream({
     view: 'owner',
+    poll: '/api/owner/overview',
     onState: apply,
     onStatus: s => { $('conn').hidden = s === 'online' },
     onUnauthorized: () => showEntry('Phiên đã hết hạn, đăng nhập lại.'),
