@@ -15,8 +15,9 @@ import { openSiegeBet, updateBetTimer } from './siege-bet.js'
 import { CARD_INFO, canMove, compactRoom, hasPending, hostBtnWhere, isHost, locked, nameOf, now, reachable, running, scoutActive, solo, state, stormRegion } from './state.js'
 
 function mapView() {
-  // Phòng đơn sau khi kết thúc: chỉ tô các tỉnh mình có tem, không còn sương mù
-  if (state.final && solo()) {
+  // Phòng đơn / Team gọn tắt Đấu sau khi kết thúc: chỉ tô các tỉnh mình có tem, không còn sương mù
+  // (mỗi team một bản đồ — nhiều team cùng có một tỉnh, không phát lại "ai chiếm sau cùng" như phòng team)
+  if (state.final && state.me.room.stamps) {
     const tiles = Object.fromEntries(state.me.mine.map(m => [m.province, { owner: 'mine', color: state.me.team.color }]))
     return { current: state.me.current, color: state.me.team.color, trail: state.me.trail, tiles, homes: homePins() }
   }
