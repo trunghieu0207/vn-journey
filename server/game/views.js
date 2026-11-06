@@ -112,6 +112,7 @@ export function createViews(ctx) {
           ...(e.action === 'home' ? { bonus: d.bonus, names: d.names } : {}),
           ...(e.action === 'shared-bonus' ? { bonus: d.bonus, pct: d.pct } : {}),
           ...(e.action === 'pioneer' ? { bonus: d.bonus } : {}),
+          ...(e.action === 'gift' ? { kinds: d.kinds } : {}),
           ...(e.action === 'progress' ? { done: d.done, of: d.of } : {}),
           ...(e.action === 'siege-bet' ? { rounds: d.rounds } : {}),
           ...(e.action === 'duel-round' ? { no: d.no, of: d.of, winner: d.winner, att: d.att, def: d.def } : {}),

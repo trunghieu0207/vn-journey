@@ -10,7 +10,7 @@ import { act } from './actions.js'
 import { closeDialog, dlg, openDialog } from './dialogs.js'
 import { toast } from './notify.js'
 import { renderAll } from './render.js'
-import { CARD_INFO, nameOf, now, state } from './state.js'
+import { CARD_INFO, nameOf, now, solo, state } from './state.js'
 import { useHelp } from './question.js'
 
 // ---------- Thẻ bài ----------
@@ -53,7 +53,7 @@ function useCard(card, target) {
     if (r.kind === 'scout') {
       state.scout = { region: r.region, revealed: new Set(r.revealed), counts: r.counts ?? null, until: r.until }
       // Phòng đơn: số người có tem từng tỉnh trong miền (rê chuột lên tỉnh để xem)
-      if (r.counts) toast(`${REGION_NAME[r.region]}: ${Object.keys(r.counts).length} tỉnh đã có người nhận tem (sương tan 10 giây)`, false, 'scout')
+      if (r.counts) toast(`${REGION_NAME[r.region]}: ${Object.keys(r.counts).length} tỉnh đã có ${solo() ? 'người nhận tem' : 'đội cắm cờ'} (sương tan 10 giây)`, false, 'scout')
       else toast(`${REGION_NAME[r.region]}: ${r.revealed.length} tỉnh đã có chủ (sương tan 10 giây)`, false, 'scout')
       renderAll()
     } else if (r.kind === 'shield') {
@@ -64,11 +64,25 @@ function useCard(card, target) {
   })
 }
 
-// Diễn hiệu ứng lật thẻ cho thẻ đang chờ, khi không có hộp thoại nào mở
+// Diễn hiệu ứng lật thẻ cho thẻ đang chờ, khi không có hộp thoại nào mở.
+// Gọi từ hai nơi (đóng hộp thoại / thẻ chủ phòng tung) — đang diễn thì lần gọi sau bỏ qua, vòng đang chạy lật nốt thẻ mới
+let revealing = false
 export async function revealCards() {
-  while (state.cardQueue.length && !dlg.open) {
-    const c = state.cardQueue.shift()
-    const info = CARD_INFO[c.kind]
-    if (info) await fx.cardReveal({ iconName: info.icon, name: info.name, hint: info.hint, target: document.querySelector('.card.cards') })
+  if (revealing) return
+  revealing = true
+  try {
+    while (state.cardQueue.length && !dlg.open) {
+      const c = state.cardQueue.shift()
+      const info = CARD_INFO[c.kind]
+      if (!info) continue
+      // Thẻ chủ phòng tung (Team gọn): ghi rõ trên hiệu ứng + âm báo; máy giảm chuyển động không có hiệu ứng → thông báo thường
+      if (c.gift) {
+        sound.event()
+        if (fx.reducedMotion) toast(`Chủ phòng tung thẻ: ${info.name}`, false, 'card')
+      }
+      await fx.cardReveal({ iconName: info.icon, name: info.name, hint: info.hint, target: document.querySelector('.card.cards'), caption: c.gift ? 'Chủ phòng tung thẻ!' : null })
+    }
+  } finally {
+    revealing = false
   }
 }

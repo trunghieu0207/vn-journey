@@ -61,7 +61,7 @@ export function createRoomScope(ctx, roomId) {
   const shieldActive = o => o && o.shield_until && o.shield_until > now()
   // Phòng chơi đơn (mỗi người là một team ẩn 1 người: tên, bảng xếp hạng, xuất phát ngẫu nhiên…)
   const isSolo = () => q.room.get(roomId)?.mode === 'solo'
-  // Phòng "Team gọn": không thẻ bài, thưởng nhanh thay trừ giờ
+  // Phòng "Team gọn": không tự nhận thẻ (chủ phòng tung), thưởng nhanh thay trừ giờ
   const isCompact = () => !!q.room.get(roomId)?.compact
   // Tem thay cho chủ tỉnh — mỗi team một bản đồ riêng, không thử tài: phòng đơn + Team gọn tắt Đấu
   const usesStamps = () => {
@@ -100,7 +100,7 @@ export function createRoomScope(ctx, roomId) {
   const { journal, scores, teamView, screenView, ownerView, replay, news } = createViews({ ...rctx, ...questions, choiceFor, siegeBlock, sharedPublic })
   const owner = createOwner({ ...rctx, scores, recordBoard })
   const { spawnSolo } = owner
-  const { kickPlayer, renamePlayer, leave, releaseHost, start, pause, end, reset, triggerEvent, adjustScore, setTopicChoice, setBetChoice } = owner
+  const { kickPlayer, renamePlayer, leave, releaseHost, start, pause, end, reset, triggerEvent, adjustScore, giveCards, setTopicChoice, setBetChoice } = owner
   // Tiếp tục sau câu hỏi chung: công bố (nếu MC bấm sớm) rồi đóng câu, trận chạy tiếp
   const resume = () => {
     if (state().status !== 'paused') return owner.resume() // lỗi not-paused
@@ -112,7 +112,7 @@ export function createRoomScope(ctx, roomId) {
     id: roomId, provinces, adjacency, collections,
     state, react, move, retry, chooseTopic, siege, betSiege, settleSiegeBets, retreat, answer, vote, defend, skip, expireTeam, useCard, scores,
     teamView, screenView, ownerView, replay, news, journal,
-    kickPlayer, renamePlayer, leave, releaseHost, start, pause, resume, end, reset, triggerEvent, adjustScore, setTopicChoice, setBetChoice,
+    kickPlayer, renamePlayer, leave, releaseHost, start, pause, resume, end, reset, triggerEvent, adjustScore, giveCards, setTopicChoice, setBetChoice,
     startShared, voteShared, settleShared, spawnSolo, isSolo, isCompact, usesStamps,
     questionStats: () => questionStats(roomId),
   }

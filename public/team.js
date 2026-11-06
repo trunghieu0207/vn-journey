@@ -11,6 +11,7 @@ import { $ } from '/shared/dom.js'
 import * as fx from '/shared/fx.js'
 import { enhanceSelects } from '/shared/select.js'
 import { closeDialog, dlg } from '/team/dialogs.js'
+import { revealCards } from '/team/cards.js'
 import { enter, lookup, markOwnerRoom, showEntry } from '/team/entry.js'
 import { loadFinal } from '/team/final.js'
 import { addJournal, eventSign, eventText, showLost, storage, toast } from '/team/notify.js'
@@ -87,7 +88,13 @@ export function apply(view) {
     }
     // Thẻ mới nhận: lật thẻ rồi bay vào khay (đợi đóng hộp thoại kết quả)
     const had = new Set(prev.cards.map(c => c.id))
-    state.cardQueue.push(...view.cards.filter(c => !had.has(c.id)))
+    const fresh = view.cards.filter(c => !had.has(c.id))
+    state.cardQueue.push(...fresh)
+    // Thẻ chủ phòng tung (Team gọn): đánh dấu để hiệu ứng ghi "Chủ phòng tung thẻ!"; không kèm hộp thoại kết quả → lật ngay.
+    // Đang trả lời / mở hộp thoại thì đợi đóng (revealCards chạy khi đóng hộp thoại) — không làm gián đoạn câu hỏi
+    const gift = view.log.find(e => e.action === 'gift')
+    if (gift && gift.at !== prev.log.find(e => e.action === 'gift')?.at) for (const c of fresh) c.gift = true
+    if (fresh.length && !dlg.open) setTimeout(revealCards, 300)
   }
 
   // Cảnh báo mất tỉnh: chỉ hiện các cảnh báo chưa xem (lưu mốc đã xem trên máy)

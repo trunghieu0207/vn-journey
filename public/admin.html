@@ -107,6 +107,19 @@
         <div class="shared-admin" id="sharedAdmin" hidden></div>
       </div>
 
+      <!-- Team gọn: tung thẻ cho mọi team (admin.js hiện khi phòng là Team gọn) -->
+      <div class="card" data-tab="events" id="cardsCard" hidden>
+        <h2>Thẻ bài</h2>
+        <div class="btn-row">
+          <select class="input compact" id="cardKind" aria-label="Loại thẻ"></select>
+          <select class="input compact" id="cardCount" aria-label="Số thẻ">
+            <option value="1">1 thẻ</option><option value="2">2 thẻ</option><option value="3">3 thẻ</option>
+          </select>
+          <button class="btn on" type="button" id="cardBtn">Tung thẻ</button>
+        </div>
+        <p class="muted">Mọi team cùng nhận. Khay tối đa 3 thẻ — team gần đầy chỉ nhận phần còn chỗ.</p>
+      </div>
+
       <div class="card" data-tab="teams">
         <h2 id="teamsTitle">Team & điểm</h2>
         <!-- Phòng đơn (tới 50 người): ô tìm tên — nằm ngoài danh sách nên SSE vẽ lại không mất chữ đang gõ -->

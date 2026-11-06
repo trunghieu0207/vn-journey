@@ -70,6 +70,7 @@ function logText(e) {
     case 'held': return [`Giữ được ${p} — đoàn khách trả lời sai`, 'good']
     case 'repelled': return [`Thử tài ở ${p} chưa thành — chủ nhà trả lời đúng trước`, 'bad']
     case 'time-penalty': return [`Trả lời chậm ở ${p}: −${e.penalty} điểm`, 'bad']
+    case 'gift': return [`Chủ phòng tung thẻ: ${e.kinds.map(k => CARD_INFO[k]?.name ?? '').join(', ')}`, 'good']
     case 'card': return [`${who}dùng thẻ ${CARD_INFO[e.kind]?.name ?? ''}${p ? ` (${p})` : ''}`]
     case 'streak': return [`Chuỗi ${e.n} câu đúng! ${e.card ? `Nhận thẻ ${CARD_INFO[e.card].name}` : `+${e.bonus} điểm${compactRoom() ? '' : ' (khay thẻ đã đầy)'}`}`, 'good']
     case 'lost': return [`${p} đã đổi chủ!`, 'bad']

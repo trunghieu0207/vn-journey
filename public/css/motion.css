@@ -46,6 +46,7 @@
 .fx-flip .face.front { padding: 12px; }
 .fx-flip .face.front b { font-size: 20px; font-weight: 900; }
 .fx-flip .face.front small { color: var(--muted); font-size: 13px; line-height: 1.3; }
+.pill.fx-card-caption { position: absolute; top: calc(50% - 114px - 70px); left: 50%; transform: translateX(-50%); rotate: -2deg; padding: 10px 22px; font-size: 22px; font-weight: 900; white-space: nowrap; }
 .fx-flip .face.back { transform: rotateY(180deg); border-radius: 18px; background: #CE82FF; box-shadow: 0 0 0 3px #fff, 0 6px 0 2px #A568E0; }
 .score-row .up-badge { position: absolute; top: -12px; left: 70px; padding: 1px 12px; border-radius: 999px; background: var(--green); box-shadow: 0 0 0 2px #fff; color: #fff; font-size: 18px; font-weight: 900; }
 

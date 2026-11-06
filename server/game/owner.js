@@ -1,12 +1,12 @@
 // Quyền chủ phòng (và người chơi rời phòng): mời ra, bắt đầu, tạm dừng, tiếp tục, kết thúc, chơi lại, sự kiện, chỉnh điểm.
 
 import { transaction } from '../db.js'
-import { RULES, REGIONS, byRank, GameError, cleanName, normalizeText } from './rules.js'
+import { RULES, REGIONS, CARD_KINDS, SOLO_CARD_KINDS, byRank, GameError, cleanName, normalizeText } from './rules.js'
 
 export function createOwner(ctx) {
   const {
     db, q, now, random, provinces, adjacency, freezeBeforeEndMin, roomId,
-    log, state, requireRunning, requireTeam, scores, isSolo, usesStamps, recordBoard,
+    log, state, requireRunning, requireTeam, scores, isSolo, isCompact, usesStamps, recordBoard,
   } = ctx
 
   // ---------- Chủ phòng ----------
@@ -225,5 +225,29 @@ export function createOwner(ctx) {
     })
   }
 
-  return { spawnSolo, kickPlayer, renamePlayer, leave, releaseHost, assignStarts, start, pause, resume, end, reset, setTopicChoice, setBetChoice, triggerEvent, adjustScore }
+  // Team gọn: chủ phòng tung thẻ cho mọi team trong lúc chơi — một loại thẻ (hoặc 'random': mỗi thẻ ngẫu nhiên), 1–3 thẻ.
+  // Khay vẫn tối đa RULES.maxCards: team gần đầy chỉ nhận phần còn chỗ. Không đấu (mỗi team một bản đồ): không có Hàng rào.
+  // Trả về { teams: số team nhận được thẻ, cards: tổng số thẻ đã phát }
+  function giveCards(kind, count) {
+    requireRunning()
+    if (!isCompact()) throw new GameError('not-compact', 'Chỉ phòng Team gọn mới tung thẻ được', 409)
+    const kinds = usesStamps() ? SOLO_CARD_KINDS : CARD_KINDS
+    if (kind !== 'random' && !kinds.includes(kind)) throw new GameError('bad-card', 'Loại thẻ không hợp lệ')
+    if (!Number.isInteger(count) || count < 1 || count > RULES.maxCards) throw new GameError('bad-count', `Số thẻ phải từ 1 đến ${RULES.maxCards}`)
+    return transaction(db, () => {
+      let teams = 0, cards = 0
+      for (const t of q.teams.all(roomId)) {
+        const n = Math.min(count, RULES.maxCards - q.cards.all(t.id).length)
+        if (n <= 0) continue
+        const got = Array.from({ length: n }, () => (kind === 'random' ? kinds[Math.floor(random() * kinds.length)] : kind))
+        for (const k of got) db.prepare('INSERT INTO cards (team_id, kind) VALUES (?, ?)').run(t.id, k)
+        log(t.id, 'gift', null, { kinds: got })
+        teams++
+        cards += n
+      }
+      return { teams, cards }
+    })
+  }
+
+  return { spawnSolo, kickPlayer, renamePlayer, leave, releaseHost, assignStarts, start, pause, resume, end, reset, setTopicChoice, setBetChoice, triggerEvent, adjustScore, giveCards }
 }

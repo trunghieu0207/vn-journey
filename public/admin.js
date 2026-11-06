@@ -268,6 +268,7 @@ function renderButtons() {
   }
   $('gameButtons').replaceChildren(...buttons)
   $('eventBtn').disabled = s !== 'running'
+  renderCardsCard(s)
   $('sharedBtn').disabled = s !== 'running'
   renderShared()
 }
@@ -406,6 +407,7 @@ function logText(e) {
     case 'shared-result': return `Câu hỏi chung: cả phòng đúng ${d.pct}% (${d.voters} người chọn)${d.passed ? ` → mọi team +${d.bonus}` : ''}`
     case 'shared-bonus': return `${team}+${d.bonus} (câu hỏi chung)`
     case 'rename': return `${team}chủ phòng sửa tên một thành viên thành ${d.to}`
+    case 'gift': return `${team}nhận thẻ chủ phòng tung: ${d.kinds.map(k => CARD_NAME[k]).join(', ')}`
     case 'score-adjust': return `${team}${d.delta > 0 ? '+' : ''}${d.delta} điểm — ${d.reason}`
     default: return `${team}${e.action}`
   }
@@ -458,6 +460,23 @@ $('eventBtn').addEventListener('click', () => act(
   () => api('/api/owner/event', { kind: $('eventKind').value, region: $('eventRegion').value }),
   'Đã tung sự kiện',
 ))
+
+// Team gọn: tung thẻ cho mọi team. Không đấu (mỗi team một bản đồ): không có Hàng rào
+function renderCardsCard(s) {
+  $('cardsCard').hidden = !view.room.compact
+  if (!view.room.compact) return
+  const kinds = ['random', ...Object.keys(CARD_NAME).filter(k => !(k === 'shield' && view.room.stamps))]
+  if ($('cardKind').options.length !== kinds.length) {
+    const keep = $('cardKind').value
+    $('cardKind').replaceChildren(...kinds.map(k => el('option', { value: k }, k === 'random' ? 'Thẻ ngẫu nhiên' : CARD_NAME[k])))
+    if (kinds.includes(keep)) $('cardKind').value = keep
+  }
+  $('cardBtn').disabled = s !== 'running'
+}
+$('cardBtn').addEventListener('click', () => act(async () => {
+  const r = await api('/api/owner/cards', { kind: $('cardKind').value, count: Number($('cardCount').value) })
+  toast(r.cards ? `Đã tung ${r.cards} thẻ cho ${r.teams} team` : 'Khay thẻ của mọi team đã đầy — chưa tung thêm được')
+}))
 
 $('sharedBtn').addEventListener('click', () => act(() => api('/api/owner/shared', { action: 'start' }), 'Đã tung câu hỏi chung — trận tạm dừng'))
 

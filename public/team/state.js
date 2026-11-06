@@ -53,7 +53,7 @@ export const state = {
 // ---------- Tính toán trạng thái ----------
 // Phòng chơi đơn: mỗi người một hành trình (tem thay cho cắm cờ)
 export const solo = () => state.me?.room.mode === 'solo'
-// Phòng "Team gọn": không thẻ bài, thưởng nhanh thay trừ giờ (tắt Đấu: mỗi team một bản đồ, có về đích)
+// Phòng "Team gọn": không tự nhận thẻ (chủ phòng tung), thưởng nhanh thay trừ giờ (tắt Đấu: mỗi team một bản đồ, có về đích)
 export const compactRoom = () => !!state.me?.room.compact
 // Máy này đang giữ quyền chủ phòng (người tạo phòng vào chơi luôn / người vào trước ở phòng có sẵn)
 export const isHost = () => !!state.me?.hostId && state.me.hostId === state.me.me?.id

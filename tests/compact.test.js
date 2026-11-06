@@ -157,6 +157,42 @@ test('Team gọn bật Đấu: chung bản đồ, thử tài được, vẫn kh�
   assert.equal(game.siege(b.id).status, 'siege-bet')
 })
 
+test('Team gọn: chủ phòng tung thẻ cho mọi team — đúng loại, đúng số, khay tối đa 3, nhật ký team có ghi', () => {
+  const { db, game, teams } = setupCompact({ teamCount: 3 })
+  const [a, b, c] = teams
+  db.prepare("INSERT INTO cards (team_id, kind) VALUES (?, 'march'), (?, 'march')").run(b.id, b.id) // b còn 1 chỗ
+  for (let i = 0; i < RULES.maxCards; i++) db.prepare("INSERT INTO cards (team_id, kind) VALUES (?, 'fifty')").run(c.id) // c đã đầy
+  assert.deepEqual(game.giveCards('time', 2), { teams: 2, cards: 3 })
+  const kinds = id => game.teamView(id).cards.map(x => x.kind).sort()
+  assert.deepEqual(kinds(a.id), ['time', 'time'])
+  assert.deepEqual(kinds(b.id), ['march', 'march', 'time'])
+  assert.equal(kinds(c.id).length, RULES.maxCards)
+  assert.deepEqual(game.teamView(a.id).log.find(e => e.action === 'gift').kinds, ['time', 'time'])
+  // Thẻ được tung dùng được như thẻ thường
+  const q = askAt(game, db, a.id, cityId(db))
+  assert.ok(q)
+  const card = game.teamView(a.id).cards[0]
+  assert.equal(game.useCard(a.id, card.id, '').kind, 'time')
+})
+
+test('Team gọn: tung thẻ ngẫu nhiên; không đấu không có Hàng rào; kiểm tra loại / số / trạng thái / kiểu phòng', () => {
+  const { game, teams: [a] } = setupCompact()
+  assert.deepEqual(game.giveCards('random', 3), { teams: 2, cards: 6 })
+  assert.ok(game.teamView(a.id).cards.every(x => x.kind !== 'shield'))
+  assert.throws(() => game.giveCards('shield', 1), { code: 'bad-card' })
+  assert.throws(() => game.giveCards('bogus', 1), { code: 'bad-card' })
+  const fresh = setupCompact()
+  for (const n of [0, 4, 1.5, NaN]) assert.throws(() => fresh.game.giveCards('scout', n), { code: 'bad-count' })
+  // Bật Đấu: có Hàng rào
+  const duel = setupCompact({ duel: true })
+  assert.deepEqual(duel.game.giveCards('shield', 1), { teams: 2, cards: 1 * 2 })
+  // Chưa bắt đầu / phòng team thường: không tung được
+  const waiting = setupGame({ mode: 'compact', teamCount: 2, start: false })
+  assert.throws(() => waiting.game.giveCards('scout', 1), { code: 'not-running' })
+  const normal = setupGame({ teamCount: 2 })
+  assert.throws(() => normal.game.giveCards('scout', 1), { code: 'not-compact' })
+})
+
 test('nâng cấp DB cũ: thêm cột compact / duel còn thiếu, giữ dữ liệu', () => {
   const db = memoryDb()
   db.exec('ALTER TABLE rooms DROP COLUMN duel')

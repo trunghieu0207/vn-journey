@@ -93,7 +93,7 @@ export const RULES = {
   autoStartMs: 3 * 60_000,
   maxRoomsPerCreator: 3,
   durationMin: { min: 10, max: 90 },
-  // Phòng "Team gọn" (chốt 3/11): không thẻ bài (đúng liền 3 câu → +50); đúng ngay khi câu hiện → thưởng thêm 100% điểm tỉnh,
+  // Phòng "Team gọn" (chốt 3/11): không tự nhận thẻ — chỉ chủ phòng tung (6/11, giveCards); đúng liền 3 câu → +50; đúng ngay khi câu hiện → thưởng thêm 100% điểm tỉnh,
   // giảm đều về 0 lúc hết giờ (không trừ điểm khi chậm). Tắt Đấu: mỗi team một bản đồ riêng; đi đủ 34 tỉnh → thưởng về đích
   // 100 điểm cho mỗi phút còn lại (tính lẻ theo giây); mọi team có người chơi đều về đích → trận kết thúc
   compactSpeedRatio: 1,
@@ -122,7 +122,7 @@ export const CARD_KINDS = ['scout', 'shield', 'march', ...HELP_CARDS]
 export const SOLO_CARD_KINDS = CARD_KINDS.filter(k => k !== 'shield')
 export const EVENT_KINDS = ['festival', 'storm', 'golden', 'rumor']
 // Các hành động hiện trong nhật ký team
-export const TEAM_LOG_ACTIONS = ['spawn', 'move', 'retry', 'retreat', 'pushed-back', 'topic', 'capture', 'steal', 'wrong', 'siege-fail', 'siege', 'skip', 'card', 'time-penalty', 'streak', 'speed', 'defend', 'defend-fail', 'held', 'repelled', 'home', 'shared-bonus', 'pioneer', 'progress', 'siege-bet', 'duel-round', 'finish', 'miss-penalty']
+export const TEAM_LOG_ACTIONS = ['spawn', 'move', 'retry', 'retreat', 'pushed-back', 'topic', 'capture', 'steal', 'wrong', 'siege-fail', 'siege', 'skip', 'card', 'time-penalty', 'streak', 'speed', 'defend', 'defend-fail', 'held', 'repelled', 'home', 'shared-bonus', 'pioneer', 'progress', 'siege-bet', 'duel-round', 'finish', 'miss-penalty', 'gift']
 
 // Xếp hạng: điểm cao hơn trước; bằng điểm thì tổng thời gian trả lời ít hơn trước
 export const byRank = (a, b) => b.total - a.total || a.answerMs - b.answerMs

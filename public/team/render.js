@@ -139,10 +139,11 @@ export function renderAll() {
     $('journeyText').textContent = `${state.me.stamps?.length ?? 0} tem${firsts ? ` · ${firsts} tem Tiên phong` : ''}. Mỗi tem kèm điều bạn đã học.`
   }
   $('cardsEmpty').textContent = one ? 'Nhận tem ở thành phố trực thuộc TW để nhận thẻ.' : 'Cắm cờ ở thành phố trực thuộc TW để nhận thẻ.'
-  // Team gọn: không thẻ bài — ẩn khay thẻ (cả tab dưới trên điện thoại)
+  // Team gọn: không tự nhận thẻ — chỉ chủ phòng tung; khay rỗng thì ẩn khay thẻ (cả tab dưới trên điện thoại)
   const noCards = compactRoom()
-  document.querySelector('.card.cards').hidden = noCards
-  document.querySelector('#tabbar [data-tab="cards"]').hidden = noCards
+  const hideTray = noCards && !state.me.cards.length
+  document.querySelector('.card.cards').hidden = hideTray
+  document.querySelector('#tabbar [data-tab="cards"]').hidden = hideTray
   // Chuỗi đúng: cứ 3 câu liên tiếp nhận 1 thẻ trợ giúp (Team gọn: +50 điểm)
   const streak = state.me.streak ?? 0
   $('streakBox').hidden = !streak

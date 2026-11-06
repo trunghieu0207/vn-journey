@@ -1,6 +1,6 @@
 // Hành động của team trong một phòng: đi, chọn chủ đề / đặt cược, công thành (đấu tay đôi với đội giữ tỉnh), rút lui,
 // bỏ phiếu + trả lời (chuỗi đúng, câu vàng, siêu tốc), phòng thủ, bỏ qua, dùng thẻ.
-// Phòng "Team gọn" (isCompact): không thẻ bài, thưởng nhanh thay trừ giờ; tắt Đấu thì dùng tem như phòng đơn (usesStamps) + thưởng về đích.
+// Phòng "Team gọn" (isCompact): không tự nhận thẻ (chủ phòng tung — owner.js giveCards), thưởng nhanh thay trừ giờ; tắt Đấu thì dùng tem như phòng đơn (usesStamps) + thưởng về đích.
 
 import { transaction } from '../db.js'
 import { RULES, REGIONS, CARD_KINDS, SOLO_CARD_KINDS, HELP_CARDS, GameError } from './rules.js'

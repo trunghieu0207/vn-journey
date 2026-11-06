@@ -6,17 +6,18 @@ import { api } from '/shared/api.js'
 import { labeled } from '/shared/icons.js'
 import { $, button, el } from '/shared/dom.js'
 import { toast } from './notify.js'
-import { isHost, now, state } from './state.js'
+import { CARD_INFO, compactRoom, isHost, now, state } from './state.js'
 
 const drawer = $('hostDrawer')
 let screenCode = null
 let evKind = 'festival', evRegion = 'north' // giữ lựa chọn khi bảng vẽ lại (mỗi lần có cập nhật)
+let cardKind = 'random', cardCount = '1'
 let confirmAt = { action: null, until: 0 } // thao tác cần bấm 2 lần (Kết thúc, Chơi lại) — không dùng confirm() của trình duyệt
 
 async function call(path, body, ok) {
   try {
-    await api(path, body)
-    if (ok) toast(ok)
+    const r = await api(path, body)
+    if (ok) toast(typeof ok === 'function' ? ok(r) : ok)
   } catch (err) {
     toast(err.message, true)
   }
@@ -59,6 +60,8 @@ export function renderHost() {
   kind.addEventListener('change', () => { evKind = kind.value; region.disabled = ['rumor', 'golden'].includes(evKind) })
   region.addEventListener('change', () => { evRegion = region.value })
   const ev = state.me.event && state.me.event.until > now()
+  // Team gọn: tung thẻ cho mọi team (không đấu: không có Hàng rào)
+  const cards = compactRoom() ? cardSection(running) : ''
 
   drawer.replaceChildren(
     el('div', { class: 'host-head' }, el('h2', {}, 'Chủ phòng'), button('✕', 'kick', () => { drawer.hidden = true }, { 'aria-label': 'Đóng' })),
@@ -68,10 +71,29 @@ export function renderHost() {
         button('Tung sự kiện', 'on', () => call('/api/owner/event', { kind: kind.value, region: region.value }, 'Đã tung sự kiện'), { disabled: !running })),
       button(labeled('question', 'Câu hỏi chung cả phòng'), '', () => call('/api/owner/shared', { action: 'start' }, 'Đã tung câu hỏi chung — trận tạm dừng'),
         { disabled: !running, title: 'Trận tạm dừng, mỗi người chọn trên máy mình trong 30 giây' })),
+    cards,
     el('section', {}, el('h3', {}, 'Màn chiếu'),
       el('p', {}, 'Mã phòng ', el('b', {}, state.me.room.code), ' · mã màn chiếu ', el('b', {}, screenCode ?? '…')),
       el('a', { class: 'btn', href: '/screen.html', target: '_blank', rel: 'noopener' }, labeled('screen', 'Mở màn chiếu'))),
     el('a', { class: 'link', href: '/admin.html' }, 'Trang chủ phòng đầy đủ (sửa tên, mời ra, sửa điểm, thống kê) →')) // có nút "Quay lại chơi"
+}
+
+// Kết quả tung thẻ: { teams, cards } — 0 thẻ khi khay mọi team đã đầy
+const cardsDone = r => (r.cards ? `Đã tung ${r.cards} thẻ cho ${r.teams} team` : 'Khay thẻ của mọi team đã đầy — chưa tung thêm được')
+
+function cardSection(running) {
+  const kinds = Object.keys(CARD_INFO).filter(k => !(k === 'shield' && state.me.room.stamps))
+  if (!['random', ...kinds].includes(cardKind)) cardKind = 'random'
+  const kind = el('select', { class: 'input compact', 'aria-label': 'Loại thẻ' },
+    el('option', { value: 'random' }, 'Thẻ ngẫu nhiên'), ...kinds.map(k => el('option', { value: k }, CARD_INFO[k].name)))
+  const count = el('select', { class: 'input compact', 'aria-label': 'Số thẻ' }, ...[1, 2, 3].map(n => el('option', { value: String(n) }, `${n} thẻ`)))
+  kind.value = cardKind
+  count.value = cardCount
+  kind.addEventListener('change', () => { cardKind = kind.value })
+  count.addEventListener('change', () => { cardCount = count.value })
+  return el('section', {}, el('h3', {}, 'Thẻ bài'), el('p', { class: 'muted' }, 'Mọi team cùng nhận; khay tối đa 3 thẻ — team gần đầy chỉ nhận phần còn chỗ.'),
+    el('div', { class: 'btn-row' }, kind, count,
+      button('Tung thẻ', 'on', () => call('/api/owner/cards', { kind: kind.value, count: Number(count.value) }, cardsDone), { disabled: !running })))
 }
 
 $('hostBtn').addEventListener('click', async () => {

@@ -262,9 +262,16 @@ export async function hangSign({ kind, title, sub = '' }) {
 }
 
 /** Thẻ bài: thẻ úp hiện giữa màn, lật ra mặt trước (tia sáng phía sau), rồi bay vào khay `target`. */
-export async function cardReveal({ iconName, name, hint, target }) {
+export async function cardReveal({ iconName, name, hint, target, caption = null }) {
   if (reducedMotion) return
   const l = layer('fx-card-layer')
+  // caption: dòng chữ phía trên thẻ cho biết thẻ từ đâu ra (vd. "Chủ phòng tung thẻ!") — lớp phủ che mất thông báo thường
+  const cap = caption ? div('pill fx-card-caption', caption) : null
+  if (cap) {
+    l.append(cap)
+    anim(cap, [{ transform: 'translate(-50%, 20px) scale(.6)', opacity: 0 }, { transform: 'translate(-50%, 0) scale(1.08)', opacity: 1, offset: 0.7 }, { transform: 'translate(-50%, 0) scale(1)', opacity: 1 }],
+      { duration: 420, easing: 'ease-out', fill: 'forwards' })
+  }
   const rays = div('fx-rays')
   const front = div('face front card', icon(iconName, { size: '56px' }), Object.assign(document.createElement('b'), { textContent: name }), Object.assign(document.createElement('small'), { textContent: hint }))
   const back = div('face back', icon('card', { size: '64px' }))
@@ -276,6 +283,7 @@ export async function cardReveal({ iconName, name, hint, target }) {
   anim(rays, [{ opacity: 0, transform: 'scale(.5) rotate(0deg)' }, { opacity: 1, transform: 'scale(1) rotate(40deg)', offset: 0.4 }, { opacity: 1, transform: 'scale(1) rotate(100deg)' }], { duration: 2400, delay: 300, easing: 'linear', fill: 'both' })
   await sleep(2100)
   anim(rays, [{ opacity: 1 }, { opacity: 0 }], { duration: 300, fill: 'forwards' })
+  if (cap) anim(cap, [{ opacity: 1 }, { opacity: 0 }], { duration: 300, fill: 'forwards' })
   const tr = target?.getBoundingClientRect()
   if (tr?.width) {
     const fr = flip.getBoundingClientRect()

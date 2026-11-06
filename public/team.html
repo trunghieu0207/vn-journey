@@ -92,7 +92,7 @@
         </div>
         <div class="lp-mode compact">
           <h3><span class="lp-ic"><span data-icon="streak"></span></span> Team gọn</h3>
-          <p>Theo team, ít luật: không thẻ bài, trả lời càng nhanh càng nhiều điểm.</p>
+          <p>Theo team, ít luật: thẻ bài do chủ phòng tung, trả lời càng nhanh càng nhiều điểm.</p>
           <ul><li>Đúng ngay khi câu hiện ra: gấp đôi điểm tỉnh</li><li>Mặc định không đấu: mỗi team một bản đồ, đua đi đủ 34 tỉnh</li><li>Về đích sớm: +100 điểm mỗi phút còn lại</li></ul>
           <span class="lp-fit">Hợp với: trận ngắn, người mới chơi</span>
         </div>
@@ -165,7 +165,7 @@
         <label class="mode-option"><input type="radio" name="mode" value="team" checked>
           <b>Theo team</b><small>Chia team, cắm cờ giành tỉnh, ghé thăm thử tài</small></label>
         <label class="mode-option" id="modeCompact"><input type="radio" name="mode" value="compact">
-          <b>Team gọn</b><small>Theo team, không thẻ bài — trả lời càng nhanh càng nhiều điểm</small></label>
+          <b>Team gọn</b><small>Theo team, thẻ bài do chủ phòng tung — trả lời càng nhanh càng nhiều điểm</small></label>
         <label class="mode-option"><input type="radio" name="mode" value="solo">
           <b>Chơi đơn</b><small>Mỗi người một hành trình: sưu tầm tem, tối đa 50 người</small></label>
       </div>
@@ -261,10 +261,11 @@
       <div data-mode="compact" hidden>
         <p class="kicker">Kiểu phòng bạn đang chọn</p>
         <h2 class="entry-title"><span data-icon="streak"></span> Team gọn</h2>
-        <p class="lead">Chơi theo team, gọn hơn: <b>không thẻ bài</b>, không trừ điểm khi chậm — trả lời <b>càng nhanh càng được nhiều điểm</b>. Mặc định không đấu: mỗi team một bản đồ riêng, đua xem ai đi đủ 34 tỉnh trước.</p>
+        <p class="lead">Chơi theo team, gọn hơn: <b>không tự nhận thẻ bài</b>, không trừ điểm khi chậm — trả lời <b>càng nhanh càng được nhiều điểm</b>. Mặc định không đấu: mỗi team một bản đồ riêng, đua xem ai đi đủ 34 tỉnh trước.</p>
         <dl class="facts">
           <dt>Người chơi</dt><dd>2–8 team, mỗi team tối đa 12 người, cùng bàn và bỏ phiếu chốt đáp án.</dd>
           <dt>Tốc độ</dt><dd>Đúng ngay khi câu hiện ra: <b>+100% điểm tỉnh</b>; thưởng giảm dần về 0 lúc hết giờ.</dd>
+          <dt>Thẻ bài</dt><dd>Chủ phòng tung thẻ cho mọi team trong lúc chơi (chọn loại hoặc ngẫu nhiên, 1–3 thẻ; khay tối đa 3).</dd>
           <dt>Cược</dt><dd>Chắc ăn / Mạo hiểm (bật / tắt khi tạo phòng): đúng +50% điểm tỉnh.</dd>
           <dt>Về đích</dt><dd>Không đấu: đi đủ 34 tỉnh được <b>+100 điểm mỗi phút còn lại</b>; mọi team về đích thì trận kết thúc.</dd>
           <dt>Cho đấu</dt><dd>Bật thì chung bản đồ, tỉnh team khác phải thử tài như phòng team.</dd>

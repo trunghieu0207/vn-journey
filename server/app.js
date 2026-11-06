@@ -506,6 +506,11 @@ export function createApp({ db, config, now = Date.now, random = Math.random }) 
         return { ok: true }
       },
     },
+    // Team gọn: tung thẻ cho mọi team (loại thẻ hoặc 'random', 1–3 thẻ)
+    'POST /api/owner/cards': {
+      auth: ['owner'], change: true,
+      run: ({ session, body }) => roomOf(session).giveCards(String(body.kind ?? ''), Number(body.count)),
+    },
     'POST /api/owner/settings': {
       auth: ['owner'], change: true,
       run: ({ session, body }) => {
