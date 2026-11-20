@@ -4,7 +4,7 @@
       "id": "van-lang",
       "name": "Văn Lang",
       "years": "khoảng thế kỷ VII – III TCN",
-      "reviewed": false,
+      "reviewed": true,
       "scene": {
         "color": "#E6EBC6",
         "icons": [
@@ -282,7 +282,7 @@
       "id": "nha-ly",
       "name": "Nhà Lý",
       "years": "1009 – 1225",
-      "reviewed": false,
+      "reviewed": true,
       "scene": {
         "color": "#F6E4BE",
         "icons": [
@@ -566,7 +566,7 @@
       "id": "nha-nguyen",
       "name": "Nhà Nguyễn",
       "years": "1802 – trước 1858",
-      "reviewed": false,
+      "reviewed": true,
       "scene": {
         "color": "#F4DDD3",
         "icons": [

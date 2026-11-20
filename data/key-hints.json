@@ -17,7 +17,7 @@
           "https://baovanhoa.vn/kinh-te/phat-huy-gia-tri-hoa-sen-tay-ho-101593.html",
           "https://vinpearl.com/vi/tra-sen-tay-ho-dac-san-nuc-tieng-luu-giu-net-dep-nguoi-ha-thanh"
         ],
-        "reviewed": false
+        "reviewed": true
       },
       {
         "level": 2,
@@ -32,7 +32,7 @@
           "https://baophapluat.vn/hoi-giong-duoc-cong-nhan-la-di-san-van-hoa-nhan-loai-post94725.html",
           "https://tienphong.vn/Van-Hoa/526110/Don-bang-UNESCO-cho-Hoi-Giong-den-Phu-Dong-va-den-Soc.html"
         ],
-        "reviewed": false
+        "reviewed": true
       }
     ],
     "cao-bang": [
@@ -52,7 +52,7 @@
           "https://doanhnhan.baophapluat.vn/kham-pha-san-vat-mien-bac-viet-nam-ky-4-chao-nhong-ong-rung-banh-trung-kien-va-banh-coong-phu-cao-bang-42719.html",
           "https://vietnamnet.vn/top-5-dac-san-cao-bang-ngon-tu-tuyet-mua-lam-qua-bieu-khach-2082628.html"
         ],
-        "reviewed": false
+        "reviewed": true
       },
       {
         "level": 2,
@@ -71,7 +71,7 @@
           "https://www.sggp.org.vn/luu-luyen-ban-gioc-post778890.html",
           "https://tapchicongthuong.vn/thac-ban-gioc-va-nhung-thang-canh-du-lich-cao-bang-75700.htm"
         ],
-        "reviewed": false
+        "reviewed": true
       }
     ],
     "tuyen-quang": [
@@ -91,7 +91,7 @@
           "https://baovanhoa.vn/dan-toc-ton-giao/huyen-ao-le-hoi-nhay-lua-cua-nguoi-pa-then-tuyen-quang-120846.html",
           "https://nhandan.vn/tuyen-quang-nang-cao-gia-tri-cay-an-qua-post796113.html"
         ],
-        "reviewed": false
+        "reviewed": true
       },
       {
         "level": 2,
@@ -110,7 +110,7 @@
           "https://vnexpress.net/nhung-mon-qua-dan-da-tu-ha-giang-2980058.html",
           "https://tapchicongthuong.vn/magazine/mat-ong-bac-ha-noi-cao-nguyen-da-ha-giang-100745.htm"
         ],
-        "reviewed": false
+        "reviewed": true
       }
     ],
     "dien-bien": [
@@ -130,7 +130,7 @@
           "https://nhandan.vn/chuyen-cay-ca-phe-to-dat-muong-ang-post813523.html",
           "https://daibieunhandan.vn/muong-ang-quyet-giu-thuong-hieu-ca-phe-arabica-huu-co-post393122.html"
         ],
-        "reviewed": false
+        "reviewed": true
       },
       {
         "level": 2,
@@ -147,7 +147,7 @@
           "https://vnexpress.net/muong-lo-canh-dong-lua-lon-thu-hai-tay-bac-3642014.html",
           "https://nhandan.vn/ve-than-uyen-vui-mua-hoi-post771022.html"
         ],
-        "reviewed": false
+        "reviewed": true
       }
     ],
     "lai-chau": [
@@ -167,7 +167,7 @@
           "https://nhandan.vn/ocop/sac-tho-cam-duoi-chan-nui-hoang-lien-post878732.html",
           "https://www.vietnamplus.vn/det-tho-cam-cua-nguoi-lu-o-lai-chau-con-suoi-uon-luon-quanh-vat-ao-cham-post1143613.vnp"
         ],
-        "reviewed": false
+        "reviewed": true
       },
       {
         "level": 2,
@@ -184,7 +184,7 @@
           "https://tienphong.vn/sin-suoi-ho-thien-duong-trong-may-o-lai-chau-post1521705.tpo",
           "https://www.vietnamplus.vn/kham-pha-tay-bac-de-nhat-dong-pusamcap-tai-lai-chau-post1122582.vnp"
         ],
-        "reviewed": false
+        "reviewed": true
       }
     ],
     "son-la": [
@@ -205,7 +205,7 @@
           "https://baovanhoa.vn/doi-song-van-hoa/doc-dao-le-hoi-lung-ta-chieu-30-tet-cua-nguoi-thai-trang-73224.html",
           "https://baovanhoa.vn/dan-toc-ton-giao/doc-dao-le-hoi-lung-ta-don-nam-moi-cua-nguoi-thai-trang-205135.html"
         ],
-        "reviewed": false
+        "reviewed": true
       },
       {
         "level": 2,
@@ -223,7 +223,7 @@
           "https://baovanhoa.vn/van-hoa/le-hoi-het-cha-lan-toa-ban-sac-van-hoa-nguoi-thai-o-moc-chau-85045.html",
           "https://baovanhoa.vn/doi-song-van-hoa/vui-hoi-het-cha-voi-nguoi-thai-o-moc-chau-22213.html"
         ],
-        "reviewed": false
+        "reviewed": true
       }
     ],
     "lao-cai": [
@@ -243,7 +243,7 @@
           "https://nhandan.vn/ve-thu-phu-da-quy-luc-yen-post951437.html",
           "https://baolaocai.vn/doc-dao-phien-cho-da-quy-luc-yen-post441899.html"
         ],
-        "reviewed": false
+        "reviewed": true
       },
       {
         "level": 2,
@@ -262,7 +262,7 @@
           "https://tuoitre.vn/bai-da-co-sa-pa-da-xep-hang-phai-bao-ve-508002.htm",
           "https://baolaocai.vn/ra-soat-danh-gia-lai-tac-dong-cua-moi-truong-toi-bai-da-co-sa-pa-post375510.html"
         ],
-        "reviewed": false
+        "reviewed": true
       }
     ],
     "thai-nguyen": [
@@ -285,7 +285,7 @@
           "https://moit.gov.vn/tu-hao-hang-viet-nam/nhung-nong-san-noi-bat-cua-tinh-bac-kan.html",
           "https://tapchicongthuong.vn/bac-kan--nang-tam-gia-tri-nong-san-nho-san-pham-ocop-130388.htm"
         ],
-        "reviewed": false
+        "reviewed": true
       },
       {
         "level": 2,
@@ -304,7 +304,7 @@
           "https://baovanhoa.vn/doi-song-van-hoa/ky-niem-60-nam-thanh-lap-bao-tang-van-hoa-cac-dan-toc-viet-nam-87101.html",
           "https://baovanhoa.vn/van-hoa/ky-niem-65-nam-ngay-thanh-lap-bao-tang-van-hoa-cac-dan-toc-viet-nam-189907.html"
         ],
-        "reviewed": false
+        "reviewed": true
       }
     ],
     "lang-son": [
@@ -323,7 +323,7 @@
           "https://vnexpress.net/tieng-pi-le-tren-nui-mau-son-3346827.html",
           "https://baovanhoa.vn/doi-song-van-hoa/tram-bong-tieng-ken-pi-le-cua-nguoi-dao-tren-dinh-mau-son-14580.html"
         ],
-        "reviewed": false
+        "reviewed": true
       },
       {
         "level": 2,
@@ -341,7 +341,7 @@
           "https://nguoiquansat.vn/dong-song-chay-nguoc-tu-viet-nam-len-trung-quoc-la-song-lon-nhat-cua-khu-vuc-mien-nui-dong-bac-bat-nguon-tu-vung-nui-cao-hon-1-000m-116675.html",
           "https://en.wikipedia.org/wiki/K%E1%BB%B3_C%C3%B9ng_River"
         ],
-        "reviewed": false
+        "reviewed": true
       }
     ],
     "quang-ninh": [
@@ -361,7 +361,7 @@
           "https://vnexpress.net/10-dac-san-quang-ninh-niu-chan-khach-du-lich-3449924.html",
           "https://baoquangninh.vn/am-thuc-quang-ba-van-hoa-du-lich-dia-phuong-3310649.html"
         ],
-        "reviewed": false
+        "reviewed": true
       },
       {
         "level": 2,
@@ -379,7 +379,7 @@
           "https://nhandan.vn/tet2026/chuyen-ong-voi-o-tra-co-5140.html",
           "https://baoquangninh.vn/am-thuc-quang-ba-van-hoa-du-lich-dia-phuong-3310649.html"
         ],
-        "reviewed": false
+        "reviewed": true
       }
     ],
     "bac-ninh": [
@@ -399,7 +399,7 @@
           "https://nhandan.vn/gom-phu-lang-xua-va-nay-post501864.html",
           "https://mia.vn/cam-nang-du-lich/lang-gom-phu-lang-bac-ninh-12875"
         ],
-        "reviewed": false
+        "reviewed": true
       },
       {
         "level": 2,
@@ -419,7 +419,7 @@
           "https://tapchicongthuong.vn/xay-dung-ho-so-di-san-van-hoa-phi-vat-the--nghe-lam-tranh-dan-gian-dong-ho-38959.htm",
           "https://vnexpress.net/lang-tranh-dong-ho-thoi-hien-dai-2099752.html"
         ],
-        "reviewed": false
+        "reviewed": true
       }
     ],
     "phu-tho": [
@@ -440,7 +440,7 @@
           "https://nhandan.vn/duyen-tham-gom-sanh-huong-canh-post448129.html",
           "https://baovanhoa.vn/hang-viet/ai-ve-lang-gom-huong-canh-27948.html"
         ],
-        "reviewed": false
+        "reviewed": true
       },
       {
         "level": 2,
@@ -458,7 +458,7 @@
           "https://www.sggp.org.vn/tham-ban-lac-103788.html",
           "https://baophapluat.vn/mai-chau-coi-thien-thai-noi-ha-gioi-post206333.html"
         ],
-        "reviewed": false
+        "reviewed": true
       }
     ],
     "hai-phong": [
@@ -478,7 +478,7 @@
           "https://tapchicongthuong.vn/dau-an-400-nam-tinh-hoa-gom-chu-dau-125779.htm",
           "https://baophapluat.vn/bao-tang-lich-su-da-nang-ra-mat-bo-suu-tap-hien-vat-quy-post151372.html"
         ],
-        "reviewed": false
+        "reviewed": true
       },
       {
         "level": 2,
@@ -496,7 +496,7 @@
           "https://www.vietnamplus.vn/hinh-anh-vooc-cat-ba-loai-linh-truong-quy-hiem-cua-the-gioi-post812337.vnp",
           "https://dantri.com.vn/khoa-hoc/loai-linh-truong-nguy-co-tuyet-chung-cao-nhat-the-gioi-hien-huu-o-viet-nam-20220822124929985.htm"
         ],
-        "reviewed": false
+        "reviewed": true
       }
     ],
     "hung-yen": [
@@ -517,7 +517,7 @@
           "https://baohungyen.vn/dong-xam-lang-nghe-cham-bac-truyen-thong-hon-600-nam-3186713.html",
           "https://vnexpress.net/tinh-hoa-cham-bac-thai-binh-2916050.html"
         ],
-        "reviewed": false
+        "reviewed": true
       },
       {
         "level": 2,
@@ -536,7 +536,7 @@
           "https://tuoitre.vn/nho-canh-ca-quynh-coi-dam-da-huong-vi-dong-que-549387.htm",
           "https://dantri.com.vn/du-lich/nhung-mon-ngon-tru-danh-cua-que-lua-thai-binh-1409183390.htm"
         ],
-        "reviewed": false
+        "reviewed": true
       }
     ],
     "ninh-binh": [
@@ -555,7 +555,7 @@
           "https://nhandan.vn/hang-van-nguoi-do-ve-phien-cho-mua-may-ban-rui-post736396.html",
           "https://vtv.vn/xa-hoi/hang-van-nguoi-do-ve-cho-vieng-nam-dinh-de-mua-may-ban-rui-20250204184739262.htm"
         ],
-        "reviewed": false
+        "reviewed": true
       },
       {
         "level": 2,
@@ -572,7 +572,7 @@
           "https://vnexpress.net/nha-tho-da-hon-120-tuoi-doc-nhat-viet-nam-3530110.html",
           "https://sodulich.ninhbinh.gov.vn/vi/tai-nguyen-du-lich-van-hoa/nha-tho-da-phat-diem-20.html"
         ],
-        "reviewed": false
+        "reviewed": true
       }
     ],
     "thanh-hoa": [
@@ -590,7 +590,7 @@
           "https://vnexpress.net/mam-tep-ha-yen-2358405.html",
           "https://vhds.baothanhhoa.vn/phai-long-am-thuc-que-choa-42874.htm"
         ],
-        "reviewed": false
+        "reviewed": true
       },
       {
         "level": 2,
@@ -606,7 +606,7 @@
           "https://www.vietnamplus.vn/thanh-hoa-doc-dao-le-hoi-cau-phuc-den-doc-cuoc-o-sam-son-nam-2024-post936411.vnp",
           "https://daibieunhandan.vn/nhung-suu-tam-phat-hien-moi-ve-van-hoa-dong-son-10324792.html"
         ],
-        "reviewed": false
+        "reviewed": true
       }
     ],
     "nghe-an": [
@@ -626,7 +626,7 @@
           "https://namdan.nghean.gov.vn/dac-san-nam-dan/tuong-nam-dan-tu-mon-an-dan-da-den-dac-san-xu-nghe-610534?pageindex=0",
           "https://tapchicongthuong.vn/nhung-mon-an-niu-chan-thuc-khach-khi-den-nghe-an-74627.htm"
         ],
-        "reviewed": false
+        "reviewed": true
       },
       {
         "level": 2,
@@ -642,7 +642,7 @@
           "https://vnexpress.net/cac-diem-vui-choi-o-nghe-an-4113308.html",
           "https://tienphong.vn/gioi-tre-nuom-nuop-den-check-in-vinh-ha-long-xu-nghe-post1613058.tpo"
         ],
-        "reviewed": false
+        "reviewed": true
       }
     ],
     "ha-tinh": [
@@ -661,7 +661,7 @@
           "https://vnexpress.net/5-mon-ngon-ha-tinh-3460267.html",
           "https://baovanhoa.vn/am-thuc/5-mon-ngon-ha-tinh-44477.html"
         ],
-        "reviewed": false
+        "reviewed": true
       },
       {
         "level": 2,
@@ -676,7 +676,7 @@
           "https://tuoitre.vn/ky-1-phat-hien-ky-lan-chau-a-594843.htm",
           "https://www.sggp.org.vn/nhan-giong-loai-sao-la-thu-quy-hiem-tai-rung-truong-son-post513076.html"
         ],
-        "reviewed": false
+        "reviewed": true
       }
     ],
     "quang-tri": [
@@ -695,7 +695,7 @@
           "https://baoquangtri.vn/van-hoa/202603/hon-que-trong-tieng-ho-khoan-ec66bbb/",
           "https://baoquangtri.vn/kinh-te/202205/dam-da-cha-ca-tram-song-son-2200060/"
         ],
-        "reviewed": false
+        "reviewed": true
       },
       {
         "level": 2,
@@ -710,7 +710,7 @@
           "https://baoquangtri.vn/moi-nong/202610/le-khai-mac-cac-hoat-dong-theo-dau-chan-100-nam-ca-phe-khe-sanh-4ad582e/",
           "https://baoquangtri.vn/phong-su-ky-su/202610/hoi-sinh-ca-phe-khe-sanh-b210723/"
         ],
-        "reviewed": false
+        "reviewed": true
       }
     ],
     "hue": [
@@ -730,7 +730,7 @@
           "https://vietnamnews.vn/life-style/464889/hue-holds-festival-honouring-pomelo-over-weekend.html",
           "https://www.sggp.org.vn/xot-xa-buoi-thanh-tra-283707.html"
         ],
-        "reviewed": false
+        "reviewed": true
       },
       {
         "level": 2,
@@ -746,7 +746,7 @@
           "https://nhandan.vn/ocop/nhung-ban-duc-noi-tren-cuu-dinh-o-hue-duoc-ghi-danh-di-san-tu-lieu-khu-vuc-chau-a-thai-binh-duong-post808393.html",
           "https://baovanhoa.vn/van-hoa/nhung-ban-duc-noi-tren-cuu-dinh-o-hoang-cung-hue-duoc-vinh-danh-di-san-tu-lieu-the-gioi-93201.html"
         ],
-        "reviewed": false
+        "reviewed": true
       }
     ],
     "da-nang": [
@@ -765,7 +765,7 @@
           "https://baovanhoa.vn/du-lich/du-xuan-ben-lang-da-ngu-hanh-44391.html",
           "https://tuoitre.vn/am-thuc/ghe-cau-mong-thuong-thuc-mon-be-thui-762006.htm"
         ],
-        "reviewed": false
+        "reviewed": true
       },
       {
         "level": 2,
@@ -783,7 +783,7 @@
           "https://tuoitre.vn/lam-cau-xanh-cho-nu-hoang-linh-truong-20230811222505621.htm",
           "https://baovanhoa.vn/doi-song/giai-cuu-vooc-cha-va-chan-nau-quy-hiem-mac-bay-tai-ban-dao-son-tra-171470.html"
         ],
-        "reviewed": false
+        "reviewed": true
       }
     ],
     "quang-ngai": [
@@ -803,7 +803,7 @@
           "https://www.vietnamplus.vn/goi-la-kon-tum-mon-an-goi-tron-huong-vi-nui-rung-tay-nguyen-post911742.vnp",
           "https://nhandan.vn/doc-dao-goi-la-kon-tum-post766542.html"
         ],
-        "reviewed": false
+        "reviewed": true
       },
       {
         "level": 2,
@@ -821,7 +821,7 @@
           "https://vnexpress.net/cam-nang-du-lich-kon-tum-4718005.html",
           "https://baoquocte.vn/den-kon-tum-di-dau-va-an-gi-264275.html"
         ],
-        "reviewed": false
+        "reviewed": true
       }
     ],
     "gia-lai": [
@@ -841,7 +841,7 @@
           "https://thanhnien.vn/dan-bo-noi-chao-lua-krong-pa-1851500539.htm",
           "https://baogialai.com.vn/vuon-xa-thuong-hieu-bo-mot-nang-post211892.html"
         ],
-        "reviewed": false
+        "reviewed": true
       },
       {
         "level": 2,
@@ -858,7 +858,7 @@
           "https://baovanhoa.vn/diem-den/nui-lua-chu-dang-ya-nhuom-vang-sac-hoa-da-quy-1264.html",
           "https://plo.vn/den-chan-nui-lua-chu-dang-ya-ngam-da-quy-no-vang-ruc-ro-post463726.html"
         ],
-        "reviewed": false
+        "reviewed": true
       }
     ],
     "khanh-hoa": [
@@ -879,7 +879,7 @@
           "https://thanhnien.vn/lam-gi-de-gom-cham-bau-truc-thoat-dien-can-bao-ve-khan-cap-185261011163924977.htm",
           "https://tuoitre.vn/plo/hanh-trinh-nang-cao-gia-tri-hat-muoi-ninh-thuan-post751910.html"
         ],
-        "reviewed": false
+        "reviewed": true
       },
       {
         "level": 2,
@@ -900,7 +900,7 @@
           "https://baokhanhhoa.vn/dac-san-xuan/202001/dao-tom-hum-8147192/",
           "https://tienphong.vn/quoc-dao-tom-hum-binh-ba-ngap-trong-bien-rac-post1628861.tpo"
         ],
-        "reviewed": false
+        "reviewed": true
       }
     ],
     "dak-lak": [
@@ -918,7 +918,7 @@
           "https://daklak.gov.vn/-/nhac-cu-truyen-thong",
           "https://vnexpress.net/banh-canh-ngap-he-o-phu-yen-4881266.html"
         ],
-        "reviewed": false
+        "reviewed": true
       },
       {
         "level": 2,
@@ -935,7 +935,7 @@
           "https://tuoitre.vn/nld/du-lich-xanh/nhung-mon-ngon-la-mieng-o-buon-ma-thuot-2022051009144245.htm",
           "https://baodaklak.vn/van-hoa-xa-hoi/202605/buon-ma-thuot-vao-top-15-diem-den-am-thuc-noi-bat-nhat-the-gioi-nam-2026-5184cc3/"
         ],
-        "reviewed": false
+        "reviewed": true
       }
     ],
     "lam-dong": [
@@ -956,7 +956,7 @@
           "https://www.vietnamplus.vn/kham-pha-mon-canh-thut-doc-dao-cua-nguoi-dan-toc-mnong-post391930.vnp",
           "https://baolamdong.vn/3-dac-san-nen-thu-khi-toi-dak-nong-166262.html"
         ],
-        "reviewed": false
+        "reviewed": true
       },
       {
         "level": 2,
@@ -976,7 +976,7 @@
           "https://vov.vn/van-hoa/da-lat-don-nhan-danh-hieu-thanh-pho-sang-tao-ve-am-nhac-cua-unesco-post1068876.vov",
           "https://tuoitre.vn/da-lat-ky-niem-130-nam-duoc-cong-nhan-la-thanh-pho-sang-tao-am-nhac-cua-unesco-20231230230313726.htm"
         ],
-        "reviewed": false
+        "reviewed": true
       }
     ],
     "dong-nai": [
@@ -994,7 +994,7 @@
           "https://www.vietnamplus.vn/mo-co-hon-2000-nam-o-dong-nai-tro-thanh-di-tich-quoc-gia-dac-biet-post417309.vnp",
           "https://vietnamnet.vn/10-mon-ngon-khong-the-nao-quen-o-vung-que-binh-phuoc-292139.html"
         ],
-        "reviewed": false
+        "reviewed": true
       },
       {
         "level": 2,
@@ -1010,7 +1010,7 @@
           "https://www.sggp.org.vn/mien-man-cung-cu-lao-pho-post437260.html",
           "https://en.wikipedia.org/wiki/Tr%E1%BA%A7n_Th%C6%B0%E1%BB%A3ng_Xuy%C3%AAn"
         ],
-        "reviewed": false
+        "reviewed": true
       }
     ],
     "ho-chi-minh": [
@@ -1029,7 +1029,7 @@
           "https://tuoitre.vn/hang-van-nguoi-du-le-hoi-mien-phi-mieu-ba-thien-hau-tai-binh-duong-20250212173027294.htm",
           "https://thoibaotaichinhvietnam.vn/le-hoi-mien-phi-o-binh-duong-net-nhan-van-can-duoc-lan-toa-121213.html"
         ],
-        "reviewed": false
+        "reviewed": true
       },
       {
         "level": 2,
@@ -1048,7 +1048,7 @@
           "https://vnexpress.net/thao-cam-vien-mot-trong-10-vuon-thu-lau-doi-nhat-the-gioi-3328462-p2.html",
           "https://www.voh.com.vn/tin-tp-ho-chi-minh/thao-cam-vien-sai-gon-150-hinh-thanh-va-phat-trien-192964.html"
         ],
-        "reviewed": false
+        "reviewed": true
       }
     ],
     "tay-ninh": [
@@ -1068,7 +1068,7 @@
           "https://thanhnien.vn/mang-cau-nong-san-hang-sang-va-mua-tet-hot-bac-duoi-chan-nui-ba-den-185260214141200711.htm",
           "https://www.vietnamplus.vn/mang-cau-ta-tay-ninh-chinh-thuc-duoc-dac-cach-luu-hanh-post970021.vnp"
         ],
-        "reviewed": false
+        "reviewed": true
       },
       {
         "level": 2,
@@ -1089,7 +1089,7 @@
           "https://thanhnien.vn/guinness-cong-nhan-ga-ba-den-la-nha-ga-cap-treo-lon-nhat-the-gioi-185918571.htm",
           "https://nhandan.vn/ky-luc-guinness-ghi-nhan-nha-ga-cap-treo-lon-nhat-the-gioi-tai-tay-ninh-post447656.html"
         ],
-        "reviewed": false
+        "reviewed": true
       }
     ],
     "dong-thap": [
@@ -1109,7 +1109,7 @@
           "https://nhandan.vn/di-san-quoc-gia-lang-nghe-bot-gao-post801399.html",
           "https://tuoitre.vn/tram-nam-lang-bot-danh-tieng-sa-dec-20241015095729628.htm"
         ],
-        "reviewed": false
+        "reviewed": true
       },
       {
         "level": 2,
@@ -1126,7 +1126,7 @@
           "https://www.vietnamplus.vn/lang-co-dong-hoa-hiep-noi-luu-giu-nhieu-kien-truc-nam-bo-doc-dao-post823401.vnp",
           "https://nhandan.vn/post-838991.html"
         ],
-        "reviewed": false
+        "reviewed": true
       }
     ],
     "vinh-long": [
@@ -1146,7 +1146,7 @@
           "https://vnexpress.net/mon-bun-suong-dac-san-dat-tra-vinh-3320089.html",
           "https://vietnamnet.vn/dac-san-mien-tay-ten-la-co-mieng-giong-duong-dua-khien-khach-to-mo-2441532.html"
         ],
-        "reviewed": false
+        "reviewed": true
       },
       {
         "level": 2,
@@ -1163,7 +1163,7 @@
           "https://vnexpress.net/cam-nang-du-lich-tra-vinh-4821602.html",
           "https://vov.vn/van-hoa/chua-vam-ray-dau-an-kien-truc-angkor-ruc-ro-giua-mien-tay-post1297686.vov"
         ],
-        "reviewed": false
+        "reviewed": true
       }
     ],
     "an-giang": [
@@ -1183,7 +1183,7 @@
           "https://baoangiang.com.vn/ga-dot-du-du-dam-dac-san-kho-bo-lo-o-vung-bay-nui-a499872.html",
           "https://baoquocte.vn/doc-dao-dac-san-an-giang-co-nguon-goc-tu-campuchia-phai-an-bang-tay-khong-moi-ngon-289952.html"
         ],
-        "reviewed": false
+        "reviewed": true
       },
       {
         "level": 2,
@@ -1199,7 +1199,7 @@
           "https://vnexpress.net/bun-ca-chau-doc-dung-vi-giua-sai-gon-3681877.html",
           "https://vietnamnet.vn/vuong-khuyen-phu-quoc-gia-300-trieu-chieu-thoi-gia-hay-gia-tri-that-565610.html"
         ],
-        "reviewed": false
+        "reviewed": true
       }
     ],
     "can-tho": [
@@ -1218,7 +1218,7 @@
           "https://baohatinh.vn/ngoi-chua-doc-nhat-vo-nhi-dung-9000-chiec-chen-dia-op-tuong-post147030.html",
           "https://tapchicongthuong.vn/magazine/khom-cau-duc--trai-ngot--tren-dat-phen-chua-112930.htm"
         ],
-        "reviewed": false
+        "reviewed": true
       },
       {
         "level": 2,
@@ -1235,7 +1235,7 @@
           "https://vnexpress.net/tin-tuc/thoi-su/nguoi-can-tho-vui-tet-tren-cau-di-bo-du-lich-dau-tien-3353829.html",
           "https://tuoitre.vn/nld/dia-phuong/tu-ngay-5-2-co-the-di-bo-tu-ben-ninh-kieu-qua-con-cai-khe-20160203151043973.htm"
         ],
-        "reviewed": false
+        "reviewed": true
       }
     ],
     "ca-mau": [
@@ -1256,7 +1256,7 @@
           "https://thanhnien.vn/kham-pha-nha-hat-3-non-la-o-xu-so-cong-tu-bac-lieu-185260725162920665.htm",
           "https://baocamau.vn/dinh-huong-phat-trien-du-lich-trai-nghiem-cho-phuong-bac-lieu-a130205.html"
         ],
-        "reviewed": false
+        "reviewed": true
       },
       {
         "level": 2,
@@ -1270,7 +1270,7 @@
           "https://vnexpress.net/cam-nang-du-lich-ca-mau-4447395.html",
           "https://vnexpress.net/cam-nang-du-lich-dat-mui-ca-mau-3122445.html"
         ],
-        "reviewed": false
+        "reviewed": true
       }
     ]
   }
