@@ -6,6 +6,8 @@
 import { readFileSync } from 'node:fs'
 import { join, dirname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
+import { normalizeText } from '../server/game/rules.js'
+import { ICON_NAMES } from '../public/shared/icons.js'
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 const readJson = name => JSON.parse(readFileSync(join(ROOT, 'data', name), 'utf8'))
@@ -136,6 +138,63 @@ const pct = n => Math.round((n || 0) / questions.length * 100)
 if (pct(byTopic['sap-nhap']) > 10) warn(`Câu hỏi sáp nhập/hành chính chiếm ${pct(byTopic['sap-nhap'])}% (nên ≤ 10%)`)
 if (pct((byTopic['am-thuc'] || 0) + (byTopic['doi-song'] || 0)) < 35) warn('Ẩm thực + đời sống nên chiếm ≥ 35%')
 
+// ---------- Chạy trạm: thời kỳ + gợi ý (file rỗng hợp lệ) ----------
+const httpsOk = u => { try { return new URL(u).protocol === 'https:' } catch { return false } }
+const checkSources = (where, sources, min) => {
+  if (!Array.isArray(sources) || sources.length < min) err(`${where}: cần ít nhất ${min} link nguồn`)
+  else for (const u of sources) if (!httpsOk(u)) err(`${where}: link nguồn không hợp lệ (${u})`)
+}
+const periods = readJson('periods.json').periods ?? []
+const periodIds = new Set()
+for (const p of periods) {
+  const where = `Thời kỳ ${p.id}`
+  if (periodIds.has(p.id)) err(`${where}: trùng id`)
+  periodIds.add(p.id)
+  for (const f of ['id', 'name', 'years']) if (!p[f]) err(`${where}: thiếu ${f}`)
+  const sc = p.scene
+  if (!sc || !sc.color || !sc.blurb || !Array.isArray(sc.icons) || sc.icons.length !== 3) err(`${where}: scene cần color, blurb và 3 icons`)
+  else for (const n of sc.icons) if (!ICON_NAMES.includes(n)) err(`${where}: icon "${n}" chưa có trong public/shared/icons.js`)
+  if (!Array.isArray(p.questions) || !p.questions.length) err(`${where}: thiếu questions`)
+  for (const q of p.questions ?? []) {
+    const w = `${where} câu ${q.id}`
+    if (!q.id || !q.content) err(`${w}: thiếu id/content`)
+    if (q.kind !== 'choice') err(`${w}: kind phải là choice`)
+    if (!Array.isArray(q.options) || q.options.length !== 4) err(`${w}: cần đúng 4 lựa chọn`)
+    else if (new Set(q.options).size !== 4) err(`${w}: lựa chọn bị trùng`)
+    if (!Number.isInteger(q.answer) || q.answer < 0 || q.answer > 3) err(`${w}: answer ngoài phạm vi`)
+    if (!q.explanation) err(`${w}: thiếu explanation`)
+    if (![1, 2, 3].includes(q.level)) err(`${w}: level phải là 1, 2 hoặc 3`)
+    checkSources(w, q.sources, 2)
+  }
+  const pz = p.puzzle
+  if (!pz || !pz.text || !pz.explanation) err(`${where}: puzzle thiếu text/explanation`)
+  else {
+    checkSources(`${where} puzzle`, pz.sources, 2)
+    const flat = s => String(s).split(/\s+/).filter(Boolean).join(' ')
+    for (let n = 3; n <= 7; n++) {
+      const parts = pz.splits?.[n]
+      if (!Array.isArray(parts) || parts.length !== n) err(`${where}: puzzle.splits[${n}] phải có ${n} mảnh`)
+      else if (flat(parts.join(' ')) !== flat(pz.text)) err(`${where}: puzzle.splits[${n}] nối lại không khớp puzzle.text`)
+    }
+  }
+}
+const hintFile = readJson('key-hints.json').hints ?? {}
+let hintCount = 0
+for (const [pid, list] of Object.entries(hintFile)) {
+  const prov = provinces.find(p => p.id === pid)
+  if (!prov) { err(`Gợi ý: tỉnh không tồn tại (${pid})`); continue }
+  const banned = [prov.name, ...prov.mergedFrom, prov.adminCenterAt].filter(Boolean).map(normalizeText).filter(Boolean)
+  for (const [i, h] of (list ?? []).entries()) {
+    hintCount++
+    const w = `Gợi ý ${pid}#${i + 1}`
+    if (![1, 2].includes(h.level)) err(`${w}: level phải là 1 hoặc 2`)
+    if (!h.text || h.text.length > 200) err(`${w}: text bắt buộc và ≤ 200 ký tự`)
+    checkSources(w, h.sources, 1)
+    const t = ` ${normalizeText(h.text ?? '')} `
+    for (const b of banned) if (t.includes(` ${b} `)) err(`${w}: lộ tên "${b}"`)
+  }
+}
+
 // ---------- Báo cáo ----------
 const byKind = {}
 for (const q of questions) byKind[q.kind] = (byKind[q.kind] || 0) + 1
@@ -145,6 +204,7 @@ console.log(`Theo dạng: ${Object.entries(byKind).map(([k, n]) => `${k} ${n}`).
 console.log(`Theo chủ đề: ${Object.entries(byTopic).sort((a, b) => b[1] - a[1]).map(([t, n]) => `${topics[t] || t} ${n} (${pct(n)}%)`).join(', ')}`)
 console.log(`Vị trí đáp án đúng (A/B/C/D): ${dist.join(' / ')}`)
 console.log(`Tỉnh đã có câu hỏi: ${covered.length}/34${missing.length ? ` · Chưa có: ${missing.join(', ')}` : ''}`)
+console.log(`Chạy trạm: ${periods.length} thời kỳ, ${hintCount} gợi ý`)
 console.log(`Có link nguồn: ${questions.filter(q => q.sources).length}/${questions.length} (câu cũ chưa có nguồn: ${questions.filter(q => !q.sources && LEGACY.has(q.id)).length})`)
 if (warnings.length) console.log(`\nCảnh báo (${warnings.length}):\n- ${warnings.join('\n- ')}`)
 if (errors.length) {

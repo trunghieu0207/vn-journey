@@ -300,3 +300,6 @@ kbd { display: inline-grid; place-items: center; min-width: 26px; height: 26px; 
   .rule p, .rule li { font-size: 15px; }
   .stage { max-width: 100%; }
 }
+
+/* Mục Chạy trạm: ba biểu tượng xếp hàng giữa khung */
+.r-tram { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; gap: 28px; }

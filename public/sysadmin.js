@@ -229,7 +229,8 @@ const STATUS = { waiting: ['wait', 'Đang chờ'], running: ['run', 'Đang chơi
 const tag = (cls, text) => el('span', { class: `tag ${cls}` }, text)
 // Kiểu phòng hiển thị: Team gọn lưu là phòng team (compact)
 const roomKind = r => (r.compact ? 'compact' : r.mode)
-const modeTag = r => r.mode === 'solo' ? tag('solo', 'Chơi đơn') : r.compact ? tag('team', r.duel ? 'Team gọn · có đấu' : 'Team gọn') : tag('team', 'Theo team')
+const modeTag = r => r.mode === 'solo' ? tag('solo', 'Chơi đơn') : r.mode === 'tram' ? tag('tram', 'Chạy trạm')
+  : r.compact ? tag('team', r.duel ? 'Team gọn · có đấu' : 'Team gọn') : tag('team', 'Theo team')
 function roomTime(r) {
   if (r.status === 'waiting') return `${r.durationMin} phút`
   if (r.status === 'ended') return `xong ${clock(r.endsAt ?? r.createdAt)}`
@@ -303,10 +304,12 @@ function roomForm(r = null) {
   const field = (label, input, note = '') => el('label', {}, label, input, note ? el('small', { class: 'lockn' }, note) : '')
   const name = el('input', { class: 'qt-input', maxlength: 40, required: true, value: r?.name ?? '' })
   const mode = el('select', { class: 'qt-input', disabled: !!r }, el('option', { value: 'team' }, 'Theo team'), el('option', { value: 'compact' }, 'Team gọn'),
-    el('option', { value: 'solo' }, 'Chơi đơn'))
+    el('option', { value: 'solo' }, 'Chơi đơn'), el('option', { value: 'tram' }, 'Chạy trạm'))
   mode.value = r ? roomKind(r) : 'team'
   const teams = el('select', { class: 'qt-input', disabled: !!r }, ...[2, 3, 4, 5, 6, 7, 8].map(n => el('option', { value: n }, `${n} team`)))
   teams.value = String(r?.teams || 4)
+  const keys = el('select', { class: 'qt-input', disabled: !!r }, ...[3, 4, 5, 6, 7].map(n => el('option', { value: n }, `${n} key`)))
+  keys.value = String(r?.keyCount ?? 5)
   const duration = el('input', { class: 'qt-input', type: 'number', min: 10, max: 90, value: r?.durationMin ?? 45, disabled: !waiting })
   const quiz = el('select', { class: 'qt-input', disabled: !waiting }, ...[1, 2, 3].map(n => el('option', { value: n }, `${n} câu`)))
   quiz.value = String(r?.quizCount ?? 1)
@@ -321,21 +324,29 @@ function roomForm(r = null) {
   const [topicLabel, topic] = check('Cho chọn chủ đề', r?.topicChoice ?? false)
   const [duelLabel, duel] = check('Cho đấu (thử tài tỉnh team khác)', r?.duel ?? false)
   duel.disabled = !!r
+  const lock = r && !waiting ? 'Khóa khi đã bắt đầu' : ''
+  const quizField = field('Số câu mỗi tỉnh', quiz, lock)
   const teamField = field('Số team', teams, r ? 'Không đổi sau khi tạo' : '')
+  const keyField = field('Số key', keys, r ? 'Không đổi sau khi tạo' : '')
+  // Team gọn: có Cho đấu, mặc định 30 phút. Chạy trạm: có số key, không có cược / chủ đề / số câu mỗi tỉnh; thời lượng tối thiểu 30 phút
   const syncMode = () => {
+    const tram = mode.value === 'tram'
     teamField.hidden = mode.value === 'solo'
     duelLabel.hidden = mode.value !== 'compact'
+    keyField.hidden = !tram
+    quizField.hidden = betLabel.hidden = topicLabel.hidden = tram
+    duration.min = tram ? 30 : 10
+    if (tram && !r && Number(duration.value) < 30) duration.value = 30
   }
   mode.addEventListener('change', () => {
-    if (!r) duration.value = mode.value === 'compact' ? 30 : 45
+    if (!r) duration.value = mode.value === 'compact' || mode.value === 'tram' ? 30 : 45
     syncMode()
   })
   syncMode()
-  const lock = r && !waiting ? 'Khóa khi đã bắt đầu' : ''
   const body = el('div', { class: 'rf' },
     el('label', { class: 'full' }, 'Tên phòng', name),
-    field('Kiểu phòng', mode, r ? 'Không đổi sau khi tạo' : ''), teamField,
-    field('Thời lượng (phút)', duration, lock), field('Số câu mỗi tỉnh', quiz, lock),
+    field('Kiểu phòng', mode, r ? 'Không đổi sau khi tạo' : ''), teamField, keyField,
+    field('Thời lượng (phút)', duration, lock), quizField,
     el('label', { class: 'full' }, 'Hiển thị', listed),
     el('div', { class: 'full chks' }, betLabel, topicLabel, duelLabel),
   )
@@ -350,7 +361,7 @@ function roomForm(r = null) {
         toast('Đã lưu phòng')
         return refresh()
       }
-      const c = await api('/api/sys/rooms', { ...data, mode: mode.value, duel: duel.checked, teamCount: Number(teams.value) })
+      const c = await api('/api/sys/rooms', { ...data, mode: mode.value, duel: duel.checked, teamCount: Number(teams.value), ...(mode.value === 'tram' && { keyCount: Number(keys.value) }) })
       await refresh()
       // Hiện mã ngay sau khi tạo (mã chủ phòng xem lại được ở nút Mã)
       setTimeout(() => dialog({

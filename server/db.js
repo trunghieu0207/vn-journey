@@ -87,6 +87,8 @@ export function seedDatabase(db) {
 const ADDED_COLUMNS = [
   ['rooms', 'compact', 'INTEGER NOT NULL DEFAULT 0'],
   ['rooms', 'duel', 'INTEGER NOT NULL DEFAULT 1'],
+  ['rooms', 'key_count', 'INTEGER NOT NULL DEFAULT 5'],
+  ['teams', 'tram', 'TEXT'],
 ]
 export function upgradeDatabase(db) {
   for (const [table, column, type] of ADDED_COLUMNS) {

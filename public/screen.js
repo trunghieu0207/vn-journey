@@ -79,12 +79,16 @@ async function enter() {
 }
 
 // ---------- Nhận trạng thái ----------
+// Phòng tram không có cắm cờ / cướp / sự kiện MC: chỉ giữ tin mở màn và hết giờ
+const tramNews = v => (v.room.mode === 'tram' ? v.news.filter(n => ['start', 'end'].includes(n.kind)) : v.news)
+
 function apply(v) {
   const prev = view
   view = v
   clock.sync(v.serverNow)
 
   // Tin mới: tỉnh liên quan nháy sóng vàng (không lộ team) + âm thanh
+  v.news = tramNews(v)
   const fresh = v.news.filter(n => n.at > lastNewsAt).reverse()
   if (prev && v.status !== 'ended') {
     for (const n of fresh) {
@@ -105,6 +109,14 @@ function apply(v) {
   if (v.status === 'ended' && prev?.status !== 'ended') startReplay()
   if (v.status !== 'ended' && replay) stopReplay()
   render()
+}
+
+// Dòng phụ của hạng: phòng tram hiện key đã nhặt / cần + nhãn "Đã về đích"; phòng khác: tỉnh / tem + thời gian trả lời
+function rowUnit(s, mode) {
+  if (mode === 'tram') {
+    return [labeled('key', `${s.keys ?? 0}/${s.need ?? 0} key`), ' · ', s.finished ?? s.finishedAt != null ? labeled('finish', 'Đã về đích') : labeled('timer', fmtTime(s.answerMs))]
+  }
+  return [`${s.provinces} ${mode === 'solo' ? 'tem' : 'tỉnh'} · `, labeled('timer', fmtTime(s.answerMs))]
 }
 
 function render() {
@@ -155,7 +167,7 @@ function render() {
       const max = Math.max(1, ...v.scoreboard.map(s => s.total))
       renderRows(v.scoreboard.map((s, i) => ({
         key: s.name, rank: i + 1, color: s.color, mascot: s.mascot, name: s.name,
-        value: s.total.toLocaleString('vi-VN'), unit: [`${s.provinces} ${solo ? 'tem' : 'tỉnh'} · `, labeled('timer', fmtTime(s.answerMs))], bar: Math.max(0, s.total) / max,
+        value: s.total.toLocaleString('vi-VN'), unit: rowUnit(s, v.room.mode), bar: Math.max(0, s.total) / max,
       })))
     }
     // Phòng đơn: còn lại xem hạng trên máy mình
@@ -316,8 +328,13 @@ async function startReplay() {
   const teams = new Map(data.teams.map((t, i) => [t.id, { ...t, no: i + 1 }]))
   $('replayButtons').hidden = false
   $('eventBtn').hidden = data.mode !== 'solo'
-  // Phòng đơn / Team gọn tắt Đấu: không tua bản đồ (tỉnh không thuộc riêng ai) — công bố luôn
-  if (data.mode === 'solo' || data.stamps) return reveal(token)
+  $('cultureBtn').hidden = data.mode === 'tram' // thống kê văn hóa theo câu tỉnh / tem: không hợp phòng tram
+  // Phòng đơn / Team gọn tắt Đấu / tram: không tua bản đồ (tỉnh không thuộc riêng ai) — công bố luôn
+  if (data.mode === 'solo' || data.mode === 'tram') {
+    $('frozen').hidden = true
+    return reveal(token)
+  }
+  if (data.stamps) return reveal(token)
   $('frozen').hidden = true
   $('boardTitle').textContent = 'Tua lại trận đấu'
   renderRows(data.teams.map((t, i) => ({ key: t.name, rank: i + 1, color: t.color, mascot: t.mascot, name: t.name, value: '', unit: '' })))
@@ -390,7 +407,7 @@ async function reveal(token, fast = false) {
   const max = Math.max(1, ...scores.map(s => s.total))
   const row = (s, i) => ({
     key: s.name, rank: i + 1, color: s.color, mascot: s.mascot, name: s.name, highlight: i === 0,
-    value: s.total.toLocaleString('vi-VN'), unit: [`${s.provinces} ${solo ? 'tem' : 'tỉnh'} · `, labeled('timer', fmtTime(s.answerMs))], bar: Math.max(0, s.total) / max,
+    value: s.total.toLocaleString('vi-VN'), unit: rowUnit(s, replay.data.mode), bar: Math.max(0, s.total) / max,
   })
   $('scoreList').replaceChildren()
   for (let k = scores.length - 1; k >= 0; k--) {

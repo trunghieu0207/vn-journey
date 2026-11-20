@@ -112,8 +112,12 @@ async function loadRooms() {
 }
 const normalize = s => s.normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/đ/gi, 'd').toLowerCase().trim()
 
+// Kiểu phòng của một dòng: team | solo | tram (phòng cũ không có mode = team)
+const kindOf = r => r.mode === 'solo' ? 'solo' : r.mode === 'tram' ? 'tram' : 'team'
+
 function roomRow(r) {
-  const team = r.mode !== 'solo'
+  const mode = kindOf(r)
+  const team = mode !== 'solo' // team và tram đều chia team, có danh sách team
   const ended = r.status === 'ended'
   const picked = state.lobbyData?.code === r.code
   const full = r.players >= r.max
@@ -126,11 +130,11 @@ function roomRow(r) {
     fill.style.width = `${Math.min(100, Math.round(r.players * 100 / Math.max(1, r.max)))}%`
     extra = el('div', { class: 'room-meter' }, fill)
   }
-  const sub = team ? `${r.compact ? 'Team gọn' : 'Theo team'} · ${r.teams.length} team · ${r.players} người · ${r.durationMin} phút`
+  const sub = team ? `${mode === 'tram' ? 'Chạy trạm' : r.compact ? 'Team gọn' : 'Theo team'} · ${r.teams.length} team · ${r.players} người · ${r.durationMin} phút`
     : `Chơi đơn · ${r.players}/${r.max} người · ${r.durationMin} phút${r.preset ? (r.hasHost ? '' : ' · vào trước làm chủ phòng') : ''}`
   const [text, cls] = ended ? ['Đang làm mới', ''] : picked ? ['Đang chọn', ''] : full ? ['Đầy', ''] : ['Vào', 'green']
   return el('div', { class: `room-row${picked ? ' picked' : ''}${ended ? ' ended' : ''}` },
-    el('span', { class: `room-kind ${team ? 'team' : 'solo'}` }, icon(team ? 'flag' : 'hat')),
+    el('span', { class: `room-kind ${mode}` }, icon(mode === 'tram' ? 'key' : team ? 'flag' : 'hat')),
     el('div', {},
       el('div', { class: 'room-title' }, el('b', {}, r.name), el('span', { class: `room-badge ${r.status}` }, STATUS[r.status]),
         r.preset ? el('span', { class: 'room-badge preset' }, 'Có sẵn') : ''),
@@ -140,14 +144,14 @@ function roomRow(r) {
 
 function renderRooms() {
   const all = [...openRooms.map(r => ({ ...r, preset: false })), ...presets.map(r => ({ ...r, mode: 'solo', preset: true }))]
-  const count = k => all.filter(r => k === 'all' || (k === 'team') === (r.mode !== 'solo')).length
+  const count = k => all.filter(r => k === 'all' || kindOf(r) === k).length
   for (const b of document.querySelectorAll('.room-filter .fchip')) {
     b.classList.toggle('on', b.dataset.kind === kind)
     b.setAttribute('aria-pressed', String(b.dataset.kind === kind))
     b.querySelector('i').textContent = String(count(b.dataset.kind))
   }
   const find = normalize($('roomSearch').value)
-  const shown = all.filter(r => (kind === 'all' || (kind === 'team') === (r.mode !== 'solo')) && (!find || normalize(r.name).includes(find)))
+  const shown = all.filter(r => (kind === 'all' || kindOf(r) === kind) && (!find || normalize(r.name).includes(find)))
   // Phòng mọi người tạo: đang chờ trước (dễ vào nhất), rồi đang chơi; trong nhóm giữ thứ tự server (mới tạo trước). Phòng có sẵn ở cuối
   const mine = shown.filter(r => !r.preset).sort((a, b) => ORDER[a.status] - ORDER[b.status])
   const pre = shown.filter(r => r.preset)
@@ -156,6 +160,7 @@ function renderRooms() {
   if (pre.length) groups.push(el('p', { class: 'room-group' }, 'Phòng có sẵn'), ...pre.map(roomRow))
   if (!groups.length) {
     groups.push(el('div', { class: 'room-empty' }, find ? 'Không có phòng nào tên như vậy.'
+      : kind === 'tram' ? 'Chưa có phòng Chạy trạm công khai nào. Được mời vào phòng riêng tư? Nhập mã phòng bên trái — hoặc tạo phòng.'
       : kind === 'team' ? 'Chưa có phòng team công khai nào. Được mời vào phòng riêng tư? Nhập mã phòng bên trái — hoặc tạo phòng.'
         : 'Chưa có phòng nào đang mở. Nhập mã phòng bên trái — hoặc tạo phòng.'))
   }
@@ -234,6 +239,10 @@ function renderLobby() {
   $('soloNote').textContent = !solo ? ''
     : `Phòng chơi đơn · ${state.lobbyData.players}/${state.lobbyData.maxPlayers} người. Tên của bạn hiện trên màn chiếu (chủ phòng có thể sửa).`
       + (state.lobbyData.preset && !state.lobbyData.hasHost ? ' Phòng chưa có chủ phòng — bạn vào trước sẽ làm chủ phòng: bắt đầu trận, tung sự kiện, sửa tên.' : '')
+  // Phòng tram: không có thưởng "Về quê" (server bỏ qua) → không hỏi quê
+  const tram = state.lobbyData.mode === 'tram'
+  document.querySelector('#joinForm .home-field').hidden = document.querySelector('#joinForm .home-note').hidden = tram
+  if (tram) home.value = ''
   $('homeNoteText').textContent = solo
     ? 'Có tem ở tỉnh quê của bạn được +50 "Về quê". Chỉ bạn thấy quê của mình; không đổi được sau khi trận bắt đầu.'
     : 'Team cắm cờ ở tỉnh quê của bạn được +50 "Về quê" (tối đa 3 tỉnh mỗi team). Chỉ đồng đội thấy quê của bạn; không đổi được sau khi trận bắt đầu.'
@@ -274,18 +283,25 @@ $('joinForm').addEventListener('submit', async e => {
 // Kiểu phòng: chơi đơn thì không có số team, thêm tùy chọn tem Tiên phong; Team gọn thêm tùy chọn Cho đấu, mặc định 30 phút
 const formMode = () => $('createForm').querySelector('input[name="mode"]:checked')?.value ?? 'team'
 const soloMode = () => formMode() === 'solo'
+// Chạy trạm: không có cược, chủ đề, số câu mỗi tỉnh, Tiên phong; có số key; thời lượng tối thiểu 30 phút
 function syncMode() {
   const mode = formMode()
+  const tram = mode === 'tram'
   $('teamCountField').hidden = mode === 'solo'
   $('pioneerField').hidden = mode !== 'solo'
   $('duelField').hidden = mode !== 'compact'
+  $('keyCountField').hidden = !tram
+  $('quizCountField').hidden = $('topicChoiceField').hidden = $('betChoiceField').hidden = tram
+  const short = $('newDuration').querySelector('option[value="15"]')
+  short.disabled = short.hidden = tram
+  if (tram && Number($('newDuration').value) < 30) $('newDuration').value = '30'
   for (const d of $('modeExplain').querySelectorAll('[data-mode]')) d.hidden = d.dataset.mode !== mode
 }
 $('createForm').addEventListener('change', e => {
   if (e.target.name !== 'mode') return
-  $('newDuration').value = e.target.value === 'compact' ? '30' : '45'
-  $('newDuration').dispatchEvent(new Event('change')) // ô chọn sticker (shared/select.js) vẽ lại theo giá trị mới
+  $('newDuration').value = e.target.value === 'compact' || e.target.value === 'tram' ? '30' : '45'
   syncMode()
+  $('newDuration').dispatchEvent(new Event('change')) // ô chọn sticker (shared/select.js) vẽ lại theo giá trị mới
 })
 
 $('createForm').addEventListener('submit', async e => {
@@ -302,6 +318,7 @@ $('createForm').addEventListener('submit', async e => {
       duel: $('newDuel').checked,
       pioneer: $('newPioneer').checked,
       quizCount: Number($('newQuizCount').value),
+      ...(formMode() === 'tram' && { keyCount: Number($('newKeyCount').value) }),
       listed: $('createForm').querySelector('input[name="access"]:checked')?.value === 'public',
     })
     created = true

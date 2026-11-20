@@ -1,0 +1,847 @@
+{
+  "periods": [
+    {
+      "id": "van-lang",
+      "name": "Văn Lang",
+      "years": "khoảng thế kỷ VII – III TCN",
+      "reviewed": false,
+      "scene": {
+        "color": "#E6EBC6",
+        "icons": [
+          "trong-dong",
+          "nha-san",
+          "chim-lac"
+        ],
+        "blurb": "Bước vào thời các vua Hùng, nơi tiếng trống đồng vang trên đồng lúa và những ngôi nhà sàn quần tụ bên sông. Hãy cùng tìm về cội nguồn của người Việt."
+      },
+      "questions": [
+        {
+          "id": "van-lang-02",
+          "kind": "choice",
+          "content": "UNESCO ghi danh \"Tín ngưỡng thờ cúng Hùng Vương ở Phú Thọ\" vào Danh sách Di sản văn hóa phi vật thể đại diện của nhân loại vào năm nào?",
+          "options": [
+            "2010",
+            "2012",
+            "2014",
+            "2016"
+          ],
+          "answer": 1,
+          "explanation": "Tín ngưỡng thờ cúng Hùng Vương ở Phú Thọ được UNESCO ghi danh tại kỳ họp thứ 7 của Ủy ban Liên Chính phủ Công ước 2003 (Paris, tháng 12/2012).",
+          "level": 3,
+          "sources": [
+            "https://ich.unesco.org/en/RL/worshipping-of-hung-kings-in-phu-tho-00735",
+            "https://baovanhoa.vn/van-hoa/tin-nguong-tho-cung-hung-vuong-di-san-mang-dam-ban-sac-coi-nguon-dan-toc-viet-186134.html"
+          ]
+        },
+        {
+          "id": "van-lang-08",
+          "kind": "choice",
+          "content": "Văn hóa Đông Sơn được đặt theo tên một ngôi làng, nơi năm 1924 người ta tình cờ phát hiện một nhóm đồ đồng cổ. Làng này nằm bên bờ con sông nào?",
+          "options": [
+            "Sông Hồng",
+            "Sông Chu",
+            "Sông Cả",
+            "Sông Mã"
+          ],
+          "answer": 3,
+          "explanation": "Làng Đông Sơn nằm ở bờ nam sông Mã, cạnh cầu Hàm Rồng; nhóm đồ đồng phát hiện ở đây năm 1924 đã đặt tên cho cả nền văn hóa.",
+          "level": 3,
+          "sources": [
+            "https://daibieunhandan.vn/print/10324792.html",
+            "https://vietnamnet.vn/en/image-famous-ancient-village-in-thanh-hoa-E151077.html"
+          ]
+        },
+        {
+          "id": "van-lang-13",
+          "kind": "choice",
+          "content": "Thạp đồng Đào Thịnh – bảo vật quốc gia thời Đông Sơn tìm thấy bên bờ sông Hồng – nổi tiếng vì trên nắp có gắn các cặp tượng nam nữ thể hiện tín ngưỡng phồn thực. Nắp thạp có bao nhiêu cặp tượng như vậy?",
+          "options": [
+            "2 cặp",
+            "3 cặp",
+            "4 cặp",
+            "6 cặp"
+          ],
+          "answer": 2,
+          "explanation": "Nắp thạp Đào Thịnh có hình mặt trời 12 tia ở giữa và bốn cặp tượng nam nữ xen giữa các đôi chim, thể hiện ước vọng phồn thực; thân thạp khắc hình thuyền chở người. Hiện vật được phát hiện tình cờ tại xã Đào Thịnh bên sông Hồng, nay lưu giữ ở Bảo tàng Lịch sử Quốc gia.",
+          "level": 3,
+          "sources": [
+            "https://baotanglichsu.vn/en/Articles/1004/73801/national-treasures-the-djao-thinh-jar.html",
+            "https://vnexpress.net/bao-vat-quoc-gia-doc-dao-2244776.html"
+          ]
+        },
+        {
+          "id": "van-lang-14",
+          "kind": "choice",
+          "content": "Giới khảo cổ xác định các văn hóa tiền Đông Sơn ở lưu vực sông Hồng nối tiếp nhau: Phùng Nguyên → Đồng Đậu → … → Đông Sơn. Mắt xích còn thiếu là văn hóa nào?",
+          "options": [
+            "Hòa Bình",
+            "Bắc Sơn",
+            "Gò Mun",
+            "Sa Huỳnh"
+          ],
+          "answer": 2,
+          "explanation": "Văn hóa Đồng Đậu có trước là Phùng Nguyên, tiếp sau là Gò Mun rồi Đông Sơn; nhiều di chỉ như Vườn Chuối (Hà Nội) còn lưu dấu tích các giai đoạn này kế thừa liên tục.",
+          "level": 3,
+          "sources": [
+            "https://vietnamnews.vn/sunday/features/1165568/dong-dau-ancient-culture-set-for-preservation.html",
+            "https://nhandan.vn/ocop/tim-hieu-doi-song-cu-dan-thoi-vua-hung-qua-nhung-di-vat-o-di-chi-vuon-chuoi-post642800.html"
+          ]
+        },
+        {
+          "id": "van-lang-15",
+          "kind": "choice",
+          "content": "Ngôi mộ Việt Khê (Hải Phòng), bảo vật quốc gia thuộc văn hóa Đông Sơn, cho thấy người xưa an táng người chết theo cách nào?",
+          "options": [
+            "Trong quan tài hình thuyền",
+            "Trong chum gốm lớn",
+            "Hỏa táng, rải tro xuống sông",
+            "Dưới mộ đá cự thạch"
+          ],
+          "answer": 0,
+          "explanation": "Mộ Việt Khê phát hiện năm 1961 ven sông Hàn là mộ thuyền: quan tài hình thuyền đẽo từ một thân cây gỗ lim, chứa nhiều đồ tùy táng bằng đồng; được công nhận bảo vật quốc gia năm 2013.",
+          "level": 3,
+          "sources": [
+            "https://daidoanket.vn/bao-vat-quoc-gia-ve-hinh-thuc-tang-co-10077934.html",
+            "https://baotanglichsu.vn/en/Articles/1004/75068/national-treasures-the-viet-khe-boat-shaped-coffin.html"
+          ]
+        },
+        {
+          "id": "van-lang-16",
+          "kind": "choice",
+          "content": "Theo truyền thuyết, nơi Mẹ Âu Cơ sinh ra bọc trăm trứng gắn với ngôi đền nào trong quần thể di tích Đền Hùng?",
+          "options": [
+            "Đền Thượng",
+            "Đền Trung",
+            "Đền Giếng",
+            "Đền Hạ"
+          ],
+          "answer": 3,
+          "explanation": "Đền Hạ tương truyền là nơi Mẹ Âu Cơ sinh bọc trăm trứng; còn Đền Thượng là nơi vua Hùng tế trời đất, Đền Giếng gắn với hai công chúa con vua Hùng thứ 18.",
+          "level": 3,
+          "sources": [
+            "https://www.sggp.org.vn/quan-the-den-hung-co-kinh-ton-nghiem-va-linh-thieng-post479352.html",
+            "https://baolaichau.vn/van-hoa/thang-ba-ve-mien-dat-to"
+          ]
+        },
+        {
+          "id": "van-lang-17",
+          "kind": "choice",
+          "content": "Theo truyền thuyết, nàng công chúa con vua Hùng kết duyên với chàng trai nghèo Chử Đồng Tử tên là gì?",
+          "options": [
+            "Huyền Trân",
+            "Ngọc Hoa",
+            "Tiên Dung",
+            "Mị Châu"
+          ],
+          "answer": 2,
+          "explanation": "Mối tình Chử Đồng Tử – Tiên Dung được tưởng nhớ ở lễ hội đền Đa Hòa và Dạ Trạch (Hưng Yên) từ 10 đến 12 tháng 2 âm lịch, nổi bật với lễ rước nước sông Hồng.",
+          "level": 2,
+          "sources": [
+            "https://nhandan.vn/hung-yen-khai-mac-le-hoi-truyen-thong-chu-dong-tu-tien-dung-post741015.html",
+            "https://tuoitre.vn/le-hoi-chu-dong-tu-537737.htm"
+          ]
+        },
+        {
+          "id": "van-lang-18",
+          "kind": "choice",
+          "content": "Theo truyền thuyết, sau khi đánh tan giặc Ân, Thánh Gióng cởi giáp, cưỡi ngựa sắt bay về trời ở núi nào?",
+          "options": [
+            "Núi Sóc",
+            "Núi Nghĩa Lĩnh",
+            "Núi Thiên Thai",
+            "Núi Hồng Lĩnh"
+          ],
+          "answer": 0,
+          "explanation": "Tương truyền Gióng phi ngựa đến núi Sóc (Sóc Sơn, Hà Nội), cởi giáp rồi bay về trời; đền Sóc thờ ngài và hội Gióng ở đây cùng hội đền Phù Đổng là di sản văn hóa phi vật thể được UNESCO ghi danh.",
+          "level": 3,
+          "sources": [
+            "https://nhandan.vn/ocop/tung-bung-khai-hoi-den-soc-post736241.html",
+            "https://en.baochinhphu.vn/giong-festival-recognized-as-the-world-intangible-cultural-heritage-1118640.htm"
+          ]
+        },
+        {
+          "id": "van-lang-19",
+          "kind": "choice",
+          "content": "Theo truyền thuyết, Sơn Tinh – người thắng Thủy Tinh trong cuộc cầu hôn con gái vua Hùng – được thờ là Đức Thánh Tản Viên, với các đền Hạ, Trung, Thượng ở vùng núi nào?",
+          "options": [
+            "Tam Đảo",
+            "Ba Vì",
+            "Hương Sơn",
+            "Yên Tử"
+          ],
+          "answer": 1,
+          "explanation": "Ba Vì (Hà Nội) là nơi phát tích truyền thuyết Sơn Tinh – Thủy Tinh; lễ hội Tản Viên Sơn Thánh tổ chức ở ba đền Hạ, Trung, Thượng và đã được công nhận di sản quốc gia.",
+          "level": 2,
+          "sources": [
+            "https://vietnamnews.vn/life-style/423344/mountain-god-festival-becomes-national-heritage.html",
+            "https://baovanhoa.vn/van-hoa/tri-an-duc-thanh-tan-vien-son-gin-giu-gia-tri-van-hoa-tam-linh-ba-vi-192577.html"
+          ]
+        },
+        {
+          "id": "van-lang-20",
+          "kind": "choice",
+          "content": "Hiện vật bằng đá ngọc thuộc văn hóa Phùng Nguyên, được xem là biểu trưng quyền lực của thủ lĩnh, nay là bảo vật quốc gia lưu giữ ở Bảo tàng Hùng Vương (Phú Thọ), có tên là gì?",
+          "options": [
+            "Rìu xéo",
+            "Qua đồng",
+            "Vòng trang sức có mấu",
+            "Nha chương"
+          ],
+          "answer": 3,
+          "explanation": "Nha chương là vật dùng trong nghi lễ, cách nay khoảng 3.500 năm; cả nước mới tìm thấy 8 chiếc ở di chỉ Phùng Nguyên và Xóm Rền (Phú Thọ), được công nhận bảo vật quốc gia.",
+          "level": 3,
+          "sources": [
+            "https://nhandan.vn/bo-suu-tap-nha-chuong-duoc-cong-nhan-la-bao-vat-quoc-gia-post784118.html",
+            "https://vnexpress.net/cong-nhan-27-bao-vat-quoc-gia-4044950.html"
+          ]
+        },
+        {
+          "id": "van-lang-21",
+          "kind": "choice",
+          "content": "Hát Xoan Phú Thọ, làn điệu gắn với tục thờ vua Hùng, có điều gì đặc biệt trong lần UNESCO xem xét năm 2017?",
+          "options": [
+            "Rời Danh sách cần bảo vệ khẩn cấp, sang Danh sách đại diện",
+            "Bị đưa vào Danh sách cần bảo vệ khẩn cấp",
+            "Lần đầu tiên được UNESCO ghi danh",
+            "Được ghép chung hồ sơ với Dân ca Quan họ"
+          ],
+          "answer": 0,
+          "explanation": "Ghi danh năm 2011 vào Danh sách cần bảo vệ khẩn cấp, đến năm 2017 Hát Xoan được chuyển sang Danh sách đại diện của nhân loại – di sản đầu tiên trên thế giới có sự chuyển đổi này.",
+          "level": 3,
+          "sources": [
+            "https://www.vietnamplus.vn/unesco-chinh-thuc-dua-hat-xoan-khoi-danh-sach-can-bao-ve-khan-cap-post478483.vnp",
+            "https://icd.gov.vn/hat-xoan-phu-tho-duoc-dua-ra-khoi-danh-sach-di-san-van-hoa-phi-vat-the-can-bao-ve-khan-cap-va-ghi-danh-tai-danh-sach-di-san-van-hoa-phi-vat-the-dai-dien-cua-nhan-loai"
+          ]
+        },
+        {
+          "id": "van-lang-22",
+          "kind": "choice",
+          "content": "Ở một hội Gióng nổi tiếng của Hà Nội, lễ vật nào sau khi dâng lên đền Thượng được phát cho người dự hội làm lộc cầu may mắn cả năm?",
+          "options": [
+            "Bông lúa nếp",
+            "Cành lộc đào",
+            "Giò hoa tre",
+            "Cờ ngũ sắc"
+          ],
+          "answer": 2,
+          "explanation": "Ở hội Gióng này, giò hoa tre (thanh tre tuốt bông, nhuộm màu) tượng trưng roi ngựa của Thánh Gióng; trước đây bị tranh cướp, nay được phát lộc trật tự cho du khách.",
+          "level": 2,
+          "sources": [
+            "https://vov.vn/van-hoa-giai-tri/nghin-nguoi-tranh-cuop-hoa-tre-trau-cau-tai-hoi-giong-590131.vov",
+            "https://www.sggp.org.vn/khong-cuop-loc-hoa-tre-le-hoi-giong-den-soc-binh-yen-post467076.html"
+          ]
+        }
+      ],
+      "puzzle": {
+        "text": "Giỗ Tổ Hùng Vương diễn ra vào ngày mùng mười tháng ba âm lịch",
+        "explanation": "Lễ Giỗ Tổ Hùng Vương diễn ra ngày 10/3 âm lịch hằng năm tại Đền Hùng (Phú Thọ), nơi con cháu nhớ về cội nguồn.",
+        "sources": [
+          "https://baovanhoa.vn/van-hoa/tin-nguong-tho-cung-hung-vuong-di-san-mang-dam-ban-sac-coi-nguon-dan-toc-viet-186134.html",
+          "https://nhandan.vn/post-478524.html"
+        ],
+        "splits": {
+          "3": [
+            "Giỗ Tổ Hùng Vương diễn",
+            "ra vào ngày mùng mười",
+            "tháng ba âm lịch"
+          ],
+          "4": [
+            "Giỗ Tổ Hùng Vương",
+            "diễn ra vào ngày",
+            "mùng mười tháng",
+            "ba âm lịch"
+          ],
+          "5": [
+            "Giỗ Tổ Hùng",
+            "Vương diễn ra",
+            "vào ngày mùng",
+            "mười tháng ba",
+            "âm lịch"
+          ],
+          "6": [
+            "Giỗ Tổ Hùng",
+            "Vương diễn ra",
+            "vào ngày",
+            "mùng mười",
+            "tháng ba",
+            "âm lịch"
+          ],
+          "7": [
+            "Giỗ Tổ",
+            "Hùng Vương",
+            "diễn ra",
+            "vào ngày",
+            "mùng mười",
+            "tháng ba",
+            "âm lịch"
+          ]
+        }
+      }
+    },
+    {
+      "id": "nha-ly",
+      "name": "Nhà Lý",
+      "years": "1009 – 1225",
+      "reviewed": false,
+      "scene": {
+        "color": "#F6E4BE",
+        "icons": [
+          "van-mieu",
+          "hoa-sen",
+          "rong-ly"
+        ],
+        "blurb": "Thăng Long nghìn năm trước, kinh thành của rồng bay, của Văn Miếu, chùa tháp và những khoa thi đầu tiên. Hãy khám phá nét văn hóa rực rỡ thời Lý."
+      },
+      "questions": [
+        {
+          "id": "nha-ly-03",
+          "kind": "choice",
+          "content": "Văn Miếu ở kinh thành được dựng năm Canh Tuất 1070, dưới triều vua nào của nhà Lý?",
+          "options": [
+            "Lý Thái Tông",
+            "Lý Nhân Tông",
+            "Lý Anh Tông",
+            "Lý Thánh Tông"
+          ],
+          "answer": 3,
+          "explanation": "Năm Canh Tuất 1070, vua Lý Thánh Tông cho dựng Văn Miếu ở phía nam kinh thành; còn Quốc Tử Giám là do Lý Nhân Tông lập năm 1076.",
+          "level": 3,
+          "sources": [
+            "https://tuoitre.vn/van-mieu---quoc-tu-giam-truong-dai-hoc-co-nhat-viet-nam-327456.htm",
+            "https://vnexpress.net/chua-mot-cot-o-ha-noi-duoc-dung-boi-vua-nao-4382916-p5.html"
+          ]
+        },
+        {
+          "id": "nha-ly-06",
+          "kind": "choice",
+          "content": "Khoa thi \"Minh kinh bác học và Nho học tam trường\" – mở đầu cho nền khoa cử Nho học Việt Nam – được nhà Lý tổ chức năm nào?",
+          "options": [
+            "1042",
+            "1075",
+            "1054",
+            "1070"
+          ],
+          "answer": 1,
+          "explanation": "Năm 1075, dưới triều Lý Nhân Tông, triều đình mở khoa thi Minh kinh bác học và Nho học tam trường; khoa cử Nho học kéo dài đến khoa cuối năm 1919.",
+          "level": 3,
+          "sources": [
+            "https://daidoanket.vn/khoa-cu-nho-hoc-viet-nam-100-nam-nhin-lai-10133664.html",
+            "https://www.vietnamplus.vn/den-tho-thai-su-le-van-thinh-noi-luu-dau-vi-trang-nguyen-khai-khoa-cua-dat-viet-post1119852.vnp"
+          ]
+        },
+        {
+          "id": "nha-ly-07",
+          "kind": "choice",
+          "content": "Ai đỗ đầu khoa thi Nho học mở đầu của nhà Lý, được vào hầu vua học và sau được phong Thái sư?",
+          "options": [
+            "Tô Hiến Thành",
+            "Lý Đạo Thành",
+            "Lê Văn Thịnh",
+            "Đoàn Văn Khâm"
+          ],
+          "answer": 2,
+          "explanation": "Lê Văn Thịnh (làng Đông Cứu, nay thuộc Bắc Ninh) đỗ đầu khoa thi Nho học đầu tiên của nhà Lý, được vào hầu vua học. Năm 1084, ông đàm phán buộc nhà Tống trả lại đất và sau được phong Thái sư. Ông được tôn vinh là \"Trạng nguyên khai khoa\".",
+          "level": 3,
+          "sources": [
+            "https://www.vietnamplus.vn/den-tho-thai-su-le-van-thinh-noi-luu-dau-vi-trang-nguyen-khai-khoa-cua-dat-viet-post1119852.vnp",
+            "https://daidoanket.vn/khoa-cu-nho-hoc-viet-nam-100-nam-nhin-lai-10133664.html",
+            "https://vnexpress.net/trang-nguyen-dau-tien-cua-nen-khoa-cu-viet-nam-3676962-p2.html"
+          ]
+        },
+        {
+          "id": "nha-ly-11",
+          "kind": "choice",
+          "content": "Văn bia tháp Sùng Thiện Diên Linh (chùa Long Đọi Sơn, dựng năm 1121) được xem là văn bản sớm nhất ghi chép về loại hình nghệ thuật nào?",
+          "options": [
+            "Múa rối nước",
+            "Hát chèo",
+            "Ca trù",
+            "Hát tuồng"
+          ],
+          "answer": 0,
+          "explanation": "Văn bia tả cảnh biểu diễn trên mặt nước với rùa vàng đội ba ngọn núi, thần tiên, chim quý, hươu lành – tư liệu sớm nhất được biết về múa rối nước Việt.",
+          "level": 3,
+          "sources": [
+            "https://nhahatmuaroivietnam.vn/en/node/990",
+            "https://daidoanket.vn/mua-roi-nuoc-ban-sac-van-hoa-viet-10252642.html"
+          ]
+        },
+        {
+          "id": "nha-ly-12",
+          "kind": "choice",
+          "content": "Chùa Một Cột do vua Lý Thái Tông cho dựng năm 1049 sau giấc mộng thấy Phật Quan Âm. Tên chữ của chùa là gì?",
+          "options": [
+            "Báo Thiên",
+            "Diên Hựu",
+            "Trấn Quốc",
+            "Quán Sứ"
+          ],
+          "answer": 1,
+          "explanation": "Chùa Một Cột có tên chữ là Diên Hựu, nghĩa là \"phúc lành lâu dài\"; trên cửa chùa đề \"Liên Hoa Đài\".",
+          "level": 3,
+          "sources": [
+            "https://vov.vn/van-hoa-giai-tri/chua-mot-cot-duoc-xac-lap-ky-luc-chau-a-228677.vov",
+            "https://hanoicapital.chinhphu.vn/the-one-pillar-pagoda-and-dien-huu-pagoda-110238.htm"
+          ]
+        },
+        {
+          "id": "nha-ly-15",
+          "kind": "choice",
+          "content": "Pho tượng A Di Đà ở chùa Phật Tích (Bắc Ninh), tạc năm 1057 thời Lý và là Bảo vật quốc gia, được làm bằng chất liệu gì?",
+          "options": [
+            "Đồng đúc",
+            "Gỗ mít",
+            "Đá xanh nguyên khối",
+            "Đất nung"
+          ],
+          "answer": 2,
+          "explanation": "Tượng A Di Đà chùa Phật Tích được tạc từ một khối đá xanh nguyên khối, có niên đại năm 1057 thời Lý, và được công nhận Bảo vật quốc gia năm 2012. Tượng từng bị gãy phần đầu trong kháng chiến chống Pháp, sau đó được gắn và phục dựng lại.",
+          "level": 3,
+          "sources": [
+            "https://nhandan.vn/chuyen-ve-bao-tuong-a-di-da-chua-phat-tich-post415569.html",
+            "https://vnexpress.net/nhung-cau-chuyen-bi-an-ve-bao-vat-quoc-gia-2361049.html",
+            "https://dsvh.gov.vn/bao-vat-quoc-gia-1758"
+          ]
+        },
+        {
+          "id": "nha-ly-16",
+          "kind": "choice",
+          "content": "Vị thiền sư nào từng dạy dỗ Lý Công Uẩn thuở nhỏ và được tôn làm Quốc sư khi ông lên ngôi?",
+          "options": [
+            "Đỗ Pháp Thuận",
+            "Khuông Việt",
+            "Vạn Hạnh",
+            "Không Lộ"
+          ],
+          "answer": 2,
+          "explanation": "Lý Công Uẩn được Thiền sư Vạn Hạnh dạy dỗ từ nhỏ. Khi lên ngôi, vua rất kính trọng và tôn Vạn Hạnh làm Quốc sư. Chùa Tiêu (Bắc Ninh) ngày nay vẫn thờ Thiền sư Vạn Hạnh.",
+          "level": 2,
+          "sources": [
+            "https://tuoitre.vn/plo/thien-su-van-hanh-nhu-suong-tren-co-thinh-suy-tinh-long-10960863.htm",
+            "https://giacngo.vn/di-tim-goc-tich-vua-ly-thai-to-ky-1-phat-giao-nuoi-duong-ly-cong-uan-post8439.html",
+            "https://nhandan.vn/tham-chua-tieu-ngoi-co-tu-xu-kinh-bac-post932356.html"
+          ]
+        },
+        {
+          "id": "nha-ly-17",
+          "kind": "choice",
+          "content": "Câu \"Đình tiền tạc dạ nhất chi mai\" (Đêm qua sân trước một cành mai) trong bài kệ nổi tiếng thời Lý là của thiền sư nào?",
+          "options": [
+            "Viên Chiếu",
+            "Mãn Giác",
+            "Từ Đạo Hạnh",
+            "Không Lộ"
+          ],
+          "answer": 1,
+          "explanation": "Đây là câu kết bài kệ Cáo tật thị chúng (Có bệnh bảo mọi người) của Thiền sư Mãn Giác thời Lý, tác phẩm duy nhất còn lại của ông.",
+          "level": 3,
+          "sources": [
+            "https://baophapluat.vn/tho-thien-viet-nam-bai-5-xuan-qua-xuan-toi-va-triet-ly-doi-nguoi-qua-mot-nhanh-mai-post403821.html",
+            "https://giacngo.vn/ve-bai-tho-xuan-xua-nhat-trong-van-hoc-viet-nam-post73914.html"
+          ]
+        },
+        {
+          "id": "nha-ly-19",
+          "kind": "choice",
+          "content": "Cột đá cao khoảng 5 m có đôi rồng chạm nổi quấn quanh thân, Bảo vật quốc gia thời Lý, nằm ở ngôi chùa nào tại Bắc Ninh?",
+          "options": [
+            "Chùa Bút Tháp",
+            "Chùa Dâu",
+            "Chùa Lim",
+            "Chùa Dạm"
+          ],
+          "answer": 3,
+          "explanation": "Cột đá chạm rồng chùa Dạm (Bắc Ninh) có niên đại thời Lý, thế kỷ 11 – chùa được triều đình nhà Lý cho xây từ năm 1086. Đôi rồng miệng ngậm ngọc quấn quanh thân cột; cột được công nhận Bảo vật quốc gia năm 2017.",
+          "level": 3,
+          "sources": [
+            "https://vnexpress.net/cot-da-cham-rong-doc-nhat-viet-nam-3712339.html",
+            "https://dsvh.gov.vn/bao-vat-quoc-gia-1758"
+          ]
+        },
+        {
+          "id": "nha-ly-20",
+          "kind": "choice",
+          "content": "Ni sư Diệu Nhân (tục danh Lý Ngọc Kiều), nữ thiền sư nổi tiếng thời Lý với bài kệ về lẽ sinh, lão, bệnh, tử, có xuất thân thế nào?",
+          "options": [
+            "Cháu nội vua Lý Thái Tông",
+            "Em gái vua Lý Thánh Tông",
+            "Con gái vua Lý Nhân Tông",
+            "Mẹ của vua Lý Anh Tông"
+          ],
+          "answer": 0,
+          "explanation": "Diệu Nhân (1042–1113) là con gái lớn của Phụng Càn vương Lý Nhật Trung, tức cháu nội vua Lý Thái Tông; bà được nuôi trong cung, phong Công chúa, rồi xuất gia và trụ trì ni viện Hương Hải.",
+          "level": 3,
+          "sources": [
+            "https://nhandan.vn/ton-vinh-nhung-dong-gop-cua-cac-nu-phat-tu-post375354.html",
+            "https://vov2.vov.vn/tiep-noi-guong-sang-ni-su-dieu-nhan-30708.vov",
+            "https://journal.hcmue.edu.vn/index.php/hcmuejos/article/download/176/168/177"
+          ]
+        },
+        {
+          "id": "nha-ly-21",
+          "kind": "choice",
+          "content": "Lễ hội Đền Đô (Bắc Ninh), nơi thờ các vua nhà Lý, có chính hội ngày 15 tháng 3 âm lịch để kỷ niệm sự kiện nào?",
+          "options": [
+            "Ngày đặt quốc hiệu Đại Việt",
+            "Ngày Lý Công Uẩn đăng quang",
+            "Ngày dựng chùa Một Cột",
+            "Ngày khánh thành Văn Miếu"
+          ],
+          "answer": 1,
+          "explanation": "Chính hội Đền Đô ngày 15/3 âm lịch kỷ niệm ngày Đức vua Lý Thái Tổ (Lý Công Uẩn) đăng quang. Theo cách tính của lễ hội là năm 1010, nên năm 2026 là dịp kỷ niệm 1016 năm.",
+          "level": 3,
+          "sources": [
+            "https://vov.vn/van-hoa/di-san/le-hoi-den-do-o-bac-ninh-tai-hien-thoi-ky-lich-su-hao-hung-post1287635.vov",
+            "https://baovanhoa.vn/van-hoa/den-do-vao-hoi-hanh-trinh-tro-ve-coi-nguon-trieu-ly-224142.html",
+            "https://nhandan.vn/le-hoi-den-do-huong-ve-nguon-coi-post693318.html"
+          ]
+        },
+        {
+          "id": "nha-ly-22",
+          "kind": "choice",
+          "content": "Khu di tích thờ Nguyên phi Ỷ Lan thời Lý ở Gia Lâm (Hà Nội), gồm đền thờ bà và ngôi chùa do chính bà cho dựng năm 1115, được dân gian quen gọi là đền, chùa gì?",
+          "options": [
+            "Bà Chúa Kho",
+            "Bà Đanh",
+            "Bà Đá",
+            "Bà Tấm"
+          ],
+          "answer": 3,
+          "explanation": "Dân gian gọi Nguyên phi Ỷ Lan là \"bà Tấm\" vì thân thế, sự nghiệp của bà tựa như cô Tấm trong truyện cổ tích Tấm Cám. Ngôi chùa trong khu di tích do chính bà cho dựng, khánh thành năm 1115.",
+          "level": 3,
+          "sources": [
+            "https://vov2.vov.vn/van-hoa-giai-tri/den-ba-tam-noi-gan-lien-ten-tuoi-hoang-thai-hau-y-lan-37691.vov2",
+            "https://hanoimoi.vn/ve-dep-kien-truc-cung-dinh-doc-dao-cua-den-ba-tam-286412-1526392.html",
+            "https://nhandan.vn/khai-mac-le-hoi-den-chua-ba-tam-nam-2025-post866185.html"
+          ]
+        }
+      ],
+      "puzzle": {
+        "text": "Lý Thái Tổ dời đô từ Hoa Lư về Thăng Long",
+        "explanation": "Năm 1010, Lý Thái Tổ dời đô từ Hoa Lư về Đại La và đổi tên thành Thăng Long, mở ra kinh đô nghìn năm văn hiến.",
+        "sources": [
+          "https://vnexpress.net/tim-thay-moc-ban-khac-chieu-doi-do-co-nhat-2174178.html",
+          "https://nhandan.vn/post-732136.html"
+        ],
+        "splits": {
+          "3": [
+            "Lý Thái Tổ dời đô",
+            "từ Hoa Lư",
+            "về Thăng Long"
+          ],
+          "4": [
+            "Lý Thái Tổ",
+            "dời đô",
+            "từ Hoa Lư",
+            "về Thăng Long"
+          ],
+          "5": [
+            "Lý Thái Tổ",
+            "dời đô",
+            "từ Hoa Lư",
+            "về",
+            "Thăng Long"
+          ],
+          "6": [
+            "Lý Thái Tổ",
+            "dời",
+            "đô",
+            "từ Hoa Lư",
+            "về",
+            "Thăng Long"
+          ],
+          "7": [
+            "Lý",
+            "Thái Tổ",
+            "dời",
+            "đô",
+            "từ Hoa Lư",
+            "về",
+            "Thăng Long"
+          ]
+        }
+      }
+    },
+    {
+      "id": "nha-nguyen",
+      "name": "Nhà Nguyễn",
+      "years": "1802 – trước 1858",
+      "reviewed": false,
+      "scene": {
+        "color": "#F4DDD3",
+        "icons": [
+          "ngo-mon",
+          "cuu-dinh",
+          "nha-nhac"
+        ],
+        "blurb": "Kinh thành Phú Xuân – Huế bên dòng sông Hương, với cung điện, Cửu đỉnh và tiếng nhã nhạc cung đình. Hãy dạo bước trong Đại Nội."
+      },
+      "questions": [
+        {
+          "id": "nha-nguyen-03",
+          "kind": "choice",
+          "content": "Duyệt Thị Đường, công trình dựng năm 1826 trong Hoàng cung Huế, vốn có chức năng gì?",
+          "options": [
+            "Nơi vua thiết triều",
+            "Nơi vua đọc sách, ngâm thơ",
+            "Nơi thờ các vua triều Nguyễn",
+            "Nhà hát cung đình"
+          ],
+          "answer": 3,
+          "explanation": "Duyệt Thị Đường là nhà hát cung đình, nơi vua và hoàng gia xem biểu diễn nghệ thuật; ngày nay nơi đây vẫn có suất diễn cho du khách.",
+          "level": 3,
+          "sources": [
+            "https://baophapluat.vn/nha-nhac-cung-dinh-hue-nhin-tu-nha-hat-duyet-thi-duong-tiep-theo-post128368.html",
+            "https://vietnam.vnanet.vn/english/print/duyet-thi-duong-royal-theater-369508.html",
+            "https://vietnamnet.vn/en/duyet-thi-duong-royal-theatre-reopens-E126989.html"
+          ]
+        },
+        {
+          "id": "nha-nguyen-07",
+          "kind": "choice",
+          "content": "Kinh thành Huế được vua Gia Long cho khởi đắp năm 1805. Đến năm nào công cuộc xây đắp Kinh thành mới cơ bản hoàn thành?",
+          "options": [
+            "1820",
+            "1832",
+            "1840",
+            "1847"
+          ],
+          "answer": 1,
+          "explanation": "Mùa hè năm 1805 vua Gia Long cho khởi đắp Kinh thành; công trình kéo dài gần 30 năm, đến năm 1832 dưới thời Minh Mạng mới cơ bản hoàn thành.",
+          "level": 3,
+          "sources": [
+            "https://vnexpress.net/cuoc-di-dan-xay-dung-kinh-thanh-hue-cua-vua-gia-long-4220857.html",
+            "https://thanhnien.vn/phong-thuy-kinh-thanh-hue-30-nam-rong-ra-xay-dung-kinh-thanh-hue-185230820012351747.htm"
+          ]
+        },
+        {
+          "id": "nha-nguyen-08",
+          "kind": "choice",
+          "content": "Mộc bản triều Nguyễn – những tấm gỗ khắc chữ ngược để in sách – được UNESCO ghi danh Di sản tư liệu thế giới năm nào?",
+          "options": [
+            "2016",
+            "2009",
+            "2014",
+            "2017"
+          ],
+          "answer": 1,
+          "explanation": "Mộc bản triều Nguyễn (34.555 bản khắc) được đưa vào Chương trình Ký ức thế giới năm 2009; các năm 2014, 2016, 2017 là mốc ghi danh của những di sản tư liệu khác.",
+          "level": 3,
+          "sources": [
+            "https://en.baochinhphu.vn/print/nguyen-dynasty-wood-blocks-become-world-documentary-heritage-1111868.htm",
+            "https://vnexpress.net/10-di-san-tu-lieu-cua-viet-nam-4746403.html"
+          ]
+        },
+        {
+          "id": "nha-nguyen-09",
+          "kind": "choice",
+          "content": "Châu bản triều Nguyễn là các văn bản hành chính có bút tích phê duyệt của nhà vua. Lời ngự phê trên Châu bản được viết bằng gì?",
+          "options": [
+            "Mực nhũ vàng",
+            "Mực tàu đen",
+            "Mực son đỏ",
+            "Mực xanh chàm"
+          ],
+          "answer": 2,
+          "explanation": "Các vua Nguyễn ngự phê trên Châu bản bằng mực son; trong 11 triều vua còn Châu bản, có 10 vua để lại bút tích phê duyệt bằng mực son.",
+          "level": 2,
+          "sources": [
+            "https://vnexpress.net/10-di-san-tu-lieu-cua-viet-nam-4746403.html",
+            "https://baophapluat.vn/no-luc-bao-ton-va-phat-huy-gia-tri-chau-ban-trieu-nguyen-post496220.html"
+          ]
+        },
+        {
+          "id": "nha-nguyen-10",
+          "kind": "choice",
+          "content": "Trên kiến trúc cung đình Huế, lối trang trí một ô thơ (hoặc đại tự) đi liền với một bức họa được gọi là gì?",
+          "options": [
+            "Nhất thi nhất họa",
+            "Tứ bình",
+            "Bát bửu",
+            "Ngũ phúc"
+          ],
+          "answer": 0,
+          "explanation": "Kiểu \"nhất thi nhất họa\" (hay \"nhất tự nhất họa\") xuất hiện trên hàng trăm công trình; thơ văn trên kiến trúc cung đình Huế được UNESCO ghi danh Di sản tư liệu khu vực châu Á – Thái Bình Dương năm 2016.",
+          "level": 3,
+          "sources": [
+            "https://tuoitre.vn/bao-tang-tho-tren-den-dai-cung-dien-744858.htm",
+            "https://baovanhoa.vn/doi-song-van-hoa/gioi-thieu-gan-1500-bai-tho-tren-cac-kien-truc-cung-dinh-hue-72931.html",
+            "https://vnexpress.net/10-di-san-tu-lieu-cua-viet-nam-4746403.html"
+          ]
+        },
+        {
+          "id": "nha-nguyen-11",
+          "kind": "choice",
+          "content": "Pháp lam – chất liệu trang trí trên điện Thái Hòa, các nghi môn và lăng tẩm triều Nguyễn – thực chất là gì?",
+          "options": [
+            "Mảnh sành sứ ghép khảm lên vữa",
+            "Gỗ chạm sơn son thếp vàng",
+            "Kính màu ghép trong khung chì",
+            "Cốt đồng phủ men màu rồi nung"
+          ],
+          "answer": 3,
+          "explanation": "Pháp lam có cốt bằng đồng, phủ nhiều lớp men màu rồi nung ở nhiệt độ cao. Kỹ nghệ này du nhập vào Huế thời Minh Mạng (1827), thịnh đạt dưới các triều Minh Mạng, Thiệu Trị, Tự Đức, về sau mai một dần rồi thất truyền.",
+          "level": 3,
+          "sources": [
+            "https://www.vietnamplus.vn/phuc-che-va-san-xuat-thanh-cong-phap-lam-trong-trung-tu-di-tich-hue/471269.vnp",
+            "https://tuoitre.vn/bi-quyet-sinh-ton-cua-bach-nghe-kinh-do-ky-4-hoi-sinh-nghe-thuat-phap-lam-hue-20220717220636195.htm"
+          ]
+        },
+        {
+          "id": "nha-nguyen-12",
+          "kind": "choice",
+          "content": "Đàn Nam Giao ở Huế, nơi vua Nguyễn làm lễ tế Giao, có ba tầng. Tầng trên cùng có hình gì và tượng trưng cho điều gì?",
+          "options": [
+            "Hình vuông – tượng trưng cho Trời",
+            "Hình tròn – tượng trưng cho Trời",
+            "Hình tròn – tượng trưng cho Đất",
+            "Hình vuông – tượng trưng cho Người"
+          ],
+          "answer": 1,
+          "explanation": "Ba tầng ứng với thuyết Tam tài: tầng trên là Viên đàn hình tròn tượng trưng cho Trời, tầng giữa là Phương đàn hình vuông tượng trưng cho Đất, tầng dưới vuông tượng trưng cho Người.",
+          "level": 3,
+          "sources": [
+            "https://tuoitre.vn/tu-dan-nam-giao-den-le-hoi-dao-ngu-hoi-cung-36305.htm",
+            "https://tienphong.vn/dien-mao-moi-noi-vua-nguyen-tung-te-troi-o-hue-post1879344.tpo"
+          ]
+        },
+        {
+          "id": "nha-nguyen-13",
+          "kind": "choice",
+          "content": "Chín đỉnh đồng (Cửu đỉnh) trong Hoàng cung Huế được đặt trước sân, đối diện với ngôi miếu nào?",
+          "options": [
+            "Thái Miếu",
+            "Triệu Miếu",
+            "Thế Miếu",
+            "Văn Miếu"
+          ],
+          "answer": 2,
+          "explanation": "Cửu đỉnh do vua Minh Mạng cho đúc (1835–1837), đặt trước sân Thế Tổ Miếu (Thế Miếu), đối diện và ứng với các án thờ vua Nguyễn trong miếu; vị trí này chưa từng bị dịch chuyển.",
+          "level": 3,
+          "sources": [
+            "https://nhandan.vn/ocop/nhung-ban-duc-noi-tren-cuu-dinh-o-hue-duoc-ghi-danh-di-san-tu-lieu-khu-vuc-chau-a-thai-binh-duong-post808393.html",
+            "https://baophapluat.vn/cuu-dinh-hue-mot-tuong-dai-van-hoa-viet-post400483.html"
+          ]
+        },
+        {
+          "id": "nha-nguyen-14",
+          "kind": "choice",
+          "content": "Hổ Quyền – công trình lộ thiên hình vành khăn xây năm 1830 gần Kinh thành Huế – được dùng để làm gì?",
+          "options": [
+            "Trường luyện ngựa chiến",
+            "Nơi tổ chức thi võ cử",
+            "Trường diễn tập súng thần công",
+            "Đấu trường giữa voi và hổ"
+          ],
+          "answer": 3,
+          "explanation": "Hổ Quyền xây dưới thời Minh Mạng để tổ chức các trận đấu giữa voi và hổ; trận cuối cùng diễn ra năm 1904 dưới thời vua Thành Thái.",
+          "level": 2,
+          "sources": [
+            "https://baovanhoa.vn/doi-song-van-hoa/dau-truong-doc-dao-giua-voi-va-ho-duoi-trieu-nguyen-80717.html",
+            "https://vietnamnet.vn/can-canh-di-tich-ho-quyen-dau-truong-la-ma-noi-tieng-cua-viet-nam-2052113.html"
+          ]
+        },
+        {
+          "id": "nha-nguyen-17",
+          "kind": "choice",
+          "content": "Chùm thơ \"Thần kinh nhị thập cảnh\" vịnh 20 cảnh đẹp đất kinh đô Huế, mỗi cảnh kèm tranh khắc gỗ, là sáng tác của vị vua nào?",
+          "options": [
+            "Minh Mạng",
+            "Tự Đức",
+            "Thiệu Trị",
+            "Gia Long"
+          ],
+          "answer": 2,
+          "explanation": "\"Thần kinh nhị thập cảnh\" thuộc tập thi họa Ngự đề đồ hội thi tập của vua Thiệu Trị, in năm 1844–1845.",
+          "level": 3,
+          "sources": [
+            "https://baovanhoa.vn/van-hoa/kinh-thanh-hue-trong-thi-va-hoa-92571.html",
+            "https://vietnamnet.vn/en/hue-museum-features-king-thieu-tri-565798.html"
+          ]
+        },
+        {
+          "id": "nha-nguyen-18",
+          "kind": "choice",
+          "content": "Lăng vua Minh Mạng (xây 1840–1843, hoàn tất dưới thời vua kế vị) có tên gọi chính thức là gì?",
+          "options": [
+            "Hiếu Lăng",
+            "Thiên Thọ Lăng",
+            "Xương Lăng",
+            "Khiêm Lăng"
+          ],
+          "answer": 0,
+          "explanation": "Lăng Minh Mạng là Hiếu Lăng, dựng trên núi Cẩm Kê được đổi tên thành Hiếu Sơn; Thiên Thọ Lăng là lăng Gia Long, Xương Lăng là lăng Thiệu Trị, Khiêm Lăng là lăng Tự Đức.",
+          "level": 3,
+          "sources": [
+            "https://vnexpress.net/lang-tam-hue-nhin-tu-tren-cao-4197302.html",
+            "https://www.vietnamplus.vn/lang-tam-hue-kien-truc-doc-dao-cua-vuong-trieu-nha-nguyen-post1026690.vnp",
+            "https://tienphong.vn/dia-oc/578034/Tham-cong-trinh-su-dung-hon-10000-nhan-cong-tpov.html"
+          ]
+        },
+        {
+          "id": "nha-nguyen-19",
+          "kind": "choice",
+          "content": "Công trình gỗ ba tầng dựng năm 1821–1822 bên trong Hoàng thành Huế, dùng để tôn vinh công lao các vua và đại thần triều Nguyễn, là công trình nào?",
+          "options": [
+            "Phu Văn Lâu",
+            "Hiển Lâm Các",
+            "Thái Bình Lâu",
+            "Minh Lâu"
+          ],
+          "answer": 1,
+          "explanation": "Hiển Lâm Các xây năm 1821–1822 dưới thời Minh Mạng, gồm ba tầng gỗ, cao khoảng 17 m, được xem là công trình cao nhất trong Hoàng thành; đây là nơi tôn vinh công trạng các vua và đại thần triều Nguyễn.",
+          "level": 3,
+          "sources": [
+            "https://www.vietnamplus.vn/hien-lam-cac-cong-trinh-cao-nhat-trong-hoang-thanh-hue-post1097744.vnp",
+            "https://tienphong.vn/dia-oc/hien-lam-cac-dinh-cao-nghe-thuat-kien-truc-viet-576300.tpo"
+          ]
+        }
+      ],
+      "puzzle": {
+        "text": "Nhã nhạc cung đình Huế được UNESCO vinh danh năm 2003",
+        "explanation": "Ngày 7/11/2003, Nhã nhạc cung đình Huế được UNESCO vinh danh, trở thành di sản phi vật thể đầu tiên của Việt Nam được ghi danh.",
+        "sources": [
+          "https://nhandan.vn/post-758221.html",
+          "https://baophapluat.vn/nha-nhac-cung-dinh-hue-di-san-van-hoa-nhan-loai-post23170.html"
+        ],
+        "splits": {
+          "3": [
+            "Nhã nhạc cung đình Huế",
+            "được UNESCO vinh danh",
+            "năm 2003"
+          ],
+          "4": [
+            "Nhã nhạc",
+            "cung đình Huế",
+            "được UNESCO vinh danh",
+            "năm 2003"
+          ],
+          "5": [
+            "Nhã nhạc",
+            "cung đình Huế",
+            "được UNESCO",
+            "vinh danh",
+            "năm 2003"
+          ],
+          "6": [
+            "Nhã nhạc",
+            "cung đình",
+            "Huế",
+            "được UNESCO",
+            "vinh danh",
+            "năm 2003"
+          ],
+          "7": [
+            "Nhã nhạc",
+            "cung đình",
+            "Huế",
+            "được",
+            "UNESCO",
+            "vinh danh",
+            "năm 2003"
+          ]
+        }
+      }
+    }
+  ]
+}

@@ -3,20 +3,26 @@
 // Phòng "Team gọn" (isCompact): không tự nhận thẻ (chủ phòng tung — owner.js giveCards), thưởng nhanh thay trừ giờ; tắt Đấu thì dùng tem như phòng đơn (usesStamps) + thưởng về đích.
 
 import { transaction } from '../db.js'
-import { RULES, REGIONS, CARD_KINDS, SOLO_CARD_KINDS, HELP_CARDS, GameError } from './rules.js'
+import { RULES, REGIONS, CARD_KINDS, SOLO_CARD_KINDS, HELP_CARDS, GameError, timePenaltyOf, timeKey } from './rules.js'
 
 export function createActions(ctx) {
   const {
     db, q, now, random, json, provinces, adjacency, topicNames, timedOut, roomId,
-    log, state, activeEvent, requireRunning, requireTeam, requireIdle, shieldActive, isSolo, isCompact, usesStamps, recordBoard, missesAt, worthAt,
+    tram, log, state, activeEvent, requireRunning, requireTeam, requireIdle, shieldActive, isSolo, isCompact, isTram, usesStamps, recordBoard, missesAt, worthAt,
     issueQuestion, isCorrect, correctAnswerText, addAnswerTime, saveResult, shuffled,
   } = ctx
+
+  // Phòng tram: đã mở map đặc biệt thì không đi lại / trả lời câu tỉnh nữa
+  function requireTramMap(t) {
+    if (isTram() && json(t.tram)?.stage !== 'map') throw new GameError('tram-map', 'Đội đã mở map đặc biệt', 409)
+  }
 
   // ---------- Hành động của team ----------
   function move(teamId, provinceId, by = null) {
     requireRunning()
     const t = requireTeam(teamId)
     requireIdle(t)
+    requireTramMap(t)
     if (!provinces.has(provinceId)) throw new GameError('bad-province', 'Tỉnh không tồn tại')
     if (provinceId === t.current_province) throw new GameError('same-province', 'Team đang ở tỉnh này')
 
@@ -61,7 +67,7 @@ export function createActions(ctx) {
   // Team đang ở tỉnh (vừa tới hoặc trả lời lại): tỉnh của mình → không có câu; tỉnh có chủ → công thành;
   // tỉnh trống → chọn chủ đề / đặt cược (nếu phòng bật) rồi mới phát câu. Gọi trong transaction.
   function offerQuestion(t, provinceId) {
-    // Phòng đơn / Team gọn tắt Đấu: tỉnh đã có tem của mình → đi qua, không hỏi lại; chưa có → câu hỏi (không có chủ tỉnh / thử tài)
+    // Phòng đơn / tram / Team gọn tắt Đấu: tỉnh đã có tem của mình → đi qua, không hỏi lại; chưa có → câu hỏi (không có chủ tỉnh / thử tài)
     if (usesStamps() && q.stamp.get(t.id, provinceId)) return { status: 'own' }
     const owner = q.owner.get(roomId, provinceId)
     if (owner?.team_id === t.id) return { status: 'own' }
@@ -81,6 +87,7 @@ export function createActions(ctx) {
     requireRunning()
     const t = requireTeam(teamId)
     requireIdle(t)
+    requireTramMap(t)
     if (!t.current_province) throw new GameError('no-province', 'Team chưa có vị trí trên bản đồ', 409)
     const owner = q.owner.get(roomId, t.current_province)
     if (owner?.team_id === t.id) throw new GameError('own-province', 'Tỉnh này đã là của đội bạn', 409)
@@ -329,6 +336,7 @@ export function createActions(ctx) {
   function retreat(teamId, by = null) {
     requireRunning()
     const t = requireTeam(teamId)
+    requireTramMap(t)
     if (t.locked_until && t.locked_until > now()) throw new GameError('locked', 'Team đang nghỉ chân', 423)
     // Đang có câu hỏi thì phải "Bỏ qua" (có khóa 10 giây) — không rút lui để né câu hỏi
     if (t.pending_question || t.choosing_at) throw new GameError('pending', 'Đang có câu hỏi — dùng "Bỏ qua" nếu muốn rời tỉnh', 409)
@@ -375,7 +383,7 @@ export function createActions(ctx) {
   function stampProvince(t, provinceId, by, questionId) {
     const p = provinces.get(provinceId)
     // (tem tỉnh xuất phát không có câu hỏi → không tính là đã có người tới trước)
-    const first = !!q.room.get(roomId).pioneer
+    const first = !isTram() && !!q.room.get(roomId).pioneer // tram: không có Tiên phong
       && !db.prepare('SELECT 1 FROM stamps WHERE room_id = ? AND province_id = ? AND question_id IS NOT NULL').get(roomId, provinceId)
     q.addStamp.run(roomId, t.id, provinceId, first ? 1 : 0, questionId, now())
     let bonus = 0
@@ -384,14 +392,14 @@ export function createActions(ctx) {
     if (first) bonus += RULES.pioneerBonus
     if (bonus) db.prepare('UPDATE teams SET bonus_points = bonus_points + ? WHERE id = ?').run(bonus, t.id)
     let card = null
-    if (p.is_city && !isCompact() && q.cards.all(t.id).length < RULES.maxCards) {
+    if (!isTram() && p.is_city && !isCompact() && q.cards.all(t.id).length < RULES.maxCards) { // tram, Team gọn: không rơi thẻ
       card = SOLO_CARD_KINDS[Math.floor(random() * SOLO_CARD_KINDS.length)]
       db.prepare('INSERT INTO cards (team_id, kind) VALUES (?, ?)').run(t.id, card)
     }
     log(t.id, 'capture', provinceId, null, by)
     if (first) log(t.id, 'pioneer', provinceId, { bonus: RULES.pioneerBonus }, by)
     const home = homeBonus(t, provinceId, by)
-    return { captured: true, bonus, card, home, pioneer: first ? RULES.pioneerBonus : 0, stamp: isSolo(), finish: isCompact() ? finishCheck(t, by) : null }
+    return { captured: true, bonus, card, home, pioneer: first ? RULES.pioneerBonus : 0, stamp: isSolo() || isTram(), finish: isCompact() ? finishCheck(t, by) : null }
   }
 
   // Team gọn tắt Đấu: vừa đủ tem cả 34 tỉnh → thưởng về đích theo thời gian còn lại; mọi team có người chơi đều về đích → kết thúc trận.
@@ -417,6 +425,7 @@ export function createActions(ctx) {
   // Về quê: tỉnh vừa chiếm là quê của thành viên team → +50, mỗi tỉnh 1 lần, tối đa RULES.homeMax tỉnh.
   // Ghi vào nhật ký team (action 'home'); bản tin màn chiếu không lấy action này. Trả về { names, bonus, n } hoặc null
   function homeBonus(t, provinceId, by) {
+    if (isTram()) return null // tram: không có thưởng về quê
     const names = db.prepare('SELECT name FROM players WHERE team_id = ? AND home = ? ORDER BY id').all(t.id, provinceId).map(r => r.name)
     if (!names.length) return null
     const done = db.prepare("SELECT province_id FROM events_log WHERE team_id = ? AND action = 'home'").all(t.id).map(r => r.province_id)
@@ -428,11 +437,7 @@ export function createActions(ctx) {
 
   // Điểm bị trừ theo thời gian trả lời (trừ vào điểm thưởng, một lần, lúc chiếm được tỉnh).
   // extraMs: thẻ Thêm giờ — dời cả khoảng được đủ điểm lẫn hạn chót
-  function timePenalty(points, difficulty, elapsedMs, extraMs = 0) {
-    const free = RULES.answerFreeMs[difficulty] + extraMs, limit = RULES.answerLimitMs[difficulty] + extraMs
-    if (elapsedMs <= free) return 0
-    return Math.round(points * Math.min(1, (elapsedMs - free) / (limit - free)))
-  }
+  const timePenalty = (points, difficulty, elapsedMs, extraMs) => timePenaltyOf(points, timeKey(difficulty, isTram() ? 'tram' : null), elapsedMs, extraMs)
 
   // Team gọn: thưởng nhanh = điểm tỉnh × compactSpeedRatio × phần thời gian còn lại (đúng ngay = tối đa, hết giờ = 0)
   function compactSpeed(points, difficulty, elapsedMs, extraMs = 0) {
@@ -445,7 +450,7 @@ export function createActions(ctx) {
   function bumpStreak(t, provinceId, by) {
     const n = t.streak + 1
     db.prepare('UPDATE teams SET streak = ? WHERE id = ?').run(n, t.id)
-    if (n % RULES.streakEvery) return { n, card: null, bonus: 0 }
+    if (isTram() || n % RULES.streakEvery) return { n, card: null, bonus: 0 }
     let card = null, bonus = 0
     if (!isCompact() && q.cards.all(t.id).length < RULES.maxCards) {
       card = HELP_CARDS[Math.floor(random() * HELP_CARDS.length)]
@@ -460,8 +465,15 @@ export function createActions(ctx) {
 
   // Trả lời sai hoặc hết giờ: khóa (câu vàng: khóa ×2); công thành thì bị đẩy về tỉnh trước; mất chuỗi đúng. Gọi trong transaction.
   // Không lộ đáp án đúng (team khác có thể gặp lại câu này).
+  // Phòng tram: câu mang ngôi sao mà sai / hết giờ / bỏ qua → trừ điểm gốc của tỉnh (khóa giữ 30 giây)
+  function starLost(t, provinceId, by) {
+    const lost = provinces.get(provinceId).points
+    db.prepare('UPDATE teams SET bonus_points = bonus_points - ? WHERE id = ?').run(lost, t.id)
+    log(t.id, 'tram-star', provinceId, { lost }, by)
+  }
+
   function failQuestion(t, question, timeout, by) {
-    const isSiege = question.difficulty === 'siege' && !usesStamps() // phòng đơn / Team gọn tắt Đấu: câu thử tài chỉ là câu vàng (không đẩy về)
+    const isSiege = question.difficulty === 'siege' && !usesStamps() // phòng đơn / tram / Team gọn tắt Đấu: câu thử tài chỉ là câu vàng (không đẩy về)
     addAnswerTime(t, question.difficulty)
     db.prepare(`INSERT INTO answered (team_id, question_id, correct, answered_at) VALUES (?, ?, 0, ?)
                 ON CONFLICT(team_id, question_id) DO UPDATE SET correct = 0, answered_at = excluded.answered_at`)
@@ -477,12 +489,13 @@ export function createActions(ctx) {
       saveResult(t, { questionId: question.id, province: question.province_id, siege: true, ...result }, by)
       return result
     }
-    // Câu vàng: khóa ×2; "Liều": khóa thêm 10 giây
-    const lockMs = (isSiege ? RULES.lockSiegeWrongMs : RULES.lockWrongMs) * (t.pending_golden ? RULES.goldenLockFactor : 1)
-      + (t.pending_bet ? RULES.betExtraLockMs : 0)
+    // Câu vàng: khóa ×2; "Liều": khóa thêm 10 giây (phòng tram không có cược)
+    const lockMs = (isSiege ? RULES.lockSiegeWrongMs : isTram() ? RULES.tram.lockMs : RULES.lockWrongMs) * (t.pending_golden ? RULES.goldenLockFactor : 1)
+      + (t.pending_bet && !isTram() ? RULES.betExtraLockMs : 0)
     db.prepare('UPDATE teams SET pending_question = NULL, pending_order = NULL, pending_at = NULL, locked_until = ?, streak = 0 WHERE id = ?')
       .run(now() + lockMs, t.id)
     log(t.id, isSiege ? 'siege-fail' : 'wrong', question.province_id, timeout ? { timeout: true } : null, by)
+    if (isTram() && t.pending_bet) starLost(t, question.province_id, by)
     if (isSiege) endDuel(t, 'attacker-fail')
     const pushedBack = isSiege && !!t.previous_province
     if (pushedBack) {
@@ -539,7 +552,7 @@ export function createActions(ctx) {
         penalty: compact ? 0 : timePenalty(points, question.difficulty, elapsed, t.pending_extra_ms),
         golden: t.pending_golden ? points : 0,
         speed: compact ? compactSpeed(points, question.difficulty, elapsed, t.pending_extra_ms)
-          : elapsed <= RULES.speedBonusMs ? Math.round(points * RULES.speedBonusRatio) : 0,
+          : !isTram() && elapsed <= RULES.speedBonusMs ? Math.round(points * RULES.speedBonusRatio) : 0,
       }
       const need = isSiege ? 1 : q.room.get(roomId).quiz_count
       const prog = isSiege ? null : progressOf(t)
@@ -584,7 +597,10 @@ export function createActions(ctx) {
           log(t.id, 'time-penalty', question.province_id, { penalty })
         }
         goldenBonus = Math.round(sum('golden') / need)
-        if (t.pending_bet) betBonus = Math.round(points * RULES.betBonusRatio) // "Liều" +50%: chọn một lần cho cả tỉnh
+        if (t.pending_bet) { // "Liều" +50%: chọn một lần cho cả tỉnh. Phòng tram: ngôi sao ×2 (cộng thêm = điểm tỉnh sau khi trừ tốc độ)
+          betBonus = isTram() ? points - penalty : Math.round(points * RULES.betBonusRatio)
+          if (isTram()) log(t.id, 'tram-star', question.province_id, { gain: betBonus }, by)
+        }
         speedBonus = Math.round(sum('speed') / need)
         const extra = goldenBonus + betBonus + speedBonus
         if (extra) db.prepare('UPDATE teams SET bonus_points = bonus_points + ? WHERE id = ?').run(extra, t.id)
@@ -592,9 +608,11 @@ export function createActions(ctx) {
       }
       // Đúng là được tính chuỗi, kể cả khi tỉnh vừa bị đội khác chiếm trước
       const streak = bumpStreak(t, question.province_id, by)
+      const tramResult = isTram() && captured.captured ? tram.onCorrect(t, question.province_id, by) : null
       const result = {
         correct: true,
         ...captured,
+        ...(tramResult ? { tram: tramResult } : {}),
         ...(round ? { round } : {}),
         penalty,
         missPenalty,
@@ -639,7 +657,7 @@ export function createActions(ctx) {
   // Khóa khi bỏ qua: 10 giây + thời gian đã xem câu hỏi, tối đa bằng khóa khi trả lời sai —
   // để chờ tới gần hết giờ mới bỏ qua không có lợi hơn để hết giờ
   function skipLockMs(difficulty, elapsedMs) {
-    const cap = difficulty === 'siege' ? RULES.lockSiegeWrongMs : RULES.lockWrongMs
+    const cap = difficulty === 'siege' ? RULES.lockSiegeWrongMs : isTram() ? RULES.tram.lockMs : RULES.lockWrongMs
     return Math.min(cap, RULES.lockSkipMs + Math.max(0, elapsedMs))
   }
 
@@ -654,6 +672,7 @@ export function createActions(ctx) {
     if (!t.pending_question) throw new GameError('no-pending', 'Không có câu hỏi nào đang chờ', 409)
     const question = q.question.get(t.pending_question)
     if (timedOut(question.difficulty, t.pending_at, t.pending_extra_ms)) return transaction(db, () => failQuestion(t, question, true, by))
+    if (isTram() && t.pending_bet) return transaction(db, () => failQuestion(t, question, false, by)) // câu có sao: bỏ qua = sai
     const lockMs = skipLockMs(question.difficulty, now() - t.pending_at)
     return transaction(db, () => {
       addAnswerTime(t, question.difficulty) // bỏ qua vẫn tính thời gian đã xem — không thành cách "tiết kiệm giờ"

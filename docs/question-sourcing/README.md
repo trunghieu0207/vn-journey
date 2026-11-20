@@ -19,3 +19,27 @@ Chạy bằng workflow (script mẫu: workflow "question-sourcing-1000" — mỗ
 Kết quả: soạn 413 (thiếu nguồn → không soạn ~100, hết hạn mức WebSearch giữa chừng) → giữ 326, sửa 78 (chủ yếu bỏ chi tiết nguồn không ghi, thay phương án nhiễu gần đúng, bỏ chỗ lộ đáp án câu khác), bỏ 9 → **+404 câu, tổng 910**. Sau gộp: đổi 10 link `http://` → `https://` (`data:check` chỉ nhận https); sửa câu chữ 16 câu mới nêu thẳng đáp án của câu khác cùng tỉnh (Mộc Châu, Thác Bản Giốc, Tiên Yên, Kinh Bắc, S'tiêng, phố cổ Hội An…).
 
 **Còn lại:** (1) ~110 câu chưa soạn được — nặng ở son-la, dong-nai, ho-chi-minh, phu-tho, tay-ninh, dong-thap, can-tho, ca-mau, gia-lai; chạy bù khi hạn mức hồi. (2) Nhãn "(… cũ)" trong câu mới (theo RULES) để lộ đáp án của ~11 câu cũ dạng "đặc sản này vốn của tỉnh cũ nào?" (hai-phong-03, ninh-binh-04, ninh-binh-s2, dak-lak-02, gia-lai-s2, dong-thap-04, vinh-long-s2, can-tho-02, can-tho-03, an-giang-04, lam-dong-04) và câu "dân tộc nào?" (Khmer: vinh-long-02, an-giang-02, can-tho-04) — xử lý khi bổ sung nguồn cho 204 câu cũ (viết lại các câu đó). (3) Một số lời giải nhắc đáp án của câu khác (chỉ hiện sau khi trả lời).
+
+## Đợt 4 (13/11/2026) — câu văn hóa tỉnh mức khó, lên 1083 câu
+
+Chủ dự án thấy câu tỉnh còn dễ → thêm câu **văn hóa** (ẩm thực, phong tục – làng nghề, lễ hội – nghệ thuật, di sản) **mức 3**, 5 câu/tỉnh. Luật như đợt 3 (≥ 2 nguồn, ≥ 1 chính thống) cộng thêm: **không nhắc tên tỉnh/huyện cũ đã sáp nhập 2025** trong câu hỏi, phương án; không nêu đáp án câu cũ cùng tỉnh (kể cả trong lời giải) và câu map đặc biệt (`data/periods.json`). Soạn: 10 trợ lý (8 nhóm + 2 nhóm soạn bù); lọc: mô hình **Fable**, mỗi nhóm một lượt, mở lại link, sửa / bỏ, câu còn dễ hạ xuống mức 2. Chủ trì dò tự động lộ đáp án chéo với câu cũ cùng tỉnh rồi sửa tay.
+
+Lượt chính: soạn 114 → gộp 106, bỏ 5 (trùng câu map đặc biệt / trùng ý câu cũ / còn dễ). WebSearch hết hạn mức sau ~15 phút (chung mọi trợ lý) → nhiều tỉnh chưa đủ 5 câu.
+
+Lượt soạn bù (khi hạn mức hồi): 7 trợ lý soạn 64 câu cho các tỉnh còn thiếu, Fable lọc → gộp 55; bỏ 6 (trùng câu cũ / có trong SGK / nguồn không đúng tỉnh / danh nhân phổ thông / cùng khuôn "tên sử thi của dân tộc X"). Câu chờ nguồn: lai-chau-22 tìm được nguồn thứ hai → gộp; son-la-18 (nguồn thay thế là bản đăng lại, không độc lập) và gia-lai-22 bỏ.
+
+Lượt bù thứ hai: 2 trợ lý soạn 9 câu cho 8 tỉnh còn thiếu → Fable lọc → gộp 8 (bỏ da-nang-32: trùng khuôn dệt cườm với hue-29); 3 câu giữ chờ nguồn (son-la-20, ninh-binh-29, da-nang-30) tìm được nguồn chính thống thứ hai → gộp.
+
+Tổng đợt 4: **+173 câu** (140 câu mức 3, còn lại Fable thấy dễ → mức 2). Cả 34 tỉnh có ≥ 5 câu mới (Lai Châu, Sơn La, Ninh Bình 6).
+
+**Còn lại:** các câu cũ dạng "… của dân tộc nào?" (đáp án Khmer, Nùng, Thái…) bị nhiều câu khác nêu tên dân tộc trong đề → nên viết lại các câu cũ đó.
+
+## Đợt 5 (13/11/2026) — viết lại 23 câu cũ bị lộ đáp án
+
+Dò tự động: đáp án câu A xuất hiện trong `content` của câu khác cùng tỉnh. Hai dạng lộ nặng nhất được viết lại (giữ `id`, `difficulty`, thường giữ chủ đề nhưng hỏi góc khác):
+- 11 câu "… vốn thuộc tỉnh cũ nào?" (nội dung sáp nhập, giờ bị cấm; tên tỉnh cũ có trong 8–13 câu khác cùng tỉnh): hai-phong-03, ninh-binh-04, ninh-binh-s2, gia-lai-s2, dak-lak-02, dong-thap-04, vinh-long-s2, can-tho-02, can-tho-03, lam-dong-04, an-giang-04.
+- 12 câu "… của dân tộc nào?": lai-chau-s2, lang-son-08, lang-son-s6, phu-tho-04, nghe-an-10, khanh-hoa-03, khanh-hoa-s1, vinh-long-02, an-giang-02, can-tho-04, dong-nai-s2, ninh-binh-14.
+
+Mỗi câu mới có ≥ 2 nguồn (≥ 1 chính thống), Fable lọc (chủ yếu thay phương án sai chưa chắc sai, sửa lời giải cho khớp nguồn). 19 câu trong số này vốn chưa có nguồn → `legacyUnsourced` còn 185.
+
+**Còn lại:** các câu dễ bị lộ bởi tên địa danh trong câu khác (vd. cao-bang-01 Thác Bản Giốc, son-la-02 Mộc Châu, hung-yen-02 Phố Hiến, da-nang-02 Hội An, tay-ninh-04 Cao Đài, can-tho-01 Cái Răng, an-giang-03 Núi Sam) — phần lớn là câu mức Dễ, ít ảnh hưởng.

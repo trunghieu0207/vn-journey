@@ -134,7 +134,7 @@ export function createSysadmin({ db, now = Date.now, game, hub, sealer, newCode 
   }
 
   function rooms() {
-    return db.prepare(`SELECT r.id, r.code, r.name, r.mode, r.status, r.listed, r.preset, r.duration_min AS durationMin, r.quiz_count AS quizCount,
+    return db.prepare(`SELECT r.id, r.code, r.name, r.mode, r.status, r.listed, r.preset, r.duration_min AS durationMin, r.quiz_count AS quizCount, r.key_count AS keyCount,
                               r.bet_choice AS betChoice, r.topic_choice AS topicChoice, r.pioneer, r.compact, r.duel, r.created_at AS createdAt,
                               r.started_at AS startedAt, r.ends_at AS endsAt, r.paused_at AS pausedAt,
                               (SELECT COUNT(*) FROM players p WHERE p.room_id = r.id) AS players,
@@ -190,8 +190,9 @@ export function createSysadmin({ db, now = Date.now, game, hub, sealer, newCode 
       if (r.preset) throw new GameError('bad-room', 'Phòng có sẵn luôn hiện trong danh sách')
       sets.listed = body.listed === true ? 1 : 0
     }
-    if ('betChoice' in body) sets.bet_choice = body.betChoice === true ? 1 : 0
-    if ('topicChoice' in body) sets.topic_choice = body.topicChoice === true ? 1 : 0
+    // Phòng Chạy trạm không có cược / chọn chủ đề (pending_bet là cờ sao): bỏ qua hai trường này
+    if ('betChoice' in body && r.mode !== 'tram') sets.bet_choice = body.betChoice === true ? 1 : 0
+    if ('topicChoice' in body && r.mode !== 'tram') sets.topic_choice = body.topicChoice === true ? 1 : 0
     for (const [key, col, range, label] of [['durationMin', 'duration_min', RULES.durationMin, 'Thời lượng'], ['quizCount', 'quiz_count', RULES.quizCount, 'Số câu mỗi tỉnh']]) {
       if (!(key in body)) continue
       const v = Number(body[key])

@@ -12,6 +12,7 @@ import { openQuestion, openTopicPicker } from './question.js'
 import { siegeIntro } from './siege-fx.js'
 import { openSiegeBet } from './siege-bet.js'
 import { renderSide, siegeWaitText } from './render.js'
+import { renderTram } from './tram.js'
 import { TEAMMATE_FIRST, canMove, hasPending, lastActor, nameOf, state } from './state.js'
 
 // Lấy lại trạng thái từ server rồi vẽ lại (apply tự mở khung chọn chủ đề / câu hỏi nếu đang chờ)
@@ -35,7 +36,8 @@ export async function act(fn) {
     return null
   } finally {
     state.busy = false
-    if (state.me) renderSide()
+    // renderTram: nút Ngôi sao (phụ thuộc busy) không nằm trong renderSide, không có nhịp tick tự vẽ lại
+    if (state.me) { renderSide(); renderTram() }
   }
 }
 

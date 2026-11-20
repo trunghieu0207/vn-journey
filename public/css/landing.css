@@ -79,7 +79,7 @@
 .lp-mode li { display: flex; gap: 8px; font-weight: 700; }
 .lp-mode li::before { content: ""; flex: none; width: 8px; height: 8px; margin-top: 8px; border-radius: 50%; background: var(--green); }
 .lp-fit { padding: 8px 12px; border-radius: 12px; background: var(--bg); font-size: 14px; font-weight: 800; }
-.lp-mode.team .lp-fit { color: #B35A00; } .lp-mode.solo .lp-fit { color: var(--green-dark); } .lp-mode.compact .lp-fit { color: var(--blue-dark, #1899D6); }
+.lp-mode.team .lp-fit { color: #B35A00; } .lp-mode.solo .lp-fit { color: var(--green-dark); } .lp-mode.compact .lp-fit { color: var(--blue-dark, #1899D6); } .lp-mode.tram .lp-fit { color: #A86B00; }
 .lp-feats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
 .lp-feat { padding: 20px; border-radius: 20px; background: var(--bg); }
 .lp-feat .lp-ic { width: 40px; height: 40px; margin-bottom: 8px; }
@@ -104,7 +104,7 @@
 .room-row.ended { opacity: .55; }
 .room-kind { display: grid; place-items: center; width: 44px; height: 44px; border-radius: 14px; }
 .room-kind .icon { width: 28px; height: 28px; }
-.room-kind.team { background: #FFF1E6; } .room-kind.solo { background: #F1FBE8; }
+.room-kind.team { background: #FFF1E6; } .room-kind.solo { background: #F1FBE8; } .room-kind.tram { background: #FFF6D6; }
 .room-title { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 8px; }
 .room-title b { overflow: hidden; font-size: 17px; text-overflow: ellipsis; }
 .room-badge { padding: 1px 8px; border-radius: 999px; background: #F1FBE8; color: var(--green-dark); font-size: 12px; font-weight: 900; white-space: nowrap; }

@@ -42,3 +42,58 @@ dialog.docked[open]:not(.shake) { animation: dock-in .5s cubic-bezier(.25, 1.25,
 
 /* Camera đang bay: tạm dừng hiệu ứng chạy liên tục để dồn sức cho khung hình (giảm giật) */
 .map.flying :is(.trail, .hop, .swirl, .lantern use, .cloud .bob) { animation-play-state: paused; }
+
+/* Phòng Chạy trạm: khay key, nút Ngôi sao hy vọng, sổ gợi ý mật thư */
+.key-tray { display: flex; flex-wrap: wrap; gap: 6px; margin: 4px 0 10px; padding: 0; list-style: none; }
+.key-tray .slot { display: inline-flex; align-items: center; gap: 4px; min-width: 44px; min-height: 38px; padding: 4px 10px; border: 2px dashed var(--line); border-radius: 12px; color: var(--muted); font-weight: 800; }
+.key-tray .slot.got { border: 2px solid #F5D58A; background: #FFF4D6; color: #7A4A00; animation: slot-pop .4s cubic-bezier(.25, 1.25, .5, 1); }
+.key-tray .slot-empty { margin: 0 auto; font-size: 18px; }
+@keyframes slot-pop { from { transform: scale(.6) rotate(-6deg); opacity: 0; } }
+.btn.star-btn.armed { --fill: #FFF4D6; --bd: var(--orange); color: #7A4A00; box-shadow: 0 0 0 4px rgba(255, 168, 0, .28); }
+.btn.star-btn.used { --fill: #F2F2F2; --bd: var(--line); color: var(--muted); }
+.star-note { font-size: 14px; }
+.hint-list { display: grid; gap: 8px; margin: 8px 0 0; padding: 0; list-style: none; max-height: 40vh; overflow-y: auto; }
+.hint-item { display: flex; gap: 8px; align-items: flex-start; padding: 8px 10px; border: 2px solid #F5D58A; border-radius: 12px 16px 12px 14px; background: #FFFAEB; }
+.hint-item.extra { border-color: var(--orange); background: #FFF4D6; }
+.hint-item p { margin: 0; font-size: 15px; line-height: 1.4; }
+.hint-tag { display: inline-block; margin-bottom: 2px; padding: 0 8px; border-radius: 999px; background: var(--orange); color: #fff; font-size: 12px; font-weight: 900; }
+.reward.key { color: #B86E00; }
+.reward.hint { color: var(--blue-dark); }
+.card h2 .muted { margin-left: 4px; }
+
+/* Phòng Chạy trạm: màn map đặc biệt (khung cảnh thời kỳ, 3 câu thời kỳ, câu ghép, về đích) phủ lên bản đồ */
+.tram-stage { position: absolute; inset: 0; z-index: 5; display: flex; flex-direction: column; align-items: center; gap: 10px; padding: 18px 16px 24px; overflow-y: auto;
+  background: var(--scene, #8a6d3b); color: var(--scene-ink, #fff); }
+.tram-stage[hidden] { display: none; }
+.ts-head { text-align: center; }
+.ts-head h2 { margin: 0; font-size: clamp(22px, 4.2vw, 34px); font-weight: 900; line-height: 1.15; }
+.ts-years { display: inline-block; margin-bottom: 4px; padding: 2px 12px; border-radius: 999px; background: rgba(255, 255, 255, .85); color: #3C3C3C; font-weight: 800; font-size: 14px; }
+.ts-icons { display: flex; gap: 12px; justify-content: center; }
+.ts-ic { display: grid; place-items: center; width: 70px; height: 70px; border-radius: 50%; background: rgba(255, 255, 255, .88); }
+.ts-blurb { max-width: 560px; margin: 0; text-align: center; font-size: 16px; line-height: 1.45; font-weight: 700; }
+.ts-marks { display: flex; gap: 10px; margin: 0; padding: 0; list-style: none; }
+.ts-mark { display: grid; place-items: center; width: 40px; height: 40px; border-radius: 50%; background: rgba(255, 255, 255, .35); opacity: .75; filter: grayscale(1); transition: opacity .3s, filter .3s; }
+.ts-mark.on { background: #fff; opacity: 1; filter: none; animation: slot-pop .45s cubic-bezier(.25, 1.25, .5, 1); }
+.ts-panel { box-sizing: border-box; width: min(640px, 100%); padding: 16px 18px; border: 2px solid var(--line); border-radius: 20px; background: var(--panel); color: var(--ink); }
+.ts-panel h3 { margin: 0 0 6px; font-size: 20px; font-weight: 900; }
+.ts-panel.good { border-color: #A5E56D; background: #F1FBE8; }
+.ts-panel.warn { border-color: #F5D58A; background: #FFFAEB; }
+.ts-q { margin: 6px 0 12px; font-size: 18px; font-weight: 800; line-height: 1.4; }
+.ts-note { margin: 10px 0 0; font-size: 14px; }
+.ts-lock { margin: 6px 0; font-weight: 900; color: var(--red-dark); font-variant-numeric: tabular-nums; }
+.ts-msg { margin: 8px 0 0; font-weight: 800; color: var(--red-dark); }
+.ts-row, .ts-pool { display: flex; flex-wrap: wrap; gap: 8px; margin: 8px 0; padding: 0; list-style: none; }
+.ts-row { min-height: 56px; padding: 8px; border: 2px dashed #F5D58A; border-radius: 16px; background: #FFFAEB; align-items: center; }
+.ts-row-empty { color: var(--muted); font-weight: 700; padding: 0 6px; }
+.btn.piece { min-height: 46px; text-align: left; line-height: 1.3; white-space: normal; }
+.btn.piece.in-row { --fill: #FFF4D6; --bd: #F5D58A; }
+.btn.piece .key { margin-right: 6px; }
+.ts-done .ts-bonus { font-size: 22px; font-weight: 900; color: #B86E00; }
+@media (max-width: 699px) {
+  .tram-stage { justify-content: flex-start; padding-top: 12px; gap: 8px; }
+  .ts-ic { width: 54px; height: 54px; }
+  .ts-blurb { font-size: 14px; }
+  .ts-panel { padding: 12px 12px 14px; }
+  .ts-q { font-size: 16px; }
+}
+.ts-panel .q-timer { font-size: 15px; } /* đồng hồ câu thời kỳ: màu xám, quá mốc đủ điểm thì đỏ (.late) như câu tỉnh, định nghĩa ở team.css */

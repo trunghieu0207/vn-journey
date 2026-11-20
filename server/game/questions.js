@@ -1,9 +1,9 @@
 // Câu hỏi của một phòng: chọn câu, ẩn đáp án, phát câu, chấm đáp án, ghi thời gian và kết quả.
 
-import { RULES, GameError, normalizeText } from './rules.js'
+import { RULES, GameError, normalizeText, timeKey } from './rules.js'
 
 export function createQuestions(ctx) {
-  const { db, q, now, random, json, activeEvent, roomId, factPool, usesStamps, questionLeadMs, worthAt } = ctx
+  const { db, q, now, random, json, activeEvent, roomId, factPool, usesStamps, isTram, tram, questionLeadMs, worthAt } = ctx
 
   // ---------- Câu hỏi ----------
   function shuffled(n) {
@@ -46,8 +46,13 @@ export function createQuestions(ctx) {
     // Câu đã hiện ở sảnh chờ (lộ đáp án) không phát; tỉnh hết câu thì mới cho lặp lại
     const shown = factSet()
     const fresh = rows => rows.filter(r => !shown.has(r.id))
-    let ids = fresh(ofTopic(q.candidates.all(provinceId, difficulty, teamId)))
-    if (!ids.length) ids = fresh(q.candidates.all(provinceId, difficulty, teamId))
+    // Phòng tram: bỏ câu lộ tên tỉnh cũ ở mọi bước; chỉ khi tỉnh không còn câu nào khác mới đành dùng lại (không để lỗi)
+    const skipOld = isTram() ? new Set(RULES.tramExcluded) : null
+    const ok = rows => (skipOld ? rows.filter(r => !skipOld.has(r.id)) : rows)
+    let ids = ok(fresh(ofTopic(q.candidates.all(provinceId, difficulty, teamId))))
+    if (!ids.length) ids = ok(fresh(q.candidates.all(provinceId, difficulty, teamId)))
+    if (!ids.length) ids = ok(fresh(q.anyCandidates.all(provinceId, difficulty)))
+    if (!ids.length) ids = ok(q.anyCandidates.all(provinceId, difficulty))
     if (!ids.length) ids = fresh(q.anyCandidates.all(provinceId, difficulty))
     if (!ids.length) ids = q.anyCandidates.all(provinceId, difficulty)
     if (!ids.length) throw new GameError('no-question', 'Tỉnh này chưa có câu hỏi', 500)
@@ -59,6 +64,8 @@ export function createQuestions(ctx) {
     return q.question.get(best[Math.floor(random() * best.length)].id)
   }
 
+  const timeOf = difficulty => timeKey(difficulty, isTram() ? 'tram' : null) // khóa giờ trả lời theo kiểu phòng
+
   // Câu hỏi gửi cho client: KHÔNG có đáp án; lựa chọn đã xáo trộn.
   // help: { hidden (vị trí 2 đáp án sai thẻ 50:50 đã ẩn), extraMs (thẻ Thêm giờ), golden (Câu hỏi vàng) }
   // bet: team chọn "Liều"; votes: phiếu chọn đáp án của thành viên [{ name, answer }]; worth: điểm tỉnh với team (đã trừ các lần trượt)
@@ -66,8 +73,8 @@ export function createQuestions(ctx) {
     const opts = json(question.options)
     return {
       issuedAt,
-      freeUntil: issuedAt + RULES.answerFreeMs[question.difficulty] + extraMs,
-      deadline: issuedAt + RULES.answerLimitMs[question.difficulty] + extraMs,
+      freeUntil: issuedAt + RULES.answerFreeMs[timeOf(question.difficulty)] + extraMs,
+      deadline: issuedAt + RULES.answerLimitMs[timeOf(question.difficulty)] + extraMs,
       hidden: hidden ?? [],
       extraMs,
       golden,
@@ -77,7 +84,7 @@ export function createQuestions(ctx) {
       id: question.id,
       province: question.province_id,
       // Phòng đơn: câu thử tài chỉ dùng làm câu vàng — client hiện như câu thường (giờ vẫn theo câu thử tài: freeUntil / deadline)
-      difficulty: usesStamps() ? 'normal' : question.difficulty,
+      difficulty: usesStamps() && !isTram() ? 'normal' : question.difficulty,
       level: question.level,
       kind: question.kind,
       content: question.content,
@@ -95,8 +102,10 @@ export function createQuestions(ctx) {
   // delayMs: phát câu nhưng chưa tính giờ ngay (giữa hai hiệp thử tài — để xem kết quả hiệp vừa xong)
   function issueQuestion(t, provinceId, difficulty, topic = null, bet = false, delayMs = 0) {
     // Phòng đơn: trong Câu hỏi vàng lấy câu từ kho thử tài của tỉnh (khó hơn, giờ 45 giây); tỉnh không có thì câu thường
-    if (usesStamps() && activeEvent()?.kind === 'golden' && q.anyCandidates.all(provinceId, 'siege').length) difficulty = 'siege'
+    if (usesStamps() && !isTram() && activeEvent()?.kind === 'golden' && q.anyCandidates.all(provinceId, 'siege').length) difficulty = 'siege'
     const question = pickQuestion(t.id, provinceId, difficulty, topic)
+    // Phòng tram: pending_bet = "câu này mang ngôi sao"; sao đang bật thì dùng ngay lúc phát câu (không chờ trả lời)
+    if (isTram() && tram.consumeStar(t.id)) bet = true
     const opts = json(question.options)
     const order = opts ? shuffled(opts.length) : null
     // Câu phát ra trong lúc Câu hỏi vàng thì giữ luật vàng tới khi trả lời xong (kể cả khi sự kiện vừa hết)
@@ -137,7 +146,7 @@ export function createQuestions(ctx) {
   // Cộng thời gian trả lời câu đang chờ vào tổng của team (tối đa bằng giờ của câu, kể cả giờ thẻ Thêm giờ — hết giờ tính đủ).
   // Gọi trong transaction, trước khi xóa pending_at.
   function addAnswerTime(t, difficulty) {
-    const ms = Math.max(0, Math.min(now() - t.pending_at, RULES.answerLimitMs[difficulty] + t.pending_extra_ms))
+    const ms = Math.max(0, Math.min(now() - t.pending_at, RULES.answerLimitMs[timeOf(difficulty)] + t.pending_extra_ms))
     db.prepare('UPDATE teams SET answer_ms = answer_ms + ? WHERE id = ?').run(ms, t.id)
   }
 

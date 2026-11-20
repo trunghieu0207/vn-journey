@@ -102,6 +102,12 @@
           <ul><li>Tối đa 50 người, mỗi người một máy</li><li>Tem Tiên phong +50 cho người đầu tiên tới một tỉnh</li><li>Điểm vào <a class="link" href="/leaderboard">bảng xếp hạng cả sự kiện</a></li></ul>
           <span class="lp-fit">Hợp với: nhóm nhỏ, giờ nghỉ trưa, chơi lại sau sự kiện</span>
         </div>
+        <div class="lp-mode tram">
+          <h3><span class="lp-ic"><span data-icon="key"></span></span> Chạy trạm</h3>
+          <p>Mỗi team một bản đồ riêng, đi tìm chìa khóa giấu trong tỉnh rồi mở chặng cuối về một thời kỳ lịch sử.</p>
+          <ul><li>2–8 team, gợi ý câu đố văn hóa chỉ đường tới chìa khóa</li><li>Ngôi sao hy vọng: 1 lần nhân đôi điểm, liều thì bị trừ</li><li>Ghép mảnh về đích sớm được thưởng thêm</li></ul>
+          <span class="lp-fit">Hợp với: nhóm thích giải đố, trận 30 phút trở lên</span>
+        </div>
       </div>
     </div>
   </section>
@@ -168,6 +174,8 @@
           <b>Team gọn</b><small>Theo team, thẻ bài do chủ phòng tung — trả lời càng nhanh càng nhiều điểm</small></label>
         <label class="mode-option"><input type="radio" name="mode" value="solo">
           <b>Chơi đơn</b><small>Mỗi người một hành trình: sưu tầm tem, tối đa 50 người</small></label>
+        <label class="mode-option"><input type="radio" name="mode" value="tram">
+          <b>Chạy trạm</b><small>Các team cùng đi tìm chìa khóa, mở chặng cuối về đích sớm</small></label>
       </div>
       <div class="mode-pick" role="radiogroup" aria-label="Ai vào được">
         <label class="mode-option"><input type="radio" name="access" value="public" checked>
@@ -191,17 +199,22 @@
             <option value="45" selected>45 phút</option><option value="60">60 phút</option><option value="90">90 phút</option>
           </select>
         </label>
-        <label class="field" title="Số câu phải trả lời đúng ở một tỉnh mới cắm cờ / nhận tem. Sai giữa chừng vẫn giữ số câu đã đúng">Số câu mỗi tỉnh
+        <label class="field" id="quizCountField" title="Số câu phải trả lời đúng ở một tỉnh mới cắm cờ / nhận tem. Sai giữa chừng vẫn giữ số câu đã đúng">Số câu mỗi tỉnh
           <select class="input" id="newQuizCount">
             <option value="1" selected>1 câu</option><option value="2">2 câu</option><option value="3">3 câu</option>
           </select>
         </label>
+        <label class="field" id="keyCountField" hidden title="Số chìa khóa mỗi team phải tìm đủ để mở chặng cuối">Số key
+          <select class="input" id="newKeyCount">
+            <option>3</option><option>4</option><option selected>5</option><option>6</option><option>7</option>
+          </select>
+        </label>
       </div>
-      <label class="check">
+      <label class="check" id="topicChoiceField">
         <input type="checkbox" id="newTopicChoice">
         <span>Cho người chơi <b>chọn chủ đề</b> câu hỏi khi tới tỉnh <small class="muted">(không chọn: câu ngẫu nhiên)</small></span>
       </label>
-      <label class="check">
+      <label class="check" id="betChoiceField">
         <input type="checkbox" id="newBetChoice" checked>
         <span><b>Đặt cược</b> trước câu hỏi: Chắc ăn / Mạo hiểm <small class="muted">(Mạo hiểm: đúng +50% điểm, sai nghỉ chân thêm 10 giây)</small></span>
       </label>
@@ -239,6 +252,7 @@
         <button class="fchip on" type="button" data-kind="all">Tất cả <i></i></button>
         <button class="fchip" type="button" data-kind="team">Theo team <i></i></button>
         <button class="fchip" type="button" data-kind="solo">Chơi đơn <i></i></button>
+        <button class="fchip" type="button" data-kind="tram">Chạy trạm <i></i></button>
         <input class="input" id="roomSearch" type="search" placeholder="Tìm tên phòng" aria-label="Tìm tên phòng">
       </div>
       <div class="room-list" id="roomList"></div>
@@ -271,6 +285,18 @@
           <dt>Cho đấu</dt><dd>Bật thì chung bản đồ, tỉnh team khác phải thử tài như phòng team.</dd>
         </dl>
         <p class="fit"><b>Hợp với:</b> trận ngắn, người mới chơi, không muốn nhiều luật.</p>
+      </div>
+      <div data-mode="tram" hidden>
+        <p class="kicker">Kiểu phòng bạn đang chọn</p>
+        <h2 class="entry-title"><span data-icon="key"></span> Chạy trạm</h2>
+        <p class="lead">Mỗi team đi trên bản đồ <b>riêng</b>, tìm các <b>chìa khóa</b> giấu trong tỉnh theo gợi ý, rồi mở <b>chặng cuối</b> về một thời kỳ lịch sử. Không ai giành tỉnh của ai.</p>
+        <dl class="facts">
+          <dt>Người chơi</dt><dd>2–8 team, mỗi team tối đa 12 người, bỏ phiếu chốt đáp án như phòng team.</dd>
+          <dt>Chìa khóa</dt><dd>Chọn số key 3–7 (thường 5). Mỗi key nhặt được lộ một mảnh của câu đố cuối.</dd>
+          <dt>Điểm</dt><dd>Điểm tỉnh trả lời đúng, sai không bị trừ. Về đích sớm được thưởng; có 1 lần Ngôi sao hy vọng.</dd>
+          <dt>Thời lượng</dt><dd>Ít nhất 30 phút. Không có cược, chủ đề, số câu mỗi tỉnh.</dd>
+        </dl>
+        <p class="fit"><b>Hợp với:</b> nhóm thích giải đố, trận dài vừa phải, có màn chiếu.</p>
       </div>
       <div data-mode="solo" hidden>
         <p class="kicker">Kiểu phòng bạn đang chọn</p>
@@ -367,7 +393,11 @@
         <div class="btn-row neighbors" id="neighbors"></div>
       </div>
 
-      <div class="card cards" data-tab="cards">
+      <!-- Phòng Chạy trạm (team/tram.js): khay key + Ngôi sao hy vọng, sổ gợi ý -->
+      <div class="card tram-tray" id="tramTray" data-tab="map hint" hidden></div>
+      <div class="card tram-book" id="tramBook" data-tab="hint" hidden></div>
+
+      <div class="card cards" id="cardsCard" data-tab="cards">
         <h2>Thẻ bài <span class="muted">· tối đa 3</span></h2>
         <div class="btn-row" id="cards"></div>
         <p class="muted" id="cardsEmpty">Cắm cờ ở thành phố trực thuộc TW để nhận thẻ.</p>
@@ -393,7 +423,8 @@
   <!-- Điện thoại: thanh tab dưới chọn thẻ hiện trong ngăn dưới bản đồ (team/menu.js) -->
   <nav class="tabbar" id="tabbar" aria-label="Bảng thông tin">
     <button type="button" data-tab="map" aria-pressed="true"><span data-icon="map"></span>Bản đồ</button>
-    <button type="button" data-tab="cards" aria-pressed="false"><span class="badge" id="cardBadge" hidden></span><span data-icon="card"></span>Thẻ bài</button>
+    <button type="button" data-tab="hint" id="hintTab" aria-pressed="false" hidden><span data-icon="scroll"></span>Gợi ý</button>
+    <button type="button" data-tab="cards" id="cardsTab" aria-pressed="false"><span class="badge" id="cardBadge" hidden></span><span data-icon="card"></span>Thẻ bài</button>
     <button type="button" data-tab="team" aria-pressed="false"><span data-icon="flag"></span><span id="teamTabLabel">Đội</span></button>
     <button type="button" data-tab="log" aria-pressed="false"><span data-icon="rumor"></span>Nhật ký</button>
   </nav>

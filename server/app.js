@@ -1,6 +1,7 @@
 // Định tuyến HTTP. Tách khỏi index.js để test gọi trực tiếp được.
 // Mọi phiên gắn với một phòng: người chơi / chủ phòng / màn chiếu chỉ thấy dữ liệu phòng của mình.
 
+import { loadTramContent } from './game/tram-content.js'
 import { createGame, GameError, RULES } from './game.js'
 import { randomBytes } from 'node:crypto'
 import { readFileSync, readdirSync, statSync, createReadStream, mkdirSync, existsSync } from 'node:fs'
@@ -21,7 +22,7 @@ import {
 // Băm sẵn một mã giả để khi mã phòng sai vẫn tốn thời gian như khi mã phòng đúng (không dò được phòng tồn tại)
 const DUMMY_HASH = hashSecret('dummy-owner-key')
 // Kiểu phòng từ form: team | compact (Team gọn) | solo — giá trị lạ coi như team
-const roomMode = m => (['solo', 'compact'].includes(m) ? m : 'team')
+const roomMode = m => (['solo', 'compact', 'tram'].includes(m) ? m : 'team')
 
 export function createApp({ db, config, now = Date.now, random = Math.random }) {
   // Khóa mã hóa mã chủ phòng (index.js đọc var/secret.key; test không truyền → khóa ngẫu nhiên theo tiến trình)
@@ -33,6 +34,7 @@ export function createApp({ db, config, now = Date.now, random = Math.random }) 
     sealSecret: sealer.seal,
     defaultDurationMin: config.gameDurationMin,
     freezeBeforeEndMin: config.freezeBeforeEndMin,
+    ...(config.tramContentDir && { tramContent: loadTramContent(config.tramContentDir) }),
   })
   const auth = createAuth(db, { now })
   // Loại dữ liệu realtime mỗi vai được xem. Trang tự chọn bằng ?view= (chủ phòng mở màn chiếu cần dữ liệu màn chiếu)
@@ -220,7 +222,7 @@ export function createApp({ db, config, now = Date.now, random = Math.random }) 
           throw new GameError('too-many-own', `Bạn đang có ${RULES.maxRoomsPerCreator} phòng chưa kết thúc — kết thúc bớt phòng cũ (trang chủ phòng) rồi tạo tiếp`, 429)
         }
         const r = game.createRoom({ name: body.name, teamCount: body.teamCount, durationMin: body.durationMin, topicChoice: body.topicChoice === true, betChoice: body.betChoice !== false,
-          mode: roomMode(body.mode), duel: body.duel === true, pioneer: body.pioneer !== false, quizCount: body.quizCount, listed: body.listed === true })
+          mode: roomMode(body.mode), duel: body.duel === true, keyCount: body.keyCount, pioneer: body.pioneer !== false, quizCount: body.quizCount, listed: body.listed === true })
         housekeeping.noteCreated(creator, r.roomId)
         setSession(res, 'owner', auth.createSession('owner', { roomId: r.roomId }))
         return { role: 'owner', code: r.code, ownerKey: r.ownerKey, screenCode: r.screenCode }
@@ -316,7 +318,7 @@ export function createApp({ db, config, now = Date.now, random = Math.random }) 
     'POST /api/sys/rooms': {
       sys: true,
       run: ({ body, admin }) => sys.createRoom({ name: body.name, teamCount: body.teamCount, durationMin: body.durationMin, topicChoice: body.topicChoice === true,
-        betChoice: body.betChoice !== false, mode: roomMode(body.mode), duel: body.duel === true, pioneer: body.pioneer !== false, quizCount: body.quizCount,
+        betChoice: body.betChoice !== false, mode: roomMode(body.mode), duel: body.duel === true, keyCount: body.keyCount, pioneer: body.pioneer !== false, quizCount: body.quizCount,
         listed: body.listed === true }, admin),
     },
     'POST /api/sys/room/codes': { sys: true, run: ({ body, admin }) => sys.roomCodes(body.roomId, admin) },
@@ -453,6 +455,11 @@ export function createApp({ db, config, now = Date.now, random = Math.random }) 
       run: ({ session, body }) => roomOf(session).voteShared(session.player_id, body.answer),
     },
     'POST /api/skip': { auth: ['player'], change: true, run: ({ session }) => roomOf(session).skip(session.team_id, session.player_name) },
+    'POST /api/tram/star': { auth: ['player'], change: true, run: ({ session, body }) => roomOf(session).armStar(session.team_id, !!body.on, session.player_name) },
+    'POST /api/tram/special': { auth: ['player'], change: true, run: ({ session }) => roomOf(session).specialNext(session.team_id, session.player_name) },
+    'POST /api/tram/special-answer': { auth: ['player'], change: true, run: ({ session, body }) => roomOf(session).specialAnswer(session.team_id, body.questionId, body.answer, session.player_name) },
+    'POST /api/tram/special-skip': { auth: ['player'], change: true, run: ({ session, body }) => roomOf(session).specialSkip(session.team_id, body.questionId, session.player_name) },
+    'POST /api/tram/puzzle': { auth: ['player'], change: true, run: ({ session, body }) => roomOf(session).submitPuzzle(session.team_id, body.order, session.player_name) },
     'POST /api/retreat': { auth: ['player'], change: true, run: ({ session }) => roomOf(session).retreat(session.team_id, session.player_name) },
     'POST /api/answer': {
       auth: ['player'], change: true,

@@ -1,0 +1,399 @@
+{
+  "current": {
+    "van-lang-02": {
+      "origin": "van-lang-02",
+      "verdict": "ok",
+      "issues": []
+    },
+    "van-lang-08": {
+      "origin": "van-lang-08",
+      "verdict": "fixed",
+      "issues": [
+        "Fable: Nội dung đúng (làng Đông Sơn ven sông Mã, phát hiện ngẫu nhiên nhóm đồ đồng năm 1924; bờ nam, cạnh cầu Hàm Rồng theo VietNamNet). Nhưng hơi dễ: ai biết Đông Sơn thuộc Thanh Hóa sẽ chọn ngay sông Mã vì ba phương án sai đều ở ngoài Thanh Hóa. Đề xuất thay 'Sông Đáy' bằng 'Sông Chu' (sông lớn thứ hai của Thanh Hóa, là phụ lưu sông Mã, không chảy qua làng Đông Sơn) để khó hơn mà vẫn chắc chắn sai. Phương án thay là kiến thức địa lý phổ thông, tôi không mở nguồn riêng cho nó.",
+        "Chủ trì: bỏ \"ở Thanh Hóa\" khỏi câu hỏi (biết sông Mã chảy qua Thanh Hóa là đoán ra).",
+        "Có thể còn dễ: ",
+        "Fable — có thể còn dễ: Biết Đông Sơn ở Thanh Hóa là suy ra sông Mã; ba phương án sai đều ngoài Thanh Hóa."
+      ]
+    },
+    "van-lang-puzzle": {
+      "origin": "van-lang-puzzle",
+      "verdict": "fixed",
+      "issues": [
+        "Không tìm được nguồn trích nguyên văn câu ca dao \"Nhớ ngày giỗ Tổ mùng mười tháng ba\" (nhandan, thanhtra, baovanhoa đều không có). Đổi sang câu khẳng định có nguồn.",
+        "Nếu muốn dùng lại ca dao gốc cần nguồn trích nguyên văn."
+      ]
+    },
+    "nha-ly-03": {
+      "origin": "nha-ly-03",
+      "verdict": "ok",
+      "issues": []
+    },
+    "nha-ly-06": {
+      "origin": "nha-ly-06",
+      "verdict": "ok",
+      "issues": []
+    },
+    "nha-ly-07": {
+      "origin": "nha-ly-07",
+      "verdict": "fixed",
+      "issues": [
+        "(1) explanation nêu 'khoa thi năm 1075', tức đáp án của câu 06, gây lộ chéo nếu câu 07 ra trước. (2) VietnamPlus ghi quê ông là làng Đông Cứu, huyện Gia Định cũ (nay là xã Đông Cứu, Bắc Ninh); ghi 'Gia Bình' là địa danh huyện cũ, đã không còn. Đáp án và các phương án sai đều đúng: Lý Đạo Thành cũng làm Thái sư nhưng không đỗ khoa thi; Tô Hiến Thành là Thái úy; Đoàn Văn Khâm không đỗ đầu khoa này.",
+        "Fable: Cụm \"chức quan cao nhất triều Lý\" trong content không nguồn nào (đã mở) xác nhận; bỏ đi, câu vẫn có đáp án duy nhất. Phần còn lại (đỗ đầu, vào hầu vua học, 1084 buộc Tống trả đất, Thái sư, Trạng nguyên khai khoa, làng Đông Cứu – Bắc Ninh) khớp nguồn."
+      ]
+    },
+    "nha-ly-puzzle": {
+      "origin": "nha-ly-puzzle",
+      "verdict": "ok",
+      "issues": [
+        "vnexpress + nhandan xác nhận dời đô Hoa Lư -> Đại La, đổi Thăng Long 1010."
+      ]
+    },
+    "nha-nguyen-03": {
+      "origin": "nha-nguyen-03",
+      "verdict": "fixed",
+      "issues": [
+        "Đáp án đúng (baophapluat: dựng năm 1826, Minh Mạng thứ 7, là nơi xem biểu diễn nghệ thuật). Nguồn sggp chỉ nhắc 'suất diễn tại Nhà hát Duyệt Thị Đường', không nêu năm và chức năng gốc, nên thay bằng TTXVN (vnanet) và VietNamNet, hai nguồn đều ghi 'built in 1826... Royal Theatre' và là nơi riêng của vua, hoàng tộc, quan lại. puzzleText nhắc Nhã nhạc nên có gợi ý nhẹ, chấp nhận được.",
+        "Fable: Cả 3 nguồn đều xác nhận năm 1826 và chức năng nhà hát, nhưng không nguồn nào ghi 'trong Tử Cấm Thành' (TTXVN chỉ ghi 'within the Imperial City of Hue'); không mở được nguồn chính thống nào xác nhận vị trí Tử Cấm Thành → đổi thành 'Hoàng cung Huế'."
+      ]
+    },
+    "nha-nguyen-07": {
+      "origin": "nha-nguyen-07",
+      "verdict": "fixed",
+      "issues": [
+        "Fable: Nội dung đúng (VnExpress: 1805 Gia Long khởi đắp, hoàn chỉnh 6/1832; Thanh Niên: mùa hè 1805, gần 30 năm, xong 1832). Nhưng quá dễ: 1805 nằm ngay trong niên hiệu Gia Long (1802–1820), ai cũng biết vua đầu triều Nguyễn. Đề xuất hỏi năm hoàn thành để khó hơn (không bắt buộc; nếu giữ nguyên thì câu vẫn đúng).",
+        "Có thể còn dễ: ",
+        "Fable — có thể còn dễ: Năm 1805 + vua sáng lập triều Nguyễn → gần như ai cũng chọn Gia Long; 3 phương án còn lại dễ loại theo thứ tự trị vì."
+      ]
+    },
+    "nha-nguyen-08": {
+      "origin": "nha-nguyen-08",
+      "verdict": "ok",
+      "issues": []
+    },
+    "nha-nguyen-puzzle": {
+      "origin": "nha-nguyen-puzzle",
+      "verdict": "ok",
+      "issues": [
+        "nhandan + baophapluat xác nhận Nhã nhạc vinh danh 7/11/2003."
+      ]
+    },
+    "van-lang-13": {
+      "origin": "van-lang-13",
+      "verdict": "fixed",
+      "issues": [
+        "Hỏi tỉnh theo địa giới cũ (Yên Bái nay thuộc Lào Cai; Hòa Bình nay thuộc Phú Thọ, trùng phương án Phú Thọ) → mơ hồ với game dùng 34 tỉnh. Đổi sang hỏi số cặp tượng trên nắp thạp (BT Lịch sử Quốc gia: '4 unique figurines of intercourse couples' trên nắp; VnExpress: 8 chim chia 4 đôi, giữa mỗi đôi gắn cặp tượng nam nữ → 4 cặp). Không đưa năm phát hiện vào vì nguồn lệch nhau (VnExpress 1960, Bảo tàng 1961).",
+        "Fable: Đáp án 4 cặp đúng (Bảo tàng Lịch sử Quốc gia: nắp có 4 tượng cặp đôi; VnExpress: 4 đôi chim, giữa mỗi đôi gắn một cặp tượng). Chỉ sửa nhẹ giải thích: (a) bảo tàng ghi hình mặt trời 12 tia, không gọi 'ngôi sao 12 cánh'; (b) bỏ '(Trấn Yên)' vì là huyện trước sáp nhập 2025 và VnExpress còn ghi 'Chấn Yên'; (c) hai nguồn ghi năm phát hiện khác nhau (1960 và 1961) nên tiếp tục không nêu năm."
+      ]
+    },
+    "van-lang-14": {
+      "origin": "van-lang-14",
+      "verdict": "new",
+      "issues": []
+    },
+    "van-lang-15": {
+      "origin": "van-lang-15",
+      "verdict": "new",
+      "issues": [
+        "Chủ trì: bỏ tên huyện cũ \"Thủy Nguyên\" (đã giải thể 2025)."
+      ]
+    },
+    "van-lang-16": {
+      "origin": "van-lang-16",
+      "verdict": "new",
+      "issues": []
+    },
+    "van-lang-17": {
+      "origin": "van-lang-17",
+      "verdict": "fixed",
+      "issues": [
+        "Đáp án đúng (Nhân Dân: Tiên Dung 'con gái Vua Hùng thứ 18'; Tuổi Trẻ: lễ hội 10–12/2 âm lịch tại đền Đa Hòa và đền Hóa – Dạ Trạch). Nhưng chi tiết 'vua Hùng thứ 18' có dị bản (Lĩnh Nam chích quái chép đời Hùng Vương thứ ba) → bỏ thứ tự đời vua khỏi đề cho chắc.",
+        "Fable: Phương án sai 'Mị Nương' cãi được: theo truyền thuyết, 'Mị Nương' là danh xưng chung của con gái vua Hùng, và Lĩnh Nam chích quái gọi nhân vật này là 'Tiên Dung Mị Nương' (chi tiết này là kiến thức sẵn có, tôi không mở nguồn riêng) -> thay bằng một công chúa chắc chắn sai. Ngoài ra chi tiết 'đánh cá' không có trong hai nguồn đã mở (Nhân Dân chỉ ghi 'chàng trai nghèo'; Tuổi Trẻ gọi là ông tổ nghề buôn) -> bỏ.",
+        "Có thể còn dễ: ",
+        "Fable — có thể còn dễ: Cặp Chử Đồng Tử - Tiên Dung rất quen thuộc; Mị Châu và Huyền Trân dễ loại. Không thấy cách làm khó hơn mà vẫn chắc đúng với cùng dữ kiện."
+      ]
+    },
+    "van-lang-18": {
+      "origin": "van-lang-18",
+      "verdict": "fixed",
+      "issues": [
+        "Fable: Đáp án núi Sóc đúng, các phương án sai chắc chắn sai. Nhưng chữ 'từ chân núi' không thống nhất giữa các bản kể: báo Nhân Dân ghi đến chân núi Sóc cởi giáp rồi bay về trời, nhiều bản kể khác ghi lên đỉnh núi Sóc -> bỏ chữ 'chân' trong câu hỏi và giải thích. Mức độ: hơi dễ so với mức 3.",
+        "Chủ trì: bỏ năm UNESCO 2010 khỏi giải thích (là phương án sai của van-lang-02).",
+        "Fable — có thể còn dễ: Núi Sóc - Sóc Sơn khá quen; Nghĩa Lĩnh (Đền Hùng) và Hồng Lĩnh (Hà Tĩnh) dễ loại. Chưa tìm được phương án sai khó hơn có nguồn chắc."
+      ]
+    },
+    "van-lang-19": {
+      "origin": "van-lang-19",
+      "verdict": "new",
+      "issues": [
+        "Có thể còn dễ: ",
+        "Fable — có thể còn dễ: Tản Viên - Ba Vì là kiến thức phổ thông (câu mức 2); ba phương án sai gắn với Phật giáo/Tây Thiên nên dễ loại. Không có cách làm khó hơn mà vẫn chắc đúng với nguồn đã mở."
+      ]
+    },
+    "van-lang-20": {
+      "origin": "van-lang-20",
+      "verdict": "new",
+      "issues": []
+    },
+    "van-lang-21": {
+      "origin": "van-lang-21",
+      "verdict": "new",
+      "issues": []
+    },
+    "van-lang-22": {
+      "origin": "van-lang-22",
+      "verdict": "new",
+      "issues": [
+        "Fable — có thể còn dễ: Câu mức 2: liên tưởng Thánh Gióng - tre là đoán được 'giò hoa tre'. Lưu ý trầu cau cũng được dâng và phát lộc ở hội này nên không được thêm 'trầu cau' làm phương án sai."
+      ]
+    },
+    "nha-ly-11": {
+      "origin": "nha-ly-11",
+      "verdict": "new",
+      "issues": []
+    },
+    "nha-ly-12": {
+      "origin": "nha-ly-12",
+      "verdict": "new",
+      "issues": [
+        "Fable — có thể còn dễ: Đáp án và giải thích đúng nguồn, nhưng hai phương án sai Trấn Quốc, Quán Sứ là tên chùa khác quá quen ở Hà Nội nên dễ loại. Tuỳ chọn làm khó (trong `fix`, không bắt buộc): thay bằng tên chữ của chùa khác – Diên Ứng (chùa Dâu), Thiên Tâm (chùa Tiêu), giữ Báo Thiên; cả ba chắc chắn không phải tên chữ chùa Một Cột."
+      ]
+    },
+    "nha-ly-15": {
+      "origin": "nha-ly-15",
+      "verdict": "fixed",
+      "issues": [
+        "explanation viết 'cổ và hoàn thiện nhất thời Lý còn lại', nhưng Nhân Dân cho biết tượng từng bị bắn gãy đầu, cổ trong kháng chiến chống Pháp và phần phục dựng không theo nguyên bản. Đáp án (đá xanh nguyên khối) đúng theo Nhân Dân; VnExpress ghi 'pho tượng Phật bằng đá', năm 1057 theo bia năm 1687; dsvh.gov.vn xác nhận là Bảo vật quốc gia (QĐ 1426/QĐ-TTg, 2012)."
+      ]
+    },
+    "nha-ly-16": {
+      "origin": "nha-ly-16",
+      "verdict": "fixed",
+      "issues": [
+        "Chi tiết 'chùa Lục Tổ (chùa Tiêu)' gây tranh cãi. Giác Ngộ đồng nhất Tiêu Sơn với Lục Tổ, còn Tuổi Trẻ nói Vạn Hạnh ở chùa Lục Tổ nhưng không nói Lý Công Uẩn học ở đó; Nhân Dân chỉ nói chùa Tiêu thờ Vạn Hạnh, người dạy Lý Công Uẩn. Chùa Lục Tổ (Đình Bảng) và chùa Tiêu (Tiêu Sơn) thường được xem là hai chùa khác nhau. Nên bỏ tên chùa. Đáp án Vạn Hạnh và việc ông được tôn Quốc sư khớp cả ba nguồn. Phương án sai: Đỗ Pháp Thuận, Khuông Việt (Tiền Lê), Không Lộ (Lý về sau), đều chắc chắn sai.",
+        "Có thể còn dễ: ",
+        "Fable — có thể còn dễ: Vạn Hạnh gắn với Lý Công Uẩn là kiến thức phổ thông (mức 2 là đúng); ba phương án sai đều chắc chắn sai. Không có cách làm khó hơn mà vẫn chắc chắn, nên giữ nguyên."
+      ]
+    },
+    "nha-ly-17": {
+      "origin": "nha-ly-17",
+      "verdict": "fixed",
+      "issues": [
+        "Fable: Link vnexpress ...-p2.html không chứa câu này (trang đó hỏi về thơ Nguyễn Trãi); trang gốc của bài có câu hỏi nhưng không hiện đáp án. Thay bằng Báo Pháp luật Việt Nam (đã mở, xác nhận tác giả Mãn Giác, câu thơ, tác phẩm duy nhất). Vế \"được xem là một trong những bài hay nhất thời Lý\" không có trong nguồn đã mở → bỏ."
+      ]
+    },
+    "nha-ly-19": {
+      "origin": "nha-ly-19",
+      "verdict": "fixed",
+      "issues": [
+        "Fable: Explanation dùng địa giới trước sáp nhập (\"xã Nam Sơn, TP Bắc Ninh\") và ghi \"chùa được dựng năm 1086\" trong khi nguồn ghi triều đình cho xây từ 1086, khoảng 10 năm mới xong. Đáp án, chiều cao ~5 m, rồng ngậm ngọc, Bảo vật quốc gia (QĐ 2089/QĐ-TTg, 25/12/2017) đều khớp nguồn."
+      ]
+    },
+    "nha-ly-20": {
+      "origin": "nha-ly-20",
+      "verdict": "fixed",
+      "issues": [
+        "Fable: Đáp án đúng theo nguồn chính thống (Nhân Dân, VOV2; Thiền uyển tập anh + Toàn thư). Chỉ bổ sung nguồn: hai link gốc không nhắc bài kệ sinh, lão, bệnh, tử nêu trong content; bài của Nguyễn Công Lý (Tạp chí Khoa học ĐHSP TP.HCM 2017) xác nhận bài kệ và thân thế. Lưu ý: bài này có thuật lại một giả thuyết ngoài lề (dựa trên báo mộng/ngoại cảm 2012–2013) rằng bà là cháu ngoại Lý Thái Tông, nhưng tác giả khẳng định \"cháu nội Lý Thái Tông\" là thông tin chính thống theo sử sách; cả ba phương án sai vẫn sai theo mọi thuyết."
+      ]
+    },
+    "nha-ly-21": {
+      "origin": "nha-ly-21",
+      "verdict": "fixed",
+      "issues": [
+        "Đáp án đúng: VOV và Báo Văn hóa đều ghi chính hội 15/3 âm lịch kỷ niệm ngày Lý Thái Tổ (Lý Công Uẩn) đăng quang, không phải ngày giỗ; năm 2026 kỷ niệm 1016 năm (1010–2026). Tuy nhiên explanation khẳng định 'đăng quang năm 1010' như sự thật lịch sử, trong khi sử cũ ghi Lý Công Uẩn lên ngôi năm 1009, và chính màn hình cũng ghi 'Nhà Lý 1009 – 1225'. Năm 1010 chỉ là theo truyền thống lễ hội, nên cần ghi rõ là theo lễ hội, kẻo người chơi thấy mâu thuẫn. Về lộ đáp án: câu ghép 'Lý Thái Tổ dời đô từ Hoa Lư về Thăng Long' không nhắc việc đăng quang, mà còn làm phương án 'thuyền vua tới Đại La' thành mồi nhử, nên không lộ. Các phương án sai: đặt quốc hiệu Đại Việt (1054, đời Thánh Tông), thuyền tới Đại La (mùa thu 1010), khánh thành Văn Miếu (1070) đều không phải dịp 15/3. Hai phương án sau không phải sự kiện của riêng Lý Thái Tổ, nhưng đều thuộc các vua Lý được thờ ở đền nên chấp nhận được. Không lộ chéo: phương án Văn Miếu không nêu tên vua của câu 03.",
+        "Fable: Đáp án đúng nguồn (VOV, Báo Văn Hóa, Nhân Dân: kỷ niệm ngày Lý Thái Tổ đăng quang, 1016 năm vào 2026). Nhưng phương án sai \"Ngày thuyền vua tới thành Đại La\" có thể cãi được: phần lễ của hội có nghi thức tuyên Chiếu dời đô, và câu ghép trên màn hình cũng nói về dời đô, nên người chơi dễ lập luận lễ hội kỷ niệm việc dời đô. Thay bằng phương án cùng loại, chắc chắn sai.",
+        "Chủ trì: không dùng phương án \"Ngày giỗ vua Lý Thái Tổ\" Fable đề xuất (chưa có nguồn, tháng giỗ gần tháng 3 dễ gây cãi) — thay bằng \"Ngày dựng chùa Một Cột\" (sự kiện thời Lý Thái Tông, chắc chắn sai)."
+      ]
+    },
+    "nha-ly-22": {
+      "origin": "nha-ly-22",
+      "verdict": "fixed",
+      "issues": [
+        "Đáp án đúng: VOV2 (dẫn Ban quản lý di tích) ghi thân thế Ỷ Lan 'tựa giống như cô Tấm' nên dân gọi là đền bà Tấm, ở xã Dương Xá, Gia Lâm; Hà Nội Mới xác nhận đền thờ Nguyên phi Ỷ Lan và chùa do chính bà cho dựng, khánh thành tháng 3 năm Ất Mùi 1115. Riêng tên chữ của chùa thì các nguồn ghi không thống nhất: Hà Nội Mới ghi 'Linh nhân Tự Phúc Tự', explanation ghi 'Linh Nhân Tư Phúc', còn VOV2 không nhắc. Nên bỏ tên chữ khỏi explanation. Phương án sai: Bà Chúa Kho (Bắc Ninh), Bà Chúa Xứ (An Giang), Mẫu Thoải (Thủy cung Thánh Mẫu) đều không thờ Ỷ Lan và không ở Dương Xá. Truyền thuyết Bà Chúa Kho có gắn với thời Lý, nhưng đó là nhân vật khác, và câu hỏi đã chốt địa điểm Dương Xá nên không thể cãi. Không lộ chéo.",
+        "Fable: (1) \"quê nhà Dương Xá\" là chi tiết còn tranh cãi: Báo Đại Đoàn Kết ghi cả Dương Xá (Gia Lâm) lẫn Ghênh (Như Quỳnh, Hưng Yên) đều nhận là nơi sinh của bà, xác định địa danh \"không dễ\" → bỏ chữ \"quê nhà\". (2) Lộ đáp án qua hình thức: câu hỏi nói \"khu đền, chùa\" và chỉ phương án đúng ghi \"Đền, chùa…\" → đưa \"đền, chùa\" vào câu hỏi, phương án chỉ còn tên. (3) \"Dương Xá\" là xã trước sắp xếp 2025 → chỉ ghi Gia Lâm (Hà Nội). Tên Bà Tấm, lý do gọi, chùa do bà dựng năm 1115 khớp VOV2, Hà Nội Mới, Nhân Dân.",
+        "Chủ trì: bỏ tên chữ của chùa khỏi giải thích (các nguồn ghi không thống nhất)."
+      ]
+    },
+    "nha-nguyen-09": {
+      "origin": "nha-nguyen-09",
+      "verdict": "fixed",
+      "issues": [
+        "Fable: Đáp án đúng (2 nguồn: mực son; 11 triều vua, 10 vua có bút phê). Vế 'nên mới gọi là châu bản' không có trong nguồn nào đã mở → bỏ khỏi giải thích. Câu dễ.",
+        "Fable — có thể còn dễ: 'Châu' gợi màu son đỏ, 'châu phê/bút son' là kiến thức phổ thông; các phương án mực vàng/đen/xanh dễ loại. Không tìm được cách làm khó hơn mà vẫn chắc đúng."
+      ]
+    },
+    "nha-nguyen-10": {
+      "origin": "nha-nguyen-10",
+      "verdict": "fixed",
+      "issues": [
+        "Fable: Đáp án và định nghĩa đúng nguyên văn Tuổi Trẻ + Báo Văn Hóa. Mốc 'UNESCO ghi danh 2016 (khu vực châu Á – TBD)' trong giải thích chỉ được nêu rõ ở bài VnExpress (2 nguồn gốc không ghi rõ năm) → bổ sung nguồn. Câu dễ vì tên gọi tự giải nghĩa.",
+        "Fable — có thể còn dễ: 'Nhất thi nhất họa' = một thơ một họa, lặp gần nguyên văn mô tả trong câu hỏi; Tứ bình/Bát bửu/Ngũ phúc dễ loại theo nghĩa chữ. Tên gọi vốn tự lộ nên không có cách làm khó hơn mà vẫn chắc đúng."
+      ]
+    },
+    "nha-nguyen-11": {
+      "origin": "nha-nguyen-11",
+      "verdict": "fixed",
+      "issues": [
+        "Nguồn không nói pháp lam ở 'mái' điện Thái Hòa. Tuổi Trẻ ghi pháp lam trang trí 'trên các công trình quan trọng như điện Thái Hòa, nghi môn, lăng tẩm', mảnh vỡ rơi từ 'trần điện Thái Hòa'. Về thất truyền, nguồn ghi 'đến thời vua Đồng Khánh thì sa sút dần rồi mất hẳn'. VietnamPlus ghi kỹ nghệ du nhập thời Minh Mạng (1827). Đáp án và các phương án sai vẫn đúng.",
+        "Fable: Đáp án đúng (Tuổi Trẻ: cốt đồng, phủ nhiều lớp men, nung nhiệt độ cao; VietnamPlus: đồng tráng men, du nhập thời Minh Mạng 1827). Giải thích viết 'sa sút dần đến thời Đồng Khánh thì mất hẳn' làm lệch ý nguồn (Tuổi Trẻ: 'đến thời Đồng Khánh thì sa sút dần rồi mất hẳn'; VietnamPlus chỉ nói 'mai một dần', và lăng Đồng Khánh vẫn có pháp lam) → bỏ mốc thất truyền không chắc."
+      ]
+    },
+    "nha-nguyen-12": {
+      "origin": "nha-nguyen-12",
+      "verdict": "fixed",
+      "issues": [
+        "Fable: Nội dung đúng. Nhưng nguồn Thanh Niên chỉ ghi 3 tầng + hình dạng + 'tam tài', không nói rõ tầng nào tượng trưng gì (và ghi năm xây 1803, lệch với 1806 ở nguồn khác – câu không dùng năm nên không ảnh hưởng). Thay bằng Tiền Phong, nguồn ghi rõ: tầng ba hình tròn (viên đàn) = trời, tầng hai vuông (phương đàn) = đất, tầng một vuông = người."
+      ]
+    },
+    "nha-nguyen-13": {
+      "origin": "nha-nguyen-13",
+      "verdict": "fixed",
+      "issues": [
+        "Đáp án đúng: Báo Pháp luật ghi 'đối diện với Thế Miếu, ứng với án thờ của các vua', Nhân Dân ghi 'đặt trước sân Thế Tổ Miếu' và vị trí chưa từng bị dịch chuyển. Chuyện trước hay sau Hiển Lâm Các (chính bài Báo Pháp luật ghi mâu thuẫn) không nằm trong câu hỏi nên không ảnh hưởng. Explanation ghi 'mỗi đỉnh mang thụy hiệu một vị vua' là không chính xác: nguồn chỉ nói các đỉnh ứng với án thờ, và theo hiểu biết chung có đỉnh (Dụ, Huyền) không gắn với vua nào. Bỏ ý này. Nên mô tả Cửu đỉnh bằng năm đúc 1835–1837 theo Nhân Dân, nằm trong phạm vi thời kỳ.",
+        "Fable: Đáp án Thế Miếu đúng (Nhân Dân: trước sân Thế Tổ Miếu, đúc 1835–1837, chưa từng dịch chuyển; Báo Pháp luật: đối diện Thế Miếu, ứng với các án thờ). Chi tiết 'xếp thành một hàng ngang' không hoàn toàn chính xác: các bài của báo Nhân Dân ghi Cao đỉnh ở giữa được đặt nhích lên phía trước khoảng 3 m so với 8 đỉnh còn lại (chỉ thấy qua kết quả tìm kiếm, chưa mở bài) → bỏ chi tiết 'một hàng ngang' khỏi câu và giải thích. Blurb/icon có nhắc Cửu đỉnh nhưng không lộ Thế Miếu."
+      ]
+    },
+    "nha-nguyen-14": {
+      "origin": "nha-nguyen-14",
+      "verdict": "new",
+      "issues": [
+        "Có thể còn dễ: ",
+        "Fable — có thể còn dễ: Tên 'Hổ Quyền' có chữ 'Hổ' → lộ ngay phương án duy nhất có hổ; ba phương án kia (ngựa, võ cử, thần công) dễ loại. Cách làm khó hơn (hỏi trận cuối 1904/Thành Thái) lại nằm ngoài phạm vi 1802–1858 nên không đề xuất."
+      ]
+    },
+    "nha-nguyen-17": {
+      "origin": "nha-nguyen-17",
+      "verdict": "new",
+      "issues": []
+    },
+    "nha-nguyen-18": {
+      "origin": "nha-nguyen-18",
+      "verdict": "new",
+      "issues": []
+    },
+    "nha-nguyen-19": {
+      "origin": "nha-nguyen-19",
+      "verdict": "fixed",
+      "issues": [
+        "Các dữ kiện chính đều được xác nhận: VietnamPlus và Tiền Phong ghi ba tầng gỗ, dựng 1821–1822 thời Minh Mạng; VietnamPlus ghi chức năng tôn vinh công trạng vua và đại thần; Tiền Phong ghi cao 17 m. Hai báo đều gọi đây là 'công trình cao nhất trong Hoàng thành', nhưng Ngọ Môn (cổng chính, thuộc Hoàng thành) cũng thường được ghi cao khoảng 17 m, nên đây là chi tiết có thể bị cãi. Đề nghị bỏ 'cao nhất' khỏi đề bài; các dữ kiện còn lại (ba tầng, 1821–1822, tôn vinh công lao) đủ xác định đáp án. Explanation đổi thành 'được xem là'. Phương án sai chắc chắn sai: Phu Văn Lâu nằm ngoài Hoàng thành; Minh Lâu thuộc lăng Minh Mạng; Thái Bình Lâu là lầu đọc sách trong Tử Cấm Thành, không phải công trình 1821–1822 tôn vinh công thần. Không lộ chéo với -13: đề và phương án không nhắc Cửu đỉnh hay Thế Miếu, và explanation đã sửa của -13 không nhắc Hiển Lâm Các."
+      ]
+    }
+  },
+  "removed": [
+    {
+      "originalId": "nha-ly-09",
+      "reason": "Bia tiến sĩ 1484 thuộc đời Lê Thánh Tông, không thuộc nhà Lý."
+    },
+    {
+      "originalId": "nha-nguyen-03",
+      "reason": "Hai bài cùng Báo Pháp luật, chưa có nguồn độc lập thứ hai nói rõ đại nhạc/tiểu nhạc dùng dịp nào (vietnam.travel không xác nhận)."
+    },
+    {
+      "originalId": "nha-nguyen-06",
+      "reason": "Cắt bớt: quá nhiều câu Cửu đỉnh (giữ tối đa 2: 05, 07). Nội dung đúng (3 nguồn)."
+    },
+    {
+      "originalId": "nha-nguyen-08",
+      "reason": "Cắt bớt do đa dạng (Cửu đỉnh). Nội dung đúng: 162 hình."
+    },
+    {
+      "originalId": "nha-nguyen-09",
+      "reason": "Cắt bớt do đa dạng; nguồn không nêu tên Gia Long trực tiếp (chỉ thụy hiệu Thế tổ Cao hoàng đế)."
+    },
+    {
+      "originalId": "nha-nguyen-10",
+      "reason": "Cắt bớt do đa dạng; Bảo vật quốc gia 2012 đúng (baophapluat, nhandan)."
+    },
+    {
+      "originalId": "nha-nguyen-12",
+      "reason": "Chùa Thiên Mụ lập 1601 thời chúa Nguyễn Hoàng, trước triều Nguyễn (1802), lệch thời kỳ."
+    },
+    {
+      "originalId": "van-lang-01",
+      "reason": "Thay bằng bộ câu khó hơn (12/11/2026, chủ dự án thấy vòng đặc biệt quá dễ): đáp án lộ trên màn hình / kiến thức phổ thông / phương án sai dễ loại."
+    },
+    {
+      "originalId": "van-lang-03",
+      "reason": "Thay bằng bộ câu khó hơn (12/11/2026, chủ dự án thấy vòng đặc biệt quá dễ): đáp án lộ trên màn hình / kiến thức phổ thông / phương án sai dễ loại."
+    },
+    {
+      "originalId": "van-lang-04",
+      "reason": "Thay bằng bộ câu khó hơn (12/11/2026, chủ dự án thấy vòng đặc biệt quá dễ): đáp án lộ trên màn hình / kiến thức phổ thông / phương án sai dễ loại."
+    },
+    {
+      "originalId": "van-lang-05",
+      "reason": "Thay bằng bộ câu khó hơn (12/11/2026, chủ dự án thấy vòng đặc biệt quá dễ): đáp án lộ trên màn hình / kiến thức phổ thông / phương án sai dễ loại."
+    },
+    {
+      "originalId": "van-lang-06",
+      "reason": "Thay bằng bộ câu khó hơn (12/11/2026, chủ dự án thấy vòng đặc biệt quá dễ): đáp án lộ trên màn hình / kiến thức phổ thông / phương án sai dễ loại."
+    },
+    {
+      "originalId": "van-lang-07",
+      "reason": "Thay bằng bộ câu khó hơn (12/11/2026, chủ dự án thấy vòng đặc biệt quá dễ): đáp án lộ trên màn hình / kiến thức phổ thông / phương án sai dễ loại."
+    },
+    {
+      "originalId": "van-lang-09",
+      "reason": "Thay bằng bộ câu khó hơn (12/11/2026, chủ dự án thấy vòng đặc biệt quá dễ): đáp án lộ trên màn hình / kiến thức phổ thông / phương án sai dễ loại."
+    },
+    {
+      "originalId": "van-lang-10",
+      "reason": "Thay bằng bộ câu khó hơn (12/11/2026, chủ dự án thấy vòng đặc biệt quá dễ): đáp án lộ trên màn hình / kiến thức phổ thông / phương án sai dễ loại."
+    },
+    {
+      "originalId": "van-lang-11",
+      "reason": "Thay bằng bộ câu khó hơn (12/11/2026, chủ dự án thấy vòng đặc biệt quá dễ): đáp án lộ trên màn hình / kiến thức phổ thông / phương án sai dễ loại."
+    },
+    {
+      "originalId": "van-lang-12",
+      "reason": "Thay bằng bộ câu khó hơn (12/11/2026, chủ dự án thấy vòng đặc biệt quá dễ): đáp án lộ trên màn hình / kiến thức phổ thông / phương án sai dễ loại."
+    },
+    {
+      "originalId": "nha-ly-01",
+      "reason": "Thay bằng bộ câu khó hơn (12/11/2026, chủ dự án thấy vòng đặc biệt quá dễ): đáp án lộ trên màn hình / kiến thức phổ thông / phương án sai dễ loại."
+    },
+    {
+      "originalId": "nha-ly-02",
+      "reason": "Thay bằng bộ câu khó hơn (12/11/2026, chủ dự án thấy vòng đặc biệt quá dễ): đáp án lộ trên màn hình / kiến thức phổ thông / phương án sai dễ loại."
+    },
+    {
+      "originalId": "nha-ly-04",
+      "reason": "Thay bằng bộ câu khó hơn (12/11/2026, chủ dự án thấy vòng đặc biệt quá dễ): đáp án lộ trên màn hình / kiến thức phổ thông / phương án sai dễ loại."
+    },
+    {
+      "originalId": "nha-ly-05",
+      "reason": "Thay bằng bộ câu khó hơn (12/11/2026, chủ dự án thấy vòng đặc biệt quá dễ): đáp án lộ trên màn hình / kiến thức phổ thông / phương án sai dễ loại."
+    },
+    {
+      "originalId": "nha-ly-08",
+      "reason": "Thay bằng bộ câu khó hơn (12/11/2026, chủ dự án thấy vòng đặc biệt quá dễ): đáp án lộ trên màn hình / kiến thức phổ thông / phương án sai dễ loại."
+    },
+    {
+      "originalId": "nha-ly-09",
+      "reason": "Thay bằng bộ câu khó hơn (12/11/2026, chủ dự án thấy vòng đặc biệt quá dễ): đáp án lộ trên màn hình / kiến thức phổ thông / phương án sai dễ loại."
+    },
+    {
+      "originalId": "nha-ly-10",
+      "reason": "Thay bằng bộ câu khó hơn (12/11/2026, chủ dự án thấy vòng đặc biệt quá dễ): đáp án lộ trên màn hình / kiến thức phổ thông / phương án sai dễ loại."
+    },
+    {
+      "originalId": "nha-nguyen-01",
+      "reason": "Thay bằng bộ câu khó hơn (12/11/2026, chủ dự án thấy vòng đặc biệt quá dễ): đáp án lộ trên màn hình / kiến thức phổ thông / phương án sai dễ loại."
+    },
+    {
+      "originalId": "nha-nguyen-02",
+      "reason": "Thay bằng bộ câu khó hơn (12/11/2026, chủ dự án thấy vòng đặc biệt quá dễ): đáp án lộ trên màn hình / kiến thức phổ thông / phương án sai dễ loại."
+    },
+    {
+      "originalId": "nha-nguyen-04",
+      "reason": "Thay bằng bộ câu khó hơn (12/11/2026, chủ dự án thấy vòng đặc biệt quá dễ): đáp án lộ trên màn hình / kiến thức phổ thông / phương án sai dễ loại."
+    },
+    {
+      "originalId": "nha-nguyen-05",
+      "reason": "Thay bằng bộ câu khó hơn (12/11/2026, chủ dự án thấy vòng đặc biệt quá dễ): đáp án lộ trên màn hình / kiến thức phổ thông / phương án sai dễ loại."
+    },
+    {
+      "originalId": "nha-nguyen-06",
+      "reason": "Thay bằng bộ câu khó hơn (12/11/2026, chủ dự án thấy vòng đặc biệt quá dễ): đáp án lộ trên màn hình / kiến thức phổ thông / phương án sai dễ loại."
+    }
+  ]
+}

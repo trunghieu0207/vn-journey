@@ -14,3 +14,4 @@ mockup/.v*.html
 
 # Ảnh giới thiệu (Facebook) — không đưa vào git
 promo/
+.playwright-mcp/

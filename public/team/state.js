@@ -55,6 +55,8 @@ export const state = {
 export const solo = () => state.me?.room.mode === 'solo'
 // Phòng "Team gọn": không tự nhận thẻ (chủ phòng tung), thưởng nhanh thay trừ giờ (tắt Đấu: mỗi team một bản đồ, có về đích)
 export const compactRoom = () => !!state.me?.room.compact
+// Phòng Chạy trạm: tìm key, sổ gợi ý, Ngôi sao hy vọng (không thẻ, không chuỗi đúng, không về quê)
+export const tram = () => state.me?.room.mode === 'tram'
 // Máy này đang giữ quyền chủ phòng (người tạo phòng vào chơi luôn / người vào trước ở phòng có sẵn)
 export const isHost = () => !!state.me?.hostId && state.me.hostId === state.me.me?.id
 export const running = () => state.me?.status === 'running'

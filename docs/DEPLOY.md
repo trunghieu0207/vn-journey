@@ -313,13 +313,17 @@ journalctl -u vn-journey -n 20
 
 - **Không sửa file trực tiếp trên VPS** (trừ `.env`). Sửa ở máy dev → push → pull. Nếu `git pull --ff-only` báo lỗi, xem `$G status` — có file bị sửa tay trên VPS.
 - **Câu hỏi đã sửa trong trang quản trị nằm trong DB trên VPS, không nằm trong git.** Trước khi tạo lại DB: vào `/quan-tri` → Câu hỏi → **Xuất questions.json**, thay `data/questions.json` trên máy dev, commit + push, rồi mới làm bước dưới — không thì mất các chỗ đã sửa.
-- Bản cập nhật **có sửa `db/schema.sql` hoặc `data/`** (câu hỏi, tỉnh) → phải tạo lại DB vì dữ liệu được nạp lúc tạo:
+- Bản cập nhật **có sửa `db/schema.sql` hoặc `data/`** (câu hỏi, tỉnh; ngoại lệ: `data/periods.json`, `data/key-hints.json` chỉ cần restart, xem bullet Chạy trạm bên dưới) → phải tạo lại DB vì dữ liệu được nạp lúc tạo:
   ```bash
   sudo systemctl stop vn-journey
   sudo -u vnj -H bash -c 'cd /opt/vn-journey && node --disable-warning=ExperimentalWarning scripts/init-db.mjs --reset'
   sudo systemctl start vn-journey
   ```
   **Mất toàn bộ phòng, bảng xếp hạng và tài khoản quản trị** (tạo lại bằng `admin-create.mjs`). Không làm việc này từ 23/11 trở đi.
+- **Chế độ Chạy trạm (nhánh `custom-gameplay`):**
+  - Đổi `data/periods.json` / `data/key-hints.json` (nội dung, cờ `reviewed`) **chỉ cần `git pull` + `sudo systemctl restart vn-journey`** — server nạp lúc khởi động, **không** `db:reset`.
+  - Schema đổi (`rooms.mode` thêm `'tram'`, `rooms.key_count`, `teams.tram`) → **lần deploy đầu của nhánh này cần `init-db.mjs --reset` (`pnpm run db:reset`) một lần** — **xóa toàn bộ phòng, bảng xếp hạng và tài khoản quản trị**. Làm đúng thủ tục ở trên: xuất câu hỏi đã sửa ở `/quan-tri` → Xuất questions.json, commit + push trước khi reset. Xong tạo lại tài khoản quản trị.
+  - **Không đặt `TRAM_CONTENT_DIR` trong `.env` trên host** (biến chỉ cho dev, trỏ tới nội dung mẫu của test do `tram:dev-content` ghi; bộ nạp vẫn lọc `reviewed` như thường). Production luôn đọc `data/`; nội dung chưa duyệt không phát được.
 - **Quay lại bản trước** khi bản mới lỗi:
   ```bash
   $G tag --list 'deploy-*'                 # chọn mốc trước đó

@@ -29,6 +29,7 @@
 ### 0.1. Đã xong
 | Hạng mục | Kết quả | Xem ở |
 |---|---|---|
+| **Chạy trạm — kiểu phòng mới (10/11–11/2026)** | 🟡 Code + test xong (**200 test**, `data:check` sạch). Kiểu phòng `tram`: mỗi team một bản đồ riêng, nhặt N key (mặc định 5) nhờ câu đố gợi ý, gom đủ thì mở **map đặc biệt** theo thời kỳ lịch sử (3 câu + câu ghép mảnh), ngôi sao hy vọng, luật cứu ở nửa thời lượng, thưởng về đích. Đã **xem trên trình duyệt từng màn** (team, chiếu, chủ phòng, trang duyệt); **chưa chạy tay trọn một trận** (nhất là nhặt key cuối → chuyển sang map đặc biệt trên máy đồng đội). **Nội dung:** 68 câu đố gợi ý key + 3 thời kỳ đợt 1 (Văn Lang 12, Nhà Lý 10, Nhà Nguyễn 8 câu) đã nạp nhưng `reviewed: false` — chờ chủ dự án duyệt ở `docs/tram-review.html`; đợt 2 (Âu Lạc, Hoa Lư, Trần, Hậu Lê) chưa bắt đầu. Nội dung thật chưa chơi được cho tới khi duyệt; để thử giao diện/luật khi dev: `pnpm run tram:dev-content` + `TRAM_CONTENT_DIR=var/tram-dev` (nội dung mẫu của test, không phải nội dung thật) | Mục **3.9**; spec `docs/superpowers/specs/2026-11-09-tram-mode-design.md`; `server/game/tram.js`, `RULES.tram` (`server/game/rules.js`), `data/periods.json`, `data/key-hints.json`, `docs/tram-review.html` |
 | Thiết kế | **Bản đồ thật** (chỉ lãnh thổ VN) + **phong cách Hoạt hình** kiểu Duolingo. Font **Nunito** lưu trong project (đã duyệt). **Icon linh vật** 8 team tự vẽ SVG | Mục 5.2, 5.10, 12.5; `public/shared/mascots.js` |
 | Dữ liệu bản đồ / tỉnh | 34 tỉnh, 58 cặp giáp ranh, đảo + Hoàng Sa/Trường Sa; 9 TP trực thuộc TW; 6 bộ sưu tập | `data/map-geo.json`, `data/provinces.json` |
 | **Câu hỏi** | **910 câu** sau đợt 3 (30/10: +404 câu, mỗi câu ≥ 2 nguồn độc lập đã kiểm chứng chéo — `docs/question-sourcing/README.md` mục Đợt 3; còn thiếu ~110 câu để đủ 22 thường + 8 công thành mỗi tỉnh). Trước đó **506 câu** (372 thường + 134 công thành). 204 câu đợt 1 (chưa lưu link nguồn) + **302 câu đợt 2 có `sources`**, đã kiểm chứng chéo (xem 0.5 "Câu hỏi") | `data/questions.json`, `docs/question-sourcing/` |
@@ -54,7 +55,8 @@ cd vn-journey          # thư mục gốc của repo
 pnpm run data:check   # 0 lỗi; 4 cảnh báo cũ (câu công thành mức Dễ)
 pnpm run review:build # dựng lại docs/questions-review.html sau khi sửa câu hỏi
 pnpm run db:reset     # tạo lại var/game.db — XÓA mọi phòng; bắt buộc sau khi đổi schema hoặc câu hỏi
-pnpm run test         # 115 test
+pnpm run test         # 200 test
+pnpm run tram:dev-content && TRAM_CONTENT_DIR=var/tram-dev pnpm run dev   # thử phòng Chạy trạm khi nội dung thật chưa duyệt (ghi nội dung mẫu của test (fixture) đã gắn reviewed: true vào var/tram-dev/; bộ nạp vẫn lọc reviewed như thường — không phải 68 gợi ý / 3 thời kỳ thật; KHÔNG dùng trên host)
 pnpm run dev          # http://127.0.0.1:3000 — / tạo hoặc vào phòng · /admin.html chủ phòng · /screen.html màn chiếu
 curl --noproxy 127.0.0.1 http://127.0.0.1:3000/api/health   # LUÔN --noproxy (xem 0.4)
 kill $(lsof -ti tcp:3000 -sTCP:LISTEN)                      # tắt server — CHỈ tiến trình LISTEN (xem 0.4)
@@ -69,6 +71,8 @@ Thử trọn 1 trận: mở `http://127.0.0.1:3000/` (đúng `127.0.0.1`, không
 5. **Phase 6 — deploy**: ✅ tài liệu `docs/DEPLOY.md` (31/10 — Node 1 tiến trình + Nginx HTTPS/SSE + systemd + ufw, checklist ngày sự kiện, khôi phục backup, gỡ host). Còn: thuê VPS + domain; thử proxy công ty có chặn domain mới / SSE không. **31/10: mở công khai, không chặn IP văn phòng** (quyết định 6.7); sửa cấu hình Nginx cho bản cũ (`listen 443 ssl http2;` — `http2 on;` chỉ có từ Nginx 1.25.1, Ubuntu báo `unknown directive "http2"`) và lấy chứng chỉ Let's Encrypt trước khi tạo cấu hình.
 6. Phase 7 tổng duyệt **21/11** → sự kiện 24/11 → Phase 9 gỡ host.
 7. **Câu hỏi**: (a) chạy bù ~110 câu còn thiếu để đủ 22 thường + 8 công thành mỗi tỉnh (danh sách tỉnh thiếu: `docs/question-sourcing/README.md` mục Đợt 3) — cần WebSearch, thử một lượt trước xem hạn mức còn không; (b) **bổ sung nguồn cho 204 câu cũ + 139 câu đợt 2 chỉ 1 nguồn** (chủ dự án chọn làm sau 1000 câu), đồng thời **viết lại 14 câu cũ bị câu mới lộ đáp án** (dạng "vốn của tỉnh cũ nào?" / "dân tộc nào?" — danh sách ở README mục Đợt 3); (c) chủ dự án duyệt câu ở `docs/questions-review.html`.
+
+8. **Chạy trạm** (10/11): (a) chủ dự án duyệt `docs/tram-review.html` (68 gợi ý + 3 thời kỳ), đưa kết quả về `reviewed: true` trong `data/key-hints.json` / `data/periods.json`; (b) **chạy tay trọn một trận** có ít nhất 2 máy một team, gồm nhặt key cuối → chuyển sang map đặc biệt trên máy đồng đội, câu ghép mảnh, về đích, hết giờ; (c) nội dung đợt 2 (Âu Lạc, Hoa Lư, Trần, Hậu Lê) theo `docs/question-sourcing/` + spec mục 4. Mốc: chạy thử tay 19/11; không kịp thì tổng duyệt 21/11 dùng hai kiểu phòng cũ.
 
 ### 0.4. Quy tắc làm việc (bắt buộc)
 - **0 dependency**: chỉ HTML/CSS/JS thuần + module `node:*`. Thêm package/font/file ngoài phải hỏi trước (mục 12.5). Chỉ **pnpm**, không `npm`/`npx`.
@@ -295,6 +299,15 @@ Các giả định dưới đây đang được dùng để lập plan. **Sửa 
 - **Khung "Diễn biến mới nhất"** (30/10): góc trái dưới bản đồ, 5 tin gần nhất (icon theo loại tin, "vừa xong / N giây trước"), tin mới nảy vào từ trên, tin cũ nhạt dần. Cùng nội dung ẩn danh với bản tin chạy chữ (`news()` — thêm trường `sub` cho loại sự kiện). Chỉ hiện lúc đang chơi; sảnh chờ, tạm dừng, câu hỏi chung, cuối trận thì ẩn.
 - **10 phút cuối: đóng băng bảng điểm** ("Bảng điểm đã đóng băng"). Trận ngắn: tối đa **1/3 thời lượng** (chốt 31/10 — phòng 10 phút trước đó bị đóng băng từ đầu).
 - Hết giờ → **màn công bố**: tua lại hành trình từng team trên bản đồ → lộ bảng xếp hạng.
+
+### 3.9. Chạy trạm (kiểu phòng `tram`, 10/11/2026)
+Luật đầy đủ: `docs/superpowers/specs/2026-11-09-tram-mode-design.md` (mục 3). Tóm tắt, giá trị ở `RULES.tram`:
+- Tạo phòng chọn kiểu **Chạy trạm**: 2–8 team, thời lượng ≥ **30** phút, **số key** 3–7 (mặc định **5**). Không có thẻ / chuỗi / siêu tốc / cược / chủ đề / chơi đơn. Cần ≥ key + 3 tỉnh có gợi ý đã duyệt.
+- Mỗi team một bản đồ riêng (sương mù như cũ), 1 câu/tỉnh; sai/hết giờ không trừ điểm, khóa **30 giây**. Ngôi sao hy vọng 1 lần/trận: đúng ×2, sai bị trừ điểm gốc.
+- Server rải N key kín cho từng team; cứ **3** tỉnh đúng được 1 câu đố gợi ý (key chưa gợi ý gần nhất); qua **nửa thời lượng** thì phát hết gợi ý còn thiếu (luật cứu). Nhặt key = trả lời đúng ở tỉnh đó; mỗi key lộ 1 mảnh của câu ghép.
+- Đủ key → mở **map đặc biệt** theo thời kỳ random: cộng điểm các tỉnh chưa đặt chân tới; 3 câu x **500** (45 giây, 20 giây đủ điểm); câu ghép mảnh **+1000**; về đích thưởng **phút còn lại x 30**.
+- Xếp hạng: điểm, rồi về đích trước, rồi tổng thời gian trả lời ít hơn. Không gửi client: đáp án, vị trí key chưa nhặt, tỉnh của gợi ý, tên thời kỳ trước khi mở map, thứ tự đúng của mảnh.
+- Nội dung: `data/key-hints.json`, `data/periods.json` (chỉ mục `reviewed: true` được dùng); duyệt bằng `docs/tram-review.html`. Đổi nội dung chỉ cần restart server.
 
 ---
 
@@ -1267,6 +1280,7 @@ TRUST_PROXY=false            # true trên host sau Nginx (lấy IP từ X-Real-I
 GAME_DURATION_MIN=45         # thời lượng mặc định khi chủ phòng không chọn
 FREEZE_BEFORE_END_MIN=10
 # SECRET_KEY=                # (không bắt buộc) 64 ký tự hex — khóa mã hóa mã chủ phòng; bỏ trống thì tự tạo var/secret.key
+# TRAM_CONTENT_DIR=         # (chỉ dev) thư mục nội dung Chạy trạm, mặc định data/; `pnpm run tram:dev-content` rồi đặt var/tram-dev. KHÔNG đặt trên host
 ```
 
 ### 12.3. Lệnh chạy dev (dự kiến)

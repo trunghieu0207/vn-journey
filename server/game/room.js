@@ -1,12 +1,13 @@
 // Một phòng: các hàm kiểm tra dùng chung, rồi ghép câu hỏi, hành động team, màn hình và chủ phòng.
 
 import { transaction } from '../db.js'
-import { RULES, GameError } from './rules.js'
+import { RULES, GameError, timeKey } from './rules.js'
 import { createQuestions } from './questions.js'
 import { createActions } from './actions.js'
 import { createViews } from './views.js'
 import { createOwner } from './owner.js'
 import { createShared } from './shared.js'
+import { createTram } from './tram.js'
 
 export function createRoomScope(ctx, roomId) {
   const { db, q, now, json, provinces, adjacency, collections, questionStats } = ctx
@@ -17,6 +18,7 @@ export function createRoomScope(ctx, roomId) {
   function state() {
     const s = q.room.get(roomId)
     if (!s) throw new GameError('no-room', 'Phòng không còn tồn tại', 404)
+    if (s.mode === 'tram' && s.status === 'running') tram.tick() // luật cứu ở nửa thời lượng
     // Hết giờ: tự kết thúc ở lần đọc trạng thái kế tiếp
     if (s.status === 'running' && s.ends_at && now() >= s.ends_at) {
       transaction(db, () => {
@@ -63,10 +65,11 @@ export function createRoomScope(ctx, roomId) {
   const isSolo = () => q.room.get(roomId)?.mode === 'solo'
   // Phòng "Team gọn": không tự nhận thẻ (chủ phòng tung), thưởng nhanh thay trừ giờ
   const isCompact = () => !!q.room.get(roomId)?.compact
-  // Tem thay cho chủ tỉnh — mỗi team một bản đồ riêng, không thử tài: phòng đơn + Team gọn tắt Đấu
+  const isTram = () => q.room.get(roomId)?.mode === 'tram'
+  // Tem thay cho chủ tỉnh — mỗi team một bản đồ riêng, không thử tài: phòng đơn, phòng tram + Team gọn tắt Đấu
   const usesStamps = () => {
     const r = q.room.get(roomId)
-    return r?.mode === 'solo' || (!!r?.compact && !r.duel)
+    return r?.mode === 'solo' || r?.mode === 'tram' || (!!r?.compact && !r.duel)
   }
 
   // Phòng đơn vừa kết thúc: ghi điểm từng người vào bảng xếp hạng cả sự kiện (gọi trong transaction kết thúc).
@@ -89,16 +92,20 @@ export function createRoomScope(ctx, roomId) {
                          AND id > COALESCE((SELECT MAX(id) FROM events_log WHERE team_id = ? AND province_id = ? AND action IN ('capture', 'steal')), 0)`)
       .get(teamId, provinceId, teamId, provinceId).n
   }
-  // Điểm tỉnh với team sau các lần trượt (RULES.missCut mỗi lần, thấp nhất RULES.missMinRatio)
-  const worthAt = (teamId, provinceId) =>
-    Math.round(provinces.get(provinceId).points * Math.max(RULES.missMinRatio, 1 - RULES.missCut * missesAt(teamId, provinceId)))
+  // Điểm tỉnh với team sau các lần trượt (RULES.missCut mỗi lần, thấp nhất RULES.missMinRatio). Phòng tram: sai không bị trừ — luôn đủ điểm
+  const worthAt = (teamId, provinceId) => isTram() ? provinces.get(provinceId).points
+    : Math.round(provinces.get(provinceId).points * Math.max(RULES.missMinRatio, 1 - RULES.missCut * missesAt(teamId, provinceId)))
 
-  const rctx = { ...ctx, roomId, log, state, activeEvent, requireRunning, requireTeam, requireIdle, shieldActive, isSolo, isCompact, usesStamps, recordBoard, missesAt, worthAt }
-  const questions = createQuestions(rctx)
-  const { react, move, retry, chooseTopic, siege, betSiege, settleSiegeBets, retreat, answer, vote, defend, skip, expireTeam, useCard, choiceFor, siegeBlock } = createActions({ ...rctx, ...questions })
+  // Hết giờ theo kiểu phòng (câu tỉnh phòng tram ngắn hơn — xem timeKey)
+  const timedOut = (difficulty, issuedAt, extraMs) => ctx.timedOut(timeKey(difficulty, q.room.get(roomId)?.mode), issuedAt, extraMs)
+  const rctx = { ...ctx, timedOut, roomId, log, state, activeEvent, requireRunning, requireTeam, requireIdle, shieldActive, isSolo, isCompact, isTram, usesStamps, recordBoard,
+    missesAt, worthAt, closeRoom: () => owner.closeRoom(), scoreOf: id => scores().find(s => s.teamId === id) }
+  const tram = createTram(rctx)
+  const questions = createQuestions({ ...rctx, tram })
+  const { react, move, retry, chooseTopic, siege, betSiege, settleSiegeBets, retreat, answer, vote, defend, skip, expireTeam, useCard, choiceFor, siegeBlock } = createActions({ ...rctx, ...questions, tram })
   const { startShared, voteShared, settleShared, closeShared, sharedPublic } = createShared({ ...rctx, ...questions })
-  const { journal, scores, teamView, screenView, ownerView, replay, news } = createViews({ ...rctx, ...questions, choiceFor, siegeBlock, sharedPublic })
-  const owner = createOwner({ ...rctx, scores, recordBoard })
+  const { journal, scores, teamView, screenView, ownerView, replay, news } = createViews({ ...rctx, tramApi: tram, ...questions, choiceFor, siegeBlock, sharedPublic })
+  const owner = createOwner({ ...rctx, scores, recordBoard, tram })
   const { spawnSolo } = owner
   const { kickPlayer, renamePlayer, leave, releaseHost, start, pause, end, reset, triggerEvent, adjustScore, giveCards, setTopicChoice, setBetChoice } = owner
   // Tiếp tục sau câu hỏi chung: công bố (nếu MC bấm sớm) rồi đóng câu, trận chạy tiếp
@@ -113,7 +120,12 @@ export function createRoomScope(ctx, roomId) {
     state, react, move, retry, chooseTopic, siege, betSiege, settleSiegeBets, retreat, answer, vote, defend, skip, expireTeam, useCard, scores,
     teamView, screenView, ownerView, replay, news, journal,
     kickPlayer, renamePlayer, leave, releaseHost, start, pause, resume, end, reset, triggerEvent, adjustScore, giveCards, setTopicChoice, setBetChoice,
-    startShared, voteShared, settleShared, spawnSolo, isSolo, isCompact, usesStamps,
+    startShared, voteShared, settleShared, spawnSolo, isSolo, isCompact, isTram, usesStamps,
+    armStar: (teamId, on, by) => tram.armStar(teamId, on, by),
+    specialNext: (teamId, by) => tram.specialNext(teamId, by),
+    specialAnswer: (teamId, questionId, given, by) => tram.specialAnswer(teamId, questionId, given, by),
+    specialSkip: (teamId, questionId, by) => tram.specialSkip(teamId, questionId, by),
+    submitPuzzle: (teamId, order, by) => tram.submitPuzzle(teamId, order, by),
     questionStats: () => questionStats(roomId),
   }
 }

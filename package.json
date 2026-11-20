@@ -12,6 +12,8 @@
     "dev": "node --env-file-if-exists=.env --disable-warning=ExperimentalWarning server/index.js",
     "start": "node --env-file-if-exists=.env --disable-warning=ExperimentalWarning server/index.js",
     "data:check": "node scripts/validate-data.mjs",
+    "tram:dev-content": "node scripts/tram-dev-content.mjs",
+    "tram:review": "node scripts/build-tram-review.mjs",
     "review:build": "node scripts/build-review.mjs",
     "db:init": "node --disable-warning=ExperimentalWarning scripts/init-db.mjs",
     "db:reset": "node --disable-warning=ExperimentalWarning scripts/init-db.mjs --reset",

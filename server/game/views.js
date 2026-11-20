@@ -6,27 +6,35 @@ export function createViews(ctx) {
   const {
     db, q, now, json, provinces, adjacency, collections, topicNames, roomId,
     state, activeEvent, requireTeam, shieldActive, pendingPublic, publicQuestion, choiceFor, siegeBlock, timedOut, lobby, sharedPublic, lobbyFacts,
-    correctAnswerText, isSolo, isCompact, usesStamps, worthAt,
+    correctAnswerText, isSolo, isCompact, isTram, usesStamps, worthAt, tramApi,
   } = ctx
 
   // ---------- Điểm ----------
   // Phòng đơn / Team gọn tắt Đấu: "tỉnh của mình" = tỉnh đã có tem (tính điểm tỉnh, bộ sưu tập, xuyên 3 miền như phòng team)
+  // Phòng Chạy trạm: số key đã nhặt, số key cần và giờ về đích (xếp hạng khi bằng điểm); phòng khác không có
+  const tramScore = t => {
+    const st = isTram() ? json(t.tram) : null
+    return st ? { keys: st.keys.filter(k => k.found).length, need: st.need, finishedAt: st.finishedAt } : {}
+  }
+
   function scores() {
     const owners = usesStamps() ? q.roomStamps.all(roomId) : q.owners.all(roomId)
     return q.teams.all(roomId).map(t => {
       const owned = owners.filter(o => o.team_id === t.id).map(o => o.province_id)
       const base = owned.reduce((s, id) => s + provinces.get(id).points, 0)
       const ownedSet = new Set(owned)
-      const doneCollections = collections.filter(c => [...c.members].filter(m => ownedSet.has(m)).length >= c.need)
+      // Phòng Chạy trạm không có bộ sưu tập / xuyên 3 miền
+      const doneCollections = isTram() ? [] : collections.filter(c => [...c.members].filter(m => ownedSet.has(m)).length >= c.need)
       const collectionBonus = doneCollections.reduce((s, c) => s + c.bonus, 0)
       const regions = new Set(owned.map(id => provinces.get(id).region))
-      const crossRegion = regions.size === REGIONS.length ? RULES.crossRegionBonus : 0
+      const crossRegion = !isTram() && regions.size === REGIONS.length ? RULES.crossRegionBonus : 0
       return {
         teamId: t.id, name: t.name, color: t.color, mascot: t.mascot,
         provinces: owned.length, base, bonus: t.bonus_points, collectionBonus, crossRegion,
         collections: doneCollections.map(c => c.id),
         total: base + t.bonus_points + collectionBonus + crossRegion,
         answerMs: t.answer_ms,
+        ...tramScore(t),
       }
     })
   }
@@ -61,7 +69,7 @@ export function createViews(ctx) {
       const o = owners.get(id)
       known[id] = !o ? 'free' : o.team_id === t.id ? 'mine' : 'taken'
     }
-    const solo = usesStamps() // mỗi team một bản đồ (phòng đơn / Team gọn tắt Đấu)
+    const solo = usesStamps() // nghĩa "tính theo tem" (known/mine/canRetry): phòng đơn / tram / Team gọn tắt Đấu; soloExtras chỉ cho phòng đơn thật
     const stamps = solo ? q.stamps.all(t.id) : []
     const mine = solo
       ? stamps.map(st => ({ province: st.province_id, shieldUntil: null }))
@@ -117,6 +125,8 @@ export function createViews(ctx) {
           ...(e.action === 'siege-bet' ? { rounds: d.rounds } : {}),
           ...(e.action === 'duel-round' ? { no: d.no, of: d.of, winner: d.winner, att: d.att, def: d.def } : {}),
           ...(e.action === 'topic' ? { bet: !!d?.bet } : {}),
+          // Phòng tram: chỉ chuyển các số / cờ cần để viết dòng nhật ký (không có id câu, tỉnh của key)
+          ...(e.action.startsWith('tram-') ? { n: d?.n, of: d?.of, level: d?.level, free: d?.free, on: d?.on, gain: d?.gain, lost: d?.lost, finishBonus: d?.finishBonus, correct: d?.correct, points: d?.points, puzzle: d?.puzzle, issued: d?.issued != null } : {}),
           topic: e.action === 'topic' ? (d?.topic ? topicNames.get(d.topic) ?? d.topic : 'Ngẫu nhiên') : null,
         }
       })
@@ -170,6 +180,7 @@ export function createViews(ctx) {
       facts: s.status === 'waiting' ? lobbyFacts() : null,
       factMs: RULES.factMs,
       alerts,
+      ...(isTram() ? { tram: tramApi.teamPublic(t) } : {}),
     }
   }
 
@@ -232,10 +243,13 @@ export function createViews(ctx) {
       scoreboard: frozen ? null : scores()
         .sort(byRank)
         .slice(0, solo ? RULES.screenTop : undefined)
-        .map(({ name, color, mascot, total, answerMs, provinces: n }) => ({ name, color, mascot, total, answerMs, provinces: n })),
+        .map(({ name, color, mascot, total, answerMs, provinces: n, keys, need, finishedAt }) => ({
+          name, color, mascot, total, answerMs, provinces: n,
+          ...(isTram() ? { keys, need, finished: finishedAt != null } : {}),
+        })),
       players: all.length,
       // Phòng đơn: bản đồ nhiệt "cả phòng đang đi đâu" — số người có tem mỗi tỉnh (không lộ là ai)
-      heat: usesStamps() && s.status !== 'waiting' ? Object.fromEntries(q.stampCounts.all(roomId).map(r => [r.province_id, r.n])) : null,
+      heat: usesStamps() && !isTram() && s.status !== 'waiting' ? Object.fromEntries(q.stampCounts.all(roomId).map(r => [r.province_id, r.n])) : null,
       news: news(),
       event: activeEvent(s),
       shared: sharedPublic(),
@@ -246,6 +260,13 @@ export function createViews(ctx) {
         : solo ? all.slice(-RULES.screenTop * 2).reverse().map(({ name, color, mascot }) => ({ name, color, mascot, members: 1 })) // người mới vào trước
         : lobby(s.code).teams.map(({ name, color, mascot, members }) => ({ name, color, mascot, members })),
     }
+  }
+
+  // Chủ phòng thấy tiến độ từng team (số key, giai đoạn, về đích) — không thấy tỉnh của key
+  const tramOwner = t => {
+    const st = json(t.tram)
+    if (!st) return {} // chưa bắt đầu / đã chơi lại
+    return { keys: st.keys.filter(k => k.found).length, need: st.need, stage: st.stage, finished: st.finishedAt != null }
   }
 
   // Toàn cảnh cho chủ phòng (MC)
@@ -260,7 +281,7 @@ export function createViews(ctx) {
       ...timing(s),
       screenCode: s.screen_code,
       hostId: s.host_player_id ?? null, // người chơi đang giữ quyền chủ phòng (phòng có sẵn / người tạo phòng vào chơi luôn)
-      heat: usesStamps() ? Object.fromEntries(q.stampCounts.all(roomId).map(r => [r.province_id, r.n])) : null,
+      heat: usesStamps() && !isTram() ? Object.fromEntries(q.stampCounts.all(roomId).map(r => [r.province_id, r.n])) : null,
       topicNames: Object.fromEntries(topicNames),
       event: activeEvent(s),
       shared: sharedPublic(),
@@ -272,6 +293,7 @@ export function createViews(ctx) {
         cards: q.cards.all(t.id).map(c => c.kind),
         members: players.filter(p => p.team_id === t.id).map(p => ({ id: p.id, name: p.name })),
         ...(isSolo() ? { pioneers: pioneers.get(t.id) ?? 0 } : {}),
+        ...(isTram() ? tramOwner(t) : {}),
       })),
       ownership: Object.fromEntries(owners.map(o => [o.province_id, { team: o.team_id, shieldUntil: o.shield_until }])),
       scores: scores(),
@@ -339,7 +361,7 @@ export function createViews(ctx) {
   function replay() {
     if (state().status !== 'ended') throw new GameError('not-ended', 'Chỉ xem lại được sau khi kết thúc', 409)
     return {
-      mode: isSolo() ? 'solo' : 'team',
+      mode: state().mode,
       stamps: usesStamps(), // tỉnh không thuộc riêng ai → màn chiếu không tua bản đồ
       teams: q.teams.all(roomId).map(t => ({ id: t.id, name: t.name, color: t.color, mascot: t.mascot })),
       events: db.prepare(`SELECT team_id, action, province_id, detail, created_at FROM events_log

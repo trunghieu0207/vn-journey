@@ -6,7 +6,7 @@ import { api } from '/shared/api.js'
 import { labeled } from '/shared/icons.js'
 import { $, button, el } from '/shared/dom.js'
 import { toast } from './notify.js'
-import { CARD_INFO, compactRoom, isHost, now, state } from './state.js'
+import { CARD_INFO, compactRoom, isHost, now, state, tram } from './state.js'
 
 const drawer = $('hostDrawer')
 let screenCode = null
@@ -66,7 +66,8 @@ export function renderHost() {
   drawer.replaceChildren(
     el('div', { class: 'host-head' }, el('h2', {}, 'Chủ phòng'), button('✕', 'kick', () => { drawer.hidden = true }, { 'aria-label': 'Đóng' })),
     el('section', {}, el('h3', {}, 'Trận đấu'), el('div', { class: 'btn-row' }, ...buttons)),
-    el('section', {}, el('h3', {}, 'Sự kiện'), ev ? el('p', { class: 'muted' }, 'Đang có sự kiện — tung sự kiện mới sẽ thay sự kiện cũ.') : '',
+    // Phòng tram: không có sự kiện MC / câu hỏi chung (server từ chối) — ẩn khối
+    tram() ? '' : el('section', {}, el('h3', {}, 'Sự kiện'), ev ? el('p', { class: 'muted' }, 'Đang có sự kiện — tung sự kiện mới sẽ thay sự kiện cũ.') : '',
       el('div', { class: 'btn-row' }, kind, region,
         button('Tung sự kiện', 'on', () => call('/api/owner/event', { kind: kind.value, region: region.value }, 'Đã tung sự kiện'), { disabled: !running })),
       button(labeled('question', 'Câu hỏi chung cả phòng'), '', () => call('/api/owner/shared', { action: 'start' }, 'Đã tung câu hỏi chung — trận tạm dừng'),

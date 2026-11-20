@@ -6,7 +6,7 @@ import { RULES, REGIONS, CARD_KINDS, SOLO_CARD_KINDS, byRank, GameError, cleanNa
 export function createOwner(ctx) {
   const {
     db, q, now, random, provinces, adjacency, freezeBeforeEndMin, roomId,
-    log, state, requireRunning, requireTeam, scores, isSolo, isCompact, usesStamps, recordBoard,
+    log, state, requireRunning, requireTeam, scores, isSolo, isCompact, isTram, usesStamps, recordBoard, tram,
   } = ctx
 
   // ---------- Chủ phòng ----------
@@ -118,7 +118,9 @@ export function createOwner(ctx) {
     const t0 = now() + RULES.startCountdownMs // mốc "Bắt đầu!" — trước mốc này người chơi chưa thao tác được (requireRunning)
     const ends = t0 + s.duration_min * 60_000
     transaction(db, () => {
-      for (const [teamId, provinceId] of assignStarts(teams)) placeStart(teamId, provinceId, t0)
+      const starts = assignStarts(teams)
+      for (const [teamId, provinceId] of starts) placeStart(teamId, provinceId, t0)
+      if (isTram()) tram.setupTeams(starts) // thời kỳ, key, mảnh ghép
       db.prepare(`UPDATE rooms SET status = 'running', started_at = ?, ends_at = ?, freeze_at = ?, paused_at = NULL WHERE id = ?`)
         .run(t0, ends, ends - Math.min(freezeBeforeEndMin * 60_000, Math.floor((ends - t0) / 3)), roomId) // đóng băng tối đa 1/3 trận
       log(null, 'start')
@@ -142,17 +144,21 @@ export function createOwner(ctx) {
       db.prepare('UPDATE teams SET pending_at = pending_at + ? WHERE room_id = ? AND pending_at IS NOT NULL').run(gap, roomId)
       db.prepare('UPDATE duels SET started_at = started_at + ?, bet_until = bet_until + ? WHERE room_id = ? AND resolved_at IS NULL').run(gap, gap, roomId)
       db.prepare('UPDATE ownership SET calm_until = calm_until + ? WHERE room_id = ? AND calm_until > ?').run(gap, roomId, s.paused_at)
+      if (isTram()) tram.shift(gap, s.paused_at)
     })
   }
 
   function end() {
     const s = state()
     if (!['running', 'paused'].includes(s.status)) throw new GameError('not-running', 'Trận không đang diễn ra', 409)
-    transaction(db, () => {
-      db.prepare("UPDATE rooms SET status = 'ended', ends_at = ?, shared_question = NULL WHERE id = ?").run(now(), roomId)
-      log(null, 'end')
-      recordBoard()
-    })
+    transaction(db, closeRoom)
+  }
+
+  // Kết thúc phòng (gọi trong transaction): chủ phòng bấm kết thúc, hoặc mọi team Chạy trạm đã về đích
+  function closeRoom() {
+    db.prepare("UPDATE rooms SET status = 'ended', ends_at = ?, shared_question = NULL WHERE id = ?").run(now(), roomId)
+    log(null, 'end')
+    recordBoard()
   }
 
   // Chơi lại: xóa toàn bộ diễn biến trận, giữ team và người chơi
@@ -169,7 +175,7 @@ export function createOwner(ctx) {
       db.prepare('DELETE FROM stamps WHERE room_id = ?').run(roomId)
       db.prepare(`UPDATE teams SET current_province = NULL, previous_province = NULL, pending_question = NULL,
                   pending_order = NULL, pending_at = NULL, locked_until = NULL, bonus_points = 0, march_ready = 0,
-                  last_result = NULL, choosing_at = NULL, answer_ms = 0, streak = 0, progress = NULL WHERE room_id = ?`).run(roomId)
+                  last_result = NULL, choosing_at = NULL, answer_ms = 0, streak = 0, progress = NULL, tram = NULL WHERE room_id = ?`).run(roomId)
       db.prepare(`UPDATE rooms SET status = 'waiting', started_at = NULL, ends_at = NULL, freeze_at = NULL,
                   paused_at = NULL, active_event = NULL, shared_question = NULL WHERE id = ?`).run(roomId)
     })
@@ -178,6 +184,7 @@ export function createOwner(ctx) {
   // Chủ phòng bật/tắt cho chọn chủ đề — áp dụng từ lần tới tỉnh kế tiếp
   function setTopicChoice(on) {
     state() // phòng không còn → lỗi no-room
+    if (isTram()) throw new GameError('tram-no-events', 'Phòng Chạy trạm không có chọn chủ đề', 409)
     db.prepare('UPDATE rooms SET topic_choice = ? WHERE id = ?').run(on ? 1 : 0, roomId)
     return { topicChoice: !!on }
   }
@@ -185,11 +192,13 @@ export function createOwner(ctx) {
   // Chủ phòng bật/tắt đặt cược ("Chắc ăn" / "Liều") — áp dụng từ lần tới tỉnh kế tiếp
   function setBetChoice(on) {
     state()
+    if (isTram()) throw new GameError('tram-no-events', 'Phòng Chạy trạm không có đặt cược', 409)
     db.prepare('UPDATE rooms SET bet_choice = ? WHERE id = ?').run(on ? 1 : 0, roomId)
     return { betChoice: !!on }
   }
 
   function triggerEvent(kind, region) {
+    if (isTram()) throw new GameError('tram-no-events', 'Phòng Chạy trạm không có sự kiện', 409)
     requireRunning()
     if (kind === 'rumor') {
       const s = q.room.get(roomId)
@@ -249,5 +258,5 @@ export function createOwner(ctx) {
     })
   }
 
-  return { spawnSolo, kickPlayer, renamePlayer, leave, releaseHost, assignStarts, start, pause, resume, end, reset, setTopicChoice, setBetChoice, triggerEvent, adjustScore, giveCards }
+  return { spawnSolo, kickPlayer, renamePlayer, leave, releaseHost, assignStarts, start, pause, resume, end, closeRoom, reset, setTopicChoice, setBetChoice, triggerEvent, adjustScore, giveCards }
 }

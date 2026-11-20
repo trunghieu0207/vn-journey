@@ -10,7 +10,7 @@ import { act, retryHere, siege } from './actions.js'
 import { closeDialog, dlg, openDocked } from './dialogs.js'
 import { addJournal, toast } from './notify.js'
 import { renderAll, renderTimers } from './render.js'
-import { CARD_INFO, TOPIC_ICON, compactRoom, nameOf, now, solo, state, touchOnly } from './state.js'
+import { CARD_INFO, TOPIC_ICON, compactRoom, nameOf, now, solo, state, touchOnly, tram } from './state.js'
 import { duelBar, duelMissed, siegeRepelled } from './siege-fx.js'
 import { roundLine, roundToast } from './siege-bet.js'
 
@@ -55,7 +55,7 @@ export function openQuestion(q, force = false) {
     el('div', { class: 'q-head' },
       el('h2', {}, `Trạm: ${p.name} · ${worthText(p, q.worth)}`),
       q.golden ? el('span', { class: 'tag golden' }, labeled('golden', 'Câu hỏi vàng ×2')) : '',
-      q.bet ? el('span', { class: 'tag bet' }, labeled('bet', 'Mạo hiểm +50%')) : '',
+      q.bet ? el('span', { class: 'tag bet' }, tram() ? labeled('star-hope', 'Ngôi sao hy vọng: ×2') : labeled('bet', 'Mạo hiểm +50%')) : '',
       el('span', { class: isSiege ? 'tag siege' : 'tag' }, isSiege ? labeled('siege', q.duel ? 'So tài' : 'Thử tài') : `Mức ${q.level}`)),
     isSiege ? '' : quizSteps(),
     el('div', { class: 'q-timer' }, ''),
@@ -175,8 +175,9 @@ export function useHelp(kind) {
 }
 
 // Số giây bị khóa nếu bỏ qua lúc này — cùng công thức server: 10 giây + thời gian đã xem, tối đa = khóa khi sai
+// (Chạy trạm: RULES.tram.lockMs = 20 giây)
 function skipLockSec(since, siege = false) {
-  return Math.min(siege ? 45 : 15, Math.ceil(10 + Math.max(0, now() - since) / 1000))
+  return Math.min(siege ? 45 : tram() ? 20 : 15, Math.ceil(10 + Math.max(0, now() - since) / 1000))
 }
 
 // Nút "Bỏ qua": bấm lần 1 hiện cảnh báo hậu quả, bấm lần 2 (trong 4 giây) mới bỏ qua
@@ -278,8 +279,9 @@ async function finishAnswer(r, q, value) {
       if (r.round && !r.round.done) roundToast(r.round, 'att', r.timeout ? ' (hết giờ)' : '')
       else if (r.pushedBack) toast(`Thử tài chưa thành${r.round ? ` (${r.round.att}–${r.round.def})` : ''} — quay về ${nameOf(state.me.current)}`, true)
       else if (r.golden) toast('Câu hỏi vàng chưa đúng — nghỉ chân gấp đôi', true, 'golden')
+      else if (r.bet && tram()) toast(`Ngôi sao hy vọng chưa thành — trừ ${state.map.byId.get(q.province).points} điểm tỉnh`, true, 'star-hope')
       else if (r.bet) toast('Mạo hiểm chưa thành — chờ thêm 10 giây', true, 'bet')
-      else if (r.lostStreak >= 2) toast(`Mất chuỗi ${r.lostStreak} câu đúng`, true, 'streak')
+      else if (!tram() && r.lostStreak >= 2) toast(`Mất chuỗi ${r.lostStreak} câu đúng`, true, 'streak')
     }, fx.reducedMotion ? 500 : 1300)
     return
   }
@@ -373,12 +375,16 @@ function showResult(r, q, by = null) {
   }
   if (r.bonus - (r.pioneer ?? 0)) lines.push(el('p', { class: 'reward' }, labeled('star', `+${r.bonus - (r.pioneer ?? 0)} điểm thưởng`)))
   if (r.goldenBonus) lines.push(el('p', { class: 'reward golden' }, labeled('golden', `Câu hỏi vàng: +${r.goldenBonus} điểm (×2)`)))
-  if (r.betBonus) lines.push(el('p', { class: 'reward' }, labeled('bet', `Mạo hiểm thành công: +${r.betBonus} điểm`)))
+  if (r.betBonus) lines.push(el('p', { class: 'reward' }, tram() ? labeled('star-hope', `Ngôi sao hy vọng: ×2, +${r.betBonus} điểm`) : labeled('bet', `Mạo hiểm thành công: +${r.betBonus} điểm`)))
   if (r.speedBonus) lines.push(el('p', { class: 'reward' }, labeled('star', `${compactRoom() ? 'Thưởng nhanh' : 'Siêu tốc'}: +${r.speedBonus} điểm`)))
   if (r.home) lines.push(el('p', { class: 'reward home' }, labeled('home', `Về quê ${r.home.names.join(', ')}: +${r.home.bonus} điểm (${r.home.n}/${state.me.homes?.max ?? 3})`)))
   if (r.card) lines.push(el('p', { class: 'reward' }, labeled('card', 'Nhận thẻ'), ' ', labeled(CARD_INFO[r.card].icon, CARD_INFO[r.card].name)))
+  // Phòng tram: key + mảnh nhặt được, gợi ý mới, mở map đặc biệt (server: r.tram)
+  if (r.tram?.key) lines.push(el('p', { class: 'reward key' }, labeled('key', `Nhặt được key! Mảnh: "${r.tram.key.piece}"`)))
+  if (r.tram?.hint) lines.push(el('p', { class: 'reward hint' }, labeled('scroll', r.tram.hint.level === 2 ? 'Gợi ý thêm mới trong sổ gợi ý' : 'Gợi ý mới trong sổ gợi ý')))
+  if (r.tram?.opened) lines.push(el('p', { class: 'reward key' }, labeled('star', r.tram.opened.free ? `Đã đủ key, map đặc biệt mở! +${r.tram.opened.free} điểm các tỉnh chưa đi` : 'Đã đủ key, map đặc biệt mở!')))
   // Chuỗi đúng: đếm câu liên tiếp; đủ 3 câu thì nhận thẻ trợ giúp (khay đầy: điểm thưởng)
-  const s = r.streak
+  const s = tram() ? null : r.streak
   if (s?.card) lines.push(el('p', { class: 'reward streak' }, labeled('streak', `Chuỗi ${s.n} câu đúng! Nhận thẻ`), ' ', labeled(CARD_INFO[s.card].icon, CARD_INFO[s.card].name)))
   else if (s?.bonus) lines.push(el('p', { class: 'reward streak' }, labeled('streak', `Chuỗi ${s.n} câu đúng! +${s.bonus} điểm${compactRoom() ? '' : ' (khay thẻ đã đầy)'}`)))
   else if (s?.n >= 2) lines.push(el('p', { class: 'reward streak' }, labeled('streak', `Chuỗi ${s.n} câu đúng — thêm ${3 - (s.n % 3)} câu nữa ${compactRoom() ? 'được +50 điểm' : 'nhận thẻ trợ giúp'}`)))

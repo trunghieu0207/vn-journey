@@ -5,7 +5,7 @@ import { transaction } from '../db.js'
 import { RULES, GameError } from './rules.js'
 
 export function createShared(ctx) {
-  const { db, q, now, random, json, roomId, log, requireRunning, shuffled, correctAnswerText, factSet } = ctx
+  const { db, q, now, random, json, roomId, log, requireRunning, isTram, shuffled, correctAnswerText, factSet } = ctx
 
   const current = () => json(q.room.get(roomId).shared_question)
   const save = s => db.prepare('UPDATE rooms SET shared_question = ? WHERE id = ?').run(s ? JSON.stringify(s) : null, roomId)
@@ -29,6 +29,7 @@ export function createShared(ctx) {
 
   // MC tung câu: tạm dừng trận (khóa, giờ câu đang chờ… dời lại khi tiếp tục như tạm dừng thường)
   function startShared() {
+    if (isTram()) throw new GameError('tram-no-events', 'Phòng Chạy trạm không có sự kiện', 409)
     requireRunning()
     if (current()) throw new GameError('shared-open', 'Đang có câu hỏi chung', 409)
     const question = pickShared()

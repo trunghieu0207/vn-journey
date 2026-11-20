@@ -69,6 +69,11 @@ const hat = () => h('span', 'r-hat', ic('hat', 30))
 
 // ---------- Các hoạt cảnh ----------
 const SCENES = {
+  // 12. Chạy trạm: chìa khóa, cuộn giấy gợi ý, ngôi sao hy vọng
+  tram(st) {
+    st.append(h('div', 'r-tram', ic('key', 64), ic('scroll', 64), ic('star-hope', 64)))
+  },
+
   // 1. Mục tiêu: tỉnh lần lượt cắm cờ màu team, điểm cộng dồn
   goal(st) {
     const tiles = [

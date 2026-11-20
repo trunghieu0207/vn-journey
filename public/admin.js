@@ -242,13 +242,19 @@ function control(action, label, cls, ask) {
 
 function renderButtons() {
   const s = view.status
+  // Phòng tram: không có sự kiện MC / câu hỏi chung / chọn chủ đề / cược (server từ chối) — ẩn các khối đó
+  const tram = view.room.mode === 'tram'
+  $('adminTabs').querySelector('[data-tab="events"]').textContent = tram ? 'Diễn biến' : 'Sự kiện'
+  $('eventKind').closest('.card').hidden = tram // chỉ ẩn thẻ Sự kiện; thẻ "Diễn biến" (nhật ký) vẫn ở tab này trên điện thoại
+  $('topicChoice').closest('label').hidden = tram
+  $('betChoice').closest('label').hidden = tram
   const buttons = []
   if (s === 'waiting') {
     const players = view.teams.reduce((n, t) => n + t.members.length, 0)
     const empty = view.teams.filter(t => !t.members.length).map(t => t.name)
     buttons.push(control('start', labeled('play', 'Bắt đầu'), 'green', {
       title: 'Bắt đầu trận đấu?',
-      text: `${players} người chơi sẽ được chia tỉnh xuất phát và đồng hồ ${view.room.durationMin} phút bắt đầu chạy.`
+      text: `${players} người chơi sẽ ${view.room.mode === 'tram' ? 'bắt đầu tìm key' : 'được chia tỉnh xuất phát'} và đồng hồ ${view.room.durationMin} phút bắt đầu chạy.`
         + (empty.length ? ` Lưu ý: ${empty.join(', ')} chưa có ai.` : ''),
       ok: 'Bắt đầu',
     }))
@@ -257,7 +263,7 @@ function renderButtons() {
   if (s === 'paused') buttons.push(control('resume', labeled('play', 'Tiếp tục'), 'green'))
   if (s === 'running' || s === 'paused') {
     buttons.push(control('end', labeled('stop', 'Kết thúc'), 'danger', {
-      title: 'Kết thúc trận ngay?', text: 'Điểm được chốt theo tỉnh đang sở hữu lúc này.', ok: 'Kết thúc', danger: true,
+      title: 'Kết thúc trận ngay?', text: view.room.mode === 'tram' ? 'Điểm được chốt theo kết quả các team lúc này.' : 'Điểm được chốt theo tỉnh đang sở hữu lúc này.', ok: 'Kết thúc', danger: true,
     }))
   }
   if (s === 'ended') buttons.push(button(labeled('finish', 'Xem tổng kết'), 'green', openResults, { disabled: !final }))
@@ -267,9 +273,9 @@ function renderButtons() {
     }))
   }
   $('gameButtons').replaceChildren(...buttons)
-  $('eventBtn').disabled = s !== 'running'
+  $('eventBtn').disabled = s !== 'running' || tram
   renderCardsCard(s)
-  $('sharedBtn').disabled = s !== 'running'
+  $('sharedBtn').disabled = s !== 'running' || tram
   renderShared()
 }
 
@@ -284,6 +290,15 @@ function renderShared() {
       sh.result ? '' : button(labeled('stats', 'Công bố ngay'), '', () => act(() => api('/api/owner/shared', { action: 'reveal' }))),
       control('resume', labeled('play', 'Tiếp tục trận'), 'green')))
   sharedTick($('sharedAdmin'), sh, now())
+}
+
+// Phòng tram: key đã nhặt / cần + giai đoạn của team ({} khi chưa bắt đầu / đã chơi lại)
+const TRAM_STAGE = { map: 'đang tìm key', special: 'đang làm câu map', puzzle: 'đang ghép câu', done: 'đã về đích' }
+function tramStatus(t) {
+  if (t.need == null) return []
+  const out = [labeled('key', `${t.keys}/${t.need} key`)]
+  out.push(t.finished ? labeled('finish', 'Đã về đích') : TRAM_STAGE[t.stage] ?? '')
+  return out.filter(Boolean)
 }
 
 function renderTeams() {
@@ -302,10 +317,11 @@ function renderTeams() {
   $('teams').replaceChildren(...view.teams.map((t, i) => {
     const sc = scores.get(t.id)
     const status = []
+    if (view.room.mode === 'tram') status.push(...tramStatus(t))
     if (t.current) status.push(labeled('hat', nameOf(t.current)))
     if (t.lockedUntil > now()) status.push(labeled('timer', 'đang nghỉ chân'))
     if (t.pendingQuestion) status.push(labeled('question', 'đang trả lời'))
-    if (t.cards.length) status.push(el('span', { class: 'with-icon' }, ...t.cards.map(c => icon(c, { label: CARD_NAME[c] }))))
+    if (t.cards?.length) status.push(el('span', { class: 'with-icon' }, ...t.cards.map(c => icon(c, { label: CARD_NAME[c] }))))
     const members = t.members.map(m => el('li', {}, m.name, m.id === view.hostId ? el('small', { class: 'muted' }, ' (chủ phòng)') : '',
       button('Sửa', 'kick', () => renameBox(m), { title: `Sửa tên ${m.name}`, 'aria-label': `Sửa tên ${m.name}` }),
       button('✕', 'kick', async () => {
@@ -315,7 +331,7 @@ function renderTeams() {
     return el('div', { class: 'owner-team' },
       el('div', { class: 'owner-team-head' },
         el('span', { class: 'pin-no' }, String(i + 1)), mascotIcon(t.mascot, t.color, 26), el('b', {}, t.name),
-        el('span', { class: 'muted' }, `${sc?.provinces ?? 0} tỉnh · `, labeled('timer', fmtTime(sc?.answerMs))),
+        el('span', { class: 'muted' }, ...(view.room.mode === 'tram' ? [] : [`${sc?.provinces ?? 0} tỉnh · `, labeled('timer', fmtTime(sc?.answerMs))])),
         el('b', { class: 'owner-score' }, (sc?.total ?? 0).toLocaleString('vi-VN'))),
       status.length ? el('p', { class: 'muted' }, ...status.flatMap((s, k) => (k ? [' · ', s] : [s]))) : '',
       members.length ? el('ul', { class: 'members' }, ...members) : el('p', { class: 'muted' }, 'Chưa có ai'),
@@ -406,6 +422,13 @@ function logText(e) {
     case 'shared': return labeled('question', `Câu hỏi chung cả phòng (${p})`)
     case 'shared-result': return `Câu hỏi chung: cả phòng đúng ${d.pct}% (${d.voters} người chọn)${d.passed ? ` → mọi team +${d.bonus}` : ''}`
     case 'shared-bonus': return `${team}+${d.bonus} (câu hỏi chung)`
+    case 'tram-key': return `${team}nhặt key ${d.n}/${d.of} ở ${p}`
+    case 'tram-hint': return `${team}nhận gợi ý mức ${d.level}`
+    case 'tram-open': return `${team}đủ key, mở map đặc biệt${d.free ? ` (+${d.free})` : ''}`
+    case 'tram-star': return `${team}${d.on != null ? (d.on ? 'bật' : 'tắt') + ' Ngôi sao hy vọng' : 'Ngôi sao hy vọng'}`
+    case 'tram-rescue': return `${team}được mở gợi ý cứu trợ`
+    case 'tram-special': return `${team}${d.puzzle === false ? 'ghép mật thư chưa đúng' : d.issued ? 'nhận câu hỏi thời kỳ' : d.correct ? `đúng câu thời kỳ${d.points ? ` (+${d.points})` : ''}` : 'sai câu thời kỳ'}`
+    case 'tram-finish': return `${team}về đích: +${d.finishBonus}`
     case 'rename': return `${team}chủ phòng sửa tên một thành viên thành ${d.to}`
     case 'gift': return `${team}nhận thẻ chủ phòng tung: ${d.kinds.map(k => CARD_NAME[k]).join(', ')}`
     case 'score-adjust': return `${team}${d.delta > 0 ? '+' : ''}${d.delta} điểm — ${d.reason}`

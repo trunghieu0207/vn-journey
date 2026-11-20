@@ -91,6 +91,8 @@ const FILES = {
   '/team/journey.js': 'public/team/journey.js',
   '/team/host.js': 'public/team/host.js',
   '/team/menu.js': 'public/team/menu.js',
+  '/team/tram.js': 'public/team/tram.js',
+  '/team/tram-map.js': 'public/team/tram-map.js',
   '/team/siege-bet.js': 'public/team/siege-bet.js',
   '/data/map-geo.json': 'data/map-geo.json',
   '/fonts/nunito.ttf': 'public/fonts/nunito.ttf',

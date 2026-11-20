@@ -10,9 +10,10 @@ import { $, button, el } from '/shared/dom.js'
 import { moveTo, reopenPending, retryHere, updateSiegeChoice } from './actions.js'
 import { openCard } from './cards.js'
 import { renderHost } from './host.js'
+import { renderTram, tickTram } from './tram.js'
 import { renderJournal, toast } from './notify.js'
 import { openSiegeBet, updateBetTimer } from './siege-bet.js'
-import { CARD_INFO, canMove, compactRoom, hasPending, hostBtnWhere, isHost, locked, nameOf, now, reachable, running, scoutActive, solo, state, stormRegion } from './state.js'
+import { CARD_INFO, canMove, compactRoom, hasPending, hostBtnWhere, isHost, locked, nameOf, now, reachable, running, scoutActive, solo, state, stormRegion, tram } from './state.js'
 
 function mapView() {
   // Phòng đơn / Team gọn tắt Đấu sau khi kết thúc: chỉ tô các tỉnh mình có tem, không còn sương mù
@@ -73,6 +74,7 @@ function stampNotes() {
 // Về quê: tỉnh quê của thành viên team (server chỉ gửi cho chính team)
 const homeNames = id => state.me.members.filter(m => m.home === id).map(m => m.name)
 function homePins() {
+  if (tram()) return [] // phòng tram: không có quê
   const done = new Set(state.me.homes?.done)
   const full = done.size >= (state.me.homes?.max ?? Infinity)
   return [...new Set(state.me.members.map(m => m.home).filter(Boolean))]
@@ -146,7 +148,7 @@ export function renderAll() {
   document.querySelector('#tabbar [data-tab="cards"]').hidden = hideTray
   // Chuỗi đúng: cứ 3 câu liên tiếp nhận 1 thẻ trợ giúp (Team gọn: +50 điểm)
   const streak = state.me.streak ?? 0
-  $('streakBox').hidden = !streak
+  $('streakBox').hidden = !streak || tram()
   $('streak').textContent = String(streak)
   $('streakBox').title = `${streak} câu đúng liên tiếp — còn ${3 - (streak % 3)} câu nữa ${noCards ? 'được +50 điểm' : 'nhận thẻ trợ giúp'}. Sai, hết giờ hoặc bỏ qua thì về 0`
   $('roomInfo').textContent = `${state.me.room.name} · ${state.me.room.code}`
@@ -155,7 +157,7 @@ export function renderAll() {
     el('li', m.id === state.me.me?.id ? { class: 'self' } : {}, m.name, m.id === state.me.me?.id ? ' (bạn)' : '',
       m.home ? el('span', { class: 'home' }, ` · ${nameOf(m.home)}`) : '')))
   const homes = homePins()
-  $('homeBox').hidden = !homes.length
+  $('homeBox').hidden = !homes.length || tram()
   $('homeN').textContent = String(state.me.homes?.done.length ?? 0)
   $('homeMax').textContent = `/${state.me.homes?.max ?? 3} về quê`
   $('homeBox').title = one ? `Có tem ở tỉnh quê của bạn: +${state.me.homes?.bonus} điểm` : `Cắm cờ ở tỉnh quê của đồng đội: +${state.me.homes?.bonus} điểm, tối đa ${state.me.homes?.max} tỉnh`
@@ -165,6 +167,7 @@ export function renderAll() {
   renderOverlay()
   renderTimers()
   renderHost()
+  renderTram()
 }
 
 export function renderSide() {
@@ -195,6 +198,13 @@ export function renderSide() {
   $('reachTitle').replaceChildren(state.me.marchReady
     ? labeled('march', 'Xe tốc hành: lượt này đi xa được 2 tỉnh')
     : 'Có thể đi (bấm tỉnh viền đậm trên bản đồ):')
+  // Phòng tram đã mở map đặc biệt / câu ghép / về đích: không còn đi tỉnh
+  const tst = tram() ? state.me.tram?.stage : null
+  if (tst && tst !== 'map') {
+    $('reachTitle').textContent = tst === 'done' ? 'Team đã về đích' : 'Team đang ở map đặc biệt — không đi tỉnh nữa'
+    $('neighbors').replaceChildren()
+    return renderCards()
+  }
   if (hasPending() && state.me.siegeBet && !state.me.pendingQuestion) {
     // Vừa bấm Thử tài: đang cược số hiệp
     $('reachTitle').textContent = `${solo() ? 'Bạn' : 'Team'} đang cược số hiệp thử tài ở ${nameOf(state.me.siegeBet.province)}`
@@ -258,6 +268,7 @@ function renderOverlay() {
   else if (s === 'ended' && !state.final) [title, text] = ['Hết giờ!', 'Đang tổng kết…']
   // Team gọn tắt Đấu: đã đi đủ cả nước — không còn tỉnh nào để đi, chờ các đội khác
   else if (state.me.finished) [title, text] = ['Về đích!', `${state.me.team.name} đã đi đủ ${state.map.byId.size} tỉnh: +${state.me.finished.bonus.toLocaleString('vi-VN')} điểm về đích. Chờ các đội khác về đích hoặc hết giờ.`]
+  // Phòng tram đã mở map đặc biệt: màn riêng ở tram-map.js phủ lên bản đồ (không dùng lớp phủ này)
   // holdLock: đang diễn cảnh "bị đẩy lui" trên tỉnh — chưa phủ màn khóa lên bản đồ
   else if (locked() && !state.holdLock) [title, text, calm] = ['Nghỉ chân', state.me.lastResult?.repelled
     ? 'Chủ nhà trả lời đúng trước — chờ hết thời gian để chơi tiếp'
@@ -304,6 +315,7 @@ export function renderTimers() {
     $('eventPill').classList.toggle('golden', ev.kind === 'golden')
   }
   if (locked()) $('ovBig').textContent = formatClock(state.me.lockedUntil - t)
+  tickTram()
   updateSiegeChoice() // khung "Tỉnh này đã có chủ": đếm lùi thời gian chờ, hết chờ thì mở nút Công thành
   updateBetTimer()    // khung cược số hiệp thử tài: đếm lùi hạn cược
 

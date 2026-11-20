@@ -57,21 +57,29 @@ export function resultsView(replay, { myTeamId = null } = {}) {
 
   // Hạng 1–3: huy chương nhỏ thay cho số
   const rankCell = i => (i < 3 ? icon(`medal${i + 1}`, { size: 26, label: `Hạng ${i + 1}` }) : String(i + 1))
+  // Phòng Chạy trạm: không có bộ sưu tập / xuyên 3 miền — thay bằng cột key đã nhặt
+  const tram = replay.mode === 'tram'
   const row = (s, i) => el('tr', { class: s.teamId === myTeamId ? 'me' : '' },
     el('td', { class: 'rank' }, rankCell(i)),
     el('td', {}, el('span', { class: 'who' }, mascotIcon(s.mascot, s.color, 24), s.name)),
+    tram ? el('td', { class: 'num' }, `${s.keys ?? 0}/${s.need ?? 0}${s.finishedAt != null ? ' ✓' : ''}`) : '',
     el('td', { class: 'num' }, String(s.provinces)),
     el('td', { class: 'num' }, fmt(s.base)),
     el('td', { class: 'num' }, signed(s.bonus)),
-    el('td', { class: 'num' }, s.collectionBonus ? `+${fmt(s.collectionBonus)}` : '–'),
-    el('td', { class: 'num' }, s.crossRegion ? `+${fmt(s.crossRegion)}` : '–'),
+    tram ? '' : el('td', { class: 'num' }, s.collectionBonus ? `+${fmt(s.collectionBonus)}` : '–'),
+    tram ? '' : el('td', { class: 'num' }, s.crossRegion ? `+${fmt(s.crossRegion)}` : '–'),
     el('td', { class: 'num total' }, fmt(s.total)),
     el('td', { class: 'num' }, fmtTime(s.answerMs)))
+  const cols = tram
+    ? ['#', 'Team', 'Key', 'Tỉnh', 'Điểm tỉnh', 'Thưởng/phạt', 'Tổng', labeled('timer', 'Thời gian')]
+    : ['#', solo ? 'Lữ khách' : 'Team', solo ? 'Tem' : 'Tỉnh', 'Điểm tỉnh', 'Thưởng/phạt', 'Bộ sưu tập', 'Xuyên 3 miền', 'Tổng', labeled('timer', 'Thời gian')]
   // Bảng là một tấm sticker (khung không tự cuộn → lớp vẽ tay ::before không bị cắt)
   const table = el('div', { class: 'results-board' }, el('table', { class: 'results-table' },
-    el('thead', {}, el('tr', {}, ...['#', solo ? 'Lữ khách' : 'Team', solo ? 'Tem' : 'Tỉnh', 'Điểm tỉnh', 'Thưởng/phạt', 'Bộ sưu tập', 'Xuyên 3 miền', 'Tổng', labeled('timer', 'Thời gian')].map(t => el('th', {}, t)))),
+    el('thead', {}, el('tr', {}, ...cols.map(t => el('th', {}, t)))),
     el('tbody', {}, ...scores.map(row))))
 
   return el('div', { class: 'results' }, head, podium, table,
-    el('p', { class: 'hint' }, 'Thưởng/phạt gồm thành chủ nhà mới, đón khách, lễ hội, trừ điểm trả lời chậm và điểm chủ phòng điều chỉnh. Bằng điểm: tổng thời gian trả lời ít hơn xếp trên. Bản đồ phía sau đã hiện màu thật của tất cả các team.'))
+    el('p', { class: 'hint' }, tram
+      ? 'Thưởng/phạt gồm điểm các tỉnh chưa ghé (cộng khi mở map đặc biệt), câu map đặc biệt, câu ghép + thưởng về đích, trừ điểm trả lời chậm và điểm chủ phòng điều chỉnh. Key ✓: đã về đích. Bằng điểm: về đích sớm hơn rồi tổng thời gian trả lời ít hơn xếp trên.'
+      : 'Thưởng/phạt gồm thành chủ nhà mới, đón khách, lễ hội, trừ điểm trả lời chậm và điểm chủ phòng điều chỉnh. Bằng điểm: tổng thời gian trả lời ít hơn xếp trên. Bản đồ phía sau đã hiện màu thật của tất cả các team.'))
 }

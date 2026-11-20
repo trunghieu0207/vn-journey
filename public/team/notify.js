@@ -73,8 +73,19 @@ function logText(e) {
     case 'gift': return [`Chủ phòng tung thẻ: ${e.kinds.map(k => CARD_INFO[k]?.name ?? '').join(', ')}`, 'good']
     case 'card': return [`${who}dùng thẻ ${CARD_INFO[e.kind]?.name ?? ''}${p ? ` (${p})` : ''}`]
     case 'streak': return [`Chuỗi ${e.n} câu đúng! ${e.card ? `Nhận thẻ ${CARD_INFO[e.card].name}` : `+${e.bonus} điểm${compactRoom() ? '' : ' (khay thẻ đã đầy)'}`}`, 'good']
+    case 'tram-key': return [`${who}nhặt được key ${e.n}/${e.of} ở ${p}`, 'good']
+    case 'tram-hint': return [e.level === 2 ? 'Có gợi ý thêm mới trong sổ gợi ý' : 'Có gợi ý mới trong sổ gợi ý', 'good']
+    case 'tram-open': return [`Đủ key, map đặc biệt mở${e.free ? `: +${e.free} điểm` : ''}`, 'good']
+    case 'tram-star': return e.on != null ? [`${who}${e.on ? 'bật' : 'tắt'} Ngôi sao hy vọng`]
+      : e.gain ? [`Ngôi sao hy vọng ở ${p}: +${e.gain} điểm`, 'good'] : [`Ngôi sao hy vọng ở ${p}: −${e.lost} điểm`, 'bad']
+    case 'tram-rescue': return ['Gợi ý cứu trợ: đã mở gợi ý cho mọi key còn lại', 'good']
+    case 'tram-special':
+      if (e.puzzle === false) return [`${who}ghép mật thư chưa đúng thứ tự`, 'bad']
+      if (e.issued) return [`${who}nhận câu hỏi thời kỳ trên map đặc biệt`]
+      return e.correct ? [`${who}trả lời đúng câu thời kỳ${e.points ? `: +${e.points} điểm` : ''}`, 'good'] : [`${who}trả lời chưa đúng câu thời kỳ`, 'bad']
+    case 'tram-finish': return [`Về đích! +${e.finishBonus} điểm`, 'good']
     case 'lost': return [`${p} đã đổi chủ!`, 'bad']
-    default: return [e.action]
+    default: return [e.action.startsWith('tram-') ? 'Chạy trạm: có diễn biến mới' : e.action]
   }
 }
 export function renderJournal() {

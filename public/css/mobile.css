@@ -108,6 +108,7 @@
   /* Chỉ hiện thẻ của tab đang chọn */
   #app[data-tab="map"] .play-main .side > .card:not([data-tab~="map"]),
   #app[data-tab="cards"] .play-main .side > .card:not([data-tab~="cards"]),
+  #app[data-tab="hint"] .play-main .side > .card:not([data-tab~="hint"]),
   #app[data-tab="team"] .play-main .side > .card:not([data-tab~="team"]),
   #app[data-tab="log"] .play-main .side > .card:not([data-tab~="log"]) { display: none; }
 
@@ -134,6 +135,7 @@
     font-weight: 800;
     cursor: pointer;
   }
+  .tabbar button[hidden] { display: none; }
   .tabbar .icon { width: 24px; height: 24px; }
   .tabbar button[aria-pressed="true"] { background: #E8F7FF; color: var(--blue-dark); }
   .tabbar .badge { position: absolute; top: 2px; left: calc(50% + 6px); min-width: 18px; height: 18px; padding: 0 5px; border-radius: 9px; background: var(--red); color: #fff; font-size: 11px; line-height: 18px; text-align: center; }

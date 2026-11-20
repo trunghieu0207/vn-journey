@@ -207,6 +207,77 @@ const ICONS = {
     + `<g fill="${C.blueMid}"><rect x="6.5" y="13" width="3" height="11"/><rect x="11.8" y="13" width="3" height="11"/><rect x="17.2" y="13" width="3" height="11"/><rect x="22.5" y="13" width="3" height="11"/></g>`
     + `<rect x="3.5" y="24" width="25" height="3" rx="1" fill="${C.blueDark}"/><rect x="2" y="27" width="28" height="2.5" rx="1" fill="${C.blue}"/>`,
 
+  // ---- Chạy trạm ----
+  // Chìa khóa vàng nằm chéo: thân + răng, vành tròn có lỗ
+  key: `<g transform="rotate(45 16 16)"><rect x="12" y="15.7" width="17" height="3.4" rx="1.4" fill="${C.goldDark}"/><rect x="22" y="18.7" width="3" height="5.4" rx="1" fill="${C.goldDark}"/><rect x="26.8" y="18.7" width="2.6" height="4.2" rx="1" fill="${C.goldDark}"/><circle cx="7.5" cy="17.2" r="6.6" fill="${C.goldDark}"/>`
+    + `<rect x="12" y="14.5" width="17" height="3.4" rx="1.4" fill="${C.yellow}"/><rect x="22" y="17.5" width="3" height="5.4" rx="1" fill="${C.yellow}"/><rect x="26.8" y="17.5" width="2.6" height="4.2" rx="1" fill="${C.yellow}"/><circle cx="7.5" cy="16" r="6.6" fill="${C.yellow}"/>`
+    + `<circle cx="7.5" cy="16" r="2.6" fill="#fff"/></g>`,
+  // Ngôi sao hy vọng: sao vàng to có tia sáng xanh nhỏ
+  'star-hope': `<path d="${star(15, 18, 12.5, 5.4)}" fill="${C.orange}" stroke="${C.orange}" stroke-width="2"/>`
+    + `<path d="${star(15, 16.8, 12.5, 5.4)}" fill="${C.yellow}" stroke="${C.yellow}" stroke-width="2"/>`
+    + `<path d="M25.5 3l1.3 3.2 3.2 1.3-3.2 1.3-1.3 3.2-1.3-3.2-3.2-1.3 3.2-1.3z" fill="${C.blue}"/>`
+    + shine('M10.6 13.8l1.6-.3'),
+  // Cuộn giấy: nhật ký hành trình / câu đố
+  scroll: `<rect x="7" y="7" width="18" height="21" rx="1.5" fill="${C.gold}"/><rect x="7" y="5.5" width="18" height="21" rx="1.5" fill="${C.cream}"/>`
+    + `<rect x="4" y="3.5" width="24" height="6" rx="3" fill="${C.goldDark}"/><rect x="4" y="2.5" width="24" height="6" rx="3" fill="${C.gold}"/>`
+    + `<rect x="4" y="23.5" width="24" height="6" rx="3" fill="${C.goldDark}"/><rect x="4" y="22.5" width="24" height="6" rx="3" fill="${C.gold}"/>`
+    + `<path d="M11 13h10M11 17h10M11 21h6" stroke="${C.wood}" stroke-width="1.8"/>`,
+
+  // Khung cảnh thời kỳ (data/periods.json → scene.icons). Thiếu tên thì tram-map.js thay bằng scroll; data:check báo lỗi.
+  // Văn Lang: trống đồng, nhà sàn, chim Lạc
+  'trong-dong': `<path d="M4 12c0 4 1.5 7 3 9l-1.5 7h21L25 21c1.5-2 3-5 3-9z" fill="${C.wood}"/><path d="M4 12c0 4 1.5 7 3 9l-1.5 7H16V12z" fill="${C.goldDark}"/>`
+    + `<path d="M6.5 19h19M6 23.5h20" stroke="${C.gold}" stroke-width="1.4" fill="none"/>`
+    + `<ellipse cx="16" cy="13" rx="12" ry="5" fill="${C.goldDark}"/><ellipse cx="16" cy="12" rx="12" ry="5" fill="${C.gold}"/>`
+    + `<ellipse cx="16" cy="12" rx="8.5" ry="3.4" fill="none" stroke="${C.goldDark}" stroke-width="1.2"/>`
+    + `<path d="${star(16, 12, 3.6, 1.3)}" fill="${C.yellow}" transform="translate(0 6.6) scale(1 .45)"/>`,
+  'nha-san': `<path d="M6 20h2v9H6zM10.5 20h2v9h-2zM19.5 20h2v9h-2zM24 20h2v9h-2z" fill="#8B5A2B"/>`
+    + `<rect x="8" y="12.5" width="16" height="8" fill="${C.cream}"/><rect x="14" y="14.5" width="4" height="6" rx=".8" fill="${C.wood}"/>`
+    + `<rect x="4.5" y="19.5" width="23" height="2.6" rx="1" fill="${C.wood}"/>`
+    + `<path d="M1.5 15L9 3.5h14L30.5 15c-5 .8-24 .8-29 0z" fill="${C.yellowDark}"/><path d="M9 3.5h14l3 4.5H6z" fill="${C.yellow}"/>`
+    + `<path d="M8 8.5l-3 5M12 8.5l-1.5 5.5M20 8.5l1.5 5.5M24 8.5l3 5" stroke="#C88A00" stroke-width="1" fill="none"/>`,
+  'chim-lac': `<path d="M18 16c5-1 9 2 12.5 7.5-4-2.5-8-3.5-12.5-3.5z" fill="${C.orangeDark}"/><path d="M17.5 18c6 1.5 9 5.5 10 10.5-3-3.5-6.5-5.5-10.5-6.5z" fill="${C.orange}"/>`
+    + `<path d="M7.5 15c2-4.5 9.5-5 13-.5 1 3.5-3 6.5-8.5 5.5-3-.5-5-2.5-4.5-5z" fill="${C.orange}"/>`
+    + `<path d="M11.5 15c2-7 7-10 14-11-3 4-6 8.5-8.5 12z" fill="${C.orangeDark}"/>`
+    + `<circle cx="8" cy="13" r="3.2" fill="${C.orange}"/><path d="M5.3 12.2L.5 15.8l5.5-1.4z" fill="${C.yellowDark}"/>`
+    + `<path d="M7.6 10.2C6.8 7 8 5 10.2 3.5c-.6 2.4-.1 4.6.2 7z" fill="${C.red}"/><circle cx="7.6" cy="12.5" r=".9" fill="${C.ink}"/>`,
+  // Nhà Lý: Văn Miếu (Khuê Văn Các), hoa sen (chùa Một Cột), rồng thời Lý (thân rắn uốn khúc, ngậm ngọc)
+  'van-mieu': `<rect x="6.5" y="21" width="4.5" height="8" fill="#D8CDB8"/><rect x="21" y="21" width="4.5" height="8" fill="#D8CDB8"/><rect x="6" y="20" width="20" height="2" fill="#B8A68A"/>`
+    + `<path d="M2 21.5c2 0 3-.5 4-1.5h20c1 1 2 1.5 4 1.5-2 1.5-4 2-6 2H8c-2 0-4-.5-6-2z" fill="#9C3D29"/><path d="M6 20l2-3h16l2 3z" fill="#C0533A"/>`
+    + `<rect x="9" y="10" width="14" height="7.5" fill="${C.wood}"/><circle cx="16" cy="13.8" r="3" fill="${C.yellow}"/>`
+    + `<path d="M16 10.8v6M13 13.8h6M13.9 11.7l4.2 4.2M18.1 11.7l-4.2 4.2" stroke="${C.wood}" stroke-width=".9" fill="none"/>`
+    + `<path d="M3.5 11c2 0 3-.5 4-1.5h17c1 1 2 1.5 4 1.5-2 1.5-4 2-6 2h-13c-2 0-4-.5-6-2z" fill="#9C3D29"/><path d="M7.5 9.5L11 5.5h10l3.5 4z" fill="#C0533A"/>`
+    + `<circle cx="16" cy="4.5" r="1.6" fill="${C.yellow}"/>`,
+  'hoa-sen': `<ellipse cx="16" cy="26.5" rx="13" ry="3.5" fill="${C.greenDark}"/><ellipse cx="16" cy="25.5" rx="13" ry="3.5" fill="${C.green}"/>`
+    + `<path d="M16 24C8 24 4 18 3 13c5 1 9 4 13 11zM16 24c8 0 12-6 13-11-5 1-9 4-13 11z" fill="#E5658F"/>`
+    + `<path d="M16 24c-6-3-8-10-6-16 4 3 6 9 6 16zM16 24c6-3 8-10 6-16-4 3-6 9-6 16z" fill="#FF8FB1"/>`
+    + `<path d="M16 24c-3.5-5-3.5-14 0-20 3.5 6 3.5 15 0 20z" fill="#FFC2D4"/>` + shine('M14.6 16c-.3-3 .2-6 1.4-8.5'),
+  'rong-ly': `<circle cx="21" cy="8.5" r="2.8" fill="${C.blueMid}"/>` + shine('M19.6 7.4a1.6 1.6 0 0 1 1.2-.9')
+    + `<path d="M7 9c5-5 10 1 7 6s-4 9.5 3 10 10-6 11 1" fill="none" stroke="${C.goldDark}" stroke-width="5"/>`
+    + `<path d="M7 9c5-5 10 1 7 6s-4 9.5 3 10 10-6 11 1" fill="none" stroke="${C.yellow}" stroke-width="2.6"/>`
+    + `<path d="M11.5 8.5l2-3M14 17l2.5-1M15 25.5l.5 2.5M23 21.5l1-2.5" stroke="${C.red}" stroke-width="1.6" fill="none"/>`
+    + `<path d="M28 26l3-2.5-1 4.5z" fill="${C.red}"/>`
+    + `<circle cx="6" cy="9.5" r="3.4" fill="${C.yellow}"/><path d="M3 9L.5 10.6 3.4 11.4z" fill="${C.goldDark}"/>`
+    + `<path d="M6 6.3C5 3.8 6.8 2 9 2.3c-1 1.3-.6 2.6 0 4z" fill="${C.red}"/><circle cx="6.4" cy="8.8" r=".9" fill="${C.ink}"/>`
+    + `<path d="M3.2 10.8c-2 1.8-1.6 3.6-.2 4.8" fill="none" stroke="${C.red}" stroke-width="1"/>`,
+  // Nhà Nguyễn: Ngọ Môn, Cửu Đỉnh, Nhã nhạc cung đình (đàn nguyệt)
+  'ngo-mon': `<rect x="2" y="18" width="28" height="11.5" rx="1" fill="#B8A68A"/><rect x="2" y="17" width="28" height="11.5" rx="1" fill="#D8CDB8"/>`
+    + `<path d="M13.5 28.5V23a2.5 2.5 0 0 1 5 0v5.5zM5.8 28.5v-4a1.7 1.7 0 0 1 3.4 0v4zM22.8 28.5v-4a1.7 1.7 0 0 1 3.4 0v4z" fill="#6B4A2E"/>`
+    + `<rect x="7" y="12" width="18" height="5" fill="#C0533A"/><path d="M11 12.5v4.5M16 12.5v4.5M21 12.5v4.5" stroke="#9C3D29" stroke-width="1.2"/>`
+    + `<path d="M3.5 12.5c2 0 3-.5 4-1.5h17c1 1 2 1.5 4 1.5-2 1.5-4 2-6 2h-13c-2 0-4-.5-6-2z" fill="${C.yellowDark}"/><path d="M7.5 11L10.5 7.5h11l3 3.5z" fill="${C.yellow}"/>`
+    + `<path d="M9 7.8c1.5 0 2.3-.4 3-1.3h8c.7.9 1.5 1.3 3 1.3-1.5 1-3 1.2-4.5 1.2h-5C12 9 10.5 8.8 9 7.8z" fill="${C.yellowDark}"/><path d="M12.5 6.5L14 4h4l1.5 2.5z" fill="${C.yellow}"/>`,
+  'cuu-dinh': `<path d="M8.5 11V5h3.5v6M20 11V5h3.5v6" fill="none" stroke="${C.goldDark}" stroke-width="2.2"/>`
+    + `<path d="M9.5 19.5L7.5 29h3l2.5-7.5zM22.5 19.5l2 9.5h-3L19 21.5zM14.8 22h2.4v7h-2.4z" fill="${C.goldDark}"/>`
+    + `<path d="M6.5 12h19c0 7-4 11.5-9.5 11.5S6.5 19 6.5 12z" fill="${C.gold}"/><path d="M16 23.5c5.5 0 9.5-4.5 9.5-11.5H21c0 6-2 10.5-5 11.5z" fill="#D9A845"/>`
+    + `<rect x="5" y="9.5" width="22" height="3.2" rx="1.6" fill="${C.goldDark}"/>`
+    + `<path d="M8.2 16h15.6" stroke="${C.wood}" stroke-width="1.3"/><circle cx="12" cy="19" r="1" fill="${C.wood}"/><circle cx="16" cy="19.8" r="1" fill="${C.wood}"/><circle cx="20" cy="19" r="1" fill="${C.wood}"/>`
+    + shine('M9 13.8c.3 2 1 3.5 2.2 4.8'),
+  'nha-nhac': `<path d="M13 19L27 5" stroke="#8B5A2B" stroke-width="3.2"/><path d="M15.9 13.9l2.2 2.2M17.9 11.9l2.2 2.2M19.9 9.9l2.2 2.2M21.9 7.9l2.2 2.2" stroke="${C.cream}" stroke-width="1"/>`
+    + `<path d="M24 6l-1.8-1.8M26 8l1.8 1.8M26.2 3.8l-1.6-1.6M28.2 5.8l1.6 1.6" stroke="${C.ink}" stroke-width="1.6"/>`
+    + `<circle cx="11" cy="22" r="8" fill="${C.wood}"/><circle cx="11" cy="21" r="8" fill="#D9A066"/>`
+    + `<path d="M6.6 24.6L25.6 5.6M8.2 26.2L27.2 7.2" stroke="${C.ink}" stroke-width=".6" stroke-opacity=".7"/><path d="M6.8 22.8l2.4 2.4" stroke="${C.ink}" stroke-width="1.6"/>`
+    + `<circle cx="5" cy="8.5" r="2.3" fill="${C.red}"/><path d="M7.2 8.5V2.5l4 1.6v2.2l-4-1.4" fill="${C.red}" stroke="${C.red}" stroke-width="1.2"/>`
+    + shine('M6 17.5a6 6 0 0 1 3-2.8'),
+
   // ---- Nút điều khiển (currentColor) ----
   play: '<path d="M9 6v20l17-10z" fill="currentColor" stroke="currentColor" stroke-width="3"/>',
   pause: '<rect x="7.5" y="6" width="6" height="20" rx="2" fill="currentColor"/><rect x="18.5" y="6" width="6" height="20" rx="2" fill="currentColor"/>',

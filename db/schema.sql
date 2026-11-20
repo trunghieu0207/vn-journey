@@ -80,11 +80,12 @@ CREATE TABLE rooms (
   duration_min     INTEGER NOT NULL,
   topic_choice     INTEGER NOT NULL DEFAULT 0,      -- 1: người chơi chọn chủ đề trước khi nhận câu hỏi (câu thường)
   bet_choice       INTEGER NOT NULL DEFAULT 0,      -- 1: trước câu thường team chọn "Chắc ăn" / "Liều" (đặt cược; form tạo phòng mặc định bật)
-  mode             TEXT NOT NULL DEFAULT 'team' CHECK (mode IN ('team', 'solo')), -- solo: mỗi người một hành trình (mỗi người là một team ẩn 1 người)
+  mode             TEXT NOT NULL DEFAULT 'team' CHECK (mode IN ('team', 'solo', 'tram')), -- solo: mỗi người một hành trình (mỗi người là một team ẩn 1 người); tram: Chạy trạm (team đi tìm key)
   compact          INTEGER NOT NULL DEFAULT 0,      -- 1: phòng "Team gọn" (mode = 'team'): không thẻ bài, thưởng nhanh thay trừ giờ (PLAN 3.0)
   duel             INTEGER NOT NULL DEFAULT 1,      -- Team gọn: 0 = mỗi team một bản đồ riêng (tem như phòng đơn, có thưởng về đích); 1 = chung bản đồ, có thử tài
   pioneer          INTEGER NOT NULL DEFAULT 1,
   quiz_count       INTEGER NOT NULL DEFAULT 1 CHECK (quiz_count BETWEEN 1 AND 3), -- số câu phải trả lời đúng ở một tỉnh trống mới cắm cờ / nhận tem
+  key_count        INTEGER NOT NULL DEFAULT 5 CHECK (key_count BETWEEN 3 AND 7), -- phòng tram: số key (tỉnh) phải tìm
   preset           TEXT,                            -- phòng chơi đơn có sẵn (tên mặc định); NULL = phòng tự tạo
   listed           INTEGER NOT NULL DEFAULT 0,      -- 1: công khai — hiện trong danh sách "Phòng đang mở" ở màn Tham gia (form mặc định); 0: riêng tư — chỉ vào bằng mã phòng
   host_player_id   INTEGER REFERENCES players(id) ON DELETE SET NULL, -- phòng có sẵn: người vào trước làm chủ phòng (chơi + quyền chủ phòng)      -- phòng đơn: bật tem Tiên phong (người đầu tiên có tem một tỉnh +50)
@@ -104,6 +105,7 @@ CREATE TABLE teams (
   name              TEXT NOT NULL CHECK (length(name) <= 40),
   color             TEXT NOT NULL,
   mascot            TEXT NOT NULL,
+  tram              TEXT,                          -- phòng tram: JSON trạng thái hành trình (chỉ server đọc)
   current_province  TEXT REFERENCES provinces(id),
   previous_province TEXT REFERENCES provinces(id),
   pending_question  TEXT REFERENCES questions(id),

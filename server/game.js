@@ -8,6 +8,7 @@ import { loadData } from './game/data.js'
 import { createRooms } from './game/rooms.js'
 import { createRoomScope } from './game/room.js'
 import { RULES } from './game/rules.js'
+import { loadTramContent } from './game/tram-content.js'
 
 export { RULES, TEAM_STYLES, byRank, GameError, normalizeText } from './game/rules.js'
 
@@ -21,9 +22,10 @@ export function createGame(db, options = {}) {
     newCode,        // sinh mã ngẫu nhiên (độ dài) — mã phòng, mã chủ phòng, mã màn chiếu
     hashSecret,     // băm mã chủ phòng
     sealSecret = null, // mã hóa mã chủ phòng để trang quản trị xem lại được (null: không lưu bản mã hóa)
+    tramContent = loadTramContent(), // nội dung chế độ Chạy trạm { periods, hints } (test truyền nội dung giả)
   } = options
 
-  const data = loadData(db, now)
+  const data = { ...loadData(db, now), tram: tramContent } // tram dùng chung cho createRooms và createRoomScope
   const { provinces, adjacency, collections } = data
   const rooms = createRooms({ db, now, defaultDurationMin, newCode, hashSecret, sealSecret, room, ...data })
   const { ensurePresetRooms, presetRooms, publicRooms, leaderboard, createRoom, findRoom, lobby, joinRoom, expireQuestions, cleanupRooms, activeRoomIds, questionStats, provinceList } = rooms
@@ -34,7 +36,7 @@ export function createGame(db, options = {}) {
   }
 
   return {
-    provinces, adjacency, collections,
+    provinces, adjacency, collections, tram: tramContent,
     ensurePresetRooms, presetRooms, publicRooms, leaderboard, createRoom, findRoom, lobby, joinRoom, room, expireQuestions, cleanupRooms, activeRoomIds,
     questionStats, provinceList,
   }

@@ -386,3 +386,14 @@ test('quản trị hệ thống: số liệu, danh sách bị chặn + bỏ ch�
   assert.match(csv.text, /"'=CMD\(\)"/)
   assert.equal((await s.call('/api/sys/backup', { as: 'adm' })).status, 404) // test không cấu hình thư mục sao lưu
 })
+
+test('quản trị: phòng Chạy trạm — trả keyCount, bỏ qua betChoice / topicChoice', async t => {
+  const s = await startServer(); t.after(s.close)
+  await loginAdmin(s)
+  const r = await s.post('/api/sys/rooms', { name: 'Trạm', teamCount: 2 }, 'adm') // không có nội dung tram trong test → đổi kiểu phòng thẳng trong db
+  assert.equal(r.status, 200)
+  s.db.prepare("UPDATE rooms SET mode = 'tram', key_count = 6, bet_choice = 0, topic_choice = 0 WHERE id = ?").run(r.json.roomId)
+  assert.equal((await s.post('/api/sys/room/update', { roomId: r.json.roomId, betChoice: true, topicChoice: true }, 'adm')).status, 200)
+  const room = (await s.call('/api/sys/rooms', { as: 'adm' })).json[0]
+  assert.deepEqual([room.keyCount, room.betChoice, room.topicChoice], [6, false, false])
+})
