@@ -323,6 +323,21 @@ journalctl -u vn-journey -n 20
 - **Chế độ Chạy trạm (nhánh `custom-gameplay`):**
   - Đổi `data/periods.json` / `data/key-hints.json` (nội dung, cờ `reviewed`) **chỉ cần `git pull` + `sudo systemctl restart vn-journey`** — server nạp lúc khởi động, **không** `db:reset`.
   - Schema đổi (`rooms.mode` thêm `'tram'`, `rooms.key_count`, `teams.tram`) → **lần deploy đầu của nhánh này cần `init-db.mjs --reset` (`pnpm run db:reset`) một lần** — **xóa toàn bộ phòng, bảng xếp hạng và tài khoản quản trị**. Làm đúng thủ tục ở trên: xuất câu hỏi đã sửa ở `/quan-tri` → Xuất questions.json, commit + push trước khi reset. Xong tạo lại tài khoản quản trị.
+  - **Đã merge vào `main` (20/11, commit `111c4d8`)** — lần đầu `git pull` bản này trên VPS chạy đủ các lệnh sau (thay cho `restart` ở đầu mục 8). Ràng buộc `rooms.mode` của SQLite không sửa tại chỗ được nên tự nâng cấp DB khi khởi động không đủ, phòng Chạy trạm sẽ báo lỗi nếu bỏ bước reset:
+    ```bash
+    G="sudo -u vnj git -C /opt/vn-journey"
+    $G pull --ff-only
+    sudo systemctl stop vn-journey                     # dừng hẳn để WAL ghi hết vào game.db
+    # sao lưu DB cũ phòng khi cần lấy lại bảng xếp hạng / câu đã sửa
+    sudo -u vnj mkdir -p /opt/vn-journey/var/backups && sudo -u vnj cp /opt/vn-journey/var/game.db /opt/vn-journey/var/backups/truoc-reset-$(date +%Y%m%d-%H%M).db
+    # tạo lại DB (xóa phòng, bảng xếp hạng, tài khoản quản trị; nạp lại câu hỏi từ data/)
+    sudo -u vnj -H bash -c 'cd /opt/vn-journey && node --disable-warning=ExperimentalWarning scripts/init-db.mjs --reset'
+    sudo systemctl start vn-journey
+    journalctl -u vn-journey -n 20
+    # tạo lại tài khoản quản trị (in mật khẩu tạm — xem mục 4)
+    sudo -u vnj -H bash -c 'cd /opt/vn-journey && node --disable-warning=ExperimentalWarning scripts/admin-create.mjs <tên-đăng-nhập> "<Tên hiển thị>"'
+    ```
+    Máy dev: `pnpm run db:reset` (nên chép `var/game.db` ra `var/backups/` trước) rồi `pnpm run admin:create -- <tên> "<Tên hiển thị>"`.
   - **Không đặt `TRAM_CONTENT_DIR` trong `.env` trên host** (biến chỉ cho dev, trỏ tới nội dung mẫu của test do `tram:dev-content` ghi; bộ nạp vẫn lọc `reviewed` như thường). Production luôn đọc `data/`; nội dung chưa duyệt không phát được.
 - **Quay lại bản trước** khi bản mới lỗi:
   ```bash
