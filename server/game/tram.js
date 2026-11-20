@@ -48,6 +48,9 @@ export function placeKeys(start, n, eligible, { adjacency, random }) {
 // View (Task 8) gửi các mảnh theo thứ tự này
 export const puzzleDisplay = st => st.puzzle.display
 
+// Thời gian đã chơi tính tới mốc `at`: thời lượng trận trừ phần còn lại (ends_at đã dời theo tạm dừng → không tính lúc dừng)
+export const playedMsOf = (room, at) => Math.max(0, Math.min(room.duration_min * 60_000, room.duration_min * 60_000 - Math.max(0, room.ends_at - at)))
+
 export function createTram(ctx) {
   const { db, q, now, random, json, provinces, adjacency, roomId, log, tram: content, requireRunning, requireTeam, isTram, closeRoom, scoreOf } = ctx
 
@@ -342,6 +345,7 @@ export function createTram(ctx) {
       db.prepare('UPDATE teams SET bonus_points = bonus_points + ? WHERE id = ?').run(finishBonus, teamId)
       st.stage = 'done'
       st.finishedAt = now()
+      st.playMs = playedMsOf(room, now()) // thời gian chơi tới lúc về đích (cột Thời gian ở bảng tổng kết)
       st.finishBonus = finishBonus
       save(teamId, st)
       log(teamId, 'tram-finish', null, { finishBonus, tries: st.puzzle.tries }, by)
@@ -391,5 +395,15 @@ export function createTram(ctx) {
     }
   }
 
-  return { teamPublic, setupTeams, state, save, shift, specialNext, specialAnswer, specialSkip, submitPuzzle, onCorrect, tick, armStar, consumeStar, placeKeys: (start, n, eligible) => placeKeys(start, n, eligible, { provinces, adjacency, random }) }
+  // Kết thúc sớm (closeRoom, gọi trước khi ends_at bị ghi đè): team chưa về đích chốt thời gian chơi tới lúc này
+  function stopClock() {
+    const room = q.room.get(roomId)
+    if (room.mode !== 'tram' || !room.ends_at) return
+    for (const row of db.prepare('SELECT id, tram FROM teams WHERE room_id = ? AND tram IS NOT NULL').all(roomId)) {
+      const st = json(row.tram)
+      if (st.playMs == null && st.finishedAt == null) save(row.id, { ...st, playMs: playedMsOf(room, room.status === 'paused' ? room.paused_at : now()) })
+    }
+  }
+
+  return { teamPublic, setupTeams, stopClock, state, save, shift, specialNext, specialAnswer, specialSkip, submitPuzzle, onCorrect, tick, armStar, consumeStar, placeKeys: (start, n, eligible) => placeKeys(start, n, eligible, { provinces, adjacency, random }) }
 }

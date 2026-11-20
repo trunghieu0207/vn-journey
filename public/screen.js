@@ -111,10 +111,10 @@ function apply(v) {
   render()
 }
 
-// Dòng phụ của hạng: phòng tram hiện key đã nhặt / cần + nhãn "Đã về đích"; phòng khác: tỉnh / tem + thời gian trả lời
+// Dòng phụ của hạng: phòng tram hiện key đã nhặt / cần + "Về đích" kèm thời gian chơi tới lúc về; phòng khác: tỉnh / tem + thời gian trả lời
 function rowUnit(s, mode) {
   if (mode === 'tram') {
-    return [labeled('key', `${s.keys ?? 0}/${s.need ?? 0} key`), ' · ', s.finished ?? s.finishedAt != null ? labeled('finish', 'Đã về đích') : labeled('timer', fmtTime(s.answerMs))]
+    return [labeled('key', `${s.keys ?? 0}/${s.need ?? 0} key`), ' · ', s.finished ?? s.finishedAt != null ? labeled('finish', `Về đích ${fmtTime(s.playMs)}`) : labeled('timer', fmtTime(s.playMs))]
   }
   return [`${s.provinces} ${mode === 'solo' ? 'tem' : 'tỉnh'} · `, labeled('timer', fmtTime(s.answerMs))]
 }

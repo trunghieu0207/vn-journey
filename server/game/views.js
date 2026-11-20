@@ -1,6 +1,7 @@
 // Điểm và dữ liệu cho từng màn hình của một phòng (team, màn chiếu, chủ phòng, xem lại) — lọc theo quyền.
 
 import { RULES, REGIONS, TEAM_LOG_ACTIONS, byRank, GameError } from './rules.js'
+import { playedMsOf } from './tram.js'
 
 export function createViews(ctx) {
   const {
@@ -12,9 +13,14 @@ export function createViews(ctx) {
   // ---------- Điểm ----------
   // Phòng đơn / Team gọn tắt Đấu: "tỉnh của mình" = tỉnh đã có tem (tính điểm tỉnh, bộ sưu tập, xuyên 3 miền như phòng team)
   // Phòng Chạy trạm: số key đã nhặt, số key cần và giờ về đích (xếp hạng khi bằng điểm); phòng khác không có
+  // playMs: thời gian chơi — từ lúc bắt đầu tới lúc về đích; chưa về đích thì tới lúc kết thúc trận (đang chơi: tới bây giờ); không tính lúc tạm dừng
   const tramScore = t => {
     const st = isTram() ? json(t.tram) : null
-    return st ? { keys: st.keys.filter(k => k.found).length, need: st.need, finishedAt: st.finishedAt } : {}
+    if (!st) return {}
+    const room = q.room.get(roomId)
+    const playMs = st.playMs ?? (st.finishedAt != null ? playedMsOf(room, st.finishedAt) : room.status === 'ended' ? room.duration_min * 60_000
+      : room.ends_at ? playedMsOf(room, room.status === 'paused' ? room.paused_at : now()) : 0)
+    return { keys: st.keys.filter(k => k.found).length, need: st.need, finishedAt: st.finishedAt, playMs }
   }
 
   function scores() {
@@ -243,9 +249,9 @@ export function createViews(ctx) {
       scoreboard: frozen ? null : scores()
         .sort(byRank)
         .slice(0, solo ? RULES.screenTop : undefined)
-        .map(({ name, color, mascot, total, answerMs, provinces: n, keys, need, finishedAt }) => ({
+        .map(({ name, color, mascot, total, answerMs, provinces: n, keys, need, finishedAt, playMs }) => ({
           name, color, mascot, total, answerMs, provinces: n,
-          ...(isTram() ? { keys, need, finished: finishedAt != null } : {}),
+          ...(isTram() ? { keys, need, finished: finishedAt != null, playMs } : {}),
         })),
       players: all.length,
       // Phòng đơn: bản đồ nhiệt "cả phòng đang đi đâu" — số người có tem mỗi tỉnh (không lộ là ai)

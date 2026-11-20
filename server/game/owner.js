@@ -77,6 +77,12 @@ export function createOwner(ctx) {
       }
       return arr
     }
+    // Mỗi team một bản đồ riêng (Chạy trạm, Team gọn tắt Đấu): không tranh tỉnh nên không cần rải 3 miền / tránh tỉnh kề —
+    // mỗi team một tỉnh ngẫu nhiên trong mọi tỉnh không phải thành phố trực thuộc TW, không trùng nhau (tối đa 8 team ≤ 25 tỉnh)
+    if (usesStamps()) {
+      const ids = shuffle([...provinces.values()].filter(p => !p.is_city).map(p => p.id))
+      return teams.map((t, i) => [t.id, ids[i % ids.length]])
+    }
     const regions = shuffle([...REGIONS])
     const pool = Object.fromEntries(REGIONS.map(r => [r,
       [...provinces.values()].filter(p => p.region === r && !p.is_city).map(p => p.id)]))
@@ -156,6 +162,7 @@ export function createOwner(ctx) {
 
   // Kết thúc phòng (gọi trong transaction): chủ phòng bấm kết thúc, hoặc mọi team Chạy trạm đã về đích
   function closeRoom() {
+    if (isTram()) tram.stopClock()
     db.prepare("UPDATE rooms SET status = 'ended', ends_at = ?, shared_question = NULL WHERE id = ?").run(now(), roomId)
     log(null, 'end')
     recordBoard()

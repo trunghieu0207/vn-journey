@@ -343,7 +343,9 @@ function renderTeams() {
 // Nút trên dòng: sửa tên, sửa điểm (chọn sẵn người đó trong khung Sửa điểm), mời ra
 function renderPlayers(scores) {
   const rankOf = t => scores.get(t.id) ?? { total: 0, answerMs: 0, provinces: 0 }
-  const ranked = [...view.teams].sort((a, b) => rankOf(b).total - rankOf(a).total || rankOf(a).answerMs - rankOf(b).answerMs)
+  // Chạy trạm: team đã về đích xếp trên (như byRank ở server)
+  const ranked = [...view.teams].sort((a, b) => (rankOf(b).finishedAt != null) - (rankOf(a).finishedAt != null)
+    || rankOf(b).total - rankOf(a).total || rankOf(a).answerMs - rankOf(b).answerMs)
   const find = normalize($('playerSearch').value)
   const shown = ranked.map((t, i) => [t, i + 1]).filter(([t]) => !find || normalize(t.name).includes(find))
   if (!ranked.length) return $('teams').replaceChildren(el('p', { class: 'muted' }, 'Chưa có ai vào phòng'))

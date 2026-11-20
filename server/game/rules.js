@@ -131,9 +131,12 @@ export const EVENT_KINDS = ['festival', 'storm', 'golden', 'rumor']
 export const TEAM_LOG_ACTIONS = ['spawn', 'move', 'retry', 'retreat', 'pushed-back', 'topic', 'capture', 'steal', 'wrong', 'siege-fail', 'siege', 'skip', 'card', 'time-penalty', 'streak', 'speed', 'defend', 'defend-fail', 'held', 'repelled', 'home', 'shared-bonus', 'pioneer', 'progress', 'siege-bet', 'duel-round', 'finish', 'miss-penalty', 'gift', 'tram-key', 'tram-hint', 'tram-open', 'tram-rescue', 'tram-star', 'tram-special', 'tram-finish']
 
 // Xếp hạng: điểm cao hơn trước; bằng điểm thì tổng thời gian trả lời ít hơn trước
-// Bằng điểm: phòng Chạy trạm xếp team về đích sớm hơn lên trên (finishedAt null/undefined = chưa về, xếp sau); team/solo không có finishedAt nên không đổi
+// Phòng Chạy trạm (chốt 20/11): team đã về đích luôn xếp trên team chưa về (dù ít điểm hơn); trong mỗi nhóm theo điểm,
+// bằng điểm thì về đích sớm hơn rồi thời gian trả lời. Team/solo không có finishedAt nên không đổi
+const finished = x => x.finishedAt != null
 const finishOrder = x => x.finishedAt ?? Infinity
-export const byRank = (a, b) => b.total - a.total
+export const byRank = (a, b) => finished(b) - finished(a)
+  || b.total - a.total
   || (finishOrder(a) === finishOrder(b) ? 0 : finishOrder(a) < finishOrder(b) ? -1 : 1)
   || a.answerMs - b.answerMs
 

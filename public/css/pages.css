@@ -219,6 +219,7 @@
 .stats-board .results-table th:nth-child(n+3) { text-align: left; }
 .stats-board .results-table th:is(:nth-child(4), :nth-child(5)) { text-align: right; }
 .results-table td.qid { color: var(--muted); font-size: 14px; }
+.results-table small.not-done { display: block; font-size: 12px; font-weight: 600; white-space: nowrap; } /* Chạy trạm: dưới số key của team chưa về đích */
 .rate { display: inline-flex; align-items: center; gap: 8px; }
 .rate-bar { width: 48px; height: 8px; border-radius: 4px 5px 4px 5px; background: #F0F0F0; overflow: hidden; }
 .rate-bar i { display: block; height: 100%; border-radius: inherit; background: var(--green); }

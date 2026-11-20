@@ -11,7 +11,7 @@ function el(tag, attrs = {}, ...children) {
   return e
 }
 const fmt = n => n.toLocaleString('vi-VN')
-// Tổng thời gian trả lời (ms) → "05:42"
+// Thời gian (ms) → "05:42": tổng thời gian trả lời; phòng Chạy trạm: thời gian chơi tới lúc về đích / hết trận
 export const fmtTime = ms => {
   const s = Math.round((ms ?? 0) / 1000)
   return `${String(Math.floor(s / 60)).padStart(2, '0')}:${String(s % 60).padStart(2, '0')}`
@@ -44,8 +44,10 @@ export function resultsView(replay, { myTeamId = null } = {}) {
       : `${solo ? 'Bạn' : mine.name} xếp hạng ${rankOf.get(mine.teamId)}/${scores.length} với ${fmt(mine.total)} điểm`) : '')
 
   // Bục vinh danh: hạng 2 – 1 – 3. Mỗi bậc là mẩu sticker màu team (viền + gờ đáy sẫm hơn tính bằng color-mix trong CSS)
-  const podium = el('div', { class: 'podium' }, ...[1, 0, 2].filter(i => scores[i]).map(i => {
-    const s = scores[i]
+  // Chạy trạm: chỉ team đã về đích lên bục (server đã xếp team về đích lên trước); chưa team nào về đích thì xếp theo điểm như cũ
+  const onPodium = replay.mode === 'tram' && scores.some(s => s.finishedAt != null) ? scores.filter(s => s.finishedAt != null) : scores
+  const podium = el('div', { class: 'podium' }, ...[1, 0, 2].filter(i => onPodium[i]).map(i => {
+    const s = onPodium[i]
     const step = el('div', { class: `podium-step p${i + 1}` },
       el('span', { class: 'podium-medal' }, icon(`medal${i + 1}`, { size: i === 0 ? 52 : 44, label: `Hạng ${i + 1}` })))
     step.style.setProperty('--c', s.color)
@@ -56,20 +58,20 @@ export function resultsView(replay, { myTeamId = null } = {}) {
   }))
 
   // Hạng 1–3: huy chương nhỏ thay cho số
-  const rankCell = i => (i < 3 ? icon(`medal${i + 1}`, { size: 26, label: `Hạng ${i + 1}` }) : String(i + 1))
+  const rankCell = i => (i < Math.min(3, onPodium.length) ? icon(`medal${i + 1}`, { size: 26, label: `Hạng ${i + 1}` }) : String(i + 1))
   // Phòng Chạy trạm: không có bộ sưu tập / xuyên 3 miền — thay bằng cột key đã nhặt
   const tram = replay.mode === 'tram'
   const row = (s, i) => el('tr', { class: s.teamId === myTeamId ? 'me' : '' },
     el('td', { class: 'rank' }, rankCell(i)),
     el('td', {}, el('span', { class: 'who' }, mascotIcon(s.mascot, s.color, 24), s.name)),
-    tram ? el('td', { class: 'num' }, `${s.keys ?? 0}/${s.need ?? 0}${s.finishedAt != null ? ' ✓' : ''}`) : '',
+    tram ? el('td', { class: 'num' }, `${s.keys ?? 0}/${s.need ?? 0}`, s.finishedAt != null ? ' ✓' : el('small', { class: 'muted not-done' }, 'chưa về đích')) : '',
     el('td', { class: 'num' }, String(s.provinces)),
     el('td', { class: 'num' }, fmt(s.base)),
     el('td', { class: 'num' }, signed(s.bonus)),
     tram ? '' : el('td', { class: 'num' }, s.collectionBonus ? `+${fmt(s.collectionBonus)}` : '–'),
     tram ? '' : el('td', { class: 'num' }, s.crossRegion ? `+${fmt(s.crossRegion)}` : '–'),
     el('td', { class: 'num total' }, fmt(s.total)),
-    el('td', { class: 'num' }, fmtTime(s.answerMs)))
+    el('td', { class: 'num' }, fmtTime(tram ? s.playMs : s.answerMs)))
   const cols = tram
     ? ['#', 'Team', 'Key', 'Tỉnh', 'Điểm tỉnh', 'Thưởng/phạt', 'Tổng', labeled('timer', 'Thời gian')]
     : ['#', solo ? 'Lữ khách' : 'Team', solo ? 'Tem' : 'Tỉnh', 'Điểm tỉnh', 'Thưởng/phạt', 'Bộ sưu tập', 'Xuyên 3 miền', 'Tổng', labeled('timer', 'Thời gian')]
@@ -80,6 +82,6 @@ export function resultsView(replay, { myTeamId = null } = {}) {
 
   return el('div', { class: 'results' }, head, podium, table,
     el('p', { class: 'hint' }, tram
-      ? 'Thưởng/phạt gồm điểm các tỉnh chưa ghé (cộng khi mở map đặc biệt), câu map đặc biệt, câu ghép + thưởng về đích, trừ điểm trả lời chậm và điểm chủ phòng điều chỉnh. Key ✓: đã về đích. Bằng điểm: về đích sớm hơn rồi tổng thời gian trả lời ít hơn xếp trên.'
+      ? 'Thưởng/phạt gồm điểm các tỉnh chưa ghé (cộng khi mở map đặc biệt), câu map đặc biệt, câu ghép + thưởng về đích, trừ điểm trả lời chậm và điểm chủ phòng điều chỉnh. Key ✓: đã về đích — team về đích xếp trên team chưa về đích, chỉ team về đích lên bục. Thời gian: từ lúc bắt đầu tới khi về đích (chưa về đích: tới khi kết thúc trận), không tính lúc tạm dừng. Bằng điểm: về đích sớm hơn rồi tổng thời gian trả lời ít hơn xếp trên.'
       : 'Thưởng/phạt gồm thành chủ nhà mới, đón khách, lễ hội, trừ điểm trả lời chậm và điểm chủ phòng điều chỉnh. Bằng điểm: tổng thời gian trả lời ít hơn xếp trên. Bản đồ phía sau đã hiện màu thật của tất cả các team.'))
 }

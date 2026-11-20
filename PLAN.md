@@ -194,7 +194,7 @@ Các giả định dưới đây đang được dùng để lập plan. **Sửa 
 
 ### 3.1. Bắt đầu
 - Chủ phòng bấm **Bắt đầu** → đồng hồ chạy theo thời lượng của phòng.
-- Mỗi team được gán ngẫu nhiên **1 tỉnh xuất phát bí mật**, không trùng nhau, rải đều 3 miền (ví dụ: 2 team miền Bắc, 2 miền Trung, 2 miền Nam), không phải thành phố trực thuộc TW. **Thứ tự miền và thứ tự team xáo mỗi trận** (sửa 29/10: trước đó team đầu luôn ở miền Bắc, phòng 2 team không ai ở miền Nam); trong cùng miền ưu tiên tỉnh **không giáp** tỉnh xuất phát của team khác.
+- Mỗi team được gán ngẫu nhiên **1 tỉnh xuất phát bí mật**, không trùng nhau, rải đều 3 miền (ví dụ: 2 team miền Bắc, 2 miền Trung, 2 miền Nam), không phải thành phố trực thuộc TW. **Thứ tự miền và thứ tự team xáo mỗi trận** (sửa 29/10: trước đó team đầu luôn ở miền Bắc, phòng 2 team không ai ở miền Nam); trong cùng miền ưu tiên tỉnh **không giáp** tỉnh xuất phát của team khác. **Chạy trạm / Team gọn tắt Đấu** (sửa 20/11 — mỗi team một bản đồ, miền Nam chỉ có 5 tỉnh nên cứ 1/3 team rơi vào Cà Mau, An Giang…): bốc ngẫu nhiên trong 25 tỉnh không phải thành phố TW, các team không trùng nhau, không chia miền.
 - Tỉnh xuất phát được tính là đã chiếm (không cần trả lời).
 
 ### 3.2. Di chuyển

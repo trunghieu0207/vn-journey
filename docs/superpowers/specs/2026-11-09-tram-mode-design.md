@@ -35,7 +35,7 @@ Lý do: luật hiện tại nhiều (thử tài, cược, thẻ, sự kiện…)
 - Vào phòng, nhiều người một team, bỏ phiếu / chốt đáp án như hiện tại [Claude: giữ nguyên].
 
 ### 3.2. Bắt đầu và di chuyển
-- Mỗi team xuất phát ở một tỉnh random (luật rải 3 miền hiện có) [Claude].
+- Mỗi team xuất phát ở một tỉnh random (luật rải 3 miền hiện có) [Claude]. **Sửa 20/11 [CĐA]:** bỏ rải 3 miền — bốc ngẫu nhiên trong 25 tỉnh không phải thành phố TW, các team không trùng nhau (miền Nam chỉ 5 tỉnh nên team miền Nam toàn xuất phát ở Cà Mau, An Giang…).
 - Đi sang tỉnh **giáp ranh** như hiện tại; có **sương mù** như hiện tại (chỉ thấy tỉnh đã ghé + tỉnh kề) [Claude].
 - Không có tỉnh "của team khác": mỗi team chơi trên bản đồ riêng, không thấy team khác [CĐA].
 - Ghé lại tỉnh đã có điểm → đi qua, không hỏi lại [Claude].
@@ -84,6 +84,7 @@ Lý do: luật hiện tại nhiều (thử tài, cược, thẻ, sự kiện…)
 - Điểm = điểm các tỉnh đã trả lời đúng (sau trừ tốc độ) ± ngôi sao + (nếu đã mở map) điểm tỉnh chưa đi + điểm câu map đặc biệt + (nếu về đích) 1000 + thưởng về đích sớm [CĐA + Claude].
 - Lý do có thưởng về đích sớm: tỉnh chưa đi được cộng đủ điểm khi mở map, nên nếu không có khoản này thì hai team không sai câu nào sẽ gần như bằng điểm dù về đích cách nhau 20 phút.
 - Team chưa mở map lúc hết giờ: chỉ có điểm tỉnh đã trả lời đúng (± ngôi sao) [Claude].
+- **Sửa 20/11 [CĐA]:** team đã về đích luôn xếp trên team chưa về đích (chỉ team về đích lên bục); cột Thời gian ở tổng kết = thời gian chơi tới lúc về đích / hết trận, không tính tạm dừng. Trong mỗi nhóm:
 - Xếp hạng theo tổng điểm; bằng điểm → về đích trước xếp trên (cột thời điểm về đích; chưa về đích xếp sau); còn bằng → tổng thời gian trả lời ít hơn, tính cả câu map đặc biệt (luật hiện có) [Claude].
 - Thời lượng phòng Chạy trạm tối thiểu **30 phút** [Claude].
 - Lúc tạo phòng Chạy trạm ẩn các tùy chọn không áp dụng (số câu/tỉnh, cược, chủ đề, Theo team/Chơi đơn). Sảnh chờ "Bạn có biết?" giữ nguyên. "Chơi lại" xóa sạch key, gợi ý, thời kỳ, mảnh, trạng thái map. Sửa điểm của chủ phòng đi vào điểm thưởng như hiện tại [Claude].

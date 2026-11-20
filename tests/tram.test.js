@@ -733,9 +733,12 @@ test('xếp hạng tram: bằng điểm -> về đích trước xếp trên; ch�
   assert.equal(sb.length, 3)
   assert.deepEqual(sb.map(x => x.finished), [true, true, false])
   assert.ok(sb.every(x => x.need === 5 && x.keys === 0))
-  // điểm cao hơn vẫn thắng về đích
-  g.db.prepare('UPDATE teams SET bonus_points = 100 WHERE id = ?').run(c)
-  assert.equal(g.game.scores().sort(byRank)[0].teamId, c)
+  // chốt 20/11: team về đích luôn xếp trên team chưa về, kể cả khi team chưa về nhiều điểm hơn
+  g.db.prepare('UPDATE teams SET bonus_points = 5000 WHERE id = ?').run(c)
+  assert.deepEqual(g.game.scores().sort(byRank).map(s => s.teamId), [b, a, c])
+  // trong nhóm đã về đích: điểm cao hơn trước (rồi mới tới giờ về đích)
+  g.db.prepare('UPDATE teams SET bonus_points = 100 WHERE id = ?').run(a)
+  assert.deepEqual(g.game.scores().sort(byRank).map(s => s.teamId), [a, b, c])
   // chủ phòng thấy tiến độ, không thấy tỉnh key
   const owner = g.game.ownerView()
   assert.deepEqual(owner.teams.map(x => x.stage), ['done', 'done', 'map'])
@@ -884,4 +887,57 @@ test('tram: team không có người chơi không chặn tự kết thúc khi m�
   g.db.prepare('DELETE FROM players WHERE team_id = ?').run(b.id)
   g.game.submitPuzzle(a.id, g.solve(a.id))
   assert.equal(g.game.state().status, 'ended')
+})
+
+test('tỉnh xuất phát Chạy trạm / Team gọn tắt Đấu: ngẫu nhiên khắp nước, không thành phố TW, các team không trùng nhau', () => {
+  const db = memoryDb()
+  const core = createCore(db)
+  const cities = new Set(db.prepare('SELECT id FROM provinces WHERE is_city = 1').all().map(r => r.id))
+  const south = new Set(db.prepare("SELECT id FROM provinces WHERE region = 'south' AND is_city = 0").all().map(r => r.id))
+  for (const mode of ['tram', 'compact']) {
+    const seen = new Set()
+    let southStarts = 0
+    for (let i = 0; i < 30; i++) {
+      const { roomId } = core.createRoom({ name: `Xuất phát ${i}`, teamCount: 8, mode, durationMin: 30 })
+      core.room(roomId).start()
+      const starts = db.prepare('SELECT current_province AS p FROM teams WHERE room_id = ?').all(roomId).map(r => r.p)
+      assert.equal(new Set(starts).size, 8, `${mode}: 8 team phải ở 8 tỉnh khác nhau`)
+      for (const p of starts) {
+        assert.ok(!cities.has(p), `${mode}: không xuất phát ở thành phố trực thuộc TW (${p})`)
+        seen.add(p)
+        if (south.has(p)) southStarts++
+      }
+      core.room(roomId).end() // giới hạn số phòng đang mở
+    }
+    assert.ok(seen.size >= 20, `${mode}: rải khắp nước (mới gặp ${seen.size} tỉnh)`)
+    // không còn ép 1/3 team về miền Nam (5/25 tỉnh ≈ 20%): 240 lượt xuất phát, miền Nam phải dưới 30%
+    assert.ok(southStarts < 240 * 0.3, `${mode}: miền Nam ${southStarts}/240`)
+  }
+})
+
+test('tram: Thời gian ở bảng tổng kết = thời gian chơi tới lúc về đích / kết thúc trận, không tính lúc tạm dừng', () => {
+  // về đích ở phút 20 (có tạm dừng 5 phút giữa chừng) → 20 phút; team kia chưa về, chủ phòng kết thúc ở phút 30 → 30 phút
+  const g = puzzleAt({ durationMin: 45, teamCount: 3 })
+  const [t, u] = g.teams.map(x => x.id)
+  g.now.advance(10 * 60_000)
+  g.game.pause()
+  g.now.advance(5 * 60_000)
+  g.game.resume()
+  g.now.advance(10 * 60_000)
+  g.game.submitPuzzle(t, g.solve(t))
+  assert.equal(scoreOf(g, t).playMs, 20 * 60_000)
+  assert.equal(scoreOf(g, u).playMs, 20 * 60_000, 'đang chơi: tính tới bây giờ')
+  g.now.advance(10 * 60_000)
+  g.game.end()
+  assert.equal(scoreOf(g, t).playMs, 20 * 60_000)
+  assert.equal(scoreOf(g, u).playMs, 30 * 60_000)
+  // bảng tổng kết (replay) mang cùng số liệu
+  const board = g.game.replay().scores
+  assert.equal(board.find(s => s.teamId === u).playMs, 30 * 60_000)
+
+  // hết giờ tự nhiên: team chưa về đích tính đủ thời lượng trận
+  const h = puzzleAt({ durationMin: 30 })
+  h.now.advance(31 * 60_000)
+  assert.equal(h.game.state().status, 'ended')
+  assert.equal(scoreOf(h, h.teams[0].id).playMs, 30 * 60_000)
 })
