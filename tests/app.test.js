@@ -318,22 +318,6 @@ test('phòng đơn qua API: tạo không cần số team, vào phòng không ch�
   assert.equal((await s.call('/api/journal', { as: 'owner' })).status, 403)
 })
 
-test('phòng có sẵn: người chơi giữ quyền chủ phòng gọi được API chủ phòng của phòng mình; người khác thì không', async t => {
-  const s = await startServer(); t.after(s.close)
-  s.app.game.ensurePresetRooms()
-  const list = (await s.call('/api/rooms/preset')).json
-  assert.equal(list.length, 4)
-  const host = await s.post('/api/join', { code: list[0].code, name: 'Xuka' }, 'xuka')
-  assert.equal(host.json.host, true)
-  assert.equal((await s.post('/api/join', { code: list[0].code, name: 'Nobita' }, 'nobita')).json.host, false)
-  assert.equal((await s.call('/api/owner/overview', { as: 'xuka' })).status, 200)
-  assert.equal((await s.call('/api/owner/overview', { as: 'nobita' })).status, 403)
-  assert.equal((await s.post('/api/owner/game', { action: 'start' }, 'nobita')).status, 403)
-  assert.equal((await s.post('/api/owner/game', { action: 'start' }, 'xuka')).status, 200)
-  const me = (await s.call('/api/me', { as: 'xuka' })).json
-  assert.equal(me.hostId, me.me.id)
-})
-
 test('người tạo phòng vào chơi luôn: giữ quyền chủ phòng; đồng đội cùng team thì không có quyền', async t => {
   const s = await startServer(); t.after(s.close)
   const room = await withRoom(s, 'boss')
@@ -354,8 +338,7 @@ test('người tạo phòng vào chơi luôn: giữ quyền chủ phòng; đồn
 
 test('vào lại bằng tên: không giành được chỗ của người đang mở trang; không nhận quyền chủ phòng', async t => {
   const s = await startServer(); t.after(s.close)
-  s.app.game.ensurePresetRooms()
-  const code = (await s.call('/api/rooms/preset')).json[0].code
+  const { code } = (await s.post('/api/rooms', { name: 'Đơn', mode: 'solo' }, 'xuka')).json // người tạo phòng vào chơi luôn
   assert.equal((await s.post('/api/join', { code, name: 'Xuka' }, 'xuka')).json.host, true)
   const sse = await s.stream('xuka')
   await sse.first
@@ -406,22 +389,6 @@ test('tên người chơi: bỏ ký tự đảo chiều / vô hình', async t =>
   assert.equal((await s.post('/api/join', { code: room.code, name: '​‮', teamId: room.teams[0].id })).status, 400)
 })
 
-test('phòng có sẵn: chủ phòng bấm Thoát giữa trận rồi vào lại bằng tên → vẫn nhận lại quyền (đã nhả lúc thoát)', async t => {
-  const s = await startServer(); t.after(s.close)
-  s.app.game.ensurePresetRooms()
-  const code = (await s.call('/api/rooms/preset')).json[0].code
-  await s.post('/api/join', { code, name: 'Xuka' }, 'xuka')
-  await s.post('/api/join', { code, name: 'Nobita' }, 'nobita')
-  assert.equal((await s.post('/api/owner/game', { action: 'start' }, 'xuka')).status, 200)
-  assert.equal((await s.post('/api/logout', {}, 'xuka')).status, 200)
-  assert.equal((await s.call('/api/rooms/preset')).json[0].hasHost, false)
-  assert.equal((await s.post('/api/join', { code, name: 'xuka' }, 'xuka')).json.host, true)
-  assert.equal((await s.call('/api/owner/overview', { as: 'xuka' })).status, 200)
-  // Người chơi thường thoát không ảnh hưởng quyền chủ phòng
-  await s.post('/api/logout', {}, 'nobita')
-  assert.equal((await s.call('/api/rooms/preset')).json[0].hasHost, true)
-})
-
 test('mỗi vai một cookie: cùng một trình duyệt vừa chủ phòng, vừa chơi, vừa mở màn chiếu — không đè nhau', async t => {
   const s = await startServer(); t.after(s.close)
   const room = await withRoom(s, 'me') // cookie chủ phòng
@@ -453,14 +420,14 @@ test('mỗi vai một cookie: cùng một trình duyệt vừa chủ phòng, v�
   assert.equal((await s.call('/api/me', { as: 'me', page: 'team' })).status, 200)
 })
 
-test('màn Tham gia: /api/rooms/list trả phòng có sẵn + phòng tự tạo bật "hiện trong danh sách"', async t => {
+test('màn Tham gia: /api/rooms/list chỉ trả phòng tự tạo bật "hiện trong danh sách" (không còn phòng có sẵn)', async t => {
   const s = await startServer(); t.after(s.close)
-  s.app.game.ensurePresetRooms()
   const open = await s.post('/api/rooms', { name: 'Mở', teamCount: 2, listed: true })
   await s.post('/api/rooms', { name: 'Kín', teamCount: 2 })
   const r = await s.call('/api/rooms/list')
   assert.equal(r.status, 200)
-  assert.equal(r.json.preset.length, 4)
+  assert.equal(r.json.preset, undefined)
+  assert.equal((await s.call('/api/rooms/preset')).status, 404)
   assert.deepEqual(r.json.open.map(x => x.code), [open.json.code])
 })
 

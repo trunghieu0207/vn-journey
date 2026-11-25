@@ -145,7 +145,6 @@ sudo -u vnj nano /opt/vn-journey/.env
 | `TRUST_PROXY` | `true` | Lấy IP thật từ `X-Real-IP` do Nginx đặt — không thì cả văn phòng chung một giới hạn tần suất. **Chỉ bật khi `HOST=127.0.0.1`** |
 | `GAME_DURATION_MIN` | `45` | |
 | `FREEZE_BEFORE_END_MIN` | `10` | |
-| `PRESET_ROOMS` | bỏ trống | Đặt `0` nếu không muốn có phòng chơi đơn sẵn |
 
 ### Tạo database
 
@@ -365,7 +364,7 @@ Chỉ dùng trình duyệt như người chơi bình thường — **không ch�
 | 7 | Điện thoại dùng 4G (ngoài mạng công ty) | Vào được bình thường (mở công khai — quyết định 6.7) |
 | 8 | Từ laptop công ty qua proxy công ty | Vào được và realtime vẫn chạy. Nếu proxy công ty chặn domain mới hoặc cắt kết nối SSE → phải nhờ IT whitelist (xem PLAN rủi ro "proxy chặn SSE") — **thử sớm**, càng sớm càng có thời gian xử lý |
 | 9 | `ls -l /opt/vn-journey/var /opt/vn-journey/var/backups` | Chủ sở hữu `vnj`, quyền `700`/`600`; sau 5 phút có file `backup-*.db` |
-| 10 | `https://<domain>/quan-tri` | Đăng nhập được, đổi mật khẩu tạm; mục Phòng thấy 4 phòng có sẵn; bấm **Điều khiển** một phòng → mở trang chủ phòng, có nút "← Quản trị" |
+| 10 | `https://<domain>/quan-tri` | Đăng nhập được, đổi mật khẩu tạm; tạo một phòng rồi bấm **Điều khiển** phòng đó → mở trang chủ phòng, có nút "← Quản trị" |
 
 ---
 
@@ -407,7 +406,7 @@ sudo systemctl start vn-journey
 
 | Dữ liệu | Giữ bao lâu |
 |---|---|
-| Phòng, team, người chơi, câu trả lời | Tự xóa 24 giờ sau khi tạo phòng (phòng đơn có sẵn: 30 phút sau khi kết thúc) |
+| Phòng, team, người chơi, câu trả lời | Tự xóa 24 giờ sau khi tạo phòng |
 | Bảng xếp hạng cá nhân (tên tự nhập + điểm, phòng đơn) | Tự xóa sau 7 ngày, công khai ở `/leaderboard` |
 | Bản sao lưu | 12 bản gần nhất (1 giờ) |
 | Tài khoản quản trị + nhật ký quản trị | Tài khoản tới khi xóa DB; nhật ký 30 ngày. Mật khẩu chỉ lưu dạng băm scrypt |

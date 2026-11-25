@@ -19,7 +19,7 @@ export function createRooms(ctx) {
   // mode 'solo': phòng chơi đơn — chưa tạo team nào; mỗi người vào phòng thành một team ẩn 1 người (joinRoom).
   // mode 'compact': phòng "Team gọn" — lưu là phòng team (mode 'team', compact = 1); duel: có thử tài (mặc định tắt), không Tiên phong
   // mode 'tram': Chạy trạm (keyCount: số key phải tìm)
-  function createRoom({ name, teamCount, durationMin, topicChoice = false, betChoice = false, mode = 'team', pioneer = true, preset = null, quizCount = RULES.quizCount.default, listed = false, duel = false, keyCount } = {}) {
+  function createRoom({ name, teamCount, durationMin, topicChoice = false, betChoice = false, mode = 'team', pioneer = true, quizCount = RULES.quizCount.default, listed = false, duel = false, keyCount } = {}) {
     const roomName = cleanName(name, RULES.roomNameMaxLength)
     if (!roomName) throw new GameError('bad-room', 'Cần đặt tên phòng')
     if (!['team', 'compact', 'solo', 'tram'].includes(mode)) throw new GameError('bad-room', 'Kiểu phòng không hợp lệ')
@@ -54,18 +54,17 @@ export function createRooms(ctx) {
       }
       topicChoice = false; betChoice = false; pioneer = false
     }
-    const quizN = mode === 'tram' ? 1 : quiz
-    const open = db.prepare("SELECT COUNT(*) AS n FROM rooms WHERE status != 'ended' AND preset IS NULL").get().n
-    if (!preset && open >= RULES.maxOpenRooms) throw new GameError('too-many-rooms', 'Máy chủ đang có quá nhiều phòng, thử lại sau', 503)
+    const open = db.prepare("SELECT COUNT(*) AS n FROM rooms WHERE status != 'ended'").get().n
+    if (open >= RULES.maxOpenRooms) throw new GameError('too-many-rooms', 'Máy chủ đang có quá nhiều phòng, thử lại sau', 503)
 
     const ownerKey = newCode(8)
     const screenCode = newCode(6)
     const code = uniqueRoomCode()
     return transaction(db, () => {
-      const { lastInsertRowid } = db.prepare(`INSERT INTO rooms (code, name, owner_key_hash, owner_key_sealed, screen_code, duration_min, topic_choice, bet_choice, mode, compact, duel, pioneer, preset, quiz_count, key_count, listed, created_at)
-                                              VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`)
+      const { lastInsertRowid } = db.prepare(`INSERT INTO rooms (code, name, owner_key_hash, owner_key_sealed, screen_code, duration_min, topic_choice, bet_choice, mode, compact, duel, pioneer, quiz_count, key_count, listed, created_at)
+                                              VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`)
         .run(code, roomName, hashSecret(ownerKey), sealSecret ? sealSecret(ownerKey) : null, screenCode, minutes, topicChoice ? 1 : 0, betChoice ? 1 : 0, mode,
-          compact ? 1 : 0, !compact || duel ? 1 : 0, pioneer ? 1 : 0, preset, quizN, keys, listed && !preset ? 1 : 0, now())
+          compact ? 1 : 0, !compact || duel ? 1 : 0, pioneer ? 1 : 0, quiz, keys, listed ? 1 : 0, now())
       const roomId = Number(lastInsertRowid)
       for (const style of TEAM_STYLES.slice(0, n)) {
         db.prepare('INSERT INTO teams (room_id, name, color, mascot) VALUES (?, ?, ?, ?)')
@@ -98,8 +97,6 @@ export function createRooms(ctx) {
       // Phòng đơn: không lộ danh sách người chơi cho người chưa vào phòng — chỉ số người
       teams: room.mode === 'solo' ? [] : q.teams.all(room.id).map(t => ({ id: t.id, name: t.name, color: t.color, mascot: t.mascot, members: counts.get(t.id) ?? 0 })),
       players: [...counts.values()].reduce((a, b) => a + b, 0),
-      // Phòng có sẵn: chưa có chủ phòng thì người vào trước nhận quyền
-      preset: !!room.preset, hasHost: room.host_player_id != null,
       maxPlayers: room.mode === 'solo' ? RULES.maxSoloPlayers : null,
     }
   }
@@ -146,30 +143,15 @@ export function createRooms(ctx) {
     })
   }
 
-  // Người chơi giữ quyền chủ phòng: người tạo phòng vào chơi luôn (owner = true), hoặc người vào trước ở phòng có sẵn chưa có chủ.
+  // Người chơi giữ quyền chủ phòng: người tạo phòng vào chơi luôn (owner = true).
   // Trả về true nếu người này là chủ phòng. Gọi trong transaction
   function claimHost(room, playerId, owner = false) {
     let host = q.room.get(room.id).host_player_id
-    if (owner || (room.preset && host == null)) {
+    if (owner) {
       db.prepare('UPDATE rooms SET host_player_id = ? WHERE id = ?').run(playerId, room.id)
       host = playerId
     }
     return host === playerId
-  }
-
-  // Phòng chơi đơn có sẵn: tạo những phòng còn thiếu (lúc khởi động server và sau mỗi lần dọn phòng)
-  function ensurePresetRooms() {
-    for (const name of RULES.presetRooms) {
-      if (db.prepare('SELECT 1 FROM rooms WHERE preset = ?').get(name)) continue
-      createRoom({ name, mode: 'solo', durationMin: RULES.presetDurationMin, betChoice: true, preset: name })
-    }
-  }
-
-  // Danh sách phòng có sẵn (công khai): tên, mã, trạng thái, số người, đã có chủ phòng chưa — không có tên người chơi
-  function presetRooms() {
-    return db.prepare(`SELECT r.code, r.name, r.status, r.duration_min, r.host_player_id, (SELECT COUNT(*) FROM players p WHERE p.room_id = r.id) AS players
-                       FROM rooms r WHERE r.preset IS NOT NULL ORDER BY r.id`).all()
-      .map(r => ({ code: r.code, name: r.name, status: r.status, durationMin: r.duration_min, players: r.players, max: RULES.maxSoloPlayers, hasHost: r.host_player_id != null }))
   }
 
   // Phòng công khai (tự tạo, chưa kết thúc; mới nhất trước): tên, mã, kiểu, trạng thái, số người; phòng team kèm linh vật + số người
@@ -177,7 +159,7 @@ export function createRooms(ctx) {
   function publicRooms() {
     const rooms = db.prepare(`SELECT r.id, r.code, r.name, r.status, r.mode, r.compact, r.duration_min,
                                      (SELECT COUNT(*) FROM players p WHERE p.room_id = r.id) AS players
-                              FROM rooms r WHERE r.listed = 1 AND r.preset IS NULL AND r.status != 'ended' ORDER BY r.created_at DESC, r.id DESC`).all()
+                              FROM rooms r WHERE r.listed = 1 AND r.status != 'ended' ORDER BY r.created_at DESC, r.id DESC`).all()
     const teamsOf = db.prepare(`SELECT t.mascot, t.color, (SELECT COUNT(*) FROM players p WHERE p.team_id = t.id) AS members
                                 FROM teams t WHERE t.room_id = ? ORDER BY t.id`)
     return rooms.map(r => {
@@ -242,7 +224,8 @@ export function createRooms(ctx) {
   function cleanupRooms() {
     db.prepare('DELETE FROM leaderboard WHERE played_at < ?').run(now() - RULES.leaderboardKeepMs)
     return Number(db.prepare('DELETE FROM rooms WHERE created_at < ?').run(now() - RULES.roomLifetimeMs).changes)
-      + Number(db.prepare("DELETE FROM rooms WHERE preset IS NOT NULL AND status = 'ended' AND ends_at < ?").run(now() - RULES.presetIdleMs).changes)
+      // Phòng chơi đơn có sẵn (tính năng đã bỏ 25/11; cột rooms.preset còn lại): xóa khi không còn trận đang chơi
+      + Number(db.prepare("DELETE FROM rooms WHERE preset IS NOT NULL AND status NOT IN ('running', 'paused')").run().changes)
   }
 
   // Phòng đang chạy: dùng để server kiểm tra hết giờ / hết sự kiện
@@ -271,5 +254,5 @@ export function createRooms(ctx) {
     }))
   }
 
-  return { ensurePresetRooms, presetRooms, publicRooms, leaderboard, createRoom, findRoom, lobby, joinRoom, expireQuestions, cleanupRooms, activeRoomIds, questionStats, provinceList }
+  return { publicRooms, leaderboard, createRoom, findRoom, lobby, joinRoom, expireQuestions, cleanupRooms, activeRoomIds, questionStats, provinceList }
 }

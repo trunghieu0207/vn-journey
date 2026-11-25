@@ -98,7 +98,6 @@
 .fchip.on i { background: var(--blue); color: #fff; }
 .room-filter .input { flex: 1; min-width: 140px; min-height: 38px; padding: 6px 12px; font-size: 14px; }
 .room-list { display: grid; gap: 10px; max-height: 560px; overflow: auto; padding-right: 4px; }
-.room-group { margin: 6px 0 -2px !important; color: var(--muted); font-size: 12px; font-weight: 900; letter-spacing: .05em; text-transform: uppercase; }
 .room-row { display: grid; grid-template-columns: 44px minmax(0, 1fr) auto; align-items: center; gap: 12px; padding: 12px 14px; border: 2px solid var(--line); border-radius: 16px; background: #fff; }
 .room-row.picked { border-color: var(--blue); background: #F2FBFF; }
 .room-row.ended { opacity: .55; }
@@ -110,7 +109,6 @@
 .room-badge { padding: 1px 8px; border-radius: 999px; background: #F1FBE8; color: var(--green-dark); font-size: 12px; font-weight: 900; white-space: nowrap; }
 .room-badge.running, .room-badge.paused { background: #E9F7FF; color: var(--blue-dark); }
 .room-badge.ended { background: #F2F2F2; color: var(--muted); }
-.room-badge.preset { background: #FFF6D1; color: #8A5A00; }
 .room-sub { display: block; margin-top: 2px; color: var(--muted); font-size: 13px; font-weight: 700; }
 .room-teams { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 6px; }
 .room-team { display: inline-flex; align-items: center; gap: 2px; padding: 1px 6px 1px 2px; border-radius: 999px; background: #F6F6F6; color: var(--muted); font-size: 12px; font-weight: 900; }

@@ -315,18 +315,17 @@ test('quản trị câu hỏi: xuất questions.json giống hệt file gốc kh
   assert.equal((await s.call('/api/sys/questions/export')).status, 401)
 })
 
-test('quản trị cài đặt: tắt tạo phòng, tắt phòng có sẵn, thông báo chung, từ cấm', async t => {
+test('quản trị cài đặt: tắt tạo phòng, thông báo chung, từ cấm', async t => {
   const s = await startServer(); t.after(s.close)
-  s.app.game.ensurePresetRooms()
   await loginAdmin(s)
   assert.deepEqual((await s.call('/api/notice')).json, { text: null })
 
-  await s.post('/api/sys/settings', { allowCreate: false, presetRooms: false, notice: '14:45 trao giải', noticeOn: true, bannedWords: ['Xấu', 'xau', ' '] }, 'adm')
+  await s.post('/api/sys/settings', { allowCreate: false, notice: '14:45 trao giải', noticeOn: true, bannedWords: ['Xấu', 'xau', ' '] }, 'adm')
   const create = await s.post('/api/rooms', { name: 'Phòng', teamCount: 2 })
   assert.equal(create.status, 403)
   assert.equal(create.json.error, 'create-off')
   const list = (await s.call('/api/rooms/list')).json
-  assert.deepEqual([list.preset, list.allowCreate], [[], false])
+  assert.equal(list.allowCreate, false)
   assert.equal((await s.post('/api/sys/rooms', { name: 'Ban tổ chức tạo', teamCount: 2 }, 'adm')).status, 200) // quản trị vẫn tạo được
   assert.deepEqual((await s.call('/api/notice')).json, { text: '14:45 trao giải' })
   assert.deepEqual((await s.call('/api/sys/settings', { as: 'adm' })).json.bannedWords, ['xấu', 'xau'])

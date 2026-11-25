@@ -495,7 +495,11 @@ export function createActions(ctx) {
     db.prepare('UPDATE teams SET pending_question = NULL, pending_order = NULL, pending_at = NULL, locked_until = ?, streak = 0 WHERE id = ?')
       .run(now() + lockMs, t.id)
     log(t.id, isSiege ? 'siege-fail' : 'wrong', question.province_id, timeout ? { timeout: true } : null, by)
-    if (isTram() && t.pending_bet) starLost(t, question.province_id, by)
+    if (isTram() && t.pending_bet) { // ngôi sao mất một lần cho cả tỉnh: phòng nhiều câu/tỉnh thì các câu sau không còn sao
+      starLost(t, question.province_id, by)
+      const prog = progressOf(t)
+      if (prog) db.prepare('UPDATE teams SET progress = ? WHERE id = ?').run(JSON.stringify({ ...prog, bet: false }), t.id)
+    }
     if (isSiege) endDuel(t, 'attacker-fail')
     const pushedBack = isSiege && !!t.previous_province
     if (pushedBack) {

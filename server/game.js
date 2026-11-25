@@ -28,7 +28,7 @@ export function createGame(db, options = {}) {
   const data = { ...loadData(db, now), tram: tramContent } // tram dùng chung cho createRooms và createRoomScope
   const { provinces, adjacency, collections } = data
   const rooms = createRooms({ db, now, defaultDurationMin, newCode, hashSecret, sealSecret, room, ...data })
-  const { ensurePresetRooms, presetRooms, publicRooms, leaderboard, createRoom, findRoom, lobby, joinRoom, expireQuestions, cleanupRooms, activeRoomIds, questionStats, provinceList } = rooms
+  const { publicRooms, leaderboard, createRoom, findRoom, lobby, joinRoom, expireQuestions, cleanupRooms, activeRoomIds, questionStats, provinceList } = rooms
 
   // ---------- Một phòng ----------
   function room(roomId) {
@@ -37,7 +37,7 @@ export function createGame(db, options = {}) {
 
   return {
     provinces, adjacency, collections, tram: tramContent,
-    ensurePresetRooms, presetRooms, publicRooms, leaderboard, createRoom, findRoom, lobby, joinRoom, room, expireQuestions, cleanupRooms, activeRoomIds,
+    publicRooms, leaderboard, createRoom, findRoom, lobby, joinRoom, room, expireQuestions, cleanupRooms, activeRoomIds,
     questionStats, provinceList,
   }
 }

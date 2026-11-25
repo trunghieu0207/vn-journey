@@ -57,7 +57,9 @@ export const solo = () => state.me?.room.mode === 'solo'
 export const compactRoom = () => !!state.me?.room.compact
 // Phòng Chạy trạm: tìm key, sổ gợi ý, Ngôi sao hy vọng (không thẻ, không chuỗi đúng, không về quê)
 export const tram = () => state.me?.room.mode === 'tram'
-// Máy này đang giữ quyền chủ phòng (người tạo phòng vào chơi luôn / người vào trước ở phòng có sẵn)
+// Đúng đủ số câu ở một tỉnh thì được gì (phòng nhiều câu/tỉnh)
+export const quizGoal = () => tram() ? 'nhận điểm tỉnh' : solo() ? 'nhận tem' : 'cắm cờ'
+// Máy này đang giữ quyền chủ phòng (người tạo phòng vào chơi luôn)
 export const isHost = () => !!state.me?.hostId && state.me.hostId === state.me.me?.id
 export const running = () => state.me?.status === 'running'
 export const locked = () => !!(state.me?.lockedUntil && state.me.lockedUntil > now())

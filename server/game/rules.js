@@ -58,11 +58,6 @@ export const RULES = {
   maxSoloPlayers: 50,
   screenTop: 10,
   soloColors: ['#C0392B', '#E67E22', '#27AE60', '#8E44AD', '#2E86C1', '#8D6E63', '#16A085', '#D35400', '#D81B60', '#00897B', '#5E35B1', '#6D4C41'],
-  // Phòng chơi đơn có sẵn (hiện ở màn vào phòng): ai vào trước làm chủ phòng; chủ phòng rời thì người vào sớm nhất kế tiếp nhận quyền.
-  // Phòng đã kết thúc quá 30 phút (hoặc quá hạn 24 giờ) thì làm mới — mã phòng mới, sạch người chơi
-  presetRooms: ['Phòng Sen', 'Phòng Mai', 'Phòng Đào', 'Phòng Trúc'],
-  presetDurationMin: 30,
-  presetIdleMs: 30 * 60_000,
   leaderboardKeepMs: 7 * 24 * 3_600_000, // bảng xếp hạng cá nhân (phòng đơn) giữ 7 ngày
   leaderboardSize: 100,
   startCountdownMs: 3500, // bấm Bắt đầu → trận chạy sau 3,5 giây: mọi màn đếm ngược 3·2·1 theo cùng mốc giờ server (dư 0,5 giây cho SSE tới)
@@ -87,11 +82,8 @@ export const RULES = {
   maxPlayersPerTeam: 12,
   maxOpenRooms: 50,
   roomLifetimeMs: 24 * 60 * 60_000,
-  // Phòng bị bỏ / treo (server/housekeeping.js, chốt 31/10): phòng chờ không ai mở trang 30 phút → xóa (phòng có sẵn: làm mới);
-  // chủ phòng có sẵn đóng trang 2 phút → chuyển quyền; phòng có sẵn ≥ 2 người chờ 3 phút → tự bắt đầu; mỗi trình duyệt ≤ 3 phòng chưa xong
+  // Phòng bị bỏ / treo (server/housekeeping.js, chốt 31/10): phòng chờ không ai mở trang 30 phút → xóa; mỗi trình duyệt ≤ 3 phòng chưa xong
   idleRoomMs: 30 * 60_000,
-  hostAwayMs: 2 * 60_000,
-  autoStartMs: 3 * 60_000,
   maxRoomsPerCreator: 3,
   durationMin: { min: 10, max: 90 },
   // Phòng "Team gọn" (chốt 3/11): không tự nhận thẻ — chỉ chủ phòng tung (6/11, giveCards); đúng liền 3 câu → +50; đúng ngay khi câu hiện → thưởng thêm 100% điểm tỉnh,
@@ -103,8 +95,9 @@ export const RULES = {
   // Số câu phải trả lời đúng ở một tỉnh trống (chủ phòng chọn lúc tạo phòng; 1 = luật gốc). Sai giữa chừng giữ tiến độ
   quizCount: { min: 1, max: 3, default: 1 },
   // Chế độ Chạy trạm (spec 2026-11-09-tram-mode-design.md §3.1); spareHints: cần ≥ keyCount + spareHints tỉnh có gợi ý
+  // keyGap: key sau cách key trước (key đầu: cách tỉnh xuất phát) bao nhiêu bước giáp ranh (25/11: 2 → 3)
   // lockMs: nghỉ chân khi sai / hết giờ / bỏ qua ở mọi chặng Chạy trạm (trạm tỉnh, câu thời kỳ, ghép mảnh) — 12/11: chủ dự án chốt 20 giây
-  tram: { keyCount: { min: 3, max: 7, default: 5 }, hintEvery: 3, minDurationMin: 30, specialCount: 3, specialPoints: 500, puzzlePoints: 1000, finishPerMin: 30, lockMs: 20_000, spareHints: 3 },
+  tram: { keyCount: { min: 3, max: 7, default: 5 }, keyGap: 3, hintEvery: 3, minDurationMin: 30, specialCount: 3, specialPoints: 500, puzzlePoints: 1000, finishPerMin: 30, lockMs: 20_000, spareHints: 3 },
   // Câu hỏi lộ tên tỉnh cũ (trước sáp nhập): phòng tram không phát
   tramExcluded: ['hai-phong-03', 'ninh-binh-04', 'dak-lak-02', 'dong-thap-04', 'can-tho-02', 'can-tho-03'],
 }

@@ -10,7 +10,7 @@ import { act, retryHere, siege } from './actions.js'
 import { closeDialog, dlg, openDocked } from './dialogs.js'
 import { addJournal, toast } from './notify.js'
 import { renderAll, renderTimers } from './render.js'
-import { CARD_INFO, TOPIC_ICON, compactRoom, nameOf, now, solo, state, touchOnly, tram } from './state.js'
+import { CARD_INFO, TOPIC_ICON, compactRoom, nameOf, now, quizGoal, solo, state, touchOnly, tram } from './state.js'
 import { duelBar, duelMissed, siegeRepelled } from './siege-fx.js'
 import { roundLine, roundToast } from './siege-bet.js'
 
@@ -21,7 +21,7 @@ function quizSteps() {
   const done = Math.min(state.me.progress?.done ?? 0, need - 1)
   return el('div', { class: 'quiz-steps', title: 'Sai vẫn giữ số câu đã đúng; đi sang tỉnh khác thì mất' },
     el('span', { class: 'quiz-bars', 'aria-hidden': 'true' }, ...Array.from({ length: need }, (_, i) => el('i', { class: i < done ? 'done' : i === done ? 'now' : '' }))),
-    el('span', {}, el('b', {}, `Câu ${done + 1}/${need}`), ` · đúng đủ ${need} câu để ${solo() ? 'nhận tem' : 'cắm cờ'}`))
+    el('span', {}, el('b', {}, `Câu ${done + 1}/${need}`), ` · đúng đủ ${need} câu để ${quizGoal()}`))
 }
 
 export function openQuestion(q, force = false) {
@@ -361,7 +361,7 @@ function showResult(r, q, by = null) {
   if (r.progress) {
     // Phòng nhiều câu/tỉnh: đúng nhưng chưa đủ số câu — chưa cắm cờ, mời trả lời câu tiếp theo
     const left = r.progress.of - r.progress.done
-    lines.push(el('p', { class: 'reward' }, labeled('flag', `Đúng ${r.progress.done}/${r.progress.of} câu ở ${name} — còn ${left} câu nữa để ${solo() ? 'nhận tem' : 'cắm cờ'}`, { color: state.me.team.color })))
+    lines.push(el('p', { class: 'reward' }, labeled('flag', `Đúng ${r.progress.done}/${r.progress.of} câu ở ${name} — còn ${left} câu nữa để ${quizGoal()}`, { color: state.me.team.color })))
   } else if (r.captured) {
     lines.push(el('p', { class: 'reward' }, labeled('flag', el('span', {}, solo() ? `Nhận tem ${name}! +` : `Cắm cờ ở ${name}! +`, pts, ' điểm'), { color: state.me.team.color })))
     // Phòng đơn: tem Tiên phong (người đầu tiên trong phòng tới tỉnh này)

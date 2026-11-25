@@ -18,7 +18,6 @@ export const ADMIN_RULES = {
 // Cài đặt chỉnh trong trang (bảng settings); thiếu khóa nào thì dùng mặc định
 export const DEFAULT_SETTINGS = {
   allowCreate: true,   // mọi người tạo phòng ở trang chủ (tắt: chỉ quản trị tạo)
-  presetRooms: true,   // 4 phòng chơi đơn có sẵn
   allowCompact: true,  // kiểu phòng "Team gọn" ở form tạo phòng (tắt: chỉ quản trị tạo)
   notice: '',          // thông báo chung hiện đầu mọi trang
   noticeOn: false,
@@ -134,7 +133,7 @@ export function createSysadmin({ db, now = Date.now, game, hub, sealer, newCode 
   }
 
   function rooms() {
-    return db.prepare(`SELECT r.id, r.code, r.name, r.mode, r.status, r.listed, r.preset, r.duration_min AS durationMin, r.quiz_count AS quizCount, r.key_count AS keyCount,
+    return db.prepare(`SELECT r.id, r.code, r.name, r.mode, r.status, r.listed, r.duration_min AS durationMin, r.quiz_count AS quizCount, r.key_count AS keyCount,
                               r.bet_choice AS betChoice, r.topic_choice AS topicChoice, r.pioneer, r.compact, r.duel, r.created_at AS createdAt,
                               r.started_at AS startedAt, r.ends_at AS endsAt, r.paused_at AS pausedAt,
                               (SELECT COUNT(*) FROM players p WHERE p.room_id = r.id) AS players,
@@ -187,7 +186,6 @@ export function createSysadmin({ db, now = Date.now, game, hub, sealer, newCode 
       sets.name = name
     }
     if ('listed' in body) {
-      if (r.preset) throw new GameError('bad-room', 'Phòng có sẵn luôn hiện trong danh sách')
       sets.listed = body.listed === true ? 1 : 0
     }
     // Phòng Chạy trạm không có cược / chọn chủ đề (pending_bet là cờ sao): bỏ qua hai trường này
@@ -401,7 +399,7 @@ export function createSysadmin({ db, now = Date.now, game, hub, sealer, newCode 
 
   function saveSettings(body, by) {
     const patch = {}
-    for (const k of ['allowCreate', 'presetRooms', 'allowCompact', 'noticeOn']) if (k in body) patch[k] = body[k] === true
+    for (const k of ['allowCreate', 'allowCompact', 'noticeOn']) if (k in body) patch[k] = body[k] === true
     if ('notice' in body) patch.notice = cleanName(body.notice, 200)
     if ('bannedWords' in body) {
       if (!Array.isArray(body.bannedWords)) throw new GameError('bad-settings', 'Danh sách từ cấm không hợp lệ')
@@ -427,9 +425,9 @@ export function createSysadmin({ db, now = Date.now, game, hub, sealer, newCode 
     return { text: s.noticeOn && s.notice ? s.notice : null }
   }
 
-  // Xóa mọi phòng đã kết thúc (không đụng phòng có sẵn — chúng tự làm mới)
+  // Xóa mọi phòng đã kết thúc
   function deleteEndedRooms(by) {
-    const n = Number(db.prepare("DELETE FROM rooms WHERE status = 'ended' AND preset IS NULL").run().changes)
+    const n = Number(db.prepare("DELETE FROM rooms WHERE status = 'ended'").run().changes)
     log(by, 'room-delete', `Xóa ${n} phòng đã kết thúc`)
     return { deleted: n }
   }

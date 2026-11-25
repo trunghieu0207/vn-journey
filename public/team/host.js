@@ -1,4 +1,4 @@
-// Màn team: bảng điều khiển chủ phòng ngay trong màn chơi (người tạo phòng vào chơi luôn / người vào trước ở phòng có sẵn).
+// Màn team: bảng điều khiển chủ phòng ngay trong màn chơi (người tạo phòng vào chơi luôn).
 // Ngăn kéo bên phải, không che bản đồ: điều khiển trận, sự kiện, câu hỏi chung, mã màn chiếu. Việc ít dùng (sửa tên,
 // mời ra, sửa điểm, thống kê) ở trang chủ phòng đầy đủ. Mọi quyền kiểm tra ở server (phiên giữ quyền chủ phòng).
 

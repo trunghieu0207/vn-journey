@@ -6,32 +6,56 @@ import { RULES, GameError, timePenaltyOf } from './rules.js'
 
 const TRIES = 200
 
-// Rải n key cho tỉnh xuất phát `start` theo "chuỗi": key sau cách key trước (key đầu: cách start) đúng 2 bước giáp ranh,
-// không key nào là start / kề start, không hai key kề nhau → đường đi ngắn nhất qua mọi key ≤ 2n bước, như nhau cho mọi team
-// (luật cũ "mỗi miền ≥ 1 key" bắt chạy dọc đất nước ~20 bước, quá lâu). Bí đường thì nới bước nhảy 2 → 2–3 → 2–4;
-// vẫn không được → n ứng viên bất kỳ không kề start; còn thiếu nữa → cho cả tỉnh kề start (không bao giờ là start).
-// Thử ngẫu nhiên tối đa 200 lần mỗi mức. `random` truyền vào (ctx.random) để test cố định được.
-export function placeKeys(start, n, eligible, { adjacency, random }) {
-  const steps = from => { // BFS: số bước giáp ranh từ `from`
-    const d = new Map([[from, 0]]), queue = [from]
-    for (let i = 0; i < queue.length; i++) for (const nb of adjacency.get(queue[i])) if (!d.has(nb)) { d.set(nb, d.get(queue[i]) + 1); queue.push(nb) }
-    return d
+// Số bước giáp ranh từ `from` tới mọi tỉnh (BFS)
+const stepsFrom = (adjacency, from) => {
+  const d = new Map([[from, 0]]), queue = [from]
+  for (let i = 0; i < queue.length; i++) for (const nb of adjacency.get(queue[i])) if (!d.has(nb)) { d.set(nb, d.get(queue[i]) + 1); queue.push(nb) }
+  return d
+}
+
+// Số bước ít nhất để đi từ start qua mọi tỉnh trong keys (thứ tự nào cũng được): quy hoạch động theo tập key đã qua (n ≤ 7)
+export function routeLength(start, keys, { adjacency }) {
+  const dist = [start, ...keys].map(id => stepsFrom(adjacency, id))
+  const n = keys.length, full = (1 << n) - 1
+  const best = Array.from({ length: full + 1 }, () => new Array(n).fill(Infinity))
+  for (let i = 0; i < n; i++) best[1 << i][i] = dist[0].get(keys[i])
+  for (let mask = 1; mask <= full; mask++) for (let i = 0; i < n; i++) {
+    if (!(mask & (1 << i)) || best[mask][i] === Infinity) continue
+    for (let j = 0; j < n; j++) if (!(mask & (1 << j))) {
+      const v = best[mask][i] + dist[i + 1].get(keys[j])
+      if (v < best[mask | (1 << j)][j]) best[mask | (1 << j)][j] = v
+    }
   }
+  return Math.min(...best[full])
+}
+
+// Rải n key cho tỉnh xuất phát `start` theo "chuỗi": key sau cách key trước (key đầu: cách start) đúng RULES.tram.keyGap
+// (3) bước giáp ranh, không key nào là start / kề start, không hai key kề nhau → đường đi ngắn nhất qua mọi key ≤ 3n bước
+// (luật cũ "mỗi miền ≥ 1 key" bắt chạy dọc đất nước ~20 bước, quá lâu; 25/11 nới 2 → 3 bước vì key gom sát tỉnh xuất phát,
+// đi mò cũng vấp trúng, trận xong quá nhanh). Bí đường thì nới bước nhảy 3 → 3–4 → 2–5.
+// Có `length`: chỉ nhận bộ key có đường đi ngắn nhất đúng `length` bước, không được thì trả [] (placeAllKeys dùng để
+// mọi team trong phòng phải đi như nhau). Không có `length`: vẫn không được → n ứng viên bất kỳ không kề start; còn
+// thiếu nữa → cho cả tỉnh kề start (không bao giờ là start).
+// Thử ngẫu nhiên tối đa 200 lần mỗi mức. `random` truyền vào (ctx.random) để test cố định được.
+export function placeKeys(start, n, eligible, { adjacency, random, length }) {
   const far = eligible.filter(id => id !== start && !adjacency.get(start).has(id))
   const pickOne = list => list[Math.floor(random() * list.length)]
-  for (const hops of [[2], [2, 3], [2, 3, 4]]) {
+  const g = RULES.tram.keyGap
+  for (const hops of [[g], [g, g + 1], [g - 1, g, g + 1, g + 2]]) {
+    if (length != null && hops.at(-1) * n < length) continue // chuỗi bước nhảy này không thể dài tới `length`
     for (let i = 0; i < TRIES; i++) {
       const keys = []
-      let d = steps(start)
+      let d = stepsFrom(adjacency, start)
       while (keys.length < n) {
         const c = far.filter(id => !keys.includes(id) && hops.includes(d.get(id)) && keys.every(k => !adjacency.get(k).has(id)))
         if (!c.length) break
         keys.push(pickOne(c))
-        d = steps(keys.at(-1))
+        d = stepsFrom(adjacency, keys.at(-1))
       }
-      if (keys.length === n) return keys
+      if (keys.length === n && (length == null || routeLength(start, keys, { adjacency }) === length)) return keys
     }
   }
+  if (length != null) return []
   const shuffled = pool => {
     const a = [...pool]
     for (let i = a.length - 1; i > 0; i--) {
@@ -42,6 +66,24 @@ export function placeKeys(start, n, eligible, { adjacency, random }) {
   }
   // Không xếp được chuỗi (ít tỉnh có gợi ý): n tỉnh bất kỳ không kề start, thiếu thì cho cả tỉnh kề start
   return far.length >= n ? shuffled(far) : shuffled(eligible.filter(id => id !== start))
+}
+
+// Rải key cho mọi team trong phòng sao cho đường đi ngắn nhất qua mọi key BẰNG NHAU: thử độ dài 3n, 3n+1, … (tới 4n),
+// rồi ngắn dần 3n−1, … 2n, cho tất cả tỉnh xuất phát. Cần vì có tỉnh xuất phát bị bản đồ bó (dải miền Trung hẹp, mũi
+// Cà Mau). Không độ dài chung nào được (quá ít tỉnh có gợi ý) → mỗi team rải riêng.
+export function placeAllKeys(starts, n, eligible, { adjacency, random }) {
+  const g = RULES.tram.keyGap
+  const lengths = [...Array(n + 1).keys()].map(i => g * n + i).concat([...Array((g - 2) * n).keys()].map(i => g * n - 1 - i))
+  for (const length of lengths) {
+    const all = []
+    for (const start of starts) {
+      const keys = placeKeys(start, n, eligible, { adjacency, random, length })
+      if (!keys.length) break
+      all.push(keys)
+    }
+    if (all.length === starts.length) return all
+  }
+  return starts.map(start => placeKeys(start, n, eligible, { adjacency, random }))
 }
 
 // Thứ tự mảnh ghép hiện cho team: lưu server-side lúc vào câu ghép (st.puzzle.display), client không tự suy ra được.
@@ -62,8 +104,9 @@ export function createTram(ctx) {
     const n = q.room.get(roomId).key_count
     const periodIds = [...content.periods.keys()]
     const eligible = [...content.hints.keys()]
-    for (const [teamId, start] of pairs) {
-      const keys = placeKeys(start, n, eligible, { provinces, adjacency, random })
+    const placed = placeAllKeys(pairs.map(([, start]) => start), n, eligible, { adjacency, random })
+    for (const [t, [teamId]] of pairs.entries()) {
+      const keys = placed[t]
       if (keys.length < n) throw new GameError('tram-content', `Không đủ tỉnh có gợi ý đã duyệt để rải ${n} key — cần duyệt thêm gợi ý`, 409)
       const perm = [...Array(n).keys()]
       for (let i = n - 1; i > 0; i--) {

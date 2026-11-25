@@ -286,7 +286,7 @@ export function createViews(ctx) {
     return {
       ...timing(s),
       screenCode: s.screen_code,
-      hostId: s.host_player_id ?? null, // người chơi đang giữ quyền chủ phòng (phòng có sẵn / người tạo phòng vào chơi luôn)
+      hostId: s.host_player_id ?? null, // người chơi đang giữ quyền chủ phòng (người tạo phòng vào chơi luôn)
       heat: usesStamps() && !isTram() ? Object.fromEntries(q.stampCounts.all(roomId).map(r => [r.province_id, r.n])) : null,
       topicNames: Object.fromEntries(topicNames),
       event: activeEvent(s),

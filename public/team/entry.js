@@ -88,16 +88,16 @@ async function drawHeroMap() {
 new IntersectionObserver(([e]) => $('lpTop').classList.toggle('still', !e.isIntersecting)).observe($('lpTop'))
 
 // ---------- Danh sách phòng đang mở (cột phải, mockup/room-list.html kiểu A) ----------
-// Phòng công khai (mọi người tạo) + phòng chơi đơn có sẵn; lọc Tất cả / Theo team / Chơi đơn + tìm tên. Bấm "Vào" = tra mã như nhập tay
+// Phòng công khai (mọi người tạo); lọc Tất cả / Theo team / Chơi đơn + tìm tên. Bấm "Vào" = tra mã như nhập tay
 const STATUS = { waiting: 'Đang chờ', running: 'Đang chơi', paused: 'Tạm dừng', ended: 'Đã kết thúc' }
 const ORDER = { waiting: 0, paused: 1, running: 1, ended: 2 }
-let presets = [], openRooms = []
+let openRooms = []
 let kind = 'all'
 try { kind = localStorage.getItem('vnj-room-filter') || 'all' } catch {}
 async function loadRooms() {
   try {
     let allowCreate, allowCompact
-    ;({ preset: presets, open: openRooms, allowCreate, allowCompact } = await api('/api/rooms/list'))
+    ;({ open: openRooms, allowCreate, allowCompact } = await api('/api/rooms/list'))
     // Ban tổ chức tắt tạo phòng (trang quản trị): báo ngay trên form thay vì để bấm rồi mới lỗi
     $('createOff').hidden = allowCreate !== false
     $('createSubmit').disabled = allowCreate === false
@@ -131,19 +131,18 @@ function roomRow(r) {
     extra = el('div', { class: 'room-meter' }, fill)
   }
   const sub = team ? `${mode === 'tram' ? 'Chạy trạm' : r.compact ? 'Team gọn' : 'Theo team'} · ${r.teams.length} team · ${r.players} người · ${r.durationMin} phút`
-    : `Chơi đơn · ${r.players}/${r.max} người · ${r.durationMin} phút${r.preset ? (r.hasHost ? '' : ' · vào trước làm chủ phòng') : ''}`
-  const [text, cls] = ended ? ['Đang làm mới', ''] : picked ? ['Đang chọn', ''] : full ? ['Đầy', ''] : ['Vào', 'green']
+    : `Chơi đơn · ${r.players}/${r.max} người · ${r.durationMin} phút`
+  const [text, cls] = ended ? ['Đã kết thúc', ''] : picked ? ['Đang chọn', ''] : full ? ['Đầy', ''] : ['Vào', 'green']
   return el('div', { class: `room-row${picked ? ' picked' : ''}${ended ? ' ended' : ''}` },
     el('span', { class: `room-kind ${mode}` }, icon(mode === 'tram' ? 'key' : team ? 'flag' : 'hat')),
     el('div', {},
-      el('div', { class: 'room-title' }, el('b', {}, r.name), el('span', { class: `room-badge ${r.status}` }, STATUS[r.status]),
-        r.preset ? el('span', { class: 'room-badge preset' }, 'Có sẵn') : ''),
+      el('div', { class: 'room-title' }, el('b', {}, r.name), el('span', { class: `room-badge ${r.status}` }, STATUS[r.status])),
       el('span', { class: 'room-sub' }, sub), extra),
     button(text, cls, () => lookup(r.code), { disabled: cls !== 'green' }))
 }
 
 function renderRooms() {
-  const all = [...openRooms.map(r => ({ ...r, preset: false })), ...presets.map(r => ({ ...r, mode: 'solo', preset: true }))]
+  const all = openRooms
   const count = k => all.filter(r => k === 'all' || kindOf(r) === k).length
   for (const b of document.querySelectorAll('.room-filter .fchip')) {
     b.classList.toggle('on', b.dataset.kind === kind)
@@ -152,12 +151,8 @@ function renderRooms() {
   }
   const find = normalize($('roomSearch').value)
   const shown = all.filter(r => (kind === 'all' || kindOf(r) === kind) && (!find || normalize(r.name).includes(find)))
-  // Phòng mọi người tạo: đang chờ trước (dễ vào nhất), rồi đang chơi; trong nhóm giữ thứ tự server (mới tạo trước). Phòng có sẵn ở cuối
-  const mine = shown.filter(r => !r.preset).sort((a, b) => ORDER[a.status] - ORDER[b.status])
-  const pre = shown.filter(r => r.preset)
-  const groups = []
-  if (mine.length) groups.push(el('p', { class: 'room-group' }, 'Mọi người tạo'), ...mine.map(roomRow))
-  if (pre.length) groups.push(el('p', { class: 'room-group' }, 'Phòng có sẵn'), ...pre.map(roomRow))
+  // Đang chờ trước (dễ vào nhất), rồi đang chơi; trong nhóm giữ thứ tự server (mới tạo trước)
+  const groups = [...shown].sort((a, b) => ORDER[a.status] - ORDER[b.status]).map(roomRow)
   if (!groups.length) {
     groups.push(el('div', { class: 'room-empty' }, find ? 'Không có phòng nào tên như vậy.'
       : kind === 'tram' ? 'Chưa có phòng Chạy trạm công khai nào. Được mời vào phòng riêng tư? Nhập mã phòng bên trái — hoặc tạo phòng.'
@@ -238,7 +233,6 @@ function renderLobby() {
   $('soloNote').hidden = !solo
   $('soloNote').textContent = !solo ? ''
     : `Phòng chơi đơn · ${state.lobbyData.players}/${state.lobbyData.maxPlayers} người. Tên của bạn hiện trên màn chiếu (chủ phòng có thể sửa).`
-      + (state.lobbyData.preset && !state.lobbyData.hasHost ? ' Phòng chưa có chủ phòng — bạn vào trước sẽ làm chủ phòng: bắt đầu trận, tung sự kiện, sửa tên.' : '')
   // Phòng tram: không có thưởng "Về quê" (server bỏ qua) → không hỏi quê
   const tram = state.lobbyData.mode === 'tram'
   document.querySelector('#joinForm .home-field').hidden = document.querySelector('#joinForm .home-note').hidden = tram
@@ -283,7 +277,7 @@ $('joinForm').addEventListener('submit', async e => {
 // Kiểu phòng: chơi đơn thì không có số team, thêm tùy chọn tem Tiên phong; Team gọn thêm tùy chọn Cho đấu, mặc định 30 phút
 const formMode = () => $('createForm').querySelector('input[name="mode"]:checked')?.value ?? 'team'
 const soloMode = () => formMode() === 'solo'
-// Chạy trạm: không có cược, chủ đề, số câu mỗi tỉnh, Tiên phong; có số key; thời lượng tối thiểu 30 phút
+// Chạy trạm: không có cược, chủ đề, Tiên phong; có số câu mỗi tỉnh; có số key; thời lượng tối thiểu 30 phút
 function syncMode() {
   const mode = formMode()
   const tram = mode === 'tram'
@@ -291,7 +285,7 @@ function syncMode() {
   $('pioneerField').hidden = mode !== 'solo'
   $('duelField').hidden = mode !== 'compact'
   $('keyCountField').hidden = !tram
-  $('quizCountField').hidden = $('topicChoiceField').hidden = $('betChoiceField').hidden = tram
+  $('topicChoiceField').hidden = $('betChoiceField').hidden = tram
   const short = $('newDuration').querySelector('option[value="15"]')
   short.disabled = short.hidden = tram
   if (tram && Number($('newDuration').value) < 30) $('newDuration').value = '30'

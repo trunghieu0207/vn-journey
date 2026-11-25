@@ -136,7 +136,7 @@
       <button class="btn" type="button" role="tab" id="tabCreate" aria-selected="false">Tạo phòng</button>
     </div>
 
-    <!-- Tham gia: bước 1 nhập mã phòng (hoặc bấm phòng có sẵn bên phải), bước 2 nhập tên + chọn team -->
+    <!-- Tham gia: bước 1 nhập mã phòng (hoặc bấm phòng đang mở bên phải), bước 2 nhập tên + chọn team -->
     <form id="lookupForm" autocomplete="off">
       <label class="field"><span>Mã phòng <span class="muted">· phòng riêng tư: chủ phòng gửi cho bạn</span></span>
         <input class="input pin-input" id="roomCode" maxlength="6" required placeholder="6 ký tự">
@@ -226,7 +226,7 @@
         <input type="checkbox" id="newPioneer" checked>
         <span><b>Tem Tiên phong</b>: người đầu tiên có tem một tỉnh được <b>+50</b></span>
       </label>
-      <p class="form-error" id="createOff" hidden>Ban tổ chức đang tạm tắt tạo phòng — vào phòng có sẵn hoặc nhập mã phòng được gửi.</p>
+      <p class="form-error" id="createOff" hidden>Ban tổ chức đang tạm tắt tạo phòng — vào phòng đang mở hoặc nhập mã phòng được gửi.</p>
       <div class="form-error" id="createError" role="alert"></div>
       <button class="btn green" type="submit" id="createSubmit">Tạo phòng</button>
     </form>
@@ -244,7 +244,7 @@
   </div>
 
   <div class="card entry-side">
-    <!-- Tab Tham gia: danh sách phòng đang mở (phòng công khai + phòng chơi đơn có sẵn), lọc theo kiểu + tìm tên -->
+    <!-- Tab Tham gia: danh sách phòng đang mở (phòng công khai), lọc theo kiểu + tìm tên -->
     <div id="roomsPane">
       <h2 class="entry-title"><span data-icon="map"></span> Phòng đang mở</h2>
       <p class="muted">Bấm Vào rồi nhập tên · phòng riêng tư không hiện ở đây, cần mã phòng</p>

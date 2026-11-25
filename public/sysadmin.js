@@ -244,12 +244,12 @@ function renderRooms() {
     && (!mode || roomKind(r) === mode) && (!q || norm(`${r.name} ${r.code}`).includes(q)))
   $('roomRows').replaceChildren(...rows.map(r => el('tr', {},
     el('td', { class: 'mono' }, r.code),
-    el('td', {}, r.name, r.preset ? tag('', 'có sẵn') : ''),
+    el('td', {}, r.name),
     el('td', {}, modeTag(r)),
     el('td', {}, tag(...STATUS[r.status])),
     el('td', { class: 'r' }, `${r.players}${r.online ? ` · ${r.online} mở` : ''}`),
     el('td', { class: 'muted' }, roomTime(r)),
-    el('td', {}, r.listed || r.preset ? tag('', 'Công khai') : tag('priv', 'Riêng tư')),
+    el('td', {}, r.listed ? tag('', 'Công khai') : tag('priv', 'Riêng tư')),
     el('td', {}, el('div', { class: 'acts' },
       button('Điều khiển', 'primary sm', () => controlRoom(r)),
       button('Mã', 'sm', () => showCodes(r)),
@@ -313,8 +313,8 @@ function roomForm(r = null) {
   const duration = el('input', { class: 'qt-input', type: 'number', min: 10, max: 90, value: r?.durationMin ?? 45, disabled: !waiting })
   const quiz = el('select', { class: 'qt-input', disabled: !waiting }, ...[1, 2, 3].map(n => el('option', { value: n }, `${n} câu`)))
   quiz.value = String(r?.quizCount ?? 1)
-  const listed = el('select', { class: 'qt-input', disabled: !!r?.preset }, el('option', { value: '1' }, 'Công khai — hiện ở danh sách phòng'), el('option', { value: '0' }, 'Riêng tư — cần mã phòng'))
-  listed.value = r ? (r.listed || r.preset ? '1' : '0') : '0'
+  const listed = el('select', { class: 'qt-input' }, el('option', { value: '1' }, 'Công khai — hiện ở danh sách phòng'), el('option', { value: '0' }, 'Riêng tư — cần mã phòng'))
+  listed.value = r?.listed ? '1' : '0'
   const check = (label, on) => {
     const box = el('input', { type: 'checkbox' })
     box.checked = on
@@ -356,7 +356,6 @@ function roomForm(r = null) {
       const data = { name: name.value, listed: listed.value === '1', betChoice: bet.checked, topicChoice: topic.checked }
       if (waiting) Object.assign(data, { durationMin: Number(duration.value), quizCount: Number(quiz.value) })
       if (r) {
-        if (r.preset) delete data.listed
         await api('/api/sys/room/update', { roomId: r.id, ...data })
         toast('Đã lưu phòng')
         return refresh()
@@ -767,7 +766,6 @@ async function loadSettings() {
   state.settings = await api('/api/sys/settings')
   const s = state.settings
   $('setCreate').checked = s.allowCreate
-  $('setPreset').checked = s.presetRooms
   $('setCompact').checked = s.allowCompact
   $('setNotice').value = s.notice
   $('setNoticeOn').checked = s.noticeOn
@@ -785,7 +783,6 @@ async function saveSettings(patch, msg = 'Đã lưu cài đặt') {
   loadSettings()
 }
 $('setCreate').addEventListener('change', e => saveSettings({ allowCreate: e.target.checked }, e.target.checked ? 'Đã mở lại tạo phòng' : 'Đã tắt tạo phòng cho mọi người'))
-$('setPreset').addEventListener('change', e => saveSettings({ presetRooms: e.target.checked }))
 $('setCompact').addEventListener('change', e => saveSettings({ allowCompact: e.target.checked }, e.target.checked ? 'Đã mở kiểu phòng Team gọn' : 'Đã tắt kiểu phòng Team gọn'))
 $('saveNotice').addEventListener('click', () => saveSettings({ notice: $('setNotice').value, noticeOn: $('setNoticeOn').checked }, 'Đã lưu thông báo'))
 $('setNoticeOn').addEventListener('change', e => saveSettings({ notice: $('setNotice').value, noticeOn: e.target.checked }, e.target.checked ? 'Đang hiện thông báo' : 'Đã tắt thông báo'))

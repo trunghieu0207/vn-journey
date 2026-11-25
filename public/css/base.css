@@ -307,7 +307,7 @@ button.sq-opt:hover { border-color: #BDE6FA; }
 .mode-option:has(input:checked) { border-color: var(--blue); background: #F2FBFF; }
 
 /* ---------- Màn ngoài 2 cột (team.html #entry — mockup/entry.html phương án A) ----------
-   Trái: vào bằng mã / tạo phòng. Phải: phòng chơi đơn có sẵn / giải thích kiểu phòng / mã phòng vừa tạo. Hẹp thì xếp chồng */
+   Trái: vào bằng mã / tạo phòng. Phải: phòng đang mở / giải thích kiểu phòng / mã phòng vừa tạo. Hẹp thì xếp chồng */
 .login.entry { align-items: start; padding-block: 40px; }
 .entry-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr); gap: 28px; width: min(1180px, 100%); align-items: start; }
 @media (max-width: 960px) { .entry-grid { grid-template-columns: 1fr; width: min(560px, 100%); } }

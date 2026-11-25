@@ -45,13 +45,11 @@ export function createApp({ db, config, now = Date.now, random = Math.random }) 
   const PAGE_ROLES = { team: ['player'], admin: ['owner', 'player'], screen: ['screen', 'owner'] }
   const ALL_ROLES = ['player', 'owner', 'screen']
   const VIEW_PAGE = { team: 'team', owner: 'admin', screen: 'screen' }
-  // autoStartAt: phòng có sẵn sắp tự bắt đầu (housekeeping) — màn chờ hiện đếm ngược
-  const withAuto = (roomId, v) => ({ ...v, autoStartAt: housekeeping.autoStartAt(roomId) })
   const hub = createHub((session, view) => {
     const room = game.room(session.room_id)
-    return withAuto(session.room_id, view === 'team' ? room.teamView(session.team_id)
+    return view === 'team' ? room.teamView(session.team_id)
       : view === 'owner' ? room.ownerView()
-      : room.screenView())
+      : room.screenView()
   }, session => auth.isValid(session), now)
   const sys = createSysadmin({ db, now, game, hub, sealer })
   const housekeeping = createHousekeeping({ db, game, hub, now, keepRoom: sys.isKept })
@@ -211,7 +209,7 @@ export function createApp({ db, config, now = Date.now, random = Math.random }) 
     'POST /api/rooms': {
       auth: null, limit: createLimiter,
       run: ({ req, body, res }) => {
-        if (!sys.settings().allowCreate) throw new GameError('create-off', 'Ban tổ chức đang tạm tắt tạo phòng — vào phòng có sẵn hoặc nhập mã phòng được gửi', 403)
+        if (!sys.settings().allowCreate) throw new GameError('create-off', 'Ban tổ chức đang tạm tắt tạo phòng — vào phòng đang mở hoặc nhập mã phòng được gửi', 403)
         if (body.mode === 'compact' && !sys.settings().allowCompact) throw new GameError('compact-off', 'Ban tổ chức đang tạm tắt kiểu phòng Team gọn — chọn kiểu phòng khác', 403)
         let creator = parseCookies(req.headers.cookie)[CREATOR_COOKIE]
         if (!/^[A-Za-z0-9_-]{16,64}$/.test(creator ?? '')) {
@@ -228,12 +226,10 @@ export function createApp({ db, config, now = Date.now, random = Math.random }) 
         return { role: 'owner', code: r.code, ownerKey: r.ownerKey, screenCode: r.screenCode }
       },
     },
-    // Phòng chơi đơn có sẵn: ai vào trước làm chủ phòng
-    'GET /api/rooms/preset': { auth: null, limit: joinLimiter, run: () => game.presetRooms() },
-    // Màn Tham gia (tự làm mới 10 giây): phòng có sẵn + phòng tự tạo bật "hiện trong danh sách". Hạn mức riêng để không ăn vào lượt vào phòng
+    // Màn Tham gia (tự làm mới 10 giây): phòng tự tạo bật "hiện trong danh sách". Hạn mức riêng để không ăn vào lượt vào phòng
     'GET /api/rooms/list': {
       auth: null, limit: listLimiter,
-      run: () => ({ preset: sys.settings().presetRooms ? game.presetRooms() : [], open: game.publicRooms(), allowCreate: sys.settings().allowCreate, allowCompact: sys.settings().allowCompact }),
+      run: () => ({ open: game.publicRooms(), allowCreate: sys.settings().allowCreate, allowCompact: sys.settings().allowCompact }),
     },
     // Thông báo chung của ban tổ chức (mọi trang hỏi định kỳ)
     'GET /api/notice': { auth: null, limit: listLimiter, run: () => sys.notice() },
@@ -405,7 +401,7 @@ export function createApp({ db, config, now = Date.now, random = Math.random }) 
     // ----- Người chơi -----
     'GET /api/me': {
       auth: ['player'],
-      run: ({ session }) => ({ ...withAuto(session.room_id, roomOf(session).teamView(session.team_id)), me: { id: session.player_id, name: session.player_name } }),
+      run: ({ session }) => ({ ...roomOf(session).teamView(session.team_id), me: { id: session.player_id, name: session.player_name } }),
     },
     // Sổ tay hành trình (phòng đơn): của chính người chơi
     'GET /api/journal': { auth: ['player'], run: ({ session }) => roomOf(session).journal(session.team_id, session.player_id) },
@@ -479,7 +475,7 @@ export function createApp({ db, config, now = Date.now, random = Math.random }) 
     // playing: phiên này là người chơi giữ quyền chủ phòng (trang chủ phòng hiện nút "Quay lại chơi" thay cho "Vào chơi")
     'GET /api/owner/overview': {
       auth: ['owner'],
-      run: ({ session, sessions }) => ({ ...withAuto(session.room_id, roomOf(session).ownerView()), playing: sessions.player?.room_id === session.room_id }),
+      run: ({ session, sessions }) => ({ ...roomOf(session).ownerView(), playing: sessions.player?.room_id === session.room_id }),
     },
     'GET /api/owner/question-stats': { auth: ['owner'], run: ({ session }) => roomOf(session).questionStats() },
     'POST /api/owner/game': {
@@ -540,7 +536,7 @@ export function createApp({ db, config, now = Date.now, random = Math.random }) 
     },
   }
 
-  // Quyền của phiên: người chơi đang giữ quyền chủ phòng (phòng có sẵn, vào trước) có thêm quyền chủ phòng của phòng mình.
+  // Quyền của phiên: người chơi đang giữ quyền chủ phòng (người tạo phòng vào chơi luôn) có thêm quyền chủ phòng của phòng mình.
   // Phiên có được nhờ vào lại bằng tên của chủ phòng (no_host) thì không
   function rolesOf(session) {
     if (session.role !== 'player' || session.no_host) return [session.role]
@@ -655,7 +651,6 @@ export function createApp({ db, config, now = Date.now, random = Math.random }) 
     if (++ticks % 60 === 0) {
       game.cleanupRooms()
       sys.cleanup()
-      if (config.presetRooms && sys.settings().presetRooms) game.ensurePresetRooms()
       for (const id of lastSignature.keys()) if (!game.activeRoomIds().includes(id)) lastSignature.delete(id)
     }
     for (const l of limiters) l.cleanup()

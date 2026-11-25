@@ -6,7 +6,7 @@ import { join } from 'node:path'
 import { loadTramContent } from '../server/game/tram-content.js'
 import { tramFixture, tramFixtureWith } from './fixtures/tram-content.js'
 import { setupGame, createCore, memoryDb, placeTeam, setTram, getTram, correctAnswer, wrongAnswer, seededRandom, startNow } from './helpers.js'
-import { placeKeys } from '../server/game/tram.js'
+import { placeKeys, placeAllKeys, routeLength } from '../server/game/tram.js'
 import { GameError, byRank, RULES } from '../server/game/rules.js'
 
 test('loadTramContent chỉ lấy mục reviewed', () => {
@@ -57,6 +57,8 @@ test('tạo phòng tram: mặc định 5 key, tắt cược/chủ đề, có tea
   assert.equal(row.topic_choice, 0)
   assert.equal(row.quiz_count, 1)
   assert.equal(db.prepare('SELECT COUNT(*) AS n FROM teams WHERE room_id = ?').get(roomId).n, 3)
+  const two = core.createRoom({ name: 'T2', mode: 'tram', teamCount: 3, quizCount: 2 })
+  assert.equal(db.prepare('SELECT quiz_count FROM rooms WHERE id = ?').get(two.roomId).quiz_count, 2)
 })
 
 test('tạo phòng tram: từ chối tham số và nội dung không đủ', () => {
@@ -144,7 +146,7 @@ test('tram: hai team cùng có tem một tỉnh (không tranh tỉnh)', () => {
 })
 
 // ---------- Bắt đầu trận: thời kỳ, rải key, mảnh ghép ----------
-test('placeKeys: 200 seed — đủ n, không trùng, không phải start/kề start, không hai key kề; đường đi qua mọi key ≤ 2n bước', () => {
+test('placeKeys: 200 seed — đủ n, không trùng, không phải start/kề start, không hai key kề; đường đi qua mọi key ≤ (keyGap + 2)·n bước (bí đường mới nới tới đó)', () => {
   const { core } = setupGame({ start: false })
   const { provinces, adjacency } = core
   const eligible = [...tramFixture.hints.keys()]
@@ -160,7 +162,7 @@ test('placeKeys: 200 seed — đủ n, không trùng, không phải start/kề s
       assert.ok(eligible.includes(k))
     }
     for (const a of keys) for (const b of keys) assert.ok(a === b || !adjacency.get(a).has(b))
-    assert.ok(shortestRoute(adjacency, start, keys) <= 10, `seed ${seed}: đường ${shortestRoute(adjacency, start, keys)} bước`)
+    assert.ok(shortestRoute(adjacency, start, keys) <= (RULES.tram.keyGap + 2) * 5, `seed ${seed}: đường ${shortestRoute(adjacency, start, keys)} bước`)
   }
 })
 
@@ -175,6 +177,41 @@ function shortestRoute(adjacency, start, keys) {
   const go = (cur, left) => left.length ? Math.min(...left.map((k, i) => dist.get(cur).get(k) + go(k, left.filter((_, j) => j !== i)))) : 0
   return go(start, keys)
 }
+
+test('routeLength: khớp cách thử mọi thứ tự', () => {
+  const { core } = setupGame({ start: false })
+  const { provinces, adjacency } = core
+  const ids = [...provinces.keys()]
+  for (let seed = 1; seed <= 30; seed++) {
+    const r = seededRandom(seed)
+    const pool = [...ids].sort(() => r() - 0.5)
+    const [start, ...keys] = pool.slice(0, 6)
+    assert.equal(routeLength(start, keys, { adjacency }), shortestRoute(adjacency, start, keys))
+  }
+})
+
+test('placeAllKeys: 3–7 key, mọi team trong phòng đi qua mọi key bằng đúng số bước (kể cả tỉnh bị bó như Hà Tĩnh, Quảng Trị)', () => {
+  const { core } = setupGame({ start: false })
+  const { provinces, adjacency } = core
+  const eligible = [...tramFixture.hints.keys()]
+  const starts = [...provinces.values()].filter(p => !p.is_city).map(p => p.id)
+  for (const n of [3, 4, 5, 6, 7]) {
+    for (let seed = 1; seed <= 10; seed++) {
+      const r = seededRandom(seed * 10 + n)
+      const room = [...starts].sort(() => r() - 0.5).slice(0, 4)
+      if (seed <= 2) room[0] = seed === 1 ? 'ha-tinh' : 'quang-tri'
+      const all = placeAllKeys(room, n, eligible, { adjacency, random: seededRandom(seed) })
+      const lengths = all.map((keys, i) => {
+        assert.equal(new Set(keys).size, n)
+        for (const k of keys) assert.ok(k !== room[i] && !adjacency.get(room[i]).has(k) && eligible.includes(k))
+        for (const a of keys) for (const b of keys) assert.ok(a === b || !adjacency.get(a).has(b))
+        return shortestRoute(adjacency, room[i], keys)
+      })
+      assert.equal(new Set(lengths).size, 1, `n=${n} seed ${seed} ${room}: ${lengths}`)
+      assert.ok(lengths[0] >= 2 * n && lengths[0] <= 3 * n + 2, `n=${n}: ${lengths[0]} bước`)
+    }
+  }
+})
 
 test('placeKeys: ít ứng viên vẫn đủ n (hạ ràng buộc)', () => {
   const { core } = setupGame({ start: false })
@@ -354,6 +391,60 @@ test('tram: câu trạm tỉnh có 10 giây (5 giây đầu đủ điểm); quá
 })
 
 const starOf = (g, t) => getTram(g.db, t).star
+
+test('tram 2 câu/tỉnh: đúng câu 1 chưa có tem; sai giữ tiến độ; đúng câu 2 mới có tem, điểm tỉnh, tính gợi ý', () => {
+  const g = tramAt('hue', 2, { quizCount: 2 })
+  const t = g.teams[0].id
+  const stamp = () => !!g.db.prepare('SELECT 1 FROM stamps WHERE team_id = ? AND province_id = ?').get(t, 'quang-tri')
+  let { question } = g.game.move(t, 'quang-tri')
+  let r = g.game.answer(t, question.id, correctAnswer(g.db, t))
+  assert.deepEqual(r.progress, { done: 1, of: 2 })
+  assert.equal(stamp(), false)
+  assert.equal(getTram(g.db, t).correct, 0)
+  question = g.game.retry(t).question
+  r = g.game.answer(t, question.id, wrongAnswer(g.db, t))
+  assert.equal(r.correct, false)
+  g.now.advance(RULES.tram.lockMs)
+  question = g.game.retry(t).question
+  r = g.game.answer(t, question.id, correctAnswer(g.db, t))
+  assert.equal(r.captured, true)
+  assert.equal(stamp(), true)
+  assert.equal(getTram(g.db, t).correct, 1)
+  assert.equal(scoreOf(g, t).base, g.pts('hue') + g.pts('quang-tri'))
+})
+
+test('tram 2 câu/tỉnh: sao áp cả tỉnh — đúng đủ 2 câu thì nhân đôi một lần', () => {
+  const g = tramAt('hue', 2, { quizCount: 2 })
+  const t = g.teams[0].id
+  g.game.armStar(t, true)
+  let { question } = g.game.move(t, 'quang-tri')
+  const before = g.bonus(t)
+  g.game.answer(t, question.id, correctAnswer(g.db, t))
+  question = g.game.retry(t).question
+  assert.equal(question.bet, true)
+  const r = g.game.answer(t, question.id, correctAnswer(g.db, t))
+  assert.equal(r.captured, true)
+  assert.equal(r.betBonus, g.pts('quang-tri'))
+  assert.equal(g.bonus(t) - before, g.pts('quang-tri'))
+})
+
+test('tram 2 câu/tỉnh: sao + sai câu 2 -> trừ một lần, câu sau không còn sao', () => {
+  const g = tramAt('hue', 2, { quizCount: 2 })
+  const t = g.teams[0].id
+  g.game.armStar(t, true)
+  let { question } = g.game.move(t, 'quang-tri')
+  g.game.answer(t, question.id, correctAnswer(g.db, t))
+  question = g.game.retry(t).question
+  const before = g.bonus(t)
+  g.game.answer(t, question.id, wrongAnswer(g.db, t))
+  assert.equal(g.bonus(t) - before, -g.pts('quang-tri'))
+  g.now.advance(RULES.tram.lockMs)
+  question = g.game.retry(t).question
+  assert.equal(question.bet, false)
+  const r = g.game.answer(t, question.id, wrongAnswer(g.db, t))
+  assert.equal(r.bet, false)
+  assert.equal(g.bonus(t) - before, -g.pts('quang-tri'))
+})
 
 test('tram: bật sao, câu tỉnh đúng ở giây 5 -> tổng tăng 2 lần; sao đã dùng, bật lại báo star-used', () => {
   const g = tramAt('hue')

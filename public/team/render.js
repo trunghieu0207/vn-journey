@@ -13,7 +13,7 @@ import { renderHost } from './host.js'
 import { renderTram, tickTram } from './tram.js'
 import { renderJournal, toast } from './notify.js'
 import { openSiegeBet, updateBetTimer } from './siege-bet.js'
-import { CARD_INFO, canMove, compactRoom, hasPending, hostBtnWhere, isHost, locked, nameOf, now, reachable, running, scoutActive, solo, state, stormRegion, tram } from './state.js'
+import { CARD_INFO, canMove, compactRoom, hasPending, hostBtnWhere, isHost, locked, nameOf, now, quizGoal, reachable, running, scoutActive, solo, state, stormRegion, tram } from './state.js'
 
 function mapView() {
   // Phòng đơn / Team gọn tắt Đấu sau khi kết thúc: chỉ tô các tỉnh mình có tem, không còn sương mù
@@ -224,7 +224,7 @@ export function renderSide() {
   const pr = state.me.progress
   const retry = state.me.canRetry && cur
     ? [button(labeled('question', pr ? `Câu tiếp theo ở ${cur.name} (${pr.done + 1}/${pr.of})` : `Trả lời lại ở ${cur.name}`), 'green', retryHere,
-      { disabled: state.busy || !canMove(), title: pr ? `Đã đúng ${pr.done}/${pr.of} câu — đủ ${pr.of} câu mới ${solo() ? 'nhận tem' : 'cắm cờ'}` : 'Nhận câu hỏi khác ở tỉnh đang đứng' })]
+      { disabled: state.busy || !canMove(), title: pr ? `Đã đúng ${pr.done}/${pr.of} câu — đủ ${pr.of} câu mới ${quizGoal()}` : 'Nhận câu hỏi khác ở tỉnh đang đứng' })]
     : []
   $('neighbors').replaceChildren(...retry, ...reach.map(id => {
     const p = state.map.byId.get(id)
@@ -275,8 +275,6 @@ function renderOverlay() {
     : state.me.canRetry
       ? `Trả lời sai — nghỉ xong thì trả lời lại câu khác ở đây hoặc đi tỉnh khác${state.me.progress ? ` (vẫn giữ ${state.me.progress.done}/${state.me.progress.of} câu đã đúng)` : ''}`
       : 'Trả lời sai — chờ hết thời gian để chơi tiếp', false]
-  // Phòng có sẵn: đủ 2 người mà chủ phòng chưa bấm Bắt đầu → server tự bắt đầu (housekeeping.js)
-  if (s === 'waiting' && state.me.autoStartAt) text += ` Trận tự bắt đầu sau ${formatClock(state.me.autoStartAt - now())} nếu chủ phòng chưa bấm.`
   $('overlay').hidden = !title
   $('overlay').classList.toggle('calm', calm)
   $('ovTitle').textContent = title
@@ -346,7 +344,6 @@ let wasLocked = false, wasScout = false, hadEvent = false, wasWaiting = false
 setInterval(() => {
   if (!state.me) return
   renderFact($('ovFact'), state.me.status === 'waiting' ? state.me.facts : null, state.me.factMs, now(), nameOf) // sảnh chờ "Bạn có biết?"
-  if (state.me.status === 'waiting' && state.me.autoStartAt) renderOverlay() // đếm ngược tự bắt đầu
   const l = locked(), sc = scoutActive(), ev = !!(state.me.event && state.me.event.until > now()), w = !!siegeWait()
   if (l !== wasLocked || sc !== wasScout || ev !== hadEvent || w !== wasWaiting) {
     wasWaiting = w

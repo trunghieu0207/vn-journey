@@ -17,19 +17,10 @@ export function createOwner(ctx) {
     // Phòng đơn: xóa luôn team ẩn của người đó (tem, thẻ… xóa theo)
     if (isSolo()) db.prepare('DELETE FROM teams WHERE id = ?').run(p.team_id)
     else db.prepare('DELETE FROM players WHERE id = ?').run(p.id)
-    passHost()
-  }
-
-  // Phòng có sẵn: chủ phòng rời / bị mời ra → người vào sớm nhất còn lại nhận quyền chủ phòng
-  function passHost() {
-    const r = q.room.get(roomId)
-    if (!r?.preset || r.host_player_id != null) return
-    const next = db.prepare('SELECT id FROM players WHERE room_id = ? ORDER BY id LIMIT 1').get(roomId)
-    if (next) db.prepare('UPDATE rooms SET host_player_id = ? WHERE id = ?').run(next.id, roomId)
   }
 
   // Chủ phòng tự thoát (giữ chỗ chơi): nhả quyền chủ phòng — vào lại bằng tên không nhận lại quyền (tên ai cũng biết).
-  // Phòng có sẵn: người vào tiếp theo (kể cả chính người đó vào lại) nhận quyền; phòng tự tạo: đăng nhập lại bằng mã chủ phòng
+  // Lấy lại quyền: đăng nhập lại bằng mã chủ phòng
   function releaseHost(playerId) {
     db.prepare('UPDATE rooms SET host_player_id = NULL WHERE id = ? AND host_player_id = ?').run(roomId, Number(playerId))
   }
@@ -61,7 +52,6 @@ export function createOwner(ctx) {
     const p = db.prepare('SELECT team_id FROM players WHERE id = ? AND room_id = ?').get(Number(playerId), roomId)
     if (p && isSolo()) db.prepare('DELETE FROM teams WHERE id = ?').run(p.team_id)
     else db.prepare('DELETE FROM players WHERE id = ? AND room_id = ?').run(Number(playerId), roomId)
-    passHost()
   }
 
   // Chia tỉnh xuất phát: rải đều 3 miền, tránh thành phố trực thuộc TW, không trùng nhau.

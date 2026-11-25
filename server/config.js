@@ -27,5 +27,4 @@ export const config = {
   freezeBeforeEndMin: int(env.FREEZE_BEFORE_END_MIN, 10),
   // Thư mục chứa periods.json + key-hints.json của chế độ Chạy trạm (mặc định data/; dev có thể trỏ var/tram-dev)
   tramContentDir: env.TRAM_CONTENT_DIR ? resolve(ROOT, env.TRAM_CONTENT_DIR) : resolve(ROOT, 'data'),
-  presetRooms: env.PRESET_ROOMS !== '0', // phòng chơi đơn có sẵn (RULES.presetRooms); PRESET_ROOMS=0 để tắt
 }
