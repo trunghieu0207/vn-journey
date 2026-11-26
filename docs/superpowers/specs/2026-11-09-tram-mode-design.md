@@ -42,7 +42,7 @@ Lý do: luật hiện tại nhiều (thử tài, cược, thẻ, sự kiện…)
 
 ### 3.3. Trạm tỉnh
 - Tới tỉnh chưa có điểm → 1 câu hỏi từ kho hiện có (`difficulty: normal`) [Claude: 1 câu/tỉnh].
-- **Giờ trả lời + điểm theo tốc độ** — cơ chế hiện có (`timePenalty`), giờ riêng cho mọi câu Chạy trạm (trạm tỉnh + map đặc biệt): mỗi câu **12 giây**, 5 giây đầu đủ điểm, giây 5→12 giảm đều về 0 [CĐA, 12/11: 30 giây là nhiều, chốt 10 giây; 26/11: 10 giây hơi ngắn, nới 12 giây; `RULES.answerLimitMs.tram` / `answerFreeMs.tram`, chọn qua `timeKey`]. Thẻ Thêm giờ / Siêu tốc không có ở phòng tram.
+- **Giờ trả lời + điểm theo tốc độ** — cơ chế hiện có (`timePenalty`), giờ riêng cho mọi câu Chạy trạm (trạm tỉnh + map đặc biệt): mỗi câu **10 giây**, 5 giây đầu đủ điểm, giây 5→10 giảm đều về 0 [CĐA, 12/11: 30 giây là nhiều, chốt 10 giây; `RULES.answerLimitMs.tram` / `answerFreeMs.tram`, chọn qua `timeKey`]. Thẻ Thêm giờ / Siêu tốc không có ở phòng tram.
 - **Sai / hết giờ: không trừ điểm**, nghỉ chân **20 giây** [CĐA, 12/11: 30 giây như phòng team là quá lâu, chốt 20 giây — áp cho mọi chặng Chạy trạm, `RULES.tram.lockMs`]. Hết khóa có thể "Trả lời lại" tại chỗ (câu khác) hoặc đi tiếp [Claude: giữ nút hiện có].
 - "Bỏ qua" giữ như hiện tại (lùi về + khóa) [Claude].
 - Trả lời đúng ở tỉnh từng sai → nhận điểm bình thường (tỉnh không còn là "đã ghé mà không có điểm") [Claude].
@@ -70,7 +70,7 @@ Lý do: luật hiện tại nhiều (thử tài, cược, thẻ, sự kiện…)
 - Mỗi team được gán **1 thời kỳ lịch sử random** lúc bắt đầu trận, giữ kín (server không gửi tên) cho tới khi mở map [Claude]. Hai team có thể trùng thời kỳ [Claude].
 - Gom đủ key → mở **map đặc biệt riêng** của team: khung cảnh thời kỳ đó [CĐA].
 - **Ngay lúc mở map**: cộng **điểm tỉnh của mọi tỉnh chưa đặt chân tới** [CĐA]. Tỉnh **đã ghé mà không có điểm** (sai, hết giờ, bỏ qua, bỏ đi) → **mất** điểm tỉnh đó [CĐA] — nghĩa là **không được cộng (0), không bị trừ âm** [Claude hiểu theo CĐA]. "Đã ghé" = tỉnh team từng đặt chân tới (đã được phát câu / khung chọn), không tính tỉnh chỉ nhìn thấy qua sương mù. Không đi lại trên bản đồ sau khi mở map [Claude].
-- Trả lời **3 câu** về thời kỳ đó [CĐA], lần lượt. Điểm mỗi câu **500** (tỉnh cao nhất 300) [Claude: "lớn hơn nhiều" theo CĐA]. Giờ trả lời và trừ theo tốc độ như câu trạm tỉnh: 12 giây, 5 giây đầu đủ điểm [CĐA, 12/11; 26/11]. Sai / hết giờ → nghỉ chân 20 giây rồi câu khác cùng thời kỳ; không trừ điểm [Claude].
+- Trả lời **3 câu** về thời kỳ đó [CĐA], lần lượt. Điểm mỗi câu **500** (tỉnh cao nhất 300) [Claude: "lớn hơn nhiều" theo CĐA]. Giờ trả lời và trừ theo tốc độ như câu trạm tỉnh: 10 giây, 5 giây đầu đủ điểm [CĐA, 12/11]. Sai / hết giờ → nghỉ chân 20 giây rồi câu khác cùng thời kỳ; không trừ điểm [Claude].
 - Đúng đủ 3 câu → **câu đố ghép mảnh**: các mảnh từ key (N mảnh) hiện xáo trộn, team sắp lại đúng thứ tự để ra một câu / cụm từ về thời kỳ đó [CĐA ý 1]. Đúng → **+1000** [Claude] và **thưởng về đích sớm = số phút còn lại × 30** (làm tròn xuống theo phút, tính lúc giải xong câu ghép) [CĐA đồng ý công thức], team **về đích**. Sai → nghỉ chân 20 giây, sắp lại; không giới hạn lần [Claude]. Không tính giờ / không trừ theo tốc độ cho câu ghép [Claude].
 - Mảnh ghép lộ dần từ đầu (theo từng key) nên team có thể đoán thời kỳ trước khi vào map — chấp nhận, coi là phần vui [Claude].
 - Về đích → chờ hết trận; bảng điểm hiện trạng thái "Đã về đích" [Claude].

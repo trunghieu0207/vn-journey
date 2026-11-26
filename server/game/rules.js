@@ -70,8 +70,8 @@ export const RULES = {
   textAnswerMaxLength: 100,
   // Giờ trả lời: trong khoảng "không trừ" được đủ điểm; sau đó trừ dần đều vào điểm thưởng,
   // đến hết giờ là trừ 100% điểm tỉnh. Quá giờ (cộng thêm độ trễ mạng) tính là trả lời sai.
-  // tram: mọi câu phòng Chạy trạm — trạm tỉnh lẫn map đặc biệt (12/11: chủ dự án chốt 10 giây; 26/11 nới 12 giây, 5 giây đầu vẫn đủ điểm); xem timeKey
-  answerLimitMs: { normal: 30_000, siege: 45_000, tram: 12_000 },
+  // tram: mọi câu phòng Chạy trạm — trạm tỉnh lẫn map đặc biệt (12/11: chủ dự án chốt 10 giây); xem timeKey
+  answerLimitMs: { normal: 30_000, siege: 45_000, tram: 10_000 },
   answerFreeMs: { normal: 15_000, siege: 20_000, tram: 5_000 }, // 29/10: nới từ 10/15 giây — có thời gian đọc và bàn với đồng đội
   answerNetworkGraceMs: 2_000,
   // 30/10: đồng hồ câu hỏi bắt đầu sau khi phát câu 1 giây — camera bay tới tỉnh mất ~1 giây, không ăn vào khoảng đủ điểm
