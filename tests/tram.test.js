@@ -102,7 +102,7 @@ test('tram: đi tới tỉnh, trả lời đúng -> có tem + điểm tỉnh; qu
   assert.equal(g.db.prepare('SELECT COUNT(*) n FROM ownership WHERE room_id = ?').get(g.room.roomId).n, 0)
 })
 
-test('tram: thành phố không rơi thẻ, không chuỗi thẻ, không siêu tốc, sai chỉ khóa 20 giây', () => {
+test('tram: thành phố không rơi thẻ, không chuỗi thẻ, không siêu tốc, sai chỉ khóa 10 giây', () => {
   const g = tramAt('hue')
   const t = g.teams[0].id
   const { question } = g.game.move(t, 'da-nang')
@@ -381,7 +381,7 @@ test('tram: câu trạm tỉnh có 10 giây (5 giây đầu đủ điểm); quá
   assert.equal(question.deadline - question.issuedAt, RULES.answerLimitMs.tram)
   assert.equal(question.freeUntil - question.issuedAt, RULES.answerFreeMs.tram)
   assert.equal(RULES.answerLimitMs.tram, 10_000)
-  assert.equal(RULES.tram.lockMs, 20_000)
+  assert.equal(RULES.tram.lockMs, 10_000)
   g.now.advance(RULES.answerLimitMs.tram + RULES.answerNetworkGraceMs + 1)
   const r = g.game.answer(t, question.id, correctAnswer(g.db, t))
   assert.equal(r.correct, false)
@@ -475,7 +475,7 @@ test('tram: sao + trả lời chậm -> thêm = điểm - phạt tốc độ (t�
   assert.equal(g.bonus(t) - before, -r.penalty + (g.pts('quang-tri') - r.penalty))
 })
 
-test('tram: sao + sai -> trừ điểm gốc, khóa 20 giây', () => {
+test('tram: sao + sai -> trừ điểm gốc, khóa 10 giây', () => {
   const g = tramAt('hue')
   const t = g.teams[0].id
   g.game.armStar(t, true)
@@ -600,7 +600,7 @@ test('special: 3 câu đúng trong 5 giây đầu -> +1500, stage puzzle; câu �
   assert.equal(g.game.specialAnswer(u, pub.id, g.right(u, pub)).points, 250)
 })
 
-test('special: sai -> khóa 20 giây, không lộ đáp án; specialNext khi khóa báo locked; sau khóa ra câu khác', () => {
+test('special: sai -> khóa 10 giây, không lộ đáp án; specialNext khi khóa báo locked; sau khóa ra câu khác', () => {
   const g = specialAt()
   const t = g.teams[0].id
   const pub = g.game.specialNext(t)
@@ -709,7 +709,7 @@ function puzzleAt(opts = {}) {
   return g
 }
 
-test('puzzle: sai -> khóa 20 giây; đúng ở phút 20 trận 45 phút -> +1000 + 25x30; already-done; cả phòng về đích -> ended', () => {
+test('puzzle: sai -> khóa 10 giây; đúng ở phút 20 trận 45 phút -> +1000 + 25x30; already-done; cả phòng về đích -> ended', () => {
   const g = puzzleAt({ durationMin: 45 })
   const [t, u] = g.teams.map(x => x.id)
   const bad = g.solve(t).reverse()

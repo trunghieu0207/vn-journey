@@ -179,7 +179,7 @@ export function useHelp(kind) {
 }
 
 // Số giây bị khóa nếu bỏ qua lúc này — cùng công thức server: 10 giây + thời gian đã xem, tối đa = khóa khi sai
-// (Chạy trạm: RULES.tram.lockMs = 20 giây)
+// (Chạy trạm: RULES.tram.lockMs = 10 giây)
 function skipLockSec(since, siege = false) {
   return Math.min(siege ? 45 : tram() ? 20 : 15, Math.ceil(10 + Math.max(0, now() - since) / 1000))
 }
