@@ -98,12 +98,15 @@ function pick(value) {
   renderVotes(q)
   // answering trong lúc gửi: phiếu có thể chốt luôn — SSE về trước sẽ không đóng khung giữa chừng
   state.answering = true
+  grading(value, true)
   act(async () => {
     let r
     try {
       r = await api('/api/vote', { questionId: q.id, answer: value })
     } catch (err) {
       state.answering = false
+      grading(value, false)
+      renderVotes(q)
       if (err.code === 'no-pending') {
         closeDialog()
         toast('Đồng đội đã trả lời câu này trước bạn')
@@ -116,6 +119,7 @@ function pick(value) {
       return finishAnswer(r, q, value)
     }
     state.answering = false
+    grading(value, false)
     if (state.question?.q.id === q.id) {
       q.votes = r.votes
       renderVotes(q)
@@ -231,23 +235,36 @@ function chosenButton(value) {
   return dlg.querySelector('.text-answer .btn')
 }
 
+// Chờ server chấm (mạng chậm thì bấm xong như bị đơ): nút vừa chọn hiện vòng xoay, đáp án khác mờ đi, thanh dưới
+// báo "Đang chấm…". CSS chỉ hiện vòng xoay sau 150 ms — mạng nhanh thì không nháy
+function grading(value, on) {
+  chosenButton(value)?.classList.toggle('pending', on)
+  dlg.querySelector('.options, .text-answer')?.classList.toggle('waiting', on)
+  const bar = dlg.querySelector('.vote-bar')
+  if (on && bar) bar.replaceChildren(el('span', { class: 'grading', role: 'status' }, 'Đang chấm…'))
+  else bar?.querySelector('.grading')?.remove()
+}
+
 function answer(value) {
   if (!state.question || state.busy) return
   const q = state.question.q
   dlg.querySelectorAll('button, input').forEach(b => { b.disabled = true })
   state.answering = true
+  grading(value, true)
   act(async () => {
     let r
     try {
       r = await api('/api/answer', { questionId: q.id, answer: value })
     } catch (err) {
       state.answering = false
+      grading(value, false)
       if (err.code === 'no-pending') {
         closeDialog()
         toast('Đồng đội đã trả lời câu này trước bạn')
         return
       }
       dlg.querySelectorAll('button:not(.gone), input').forEach(b => { b.disabled = false })
+      renderVotes(q)
       throw err
     }
     await finishAnswer(r, q, value)
@@ -258,6 +275,7 @@ function answer(value) {
 // answering giữ tới khi diễn xong hiệu ứng: SSE về sớm (không còn câu chờ) sẽ không đóng khung giữa chừng
 async function finishAnswer(r, q, value) {
   const chosen = chosenButton(value)
+  grading(value, false)
   state.answering = true
   if (!r.correct) {
     sound.wrong()

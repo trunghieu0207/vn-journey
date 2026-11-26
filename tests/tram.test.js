@@ -374,13 +374,13 @@ test('tram: luật cứu ở nửa thời lượng, mốc dời theo tạm dừn
 })
 
 // ---------- Task 6: ngôi sao hy vọng, lọc câu lộ tỉnh cũ ----------
-test('tram: câu trạm tỉnh có 10 giây (5 giây đầu đủ điểm); quá giờ tính sai; phòng team vẫn 30 giây', () => {
+test('tram: câu trạm tỉnh có 12 giây (5 giây đầu đủ điểm); quá giờ tính sai; phòng team vẫn 30 giây', () => {
   const g = tramAt('hue')
   const t = g.teams[0].id
   const { question } = g.game.move(t, 'quang-tri')
   assert.equal(question.deadline - question.issuedAt, RULES.answerLimitMs.tram)
   assert.equal(question.freeUntil - question.issuedAt, RULES.answerFreeMs.tram)
-  assert.equal(RULES.answerLimitMs.tram, 10_000)
+  assert.equal(RULES.answerLimitMs.tram, 12_000)
   assert.equal(RULES.tram.lockMs, 20_000)
   g.now.advance(RULES.answerLimitMs.tram + RULES.answerNetworkGraceMs + 1)
   const r = g.game.answer(t, question.id, correctAnswer(g.db, t))
@@ -468,7 +468,7 @@ test('tram: sao + trả lời chậm -> thêm = điểm - phạt tốc độ (t�
   const t = g.teams[0].id
   g.game.armStar(t, true)
   const { question } = g.game.move(t, 'quang-tri')
-  g.now.advance(7_000) // trong 10 giây, quá 5 giây đủ điểm
+  g.now.advance(7_000) // trong 12 giây, quá 5 giây đủ điểm
   const before = g.bonus(t)
   const r = g.game.answer(t, question.id, correctAnswer(g.db, t))
   assert.ok(r.penalty > 0)
@@ -578,7 +578,7 @@ test('puzzleDisplay: sinh một lần khi vào câu ghép, ổn định, hoán v
   }
 })
 
-test('special: 3 câu đúng trong 5 giây đầu -> +1500, stage puzzle; câu ở giây 7,5 -> +250', () => {
+test('special: 3 câu đúng trong 5 giây đầu -> +1500, stage puzzle; câu ở giây 8,5 (giữa 5 → 12) -> +250', () => {
   const g = specialAt()
   const t = g.teams[0].id
   const before = g.bonus(t)
@@ -596,7 +596,7 @@ test('special: 3 câu đúng trong 5 giây đầu -> +1500, stage puzzle; câu �
   assert.equal(getTram(g.db, t).stage, 'puzzle')
   const u = g.teams[1].id
   const pub = g.game.specialNext(u)
-  g.now.advance(7_500)
+  g.now.advance(8_500)
   assert.equal(g.game.specialAnswer(u, pub.id, g.right(u, pub)).points, 250)
 })
 

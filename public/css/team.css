@@ -260,3 +260,19 @@ dialog.journey-dlg { width: min(760px, calc(100% - 32px)); }
 .host-drawer p { margin: 0; }
 .host-drawer .input.compact { width: auto; }
 .host-row { justify-content: center; margin-top: 14px; }
+
+/* Chờ server chấm đáp án (question.js grading): ô số của đáp án vừa chọn thành vòng xoay, đáp án khác mờ đi.
+   Trễ 150 ms mới hiện — mạng nhanh thì không nháy */
+.options.waiting .btn:not(.pending) { opacity: .55; transition: opacity .15s .15s; }
+.options .btn.pending .key { animation: grading .7s linear .15s infinite; }
+.text-answer .btn.pending { animation: grading-pulse 1s ease-in-out .15s infinite; }
+.vote-bar .grading { color: var(--muted); font-size: 15px; font-weight: 800; }
+@keyframes grading {
+  from { color: transparent; border-color: var(--blue); border-right-color: transparent; border-radius: 50%; transform: rotate(0); }
+  to { color: transparent; border-color: var(--blue); border-right-color: transparent; border-radius: 50%; transform: rotate(360deg); }
+}
+@keyframes grading-pulse { 50% { opacity: .6; } }
+@media (prefers-reduced-motion: reduce) {
+  .options .btn.pending .key, .text-answer .btn.pending { animation: none; }
+  .options .btn.pending .key { border-color: var(--blue); }
+}
