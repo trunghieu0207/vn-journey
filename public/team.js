@@ -229,13 +229,12 @@ $('muteBtn').addEventListener('click', () => {
 })
 renderMute()
 
-// Nhạc nền (shared/music.js): trang chủ + phòng đơn (mỗi người một máy); phòng theo team thì im — cả phòng đã có màn chiếu phát nhạc.
-// Mặc định tắt, bật một lần thì nhớ cho lần sau
-music.setup('vnj-music', false)
+// Nhạc nền (shared/music.js): trang chủ + mọi kiểu phòng (26/11: chủ dự án muốn có nhạc cả lúc chơi, trước đó phòng theo team im
+// vì đã có màn chiếu phát). Mặc định bật (26/11) — trình duyệt chỉ cho phát từ cú chạm / gõ phím đầu tiên; tắt một lần thì nhớ cho lần sau
+music.setup('vnj-music', true)
 function setMusicMode(view) {
-  const one = view.room.mode === 'solo'
-  $('musicBtn').hidden = !one
-  music.mode(one ? ({ waiting: 'calm', ended: 'finale' }[view.status] ?? 'play') : null)
+  $('musicBtn').hidden = false
+  music.mode({ waiting: 'calm', ended: 'finale' }[view.status] ?? 'play')
 }
 function renderMusic() {
   for (const b of [$('lpMusic'), $('musicBtn')]) {

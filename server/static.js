@@ -19,6 +19,7 @@ const TYPES = {
   '.svg': 'image/svg+xml',
   '.ttf': 'font/ttf',
   '.png': 'image/png',
+  '.mp3': 'audio/mpeg',
 }
 
 // URL → file trong project
@@ -96,6 +97,7 @@ const FILES = {
   '/team/siege-bet.js': 'public/team/siege-bet.js',
   '/data/map-geo.json': 'data/map-geo.json',
   '/fonts/nunito.ttf': 'public/fonts/nunito.ttf',
+  '/audio/nhac-nen.mp3': 'public/audio/nhac-nen.mp3',
 }
 
 // Nội dung đã đọc + đã nén, theo file (cả project ~1 MB). Đọc lại khi file đổi (so mtime) — sửa public/* không cần khởi động lại
@@ -135,6 +137,29 @@ export async function serveStatic(req, res, pathname) {
     res.writeHead(304, head)
     res.end()
     return true
+  }
+  // File không nén (nhạc nền mp3): trả theo đoạn byte — Safari chỉ phát audio khi server nhận Range (206)
+  if (!f.br) {
+    head['Accept-Ranges'] = 'bytes'
+    const m = /^bytes=(\d*)-(\d*)$/.exec(String(req.headers.range ?? ''))
+    if (m && (m[1] || m[2])) {
+      const size = f.body.length
+      const from = m[1] ? Number(m[1]) : Math.max(0, size - Number(m[2]))
+      const to = m[1] && m[2] ? Math.min(Number(m[2]), size - 1) : size - 1
+      if (from > to || from >= size) {
+        res.writeHead(416, { ...head, 'Content-Range': `bytes */${size}` })
+        res.end()
+        return true
+      }
+      res.writeHead(206, {
+        ...head,
+        'Content-Type': TYPES[f.ext] || 'application/octet-stream',
+        'Content-Length': to - from + 1,
+        'Content-Range': `bytes ${from}-${to}/${size}`,
+      })
+      res.end(req.method === 'HEAD' ? undefined : f.body.subarray(from, to + 1))
+      return true
+    }
   }
   const accept = String(req.headers['accept-encoding'] ?? '')
   const [body, encoding] = f.br && /\bbr\b/.test(accept) ? [f.br, 'br']

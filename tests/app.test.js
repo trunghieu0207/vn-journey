@@ -108,6 +108,24 @@ test('file tĩnh: nén br / gzip, ETag → lần sau 304 không kèm nội dung'
   assert.equal((await s.call('/team.js', { headers: { 'if-none-match': '"cu"' } })).status, 200)
 })
 
+test('nhạc nền mp3: phục vụ theo đoạn byte (Range → 206), không nén; đoạn ngoài file → 416', async t => {
+  const s = await startServer(); t.after(s.close)
+  const size = (await import('node:fs')).statSync(new URL('../public/audio/nhac-nen.mp3', import.meta.url)).size
+  const full = await s.call('/audio/nhac-nen.mp3', { method: 'HEAD', headers: { 'accept-encoding': 'br' } })
+  assert.equal(full.status, 200)
+  assert.equal(full.headers.get('content-type'), 'audio/mpeg')
+  assert.equal(full.headers.get('accept-ranges'), 'bytes')
+  assert.equal(full.headers.get('content-encoding'), null)
+  assert.equal(Number(full.headers.get('content-length')), size)
+  const part = await s.call('/audio/nhac-nen.mp3', { headers: { range: 'bytes=0-1' } })
+  assert.equal(part.status, 206)
+  assert.equal(part.headers.get('content-range'), `bytes 0-1/${size}`)
+  assert.equal(part.headers.get('content-length'), '2')
+  const tail = await s.call('/audio/nhac-nen.mp3', { method: 'HEAD', headers: { range: 'bytes=-100' } })
+  assert.equal(tail.headers.get('content-range'), `bytes ${size - 100}-${size - 1}/${size}`)
+  assert.equal((await s.call('/audio/nhac-nen.mp3', { method: 'HEAD', headers: { range: `bytes=${size}-` } })).status, 416)
+})
+
 test('tạo phòng: cookie chủ phòng HttpOnly + SameSite=Strict; mã chủ phòng chỉ trả về 1 lần', async t => {
   const s = await startServer(); t.after(s.close)
   const r = await s.post('/api/rooms', { name: 'Phòng A', teamCount: 2 }, 'owner')
