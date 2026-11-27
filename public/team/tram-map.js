@@ -183,7 +183,7 @@ function donePanel(tr) {
     el('h3', {}, labeled('star-hope', 'Về đích!')),
     el('p', { class: 'explain' }, `Đội bạn đã hoàn thành hành trình ${tr.period.name}.`),
     el('p', { class: 'reward ts-bonus' }, labeled('star', `+${tr.finishBonus} điểm thưởng về đích`)),
-    el('p', { class: 'muted' }, 'Chờ hết giờ để xem xếp hạng.'))
+    el('p', { class: 'muted' }, 'Kết quả đã được ghi lại. Bạn có thể thoát, xếp hạng sẽ có khi hết giờ hoặc mọi đội về đích.'))
 }
 
 function bodyFor(tr) {
