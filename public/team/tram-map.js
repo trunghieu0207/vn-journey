@@ -13,7 +13,7 @@ import { toast } from './notify.js'
 import { now, state } from './state.js'
 
 const POINTS = 500 // điểm câu thời kỳ (RULES.tram.specialPoints), dùng để hiện "còn bao nhiêu điểm"
-const LOCK_S = 20 // nghỉ chân khi sai / hết giờ / bỏ qua (RULES.tram.lockMs)
+const LOCK_S = 10 // nghỉ chân khi sai / hết giờ / bỏ qua (RULES.tram.lockMs — 26/11 giảm 20 → 10 giây)
 const HOLD_MS = 5000 // chờ tối đa chừng này cho khung kết quả / câu cũ trước khi chuyển sang map đặc biệt
 const EXPIRE_GRACE_MS = 2500 // quá hạn chừng này mà câu còn treo thì tự bỏ qua để sang câu khác
 
@@ -102,7 +102,7 @@ function questionPanel(tr, q) {
   if (L.qid !== q.id) { L.qid = q.id; L.pick = null; L.skipArmedAt = 0 }
   const expired = now() > q.deadline
   const opts = q.options.map((text, i) => el('button', {
-    type: 'button', class: `btn${L.pick === i ? ' primary' : ''}`, 'data-key': String(i + 1), disabled: L.sending || expired || state.busy,
+    type: 'button', class: `btn${L.pick === i ? ' picked' : ''}`, 'data-key': String(i + 1), disabled: L.sending || expired || state.busy,
     'aria-pressed': String(L.pick === i),
     onclick: () => { L.pick = i; L.v++; sound.click(); sync(true) },
   }, el('span', { class: 'key' }, String(i + 1)), text))
@@ -343,8 +343,7 @@ function submitPuzzle() {
       const r = await api('/api/tram/puzzle', { order: L.order })
       L.sending = false
       if (r.correct) {
-        sound.correct()
-        tr.stage = 'done'; tr.finishBonus = r.finishBonus; tr.puzzle = null
+        tr.stage = 'done'; tr.finishBonus = r.finishBonus; tr.puzzle = null // tiếng + pháo giấy: sync() thấy stage 'done' (một lần)
       } else {
         sound.wrong()
         L.pLock = r.lockedUntil ?? 0

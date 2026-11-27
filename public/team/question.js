@@ -303,7 +303,9 @@ async function finishAnswer(r, q, value) {
     }, fx.reducedMotion ? 500 : 1300)
     return
   }
-  // Đúng: nút chuyển xanh + dấu tích vẽ tay + sao bắn ra, một nhịp sau mới sang khung kết quả
+  // Đúng: nút chuyển xanh + dấu tích vẽ tay + sao bắn ra, một nhịp sau mới sang khung kết quả.
+  // Tiếng "đúng" phát cùng lúc nút đổi màu (trước đây phát lúc hiện khung kết quả — trễ 0,8 giây so với hình)
+  sound.correct()
   if (chosen && !fx.reducedMotion) {
     chosen.classList.add('green')
     fx.drawMark(chosen, 'check')
@@ -313,7 +315,7 @@ async function finishAnswer(r, q, value) {
     await fx.sleep(800)
   }
   state.answering = false
-  showResult(r, q)
+  showResult(r, q, null, true)
 }
 
 // Kết quả do đồng đội trả lời (hoặc server xử hết giờ) — đồng bộ qua SSE
@@ -364,15 +366,16 @@ export function showTeammateResult(res) {
   showResult(res, { province: res.province, difficulty: res.siege ? 'siege' : 'normal' }, res.by)
 }
 
-function showResult(r, q, by = null) {
+// played: tiếng "đúng" đã phát lúc nút đổi màu (finishAnswer) — không phát lại
+function showResult(r, q, by = null, played = false) {
   // Đấu nhiều hiệp: thắng hiệp này nhưng chưa đủ — báo ngắn, hiệp sau tự mở (giữ khung kết quả cho lúc thắng cả trận)
   if (r.round && !r.round.done) {
-    sound.correct()
+    if (!played) sound.correct()
     closeDialog()
     return roundToast(r.round, 'att', ' (đúng trước chủ nhà)')
   }
   const name = nameOf(q.province)
-  if (!by) sound.correct()
+  if (!by && !played) sound.correct()
   const p = state.map.byId.get(q.province)
   const lines = []
   const pts = el('b', {}, '0')

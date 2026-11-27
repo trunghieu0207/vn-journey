@@ -149,8 +149,9 @@ dialog.docked.defense { border-color: #FFB3B3; box-shadow: 0 0 0 4px #fff, 0 8px
   font-size: 14px;
 }
 .text-answer { display: grid; grid-template-columns: 1fr auto; gap: 10px; }
-/* Bỏ phiếu đáp án: đáp án mình chọn viền xanh dương; tên đồng đội đã chọn hiện cuối dòng */
-.options .btn.picked { --fill: #DDF4FF; --bd: var(--blue); }
+/* Bỏ phiếu đáp án: đáp án mình chọn viền xanh dương; tên đồng đội đã chọn hiện cuối dòng.
+   Chấm xong (đúng .green / sai .danger, chữ trắng) thì màu kết quả thắng — trước đó nền xanh nhạt + chữ trắng, khó đọc */
+.options .btn.picked:not(.green, .danger) { --fill: #DDF4FF; --bd: var(--blue); }
 .options .voters { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 4px; margin-left: auto; }
 .options .voter { padding: 1px 8px; border-radius: 8px 10px 7px 9px; background: #FFF6D1; box-shadow: 0 0 0 1.5px var(--accent-dark); color: #9A5B00; font-size: 12px; font-weight: 900; white-space: nowrap; }
 .vote-bar { display: flex; align-items: center; min-height: 40px; }
