@@ -5,7 +5,7 @@
 // Âm lượng qua Web Audio (GainNode): Safari iOS bỏ qua audio.volume; không tạo được AudioContext thì dùng audio.volume.
 
 const SRC = '/audio/nhac-nen.mp3'
-const LEVEL = 0.18 // 26/11: chủ dự án thấy to, giảm ~50% (từ 0.35)
+const LEVEL = 0.14 // 26/11: chủ dự án thấy to, 0.35 → 0.18; 27/11 chốt 0.14 (= 40% mức ban đầu)
 
 let audio = null, ctx = null, gain = null, pauseTimer = 0
 let on = false, style = null, key = 'vnj-music', gestured = false
