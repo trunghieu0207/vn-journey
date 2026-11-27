@@ -25,7 +25,7 @@ function openMenu() {
   pop.replaceChildren(
     $('hostBtn').hidden ? '' : item('play', 'Chủ phòng', () => $('hostBtn').click(), { class: 'host' }),
     $('journeyCard').hidden ? '' : item('map', 'Sổ tay hành trình', () => $('journeyBtn').click()),
-    item('question', 'Luật chơi', () => open('/rules', '_blank', 'noopener')),
+    item('question', 'Luật chơi', () => open($('rulesLink').href, '_blank', 'noopener')),
     item(muted ? 'sound-off' : 'sound-on', muted ? 'Bật âm thanh' : 'Tắt âm thanh', () => $('muteBtn').click()),
     $('musicBtn').hidden ? '' : item(music.on ? 'music-on' : 'music-off', music.on ? 'Tắt nhạc nền' : 'Bật nhạc nền', () => $('musicBtn').click()),
     item('fog', 'Che màn hình', () => toggleCover(true)),

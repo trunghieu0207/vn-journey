@@ -161,6 +161,7 @@ export function renderAll() {
   $('homeN').textContent = String(state.me.homes?.done.length ?? 0)
   $('homeMax').textContent = `/${state.me.homes?.max ?? 3} về quê`
   $('homeBox').title = one ? `Có tem ở tỉnh quê của bạn: +${state.me.homes?.bonus} điểm` : `Cắm cờ ở tỉnh quê của đồng đội: +${state.me.homes?.bonus} điểm, tối đa ${state.me.homes?.max} tỉnh`
+  $('rulesLink').href = tram() ? '/rules/chay-tram' : '/rules' // phòng Chạy trạm: trang luật riêng
   $('logoutBtn').textContent = state.me.status === 'waiting' ? (one ? 'Rời phòng' : 'Đổi team / rời phòng') : 'Thoát'
   state.map.render(mapView())
   renderSide()

@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Luật Chạy trạm · Hành trình 3 miền</title>
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="/favicon.png" type="image/png" sizes="32x32">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="stylesheet" href="/style.css">
+<link rel="stylesheet" href="/css/rules.css">
+<script type="module" src="/rules.js"></script>
+</head>
+<body class="rules-page">
+<!-- Bộ lọc vẽ tay (css/hand.css) -->
+<svg class="hand-defs" width="0" height="0" aria-hidden="true" focusable="false">
+  <filter color-interpolation-filters="sRGB" id="hand-wob-s" x="-20%" y="-60%" width="140%" height="220%"><feTurbulence type="fractalNoise" baseFrequency="0.05" numOctaves="1" seed="5" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="2.2" xChannelSelector="R" yChannelSelector="G"/></filter>
+  <filter color-interpolation-filters="sRGB" id="hand-wob2" x="-20%" y="-60%" width="140%" height="220%"><feTurbulence type="fractalNoise" baseFrequency="0.04" numOctaves="2" seed="11" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="4" xChannelSelector="R" yChannelSelector="G"/></filter>
+  <filter color-interpolation-filters="sRGB" id="hand-ic-wob" x="-15%" y="-15%" width="130%" height="130%"><feTurbulence type="fractalNoise" baseFrequency="0.16" numOctaves="1" seed="3" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="1.3" xChannelSelector="R" yChannelSelector="G"/></filter>
+</svg>
+
+<header class="rules-top">
+  <div class="rules-title">
+    <span data-icon="key"></span>
+    <div><h1>Luật Chạy trạm</h1><p class="muted">Hành trình 3 miền · đọc trong 1 phút</p></div>
+    <button class="btn music-btn" type="button" id="musicBtn"></button>
+    <a class="btn green" href="/">Vào chơi</a>
+  </div>
+  <nav class="rules-nav" aria-label="Mục lục">
+    <a href="#muc-tieu">Mục tiêu</a>
+    <a href="#tram-tinh">Trạm tỉnh</a>
+    <a href="#chia-khoa">Chìa khóa</a>
+    <a href="#ngoi-sao">Ngôi sao</a>
+    <a href="#chang-cuoi">Chặng cuối</a>
+    <a href="#xep-hang">Xếp hạng</a>
+    <a href="/rules">Luật chung</a>
+  </nav>
+</header>
+
+<main class="rules">
+
+<section class="rule card" id="muc-tieu">
+  <div class="rule-text">
+    <h2><span class="num">1</span> Mục tiêu</h2>
+    <p>Team cần:</p>
+    <ul>
+      <li>Đi qua các tỉnh, trả lời đúng để <b>nhận điểm</b>.</li>
+      <li>Tìm đủ <b>chìa khóa</b> giấu trong các tỉnh.</li>
+      <li>Mở <b>chặng cuối</b>, trả lời câu hỏi về thời kỳ lịch sử rồi ghép mảnh để <b>về đích</b>.</li>
+      <li>Về đích càng sớm càng nhiều điểm.</li>
+    </ul>
+  </div>
+  <div class="stage" data-scene="tgoal" aria-hidden="true"></div>
+</section>
+
+<section class="rule card" id="tram-tinh">
+  <div class="rule-text">
+    <h2><span class="num">2</span> Trạm tỉnh</h2>
+    <ul>
+      <li>Đi sang tỉnh giáp ranh, trả lời câu hỏi để nhận điểm tỉnh (1–3 câu mỗi tỉnh, chủ phòng chọn).</li>
+      <li>Mỗi câu <b>10 giây</b>, 5 giây đầu đủ điểm.</li>
+      <li>Sai hoặc hết giờ <b>không bị trừ điểm</b>, nghỉ chân 10 giây rồi trả lời lại hoặc đi tiếp.</li>
+    </ul>
+  </div>
+  <div class="stage" data-scene="question" aria-hidden="true"></div>
+</section>
+
+<section class="rule card" id="chia-khoa">
+  <div class="rule-text">
+    <h2><span class="num">3</span> Chìa khóa</h2>
+    <ul>
+      <li>Chìa khóa (3–7, thường 5) giấu kín ở các tỉnh. Nhận điểm đúng tỉnh đó là nhặt được.</li>
+      <li>Mỗi chìa khóa lộ một <b>mảnh</b> của câu đố cuối.</li>
+    </ul>
+  </div>
+  <div class="stage" data-scene="tkey" aria-hidden="true"></div>
+</section>
+
+<section class="rule card" id="ngoi-sao">
+  <div class="rule-text">
+    <h2><span class="num">4</span> Ngôi sao hy vọng</h2>
+    <ul>
+      <li>Dùng <b>1 lần</b> cả trận, bật trước khi nhận câu ở một tỉnh.</li>
+      <li>Đúng: điểm tỉnh <b>×2</b>. Sai, hết giờ, bỏ qua: <b>bị trừ</b> điểm tỉnh.</li>
+    </ul>
+  </div>
+  <div class="stage" data-scene="tstar" aria-hidden="true"></div>
+</section>
+
+<section class="rule card" id="chang-cuoi">
+  <div class="rule-text">
+    <h2><span class="num">5</span> Chặng cuối</h2>
+    <ul>
+      <li>Đủ chìa khóa: mở <b>bản đồ đặc biệt</b> về một thời kỳ lịch sử, được cộng điểm <b>mọi tỉnh chưa đặt chân tới</b>.</li>
+      <li>Trả lời <b>3 câu</b> về thời kỳ, mỗi câu 500 điểm.</li>
+      <li><b>Ghép các mảnh</b> từ chìa khóa thành câu đúng: <b>+1.000</b> và <b>số phút còn lại × 30</b>, team về đích.</li>
+    </ul>
+  </div>
+  <div class="stage" data-scene="tspecial" aria-hidden="true"></div>
+</section>
+
+<section class="rule card" id="xep-hang">
+  <div class="rule-text">
+    <h2><span class="num">6</span> Xếp hạng</h2>
+    <ul>
+      <li>Trận dừng khi hết giờ hoặc mọi team về đích.</li>
+      <li>Team <b>về đích</b> luôn xếp trên team chưa về; cùng nhóm thì so tổng điểm.</li>
+    </ul>
+    <p class="formula"><b>1.100</b> <span>+</span> <b>3.000</b> <span>+</span> <b>1.500</b> <span>+</span> <b>1.000</b> <span>+</span> <b>360</b> <span>=</span> <b>6.960</b> điểm</p>
+    <p class="muted">Ví dụ: 8 tỉnh, các tỉnh chưa đi, 3 câu thời kỳ, ghép mảnh, về đích khi còn 12 phút.</p>
+    <p><a class="btn green" href="/">Vào chơi thôi!</a></p>
+  </div>
+  <div class="stage" data-scene="tscore" aria-hidden="true"></div>
+</section>
+
+</main>
+<script type="module" src="/shared/notice.js"></script>
+</body>
+</html>

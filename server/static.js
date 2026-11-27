@@ -38,6 +38,7 @@ const FILES = {
   '/rules': 'public/rules.html',
   '/rules.html': 'public/rules.html',
   '/rules.js': 'public/rules.js',
+  '/rules/chay-tram': 'public/rules-tram.html',
   '/leaderboard': 'public/leaderboard.html',
   '/leaderboard.html': 'public/leaderboard.html',
   '/leaderboard.js': 'public/leaderboard.js',

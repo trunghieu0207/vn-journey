@@ -60,7 +60,7 @@
 @media (max-width: 699px) {
   /* Thanh trên một dòng: linh vật, tên, điểm, số tỉnh / tem, đồng hồ, ≡ */
   .topbar { gap: 8px; padding: calc(8px + env(safe-area-inset-top, 0px)) 10px 12px; }
-  .topbar a.btn[href="/rules"], .topbar :is(#streakBox, #homeBox, #rankBox .muted, .spacer) { display: none; }
+  .topbar a.btn[href^="/rules"], .topbar :is(#streakBox, #homeBox, #rankBox .muted, .spacer) { display: none; }
   .team-name { gap: 6px; font-size: 16px; flex: 1 1 auto; }
   .team-name .team-icon svg { width: 28px; height: 28px; }
   .topbar .stat { gap: 3px; }

@@ -23,6 +23,7 @@
   <div class="rules-title">
     <span data-icon="map"></span>
     <div><h1>Luật chơi</h1><p class="muted">Hành trình 3 miền · đọc trong 3 phút</p></div>
+    <button class="btn music-btn" type="button" id="musicBtn"></button>
     <a class="btn green" href="/">Vào chơi</a>
   </div>
   <nav class="rules-nav" aria-label="Mục lục">
@@ -38,7 +39,7 @@
     <a href="#diem">Điểm số</a>
     <a href="#choi-don">Chơi đơn</a>
     <a href="#team-gon">Team gọn</a>
-    <a href="#chay-tram">Chạy trạm</a>
+    <a href="/rules/chay-tram">Chạy trạm</a>
     <a href="#chu-phong">Chủ phòng</a>
     <a href="#meo">Mẹo</a>
   </nav>
@@ -231,19 +232,9 @@
 <section class="rule card" id="chay-tram">
   <div class="rule-text">
     <h2><span class="num">13</span> Phòng Chạy trạm</h2>
-    <p>Chủ phòng chọn <b>Chạy trạm</b> lúc tạo phòng. Không ai giành tỉnh của ai: mỗi team đi trên bản đồ <b>riêng</b>, đi tìm <b>chìa khóa</b> giấu trong các tỉnh, rồi mở <b>chặng cuối</b> về một thời kỳ lịch sử. Về đích sớm thì được thưởng nhiều.</p>
-    <ul>
-      <li><b>Trạm tỉnh:</b> tới tỉnh mới thì trả lời 1 câu (chủ phòng có thể chọn 2–3 câu mỗi tỉnh: phải đúng đủ số câu mới nhận điểm tỉnh, sai thì vẫn giữ số câu đã đúng, xem mục trên). Đúng là nhận điểm tỉnh đó, trả lời càng nhanh càng đủ điểm (mỗi câu có 10 giây: 5 giây đầu đủ điểm, sau đó giảm dần về 0). <b>Sai hoặc hết giờ không bị trừ điểm</b>, chỉ phải nghỉ chân 10 giây rồi thử lại hoặc đi tiếp. Tỉnh đã có điểm thì đi qua, không hỏi lại.</li>
-      <li><b>Chìa khóa:</b> mỗi team có số chìa khóa cần tìm (chủ phòng chọn từ 3 đến 7, thường là 5), giấu ở những tỉnh riêng của team, <b>cách nhau khoảng 3 tỉnh</b> (5 chìa khóa thường trải qua 2 miền); mọi team trong phòng phải đi quãng đường ngắn nhất như nhau. Bạn <b>không thấy</b> chúng trên bản đồ. Tới đúng tỉnh có chìa khóa và trả lời đúng là nhặt được; mỗi chìa khóa mở ra <b>một mảnh</b> của câu đố cuối.</li>
-      <li><b>Gợi ý:</b> cứ trả lời đúng thêm 3 tỉnh (3, 6, 9...) team nhận một <b>câu đố gợi ý</b> về nơi giấu một chìa khóa: tả vài nét văn hóa của tỉnh (món ăn, lễ hội, danh thắng...) mà không nói tên. Các gợi ý đã nhận nằm trong <b>sổ gợi ý</b>, cả team cùng xem. Qua nửa thời gian của trận mà team còn chìa khóa chưa có gợi ý thì được phát bù đủ.</li>
-      <li><b>Ngôi sao hy vọng:</b> mỗi team dùng <b>1 lần cả trận</b>. Bật trước khi xem câu hỏi; câu kế tiếp đúng thì điểm <b>nhân đôi</b>, sai hoặc hết giờ thì <b>bị trừ</b> điểm gốc của câu đó. Phòng nhiều câu mỗi tỉnh: ngôi sao áp cho cả tỉnh, đúng đủ số câu thì nhân đôi, sai một câu thì bị trừ một lần và mất sao. Bỏ qua câu có ngôi sao cũng tính là sai. Chỉ dùng được ở <b>trạm tỉnh</b>, không dùng ở bản đồ đặc biệt.</li>
-      <li><b>Chặng cuối:</b> gom đủ chìa khóa thì mở <b>bản đồ đặc biệt</b> về một thời kỳ lịch sử mà team được chọn ngẫu nhiên và giữ kín tới lúc này. Ngay lúc mở, team được cộng điểm của <b>mọi tỉnh chưa đặt chân tới</b>; tỉnh đã ghé mà không có điểm (sai, hết giờ, bỏ qua) thì không được cộng. Sau đó trả lời <b>3 câu</b> về thời kỳ ấy, mỗi câu 500 điểm (10 giây, 5 giây đầu đủ điểm). Sai, hết giờ hoặc bỏ qua: nghỉ chân 10 giây rồi nhận câu khác.</li>
-      <li><b>Ghép mảnh:</b> đúng đủ 3 câu thì tới câu đố cuối. Các mảnh nhặt được hiện lộn xộn, bấm lần lượt từng mảnh để xếp thành một câu về thời kỳ đó, rồi bấm Chốt. Sai thì nghỉ chân 10 giây và xếp lại, không giới hạn lần. Đúng thì được <b>+1.000</b>, cộng <b>thưởng về đích: số phút còn lại x 30</b>, và team <b>về đích</b>.</li>
-      <li><b>Kết thúc:</b> trận dừng khi hết giờ hoặc mọi team đã về đích. Team đã về đích luôn xếp trên team chưa về đích (chỉ team về đích lên bục vinh danh); trong mỗi nhóm xếp theo tổng điểm, bằng điểm thì team về đích trước xếp trên. Team về trước không làm trận dừng — các team khác chơi tiếp tới khi về đích hoặc hết giờ. Cột Thời gian ở bảng tổng kết: từ lúc bắt đầu tới khi về đích (chưa về: tới khi hết trận), không tính lúc tạm dừng. Phòng Chạy trạm dài ít nhất 30 phút.</li>
-    </ul>
-    <p><b>Ví dụ:</b> một team trả lời đúng 8 tỉnh, được <b>1.100</b> điểm. Trong đó có tỉnh 200 điểm bật ngôi sao, trả lời đúng và nhanh nên được <b>400</b> (đã tính trong 1.100). Gom đủ chìa khóa, mở bản đồ đặc biệt: các tỉnh chưa đi cộng thêm <b>3.000</b>. Ba câu về thời kỳ, đúng cả và nhanh: 3 x 500 = <b>1.500</b>. Ghép mảnh đúng khi trận còn 12 phút: <b>1.000</b> cộng 12 x 30 = <b>360</b>.</p>
-    <p class="formula"><b>1.100</b> <span>+</span> <b>3.000</b> <span>+</span> <b>1.500</b> <span>+</span> <b>1.000</b> <span>+</span> <b>360</b> <span>=</span> <b>6.960</b> điểm</p>
-    <p class="muted">Vào phòng, bầu chọn đáp án và cách chơi trong team giống phòng Theo team.</p>
+    <p>Chủ phòng chọn <b>Chạy trạm</b> lúc tạo phòng. Không ai giành tỉnh của ai: mỗi team đi trên bản đồ <b>riêng</b>, lần theo <b>câu đố gợi ý</b> để tìm các <b>chìa khóa</b> giấu trong tỉnh, gom đủ thì mở <b>bản đồ đặc biệt</b> về một thời kỳ lịch sử, ghép mảnh để <b>về đích</b>. Về đích sớm được thưởng nhiều.</p>
+    <p>Kiểu phòng này có luật riêng (không thẻ bài, cược, thử tài; sai không bị trừ điểm…), xem trang luật riêng có minh họa từng bước.</p>
+    <p><a class="btn green" href="/rules/chay-tram">Xem luật Chạy trạm</a></p>
   </div>
   <div class="stage" data-scene="tram" aria-hidden="true"></div>
 </section>

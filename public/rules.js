@@ -4,6 +4,7 @@
 
 import { icon, fillIcons } from '/shared/icons.js'
 import { mascotIcon } from '/shared/mascots.js'
+import { music } from '/shared/music.js'
 
 const NS = 'http://www.w3.org/2000/svg'
 const ME = { mascot: 'Lân', color: '#E67E22' } // team ví dụ
@@ -212,6 +213,57 @@ const SCENES = {
     st.append(h('div', 'r-total', h('span', 'muted', 'Tổng'), h('b', 'score-pts')))
   },
 
+  // ---------- Trang luật Chạy trạm (rules-tram.html) ----------
+  // Hành trình 4 chặng sáng lần lượt
+  tgoal(st) {
+    const steps = [['question', 'Trạm tỉnh'], ['key', 'Chìa khóa'], ['trong-dong', 'Thời kỳ'], ['finish', 'Về đích']]
+    st.append(h('div', 'r-path', ...steps.map(([n, t], i) => h('span', `r-step s${i + 1}`, h('span', 'dot', ic(n, 30)), t))))
+    st.append(h('span', 'r-cap', 'Hành trình của mỗi team'))
+  },
+
+  // Nón lá nhảy tới tỉnh giấu chìa khóa → nhặt chìa khóa, lộ một mảnh (cố ý không giải thích sổ gợi ý — người chơi tự khám phá)
+  tkey(st) {
+    const tiles = [
+      { id: 'a', x: 70, y: 60, cls: 'fog', label: '?' }, { id: 'b', x: 130, y: 95, cls: 'mine' }, { id: 'c', x: 70, y: 130, cls: 'near' },
+      { id: 'd', x: 190, y: 60, cls: 'near' }, { id: 'e', x: 190, y: 130, cls: 'near' }, { id: 'f', x: 250, y: 95, cls: 'fog', label: '?' },
+    ]
+    const m = miniMap(tiles)
+    m.tile('d').classList.add('target')
+    st.append(m.svg)
+    st.append(pin(h('span', 'r-hop', hat()), 130, 78))
+    st.append(pin(h('span', 'r-keypop', ic('key', 28), 'Mảnh 2/5'), 190, 24))
+    st.append(h('span', 'r-cap', 'Chìa khóa giấu kín, không hiện trên bản đồ'))
+  },
+
+  // Ngôi sao: đúng ×2, sai bị trừ điểm gốc
+  tstar(st) {
+    const res = (cls, title, pts, note) => h('div', `r-sres ${cls}`, h('span', '', title), h('b', '', pts), h('small', 'muted', note))
+    st.append(h('div', 'r-star',
+      h('span', 'big', ic('star-hope', 28), 'Ngôi sao hy vọng · 1 lần'),
+      res('good', 'Đúng đủ câu', '+400', 'tỉnh 200 điểm × 2'),
+      res('bad', 'Sai · hết giờ · bỏ qua', '−200', 'trừ điểm gốc, mất sao')))
+  },
+
+  // Mở thời kỳ bí mật → cộng điểm tỉnh chưa đi → 3 câu 500 điểm
+  tspecial(st) {
+    st.append(h('div', 'r-period', ic('trong-dong', 64), h('b', '', 'Bản đồ đặc biệt')))
+    st.append(h('div', 'r-free', h('b', '', '+3.000'), h('small', 'muted', 'các tỉnh chưa đặt chân tới')))
+    st.append(h('div', 'r-q3', ...[1, 2, 3].map(i => h('span', `q${i}`, `Câu ${i}`, h('b', '', '+500')))))
+  },
+
+  // Điểm ví dụ cộng dồn 6.960
+  tscore(st) {
+    const parts = [['Tỉnh', 1100, 'p1'], ['Chưa đi', 3000, 'p2'], ['Thời kỳ', 1500, 'p3'], ['Ghép', 1000, 'p4'], ['Về đích', 360, 'p5']]
+    st.append(h('p', 'r-ex', 'Ví dụ: về đích khi còn 12 phút'))
+    st.append(h('div', 'r-stack', ...parts.map(([t, v, c]) => {
+      const seg = h('span', `seg ${c}`, h('b', '', `+${v.toLocaleString('vi-VN')}`), h('small', '', t))
+      seg.style.flexGrow = String(v)
+      seg.style.minWidth = '46px'
+      return seg
+    })))
+    st.append(h('div', 'r-total', h('span', 'muted', 'Tổng'), h('b', 'tscore-pts')))
+  },
+
   // 11. Phím tắt
   tips(st) {
     const key = (t, cls) => h('kbd', cls, t)
@@ -241,3 +293,16 @@ const spy = new IntersectionObserver(entries => {
   }
 }, { rootMargin: '-40% 0px -55% 0px' })
 document.querySelectorAll('.rule').forEach(r => spy.observe(r))
+
+// Nhạc nền như trang chủ (cùng khóa lưu: bật / tắt ở trang nào cũng nhớ chung); phát từ cú chạm đầu tiên
+music.setup('vnj-music', true)
+music.mode('calm')
+const musicBtn = document.getElementById('musicBtn')
+function renderMusic() {
+  musicBtn.replaceChildren(icon(music.on ? 'music-on' : 'music-off'))
+  musicBtn.title = music.on ? 'Tắt nhạc nền' : 'Bật nhạc nền'
+  musicBtn.setAttribute('aria-label', musicBtn.title)
+  musicBtn.setAttribute('aria-pressed', String(music.on))
+}
+musicBtn.addEventListener('click', () => { music.setOn(!music.on); renderMusic() })
+renderMusic()

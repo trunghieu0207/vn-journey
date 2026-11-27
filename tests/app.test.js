@@ -87,6 +87,9 @@ test('file tĩnh: chỉ phục vụ danh sách cho phép — không lộ câu h�
     assert.equal(r.status, 404, path)
   }
   assert.equal((await s.call('/data/map-geo.json')).status, 200)
+  const tram = await s.call('/rules/chay-tram')
+  assert.equal(tram.status, 200)
+  assert.match(tram.text, /<h1>Luật Chạy trạm<\/h1>/)
 })
 
 test('file tĩnh: nén br / gzip, ETag → lần sau 304 không kèm nội dung', async t => {

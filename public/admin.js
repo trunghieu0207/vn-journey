@@ -12,6 +12,7 @@ import { enhanceSelects } from '/shared/select.js'
 import { eventLabel, eventSign, timedEvent } from '/shared/events.js'
 import { sharedPanel, sharedTick } from '/shared/shared-q.js'
 import { cultureView } from '/shared/culture.js'
+import { music } from '/shared/music.js'
 
 const clock = serverClock()
 const now = () => clock.now()
@@ -203,6 +204,8 @@ function render() {
   const v = view
   $('roomName').textContent = v.room.name
   $('statusText').textContent = STATUS_TEXT[v.status]
+  $('rulesLink').href = v.room.mode === 'tram' ? '/rules/chay-tram' : '/rules'
+  music.mode({ waiting: 'calm', ended: 'finale' }[v.status] ?? 'play')
   $('roomCode').textContent = v.room.code
   $('screenCode').textContent = v.screenCode
   $('inviteLink').textContent = `${location.origin}/?room=${v.room.code}`
@@ -589,4 +592,15 @@ const invited = new URLSearchParams(location.search).get('room')
 const fromSys = new URLSearchParams(location.search).get('from') === 'quan-tri'
 if (location.search) history.replaceState(null, '', location.pathname)
 if (invited) $('code').value = invited.toUpperCase()
+// Nhạc nền như trang chủ / màn team (cùng khóa lưu); phát từ cú chạm đầu tiên
+music.setup('vnj-music', true)
+function renderMusic() {
+  $('musicBtn').replaceChildren(icon(music.on ? 'music-on' : 'music-off'))
+  $('musicBtn').title = music.on ? 'Tắt nhạc nền' : 'Bật nhạc nền'
+  $('musicBtn').setAttribute('aria-label', $('musicBtn').title)
+  $('musicBtn').setAttribute('aria-pressed', String(music.on))
+}
+$('musicBtn').addEventListener('click', () => { music.setOn(!music.on); renderMusic() })
+renderMusic()
+
 enter().catch(err => showEntry(err.status === 401 || err.status === 403 ? '' : err.message))
