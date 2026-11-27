@@ -90,6 +90,8 @@ test('file tĩnh: chỉ phục vụ danh sách cho phép — không lộ câu h�
   const tram = await s.call('/rules/chay-tram')
   assert.equal(tram.status, 200)
   assert.match(tram.text, /<h1>Luật Chạy trạm<\/h1>/)
+  assert.match(tram.text, /<body class="rules-page deck">/) // dạng trình chiếu
+  assert.match(tram.text, /class="deck-bar"/)
 })
 
 test('file tĩnh: nén br / gzip, ETag → lần sau 304 không kèm nội dung', async t => {

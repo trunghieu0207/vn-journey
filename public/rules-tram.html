@@ -11,7 +11,7 @@
 <link rel="stylesheet" href="/css/rules.css">
 <script type="module" src="/rules.js"></script>
 </head>
-<body class="rules-page">
+<body class="rules-page deck">
 <!-- Bộ lọc vẽ tay (css/hand.css) -->
 <svg class="hand-defs" width="0" height="0" aria-hidden="true" focusable="false">
   <filter color-interpolation-filters="sRGB" id="hand-wob-s" x="-20%" y="-60%" width="140%" height="220%"><feTurbulence type="fractalNoise" baseFrequency="0.05" numOctaves="1" seed="5" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="2.2" xChannelSelector="R" yChannelSelector="G"/></filter>
@@ -22,7 +22,7 @@
 <header class="rules-top">
   <div class="rules-title">
     <span data-icon="key"></span>
-    <div><h1>Luật Chạy trạm</h1><p class="muted">Hành trình 3 miền · đọc trong 1 phút</p></div>
+    <div><h1>Luật Chạy trạm</h1><p class="muted">Hành trình 3 miền · trình chiếu</p></div>
     <button class="btn music-btn" type="button" id="musicBtn"></button>
     <a class="btn green" href="/">Vào chơi</a>
   </div>
@@ -38,6 +38,13 @@
 </header>
 
 <main class="rules">
+
+<section class="rule card deck-cover" id="bia">
+  <span data-icon="key"></span>
+  <h2>Luật Chạy trạm</h2>
+  <p class="muted">Hành trình 3 miền · 6 điều cần biết</p>
+  <p class="cover-hint">Nhấn <kbd>→</kbd> hoặc vuốt sang để bắt đầu</p>
+</section>
 
 <section class="rule card" id="muc-tieu">
   <div class="rule-text">
@@ -62,7 +69,7 @@
       <li>Sai hoặc hết giờ <b>không bị trừ điểm</b>, nghỉ chân 10 giây rồi trả lời lại hoặc đi tiếp.</li>
     </ul>
   </div>
-  <div class="stage" data-scene="question" aria-hidden="true"></div>
+  <div class="stage" data-scene="tquestion" aria-hidden="true"></div>
 </section>
 
 <section class="rule card" id="chia-khoa">
@@ -114,6 +121,13 @@
 </section>
 
 </main>
+
+<nav class="deck-bar" aria-label="Chuyển trang">
+  <button class="btn deck-prev" type="button" aria-label="Trang trước"></button>
+  <span class="deck-count" aria-live="polite"></span>
+  <button class="btn deck-next" type="button" aria-label="Trang sau"></button>
+  <button class="btn deck-full" type="button" aria-label="Toàn màn hình" title="Toàn màn hình (F)"></button>
+</nav>
 <script type="module" src="/shared/notice.js"></script>
 </body>
 </html>

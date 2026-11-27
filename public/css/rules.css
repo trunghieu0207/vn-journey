@@ -127,7 +127,7 @@ kbd { display: inline-grid; place-items: center; min-width: 26px; height: 26px; 
 .r-opt { position: relative; display: flex; align-items: center; gap: 8px; min-height: 40px; padding: 4px 10px; border-radius: 12px; box-shadow: 0 0 0 2px var(--line), 0 4px 0 2px var(--line); font-size: 14px; font-weight: 800; }
 .r-opt i { display: inline-grid; place-items: center; width: 20px; height: 20px; border-radius: 6px; box-shadow: 0 0 0 2px var(--line); font-size: 11px; font-style: normal; color: var(--muted); }
 .r-opt.right { background: #DDF4FF; box-shadow: 0 0 0 2px var(--blue), 0 4px 0 2px var(--blue-dark); animation: picked 9s infinite; }
-@keyframes picked { 0%, 18% { background: #fff; box-shadow: 0 0 0 2px var(--line), 0 4px 0 2px var(--line); } 20%, 48% { background: #DDF4FF; box-shadow: 0 0 0 2px var(--blue), 0 4px 0 2px var(--blue-dark); } 50%, 96% { background: var(--green); color: #fff; box-shadow: 0 0 0 2px var(--green-dark), 0 4px 0 2px var(--green-dark); } }
+@keyframes picked { 0%, 18% { background: #fff; color: var(--ink); box-shadow: 0 0 0 2px var(--line), 0 4px 0 2px var(--line); } 20%, 48% { background: #DDF4FF; color: var(--ink); box-shadow: 0 0 0 2px var(--blue), 0 4px 0 2px var(--blue-dark); } 50%, 96% { background: var(--green); color: #fff; box-shadow: 0 0 0 2px var(--green-dark), 0 4px 0 2px var(--green-dark); } }
 .r-voters { position: absolute; right: 6px; top: -12px; display: flex; gap: 3px; }
 .r-voters .v { padding: 0 6px; border-radius: 7px; background: #FFF6D1; box-shadow: 0 0 0 1.5px var(--accent-dark); color: #9A5B00; font-size: 11px; font-weight: 900; opacity: 0; animation: voter 9s infinite; }
 .v1 { animation-delay: 0s; } .v2 { animation-delay: 1.2s !important; } .v3 { animation-delay: 2.3s !important; }
@@ -348,3 +348,41 @@ kbd { display: inline-grid; place-items: center; min-width: 26px; height: 26px; 
 
 /* Mục Chạy trạm: ba biểu tượng xếp hàng giữa khung */
 .r-tram { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; gap: 28px; }
+
+/* ---------- Trình chiếu (rules-tram.html): mỗi mục một trang vừa màn hình, thanh chuyển trang dưới đáy ---------- */
+.deck { display: grid; grid-template-rows: auto 1fr auto; grid-template-columns: minmax(0, 1fr); height: 100vh; height: 100dvh; overflow: hidden; }
+.deck .rules-top { position: static; }
+.deck .rules { display: flex; flex-direction: column; width: 100%; max-width: none; padding: 16px 20px; overflow-y: auto; }
+.deck .rule { display: none; flex: none; width: 100%; max-width: 1180px; margin: auto; } /* margin auto: giữa màn hình, dài quá thì cuộn từ đầu */
+.deck .rule.cur { display: grid; animation: deck-in .35s ease-out; }
+.deck .rules.back .rule.cur { animation-name: deck-back; }
+@keyframes deck-in { from { opacity: 0; translate: 48px 0; } }
+@keyframes deck-back { from { opacity: 0; translate: -48px 0; } }
+.deck .deck-cover { grid-template-columns: 1fr; justify-items: center; gap: 10px; padding: 48px 26px; text-align: center; }
+.deck .deck-cover > .icon { width: 96px; height: 96px; }
+.deck .deck-cover h2 { color: var(--green); font-size: 44px; }
+.deck .deck-cover p { margin: 0; font-size: 20px; }
+.cover-hint { margin-top: 18px !important; color: var(--muted); font-weight: 800; }
+.deck-bar { display: flex; align-items: center; justify-content: center; gap: 12px; padding: 8px 16px calc(10px + env(safe-area-inset-bottom, 0px)); }
+.deck-bar .btn { width: 52px; padding: 0; justify-content: center; }
+.deck-prev .icon { rotate: 90deg; }
+.deck-next .icon { rotate: -90deg; }
+.deck-full { position: absolute; right: 16px; }
+.deck-count { min-width: 64px; font-weight: 900; font-variant-numeric: tabular-nums; text-align: center; }
+@media (min-width: 900px) {
+  .deck .rule:not(.deck-cover) { grid-template-columns: minmax(0, 1fr) minmax(0, 620px); gap: 40px; padding: 36px 44px; }
+  .deck .rule h2 { margin-bottom: 14px; font-size: 36px; }
+  .deck .rule .num { width: 44px; height: 44px; font-size: 22px; }
+  .deck .rule:not(.deck-cover) p, .deck .rule li { font-size: 22px; }
+  .deck .rule li { margin: 12px 0; }
+  .deck .stage { zoom: 1.3; } /* hoạt cảnh dựng theo khung ~470px — phóng to nguyên khối */
+  .deck .deck-cover h2 { font-size: 64px; }
+  .deck .deck-cover p { font-size: 26px; }
+}
+@media (max-width: 899px) { .deck .rule { grid-template-columns: minmax(0, 1fr); } }
+@media (max-width: 699px) {
+  .deck .rules { padding: 10px 12px; }
+  .deck .deck-cover h2 { font-size: 34px; }
+  .deck-full { display: none; }
+}
+@media (prefers-reduced-motion: reduce) { .deck .rule.cur { animation: none; } }

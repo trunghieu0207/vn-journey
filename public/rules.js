@@ -123,7 +123,7 @@ const SCENES = {
   },
 
   // 4. Câu hỏi: đồng hồ 30 giây (15 giây đầu đủ điểm), đồng đội bỏ phiếu → tự chốt
-  question(st) {
+  question(st, voters = ['An', 'Bình', 'Chi'], stamp = 'Cả team chọn — tự chốt!') {
     const opts = ['Lòng lợn', 'Chả quế', 'Nước mắm ớt', 'Thịt luộc']
     const card = h('div', 'r-q',
       h('div', 'r-q-head', h('b', '', 'Trạm: Nghệ An · 100 điểm'), h('span', 'r-pts')),
@@ -131,8 +131,8 @@ const SCENES = {
       h('p', 'r-q-text', 'Bánh mướt Nghệ An thường ăn kèm gì?'),
       h('div', 'r-opts', ...opts.map((t, i) => h('span', `r-opt${i === 1 ? ' right' : ''}`, h('i', '', String(i + 1)), t))))
     const opt = card.querySelectorAll('.r-opt')[1]
-    opt.append(h('span', 'r-voters', h('span', 'v v1', 'An'), h('span', 'v v2', 'Bình'), h('span', 'v v3', 'Chi')))
-    card.append(h('span', 'r-stamp', 'Cả team chọn — tự chốt!'))
+    opt.append(h('span', 'r-voters', ...voters.map((n, i) => h('span', `v v${i + 1}`, n))))
+    card.append(h('span', 'r-stamp', stamp))
     st.append(card)
   },
 
@@ -214,6 +214,11 @@ const SCENES = {
   },
 
   // ---------- Trang luật Chạy trạm (rules-tram.html) ----------
+  // Trạm tỉnh: một người chọn là chốt luôn (không chờ cả team như chế độ khác)
+  tquestion(st) {
+    SCENES.question(st, ['An'], 'An chọn — chốt luôn!')
+  },
+
   // Hành trình 4 chặng sáng lần lượt
   tgoal(st) {
     const steps = [['question', 'Trạm tỉnh'], ['key', 'Chìa khóa'], ['trong-dong', 'Thời kỳ'], ['finish', 'Về đích']]
@@ -274,25 +279,95 @@ const SCENES = {
 
 // ---------- Dựng + chạy khi nhìn thấy ----------
 fillIcons()
-const io = new IntersectionObserver(entries => {
-  for (const e of entries) e.target.classList.toggle('on', e.isIntersecting)
-}, { threshold: 0.35 })
-for (const st of document.querySelectorAll('.stage[data-scene]')) {
-  SCENES[st.dataset.scene]?.(st)
-  io.observe(st)
-}
-// Mục lục: tô mục đang đọc
-const links = new Map([...document.querySelectorAll('.rules-nav a')].map(a => [a.hash.slice(1), a]))
-const spy = new IntersectionObserver(entries => {
-  for (const e of entries) {
-    if (!e.isIntersecting) continue
-    links.forEach((a, id) => a.classList.toggle('on', id === e.target.id))
-    // mục đang đọc cuộn vào giữa dải mục lục (điện thoại: dải bị cắt, cuộn ngang)
-    const a = links.get(e.target.id), nav = a?.parentElement
-    if (a && nav.scrollWidth > nav.clientWidth) nav.scrollTo({ left: a.offsetLeft - (nav.clientWidth - a.offsetWidth) / 2, behavior: 'smooth' })
+const links = new Map([...document.querySelectorAll('.rules-nav a')].filter(a => a.hash).map(a => [a.hash.slice(1), a]))
+if (document.body.classList.contains('deck')) deck()
+else scroll()
+
+function scroll() {
+  const io = new IntersectionObserver(entries => {
+    for (const e of entries) e.target.classList.toggle('on', e.isIntersecting)
+  }, { threshold: 0.35 })
+  for (const st of document.querySelectorAll('.stage[data-scene]')) {
+    SCENES[st.dataset.scene]?.(st)
+    io.observe(st)
   }
-}, { rootMargin: '-40% 0px -55% 0px' })
-document.querySelectorAll('.rule').forEach(r => spy.observe(r))
+  // Mục lục: tô mục đang đọc
+  const spy = new IntersectionObserver(entries => {
+    for (const e of entries) {
+      if (!e.isIntersecting) continue
+      links.forEach((a, id) => a.classList.toggle('on', id === e.target.id))
+      // mục đang đọc cuộn vào giữa dải mục lục (điện thoại: dải bị cắt, cuộn ngang)
+      const a = links.get(e.target.id), nav = a?.parentElement
+      if (a && nav.scrollWidth > nav.clientWidth) nav.scrollTo({ left: a.offsetLeft - (nav.clientWidth - a.offsetWidth) / 2, behavior: 'smooth' })
+    }
+  }, { rootMargin: '-40% 0px -55% 0px' })
+  document.querySelectorAll('.rule').forEach(r => spy.observe(r))
+}
+
+// Trình chiếu (rules-tram.html): mỗi mục một trang, chuyển bằng phím mũi tên / Space, vuốt, nút dưới đáy, mục lục;
+// địa chỉ #mục giữ trang đang xem (tải lại / gửi link không về trang đầu). Vào trang nào thì dựng lại hoạt cảnh để chạy từ đầu.
+function deck() {
+  const slides = [...document.querySelectorAll('.rule')]
+  const bar = document.querySelector('.deck-bar')
+  const [prev, next, full] = ['.deck-prev', '.deck-next', '.deck-full'].map(q => bar.querySelector(q))
+  prev.append(ic('chevron'))
+  next.append(ic('chevron'))
+  full.append(ic('screen'))
+  if (!document.fullscreenEnabled) full.hidden = true // iPhone Safari không có toàn màn hình
+  const main = document.querySelector('main')
+  let cur = -1
+
+  function show(i) {
+    i = Math.max(0, Math.min(slides.length - 1, i))
+    if (i === cur) return
+    main.classList.toggle('back', i < cur) // lùi trang: trượt vào từ bên trái
+    cur = i
+    slides.forEach((r, j) => {
+      r.classList.toggle('cur', j === i)
+      const st = r.querySelector('.stage[data-scene]')
+      if (!st) return
+      st.classList.toggle('on', j === i)
+      if (j === i) { st.replaceChildren(); SCENES[st.dataset.scene]?.(st) }
+    })
+    main.scrollTop = 0
+    prev.disabled = i === 0
+    next.disabled = i === slides.length - 1
+    bar.querySelector('.deck-count').textContent = `${i + 1} / ${slides.length}`
+    const id = slides[i].id
+    links.forEach((a, k) => a.classList.toggle('on', k === id))
+    const a = links.get(id), nav = a?.parentElement
+    if (a && nav.scrollWidth > nav.clientWidth) nav.scrollTo({ left: a.offsetLeft - (nav.clientWidth - a.offsetWidth) / 2, behavior: 'smooth' })
+    if (location.hash.slice(1) !== id) history.replaceState(null, '', i ? `#${id}` : location.pathname)
+  }
+  const go = d => show(cur + d)
+  const byHash = () => show(Math.max(0, slides.findIndex(r => r.id === location.hash.slice(1))))
+
+  prev.addEventListener('click', () => go(-1))
+  next.addEventListener('click', () => go(1))
+  full.addEventListener('click', () => (document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen()).catch(() => {}))
+  addEventListener('hashchange', byHash)
+  addEventListener('keydown', e => {
+    if (e.altKey || e.ctrlKey || e.metaKey || e.target.closest('input, textarea')) return
+    const k = e.key
+    if (['ArrowRight', 'ArrowDown', 'PageDown', ' '].includes(k)) go(1)
+    else if (['ArrowLeft', 'ArrowUp', 'PageUp', 'Backspace'].includes(k)) go(-1)
+    else if (k === 'Home') show(0)
+    else if (k === 'End') show(slides.length - 1)
+    else if (k === 'f' || k === 'F') return full.hidden || full.click()
+    else return
+    e.preventDefault()
+  })
+  // Vuốt ngang (điện thoại); vuốt dọc để cuộn trang dài
+  let x0 = null, y0 = 0
+  main.addEventListener('touchstart', e => { [x0, y0] = [e.touches[0].clientX, e.touches[0].clientY] }, { passive: true })
+  main.addEventListener('touchend', e => {
+    if (x0 === null) return
+    const dx = e.changedTouches[0].clientX - x0, dy = e.changedTouches[0].clientY - y0
+    x0 = null
+    if (Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy) * 1.5) go(dx < 0 ? 1 : -1)
+  })
+  byHash()
+}
 
 // Nhạc nền như trang chủ (cùng khóa lưu: bật / tắt ở trang nào cũng nhớ chung); phát từ cú chạm đầu tiên
 music.setup('vnj-music', true)
