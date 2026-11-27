@@ -67,11 +67,20 @@ export function createOwner(ctx) {
       }
       return arr
     }
-    // Mỗi team một bản đồ riêng (Chạy trạm, Team gọn tắt Đấu): không tranh tỉnh nên không cần rải 3 miền / tránh tỉnh kề —
-    // mỗi team một tỉnh ngẫu nhiên trong mọi tỉnh không phải thành phố trực thuộc TW, không trùng nhau (tối đa 8 team ≤ 25 tỉnh)
+    // Mỗi team một bản đồ riêng (Chạy trạm, Team gọn tắt Đấu): không tranh tỉnh nên không cần tránh tỉnh kề —
+    // mỗi team một tỉnh ngẫu nhiên trong mọi tỉnh không phải thành phố trực thuộc TW, không trùng nhau (tối đa 8 team ≤ 25 tỉnh).
+    // Mỗi miền nhận tối đa ⌈số team × tỉ lệ tỉnh của miền⌉ team (27/11: bốc thuần có lúc 3/5 team ở miền Nam — Nam chỉ 5/25 tỉnh;
+    // không chia đều 3 miền như phòng team vì vậy lại dồn quá nhiều team vào 5 tỉnh miền Nam, đã bỏ 20/11)
     if (usesStamps()) {
       const ids = shuffle([...provinces.values()].filter(p => !p.is_city).map(p => p.id))
-      return teams.map((t, i) => [t.id, ids[i % ids.length]])
+      const cap = Object.fromEntries(REGIONS.map(r => [r, Math.ceil(teams.length * ids.filter(id => provinces.get(id).region === r).length / ids.length)]))
+      const picked = []
+      for (const id of ids) {
+        if (picked.length === teams.length) break
+        const r = provinces.get(id).region
+        if (cap[r] > 0) { cap[r]--; picked.push(id) }
+      }
+      return teams.map((t, i) => [t.id, picked[i]])
     }
     const regions = shuffle([...REGIONS])
     const pool = Object.fromEntries(REGIONS.map(r => [r,

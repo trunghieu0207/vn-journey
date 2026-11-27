@@ -980,7 +980,7 @@ test('tram: team không có người chơi không chặn tự kết thúc khi m�
   assert.equal(g.game.state().status, 'ended')
 })
 
-test('tỉnh xuất phát Chạy trạm / Team gọn tắt Đấu: ngẫu nhiên khắp nước, không thành phố TW, các team không trùng nhau', () => {
+test('tỉnh xuất phát Chạy trạm / Team gọn tắt Đấu: ngẫu nhiên khắp nước, không thành phố TW, không trùng; mỗi miền tối đa theo tỉ lệ số tỉnh', () => {
   const db = memoryDb()
   const core = createCore(db)
   const cities = new Set(db.prepare('SELECT id FROM provinces WHERE is_city = 1').all().map(r => r.id))
@@ -998,12 +998,31 @@ test('tỉnh xuất phát Chạy trạm / Team gọn tắt Đấu: ngẫu nhiên
         seen.add(p)
         if (south.has(p)) southStarts++
       }
+      // 8 team, miền Nam 5/25 tỉnh → tối đa ⌈8 × 5/25⌉ = 2 team
+      assert.ok(starts.filter(p => south.has(p)).length <= 2, `${mode}: quá nhiều team ở miền Nam: ${starts}`)
       core.room(roomId).end() // giới hạn số phòng đang mở
     }
     assert.ok(seen.size >= 20, `${mode}: rải khắp nước (mới gặp ${seen.size} tỉnh)`)
     // không còn ép 1/3 team về miền Nam (5/25 tỉnh ≈ 20%): 240 lượt xuất phát, miền Nam phải dưới 30%
     assert.ok(southStarts < 240 * 0.3, `${mode}: miền Nam ${southStarts}/240`)
   }
+})
+
+test('tỉnh xuất phát 5 team (Chạy trạm): miền Nam tối đa 1 team, Bắc tối đa 3, Trung tối đa 2', () => {
+  const db = memoryDb()
+  const core = createCore(db)
+  const region = new Map(db.prepare('SELECT id, region FROM provinces').all().map(r => [r.id, r.region]))
+  const tally = { north: 0, central: 0, south: 0 }
+  for (let i = 0; i < 40; i++) {
+    const { roomId } = core.createRoom({ name: `Năm team ${i}`, teamCount: 5, mode: 'tram', durationMin: 30 })
+    core.room(roomId).start()
+    const n = { north: 0, central: 0, south: 0 }
+    for (const { p } of db.prepare('SELECT current_province AS p FROM teams WHERE room_id = ?').all(roomId)) n[region.get(p)]++
+    assert.ok(n.south <= 1 && n.north <= 3 && n.central <= 2, JSON.stringify(n))
+    for (const r in n) tally[r] += n[r]
+    core.room(roomId).end()
+  }
+  assert.ok(tally.south > 0, 'miền Nam vẫn có team xuất phát')
 })
 
 test('tram: Thời gian ở bảng tổng kết = thời gian chơi tới lúc về đích / kết thúc trận, không tính lúc tạm dừng', () => {
