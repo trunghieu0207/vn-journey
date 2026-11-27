@@ -223,7 +223,7 @@ test('realtime: chủ phòng mở màn chiếu nhận dữ liệu màn chiếu; 
   asOwner.cancel()
 })
 
-test('tổng kết: người chơi chỉ xem được diễn biến toàn trận sau khi kết thúc', async t => {
+test('tổng kết: người chơi chỉ xem được diễn biến toàn trận sau khi kết thúc; bỏ team không có người chơi', async t => {
   const s = await startServer(); t.after(s.close)
   const room = await withRoom(s)
   await s.post('/api/join', { code: room.code, name: 'An', teamId: room.teams[0].id }, 'an')
@@ -232,7 +232,10 @@ test('tổng kết: người chơi chỉ xem được diễn biến toàn trận
   await s.post('/api/owner/game', { action: 'end' }, 'owner')
   const r = await s.call('/api/replay', { as: 'an' })
   assert.equal(r.status, 200)
-  assert.equal(r.json.scores.length, 3)
+  // 3 team nhưng chỉ team của An có người chơi → tổng kết chỉ có team đó (team trống không lên bảng, không có trong nhật ký)
+  assert.deepEqual(r.json.scores.map(x => x.teamId), [room.teams[0].id])
+  assert.deepEqual(r.json.teams.map(x => x.id), [room.teams[0].id])
+  assert.ok(r.json.events.every(e => e.team_id == null || e.team_id === room.teams[0].id))
   assert.ok(!r.text.includes(room.screenCode) && !r.text.includes('"answer"'))
 })
 

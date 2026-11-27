@@ -363,17 +363,20 @@ export function createViews(ctx) {
     }
   }
 
-  // Tua lại cả trận — chỉ mở sau khi kết thúc
+  // Tua lại cả trận — chỉ mở sau khi kết thúc.
+  // Tổng kết chỉ gồm team có người chơi (27/11: team trống làm bảng dài, chen lên bục khi ít team về đích)
   function replay() {
     if (state().status !== 'ended') throw new GameError('not-ended', 'Chỉ xem lại được sau khi kết thúc', 409)
+    const played = new Set(q.players.all(roomId).map(p => p.team_id))
     return {
       mode: state().mode,
       stamps: usesStamps(), // tỉnh không thuộc riêng ai → màn chiếu không tua bản đồ
-      teams: q.teams.all(roomId).map(t => ({ id: t.id, name: t.name, color: t.color, mascot: t.mascot })),
+      teams: q.teams.all(roomId).filter(t => played.has(t.id)).map(t => ({ id: t.id, name: t.name, color: t.color, mascot: t.mascot })),
       events: db.prepare(`SELECT team_id, action, province_id, detail, created_at FROM events_log
                           WHERE room_id = ? AND action NOT IN ('home', 'rename') ORDER BY id`).all(roomId) // quê thành viên: chỉ đồng đội biết; sửa tên: chỉ chủ phòng
+        .filter(e => e.team_id == null || played.has(e.team_id))
         .map(e => ({ ...e, detail: json(e.detail) })),
-      scores: scores().sort(byRank),
+      scores: scores().filter(s => played.has(s.teamId)).sort(byRank),
       culture: culture(),
     }
   }

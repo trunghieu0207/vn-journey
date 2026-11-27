@@ -44,8 +44,9 @@ export function resultsView(replay, { myTeamId = null } = {}) {
       : `${solo ? 'Bạn' : mine.name} xếp hạng ${rankOf.get(mine.teamId)}/${scores.length} với ${fmt(mine.total)} điểm`) : '')
 
   // Bục vinh danh: hạng 2 – 1 – 3. Mỗi bậc là mẩu sticker màu team (viền + gờ đáy sẫm hơn tính bằng color-mix trong CSS)
-  // Chạy trạm: chỉ team đã về đích lên bục (server đã xếp team về đích lên trước); chưa team nào về đích thì xếp theo điểm như cũ
-  const onPodium = replay.mode === 'tram' && scores.some(s => s.finishedAt != null) ? scores.filter(s => s.finishedAt != null) : scores
+  // Chạy trạm: server đã xếp team về đích lên trước; bục là top 3 như mọi phòng, team chưa về đích ghi chú dưới điểm
+  // (27/11: trước đây chỉ team về đích lên bục — 1 team về đích thì bục trống trơn, tưởng mất kết quả các team khác)
+  const onPodium = scores
   const podium = el('div', { class: 'podium' }, ...[1, 0, 2].filter(i => onPodium[i]).map(i => {
     const s = onPodium[i]
     const step = el('div', { class: `podium-step p${i + 1}` },
@@ -54,7 +55,8 @@ export function resultsView(replay, { myTeamId = null } = {}) {
     return el('div', { class: s.teamId === myTeamId ? 'podium-col me' : 'podium-col' },
       i === 0 ? el('span', { class: 'podium-crown' }, icon('trophy', { size: 30 })) : '',
       el('span', { class: 'podium-mascot' }, mascotIcon(s.mascot, s.color, i === 0 ? 56 : 46)),
-      el('b', {}, s.name), el('span', { class: 'podium-score' }, fmt(s.total)), step)
+      el('b', {}, s.name), el('span', { class: 'podium-score' }, fmt(s.total)),
+      replay.mode === 'tram' && s.finishedAt == null ? el('small', { class: 'muted not-done' }, 'chưa về đích') : '', step)
   }))
 
   // Hạng 1–3: huy chương nhỏ thay cho số
@@ -65,23 +67,25 @@ export function resultsView(replay, { myTeamId = null } = {}) {
     el('td', { class: 'rank' }, rankCell(i)),
     el('td', {}, el('span', { class: 'who' }, mascotIcon(s.mascot, s.color, 24), s.name)),
     tram ? el('td', { class: 'num' }, `${s.keys ?? 0}/${s.need ?? 0}`, s.finishedAt != null ? ' ✓' : el('small', { class: 'muted not-done' }, 'chưa về đích')) : '',
-    el('td', { class: 'num' }, String(s.provinces)),
-    el('td', { class: 'num' }, fmt(s.base)),
-    el('td', { class: 'num' }, signed(s.bonus)),
-    tram ? '' : el('td', { class: 'num' }, s.collectionBonus ? `+${fmt(s.collectionBonus)}` : '–'),
-    tram ? '' : el('td', { class: 'num' }, s.crossRegion ? `+${fmt(s.crossRegion)}` : '–'),
+    el('td', { class: tram ? 'num minor' : 'num' }, String(s.provinces)),
+    el('td', { class: 'num minor' }, fmt(s.base)),
+    el('td', { class: 'num minor' }, signed(s.bonus)),
+    tram ? '' : el('td', { class: 'num minor' }, s.collectionBonus ? `+${fmt(s.collectionBonus)}` : '–'),
+    tram ? '' : el('td', { class: 'num minor' }, s.crossRegion ? `+${fmt(s.crossRegion)}` : '–'),
     el('td', { class: 'num total' }, fmt(s.total)),
     el('td', { class: 'num' }, fmtTime(tram ? s.playMs : s.answerMs)))
+  // minor: cột phụ — điện thoại ẩn đi cho vừa màn hình (còn #, Team, Key / Tỉnh, Tổng, Thời gian)
+  const minor = c => ({ minor: c })
   const cols = tram
-    ? ['#', 'Team', 'Key', 'Tỉnh', 'Điểm tỉnh', 'Thưởng/phạt', 'Tổng', labeled('timer', 'Thời gian')]
-    : ['#', solo ? 'Lữ khách' : 'Team', solo ? 'Tem' : 'Tỉnh', 'Điểm tỉnh', 'Thưởng/phạt', 'Bộ sưu tập', 'Xuyên 3 miền', 'Tổng', labeled('timer', 'Thời gian')]
+    ? ['#', 'Team', 'Key', minor('Tỉnh'), minor('Điểm tỉnh'), minor('Thưởng/phạt'), 'Tổng', labeled('timer', 'Thời gian')]
+    : ['#', solo ? 'Lữ khách' : 'Team', solo ? 'Tem' : 'Tỉnh', minor('Điểm tỉnh'), minor('Thưởng/phạt'), minor('Bộ sưu tập'), minor('Xuyên 3 miền'), 'Tổng', labeled('timer', 'Thời gian')]
   // Bảng là một tấm sticker (khung không tự cuộn → lớp vẽ tay ::before không bị cắt)
   const table = el('div', { class: 'results-board' }, el('table', { class: 'results-table' },
-    el('thead', {}, el('tr', {}, ...cols.map(t => el('th', {}, t)))),
+    el('thead', {}, el('tr', {}, ...cols.map(t => (t?.minor ? el('th', { class: 'minor' }, t.minor) : el('th', {}, t))))),
     el('tbody', {}, ...scores.map(row))))
 
   return el('div', { class: 'results' }, head, podium, table,
     el('p', { class: 'hint' }, tram
-      ? 'Thưởng/phạt gồm điểm các tỉnh chưa ghé (cộng khi mở map đặc biệt), câu map đặc biệt, câu ghép + thưởng về đích, trừ điểm trả lời chậm và điểm chủ phòng điều chỉnh. Key ✓: đã về đích — team về đích xếp trên team chưa về đích, chỉ team về đích lên bục. Thời gian: từ lúc bắt đầu tới khi về đích (chưa về đích: tới khi kết thúc trận), không tính lúc tạm dừng. Bằng điểm: về đích sớm hơn rồi tổng thời gian trả lời ít hơn xếp trên.'
+      ? 'Thưởng/phạt gồm điểm các tỉnh chưa ghé (cộng khi mở map đặc biệt), câu map đặc biệt, câu ghép + thưởng về đích, trừ điểm trả lời chậm và điểm chủ phòng điều chỉnh. Key ✓: đã về đích — team về đích xếp trên team chưa về đích. Thời gian: từ lúc bắt đầu tới khi về đích (chưa về đích: tới khi kết thúc trận), không tính lúc tạm dừng. Bằng điểm: về đích sớm hơn rồi tổng thời gian trả lời ít hơn xếp trên.'
       : 'Thưởng/phạt gồm thành chủ nhà mới, đón khách, lễ hội, trừ điểm trả lời chậm và điểm chủ phòng điều chỉnh. Bằng điểm: tổng thời gian trả lời ít hơn xếp trên. Bản đồ phía sau đã hiện màu thật của tất cả các team.'))
 }

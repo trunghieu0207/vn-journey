@@ -84,7 +84,7 @@ Lý do: luật hiện tại nhiều (thử tài, cược, thẻ, sự kiện…)
 - Điểm = điểm các tỉnh đã trả lời đúng (sau trừ tốc độ) ± ngôi sao + (nếu đã mở map) điểm tỉnh chưa đi + điểm câu map đặc biệt + (nếu về đích) 1000 + thưởng về đích sớm [CĐA + Claude].
 - Lý do có thưởng về đích sớm: tỉnh chưa đi được cộng đủ điểm khi mở map, nên nếu không có khoản này thì hai team không sai câu nào sẽ gần như bằng điểm dù về đích cách nhau 20 phút.
 - Team chưa mở map lúc hết giờ: chỉ có điểm tỉnh đã trả lời đúng (± ngôi sao) [Claude].
-- **Sửa 20/11 [CĐA]:** team đã về đích luôn xếp trên team chưa về đích (chỉ team về đích lên bục); cột Thời gian ở tổng kết = thời gian chơi tới lúc về đích / hết trận, không tính tạm dừng. Trong mỗi nhóm:
+- **Sửa 20/11 [CĐA]:** team đã về đích luôn xếp trên team chưa về đích (chỉ team về đích lên bục — **sửa 27/11 [CĐA]:** bục là top 3 như mọi phòng, team chưa về đích ghi chú "chưa về đích"; tổng kết bỏ team không có người chơi); cột Thời gian ở tổng kết = thời gian chơi tới lúc về đích / hết trận, không tính tạm dừng. Trong mỗi nhóm:
 - Xếp hạng theo tổng điểm; bằng điểm → về đích trước xếp trên (cột thời điểm về đích; chưa về đích xếp sau); còn bằng → tổng thời gian trả lời ít hơn, tính cả câu map đặc biệt (luật hiện có) [Claude].
 - Thời lượng phòng Chạy trạm tối thiểu **30 phút** [Claude].
 - Lúc tạo phòng Chạy trạm ẩn các tùy chọn không áp dụng (cược, chủ đề, Theo team/Chơi đơn). Sảnh chờ "Bạn có biết?" giữ nguyên. "Chơi lại" xóa sạch key, gợi ý, thời kỳ, mảnh, trạng thái map. Sửa điểm của chủ phòng đi vào điểm thưởng như hiện tại [Claude].
